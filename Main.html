@@ -16,6 +16,7 @@
             margin: 0px;
             font-family: "Sometype Mono", monospace;
             font-weight: 100;
+            
         }
 
         *::-webkit-scrollbar {
@@ -54,7 +55,70 @@
             height: 100dvh;
             display: flex;
             align-items: center;
+            justify-content: center;
             flex-direction: column;
+        }
+
+        .Main > .Start {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Start > button {
+            position: absolute;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 50%;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .Main > .Start > button {
+            position: absolute;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 50%;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: ease 1s;
+        }
+
+        .Main > .Start > button:hover {
+            content: '';
+            width: 55px;
+            height: 55px;
+            background-color: rgba(155, 155, 155, 0.3);
+            border: 5px solid rgba(243, 243, 243, 0.267);
+            border-radius: 50%;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: (cubic-bezier(0,1,0,1));
+            transition: ease 80ms;
+        }
+
+        .Main > .Start > button > img {
+            width: 20px;
         }
 
         .Main > .Menu {
@@ -149,12 +213,10 @@
 
         .Main > .Widgets {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: calc(100% - 20px);
-            height: calc(100% - 20px);
+            width: 100vw;
+            height: 100dvh;
             background-color: rgba(41, 41, 41, 0.1);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(30px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -369,6 +431,9 @@
         <img src="/Images/Wallpaper/d4d8c1bd0247089e0a24a76cab9a53ed.jpg" alt="">
     </div>
     <div class="Main">
+        <div class="Start">
+            <button id="Open_Menu"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
+        </div>
         <div class="Menu" id="Menu">
             <div class="Profile_Img">
                 <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
@@ -448,6 +513,16 @@
         Windows.style.display = "none";
     }
 
+
+//Open_Menu/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Menu = document.getElementById("Open_Menu");
+    var Menu = document.getElementById("Menu");
+    
+    
+    Open_Menu.onclick = function() {
+        Menu.style.display = "flex";
+    }
 
 //Menu_Settings/////////////////////////////////////////////////////////////////////////////
 
