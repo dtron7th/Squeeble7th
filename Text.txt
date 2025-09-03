@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inconsolata:wdth,wght@105.8,200..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Quicksand:wght@300..700&family=Rajdhani:wght@300;400;500;600;700&family=Sometype+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+
+    <!-- Master -->
+    <style> 
+        * {
+            padding: 0px;
+            margin: 0px;
+            font-family: "Sometype Mono", monospace;
+        }
+
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+       
+    </style>
+
+    <!-- Index -->
+    <style>
+        body {
+            background-color: rgb(48, 48, 48);
+            display: flex;
+            justify-content: center;
+        }
+
+        .Wallpaper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgb(34, 39, 39);
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .Wallpaper > img {
+            height: 100%;
+            filter: blur(0px);
+            background-size: cover;
+        }
+
+        .Main {
+            position: absolute;
+            width: 100vw;
+            height: 100dvh;
+            background-color: rgba(207, 207, 207, 0.4);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .Main > .Menu {
+            margin-top: 10px;
+            width: calc(100% - 20px);
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            
+        }
+
+        .Main > .Menu > button {
+            min-width: 70px;
+            height: 20px;
+            flex-grow: 1;
+            flex-basis: 1px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .More_Apps {
+            position: absolute;
+            top: 140px;
+            width: 300px;
+            height: 400px;
+            backdrop-filter: blur(50px);
+            background-color: rgba(175, 175, 175, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1;
+            display: none;
+        }
+
+        .Main > .Menu > .More_Apps > .Top_Buttons {
+            position: absolute;
+            top: 10px;
+            width: calc(100% - 20px);
+            height: auto;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Main > .Menu > .More_Apps > .Top_Buttons > button {
+            width: 100px;
+            height: 20px;
+            background: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(49, 49, 49);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .More_Apps > .Apps {
+            position: absolute;
+            top: 80px;
+            width: calc(100% - 20px);
+            height: 280px;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .Main > .Menu > .More_Apps > .Apps > .Apps_Container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: scroll;
+        }
+
+        .Main > .Menu > .More_Apps > .Apps > .Apps_Container > button {
+            width: 70px;
+            min-height: 70px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(49, 49, 49);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .More_Apps > .Apps > .Discription {
+            position: absolute;
+            right: 0px;
+            width: calc(100% - 80px);
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .Main > .Menu > .More_Apps > .Close {
+            position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px);
+        }
+
+        .Main > .Menu > .More_Apps > .Close > button {
+            width: 100%;
+            height: 20px;
+            background: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(49, 49, 49);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Widgets {
+            margin-top: 10px;
+            width: calc(100% - 20px);
+            height: auto;
+            min-height: 300px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Main > .Widgets > .Widget {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(209, 209, 209, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .Main > .Post {
+            position: relative;
+            margin-top: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 60px);
+        }
+
+        .Main > .Post > .Post_Button {
+            width: 100%;
+            padding-bottom: 10px;
+        }
+
+        .Main > .Post > .Post_Button > button {
+            width: 100%;
+            height: 40px;
+            background: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .Main > .Post > .Content {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            height: calc(100% - 110px) ;
+        }
+
+        .Main > .Post > .Content > .Content_Container {
+            width: auto;
+            max-height: 100%;
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 170px);
+            gap: 10px;
+            overflow-x: scroll;
+            overflow-y: scroll;
+            
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box {
+            position: relative;
+            width: 100%;
+            max-height: 150px;
+            min-height: 150px;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1 1 150px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Profile {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100%;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            gap: 10px;
+            font-size: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Profile > button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            overflow: hidden;
+            border: none;
+            outline: none;
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Profile > button > img {
+            height: 100%;
+            
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Photo_Slide {
+            position: absolute;
+            width: calc(100% - 20px);
+            height: 60px;
+            top: 50px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            overflow-x: scroll;
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Photo_Slide > .Img_Container {
+            width: 100%;
+            height: 100%; 
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Photo_Slide > .Img_Container > .Image {
+            min-width: 80px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .Business_Photo_Slide > .Img_Container > .Image > img {
+            height: 100%; 
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .View_Button {
+            position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            font-size: 10px;
+            color: rgb(255, 255, 255);
+            gap: 10px;
+        }
+
+        .Main > .Post > .Content > .Content_Container > .Post_Box > .View_Button > button {
+            width: 100%;
+            height: 20px;
+            background: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Post > .Post_Search {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            height: 30px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Main > .Post > .Post_Search > button {
+            width: 100%;
+            height: 30px;
+            background: none;
+            border: 1px solid rgb(167, 167, 167);
+            border-radius: 15px;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .View_Post {
+            position: absolute;
+            top: 150px;
+            width: calc(100% - 120px);
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            z-index: 1;
+            display: none;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(80, 80, 80, 0.281);
+            z-index: 2;
+            backdrop-filter: blur(20px);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.418);
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Profile_Img {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .View_Post > .Veiw_Post_Box_Business > .Profile_Img > button {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.336);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Profile_Img > p {
+            font-size: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Profile_Img > button > img {
+            height: 30px;
+            background-size: cover;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Profile_Img {
+            position: absolute;
+            top: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Profile_Img > img {
+            height: 100%;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Title {
+            position: absolute;
+            left: 10px;
+            top: 110px;
+            display: flex;
+            color: rgb(255, 255, 255);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Title > .Name_Person {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            color: rgb(255, 255, 255);
+            font-size: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Title > .Date_Created {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            color: rgb(255, 255, 255);
+            font-size: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Title > .Employment {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            color: rgb(255, 255, 255);
+            font-size: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Title > .Bill_Valu {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            color: rgb(255, 255, 255);
+            font-size: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Discription {
+            position: absolute;
+            width: calc(100% - 20px);
+            height: 30px;
+            top: 220px;
+            color: rgb(255, 255, 255);
+            font-size: 10px;
+            word-wrap: break-word;
+            overflow-y: scroll;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Post_Imgs {
+            position: absolute;
+            bottom: 40px;
+            width: calc(100% - 20px);
+            height: 100px;
+            overflow-x: scroll;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Post_Imgs > .Img_Container {
+            width: auto;
+            height: auto;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Post_Imgs > .Img_Container > .Image {
+            min-width: 150px;
+            height: 100px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Business_Post_Imgs > .Img_Container > .Image > img{
+            width: 100%;
+
+        }
+        
+
+        .View_Post > .Veiw_Post_Box_Business > .Bottom_Buttons {
+            position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .View_Post > .Veiw_Post_Box_Business > .Bottom_Buttons > button {
+            width: 100%;
+            height: 20px;
+            background: none;
+            border: 1px solid rgb(128, 128, 128);
+            border-radius: 10px;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Post_Windows {
+            position: absolute;
+            width: 100vw;
+            height: 100dvh;
+            background-color: rgba(0, 0, 0, 0.300);
+            z-index: 2;
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .Post_Windows > .Business_Corporation_Post {
+            position: relative;
+            width: calc(100% - 40px);
+            height: calc(100% - 40px);
+            background-color: rgb(255, 255, 255);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .Post_Windows > .Business_Corporation_Post > .Background_Img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .Post_Windows > .Business_Corporation_Post > .Background_Img > img {
+            position: absolute;
+            height: 100%;
+            background-size: contain;
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Profile_Img {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Profile_Img > button {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.336);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Profile_Img > p {
+            font-size: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Profile_Img > button > img {
+            height: 30px;
+            background-size: cover;
+        }
+        
+        .Post_Windows > .Business_Corporation_Post > .Buttons {
+            position: absolute;
+            width: calc(100% - 20px);
+            bottom: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Buttons > button {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.336);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 5px;
+            color: rgb(255, 255, 255);
+            outline: none;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .Post_Windows > .Business_Corporation_Post > .Content {
+            position: absolute;
+            top: 60px;
+            width: calc(100% - 20px);
+            height: calc(100% - 100px);
+            background-color: rgba(45, 51, 49, 0.5);
+            border-radius: 5px;
+        }
+
+    </style>
+    <!-- Do Not Touch -->
+    <script>
+
+    </script>
+    <!-- Do Not Touch -->
+</head>
+
+    <!-- This is where you can add to the app -->
+
+<body id="Main">
+    <div class="Wallpaper">
+        <img src="/Images/Wallpaper/63be873bbaf3c35b4b2f49628d4d8d5b.jpg" alt="">
+    </div>
+    <div class="Main">
+        <div class="Menu">
+            <button>Market</button>
+            <button>Buy Bills</button>
+            <button>Wallet</button>
+            <button id="Open_More_Apps">More</button>
+
+            <div class="More_Apps" id="More_Apps">
+                <div class="Top_Buttons">
+                    <button>Profile</button>
+                    <button>Settings</button>
+                    <button>Log Out</button>
+                </div>
+                <div class="Apps">
+                    <div class="Apps_Container">
+                        <button class="App">Universe</button>
+                        <button class="App">Social</button>
+                        <button class="App">Clans</button>
+                        <button class="App">Military</button>
+                        <button class="App">Corp</button>
+                        <button class="App">Maps</button>
+                        <button class="App">Contracts</button>
+                        <button class="App">Dating</button>
+                    </div>
+                    <div class="Discription">
+
+                    </div>
+                </div>
+                <div class="Close">
+                    <button id="Close_More_Apps">Close</button>
+                </div>
+            </div>
+        </div>
+        <div class="Widgets">
+            <div class="Widget">
+
+            </div>
+            <div class="Widget">
+
+            </div>
+        </div>
+        <div class="Post">
+            <div class="Post_Button">
+                <button>Create Post</button>
+            </div>
+            <div class="Content">
+                <div class="Content_Container">
+                    <div class="Post_Box">
+                        <div class="Business_Profile">
+                            <button><img src="/Images/Profile Pics/Untitled 1.png" alt=""></button>
+                            <p class="Name">Sung Dragon</p>
+                        </div>
+                        <div class="Business_Photo_Slide">
+                            <div class="Img_Container">
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-19.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-47.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-27.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-21.png" alt="">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="View_Button">
+                            <button id="Open_Veiw_Post">View</button>
+                            <button id="Open_Veiw_Post">Settings</button>
+                        </div>
+                    </div>
+
+                    <div class="Post_Box">
+                        <div class="Business_Profile">
+                            <button><img src="/Images/Profile Pics/Untitled 2.png" alt=""></button>
+                            <p class="Name">Sung Dragon</p>
+                        </div>
+                        <div class="Business_Photo_Slide">
+                            <div class="Img_Container">
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Tanks/Untitled-1.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-47.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-27.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-21.png" alt="">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="View_Button">
+                            <button id="Open_Veiw_Post">View</button>
+                            <button id="Open_Veiw_Post">Settings</button>
+                        </div>
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    <div class="Post_Box">
+                        
+                    </div>
+                    
+                    
+                </div>
+            </div>
+            <div class="Post_Search">
+                <button>Search</button>
+                <button>View Saved</button>
+            </div>
+        </div>
+    </div>
+    <div class="View_Post" id="View_Post">
+        <div class="Veiw_Post_Box_Business" id="Business_Sung_Dragon">
+            <div class="Profile_Img">
+                <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
+                <p class="Name">Jake Bore</p>
+            </div>
+            <div class="Business_Profile_Img">
+                <img src="Images/Profile Pics/Untitled 1.png" alt="">
+            </div>
+            <div class="Title">
+                <div class="Name_Person"><p class="Place_Title">Business Name:</p><p class="Fill">Sung Dragon</p></div>
+                <div class="Name_Person"><p class="Place_Title">CEO:</p><p class="Fill">Jake Bore</p></div>
+                <div class="Date_Created"><p class="Place_Title">Date Created:</p><p class="Day">04</p><p class="Month">03</p><p class="Year">2025</p></div>
+                <div class="Employment"><p class="Place_Title">Employees:</p><p class="Employees_Count">5</p></div>
+                <div class="Bill_Valu"><p class="Place_Title">Bill M-V:</p><p class="Sign">CB</p><p class="Market_Valu">50,000</p></div>
+            </div>
+            <div class="Discription">
+                <p class="About">Sung Dragon, a tipical outside chinese restarant in Altoona PA, we grab chinese recipies from all over, then we cook them here in Altoona PA.</p>
+            </div>
+            <div class="Business_Post_Imgs">
+                <div class="Img_Container">
+                    <div class="Image">
+                        <img src="/Images/Post Images/Hung Sue/Untitled-6.png" alt="">
+                    </div>
+                    <div class="Image">
+                        <img src="/Images/Post Images/Hung Sue/Untitled-47.png" alt="">
+                    </div>
+                    <div class="Image">
+                        <img src="/Images/Post Images/Hung Sue/Untitled-32.png" alt="">
+                    </div>
+                    <div class="Image">
+                        <img src="/Images/Post Images/Hung Sue/Untitled-20.png" alt="">
+                    </div>
+                    <div class="Image">
+                        <img src="/Images/Post Images/Hung Sue/Untitled-56.png" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="Bottom_Buttons">
+                <button id="Open_Business_Corporation_Post">View</button>
+                <button>Save</button>
+                <button>Settings</button>
+                <button id="Close_Veiw_Post_Box_Business">Close</button>
+            </div>
+        </div>
+    </div>
+    <div class="Post_Windows" id="Post_Windows">
+        <div class="Business_Corporation_Post" id="Business_Corpration_Post_Sung_Dragon">
+            <div class="Background_Img">
+                <img src="/Images/Background Img/6d9a8205ae403ec4d284b2032e2c2aa2.jpg" alt="">
+            </div>
+            <div class="Profile_Img">
+                <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
+                <p class="Name">Jake Bore</p>
+                <button class="Clsoe">Close</button>
+            </div>
+            <div class="Buttons">
+                <button id="Close_Business_Corporation_Post">Close</button>
+                <button>Settings</button>
+            </div>
+            
+            <div class="Content">
+
+            </div>
+
+        </div>
+    </div>
+    
+</body>
+
+
+    <!-- This is where you add the behaviors of the elements -->
+
+<script>
+
+    ///Open_Screen_Button
+
+    var Open_More_Apps = document.getElementById("Open_More_Apps");
+    var Close_More_Apps = document.getElementById("Close_More_Apps");
+    var More_Apps = document.getElementById("More_Apps");
+    
+    Open_More_Apps.onclick = function() {
+        More_Apps.style.display = "flex";
+    }
+    
+    Close_More_Apps.onclick = function() {
+        More_Apps.style.display = "none";
+    }
+
+    var Open_Veiw_Post = document.getElementById("Open_Veiw_Post");
+    var Close_Veiw_Post_Box_Business = document.getElementById("Close_Veiw_Post_Box_Business");
+    var View_Post = document.getElementById("View_Post");
+    var Veiw_Post_Box_Business = document.getElementById("Business_Sung_Dragon");
+    
+    Open_Veiw_Post.onclick = function() {
+        View_Post.style.display = "flex";
+        Business_Sung_Dragon.style.display = "flex";
+    }
+
+    Close_Veiw_Post_Box_Business.onclick = function() {
+        View_Post.style.display = "none";
+        Business_Sung_Dragon.style.display = "none";
+    }
+
+    var Open_Business_Corporation_Post = document.getElementById("Open_Business_Corporation_Post");
+    var Close_Business_Corporation_Post = document.getElementById("Close_Business_Corporation_Post");
+    var Post_Windows = document.getElementById("Post_Windows");
+    var Veiw_Post_Box_Business = document.getElementById("Business_Corporation_Post_Sung_Dragon");
+    
+    Open_Business_Corporation_Post.onclick = function() {
+        Post_Windows.style.display = "flex";
+        Business_Corporation_Post_Sung_Dragon.style.display = "flex";
+    }
+
+    Close_Business_Corporation_Post.onclick = function() {
+        Post_Windows.style.display = "none";
+        Business_Corporation_Post_Sung_Dragon.style.display = "none";
+    }
+
+   
+
+
+
+</script>
+
+    <!-- This is wher
+
+
+
+    <div class="Profile_Img">
+                <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
+            </div>
+            <div class="Main_Items">
+                <button><i class="fa-solid fa-grip"></i><span class="New_Item"></span></button>
+                <button><i class="fa-solid fa-house"></i><span class="New_Item"></span></button>
+                <button><i class="fa-solid fa-envelope"></i><span class="New_Item"></span></button>
+                <button><i class="fa-solid fa-bell"></i><span class="New_Item"></span></button>
+                <button><i class="fa-solid fa-message"></i><span class="New_Item"></span></button>
+                <button><i class="fa-solid fa-wallet"></i><span class="New_Item"></span></button>
+            </div>
+            <span class="Move"><i class="fa-solid fa-ellipsis"></i></span>

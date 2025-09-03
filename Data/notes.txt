@@ -1,0 +1,57 @@
+<div class="Content_Container">
+                    <div class="Post_Box">
+                        <div class="Business_Profile">
+                            <button><img src="/Images/Profile Pics/Untitled 1.png" alt=""></button>
+                            <p class="Name">Sung Dragon</p>
+                        </div>
+                        <div class="Business_Photo_Slide">
+                            <div class="Img_Container">
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-19.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-47.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-27.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-21.png" alt="">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="View_Button">
+                            <button id="Open_Veiw_Post">View</button>
+                            <button id="Open_Veiw_Post">Settings</button>
+                        </div>
+                    </div>
+
+                    <div class="Post_Box">
+                        <div class="Business_Profile">
+                            <button><img src="/Images/Profile Pics/Untitled 2.png" alt=""></button>
+                            <p class="Name">Sung Dragon</p>
+                        </div>
+                        <div class="Business_Photo_Slide">
+                            <div class="Img_Container">
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Tanks/Untitled-1.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-47.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-27.png" alt="">
+                                </div>
+                                <div class="Image">
+                                    <img src="/Images/Post Images/Hung Sue/Untitled-21.png" alt="">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="View_Button">
+                            <button id="Open_Veiw_Post">View</button>
+                            <button id="Open_Veiw_Post">Settings</button>
+                        </div>
+                    </div>
+                </div>
