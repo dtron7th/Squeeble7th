@@ -9,8 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Hind+Siliguri:wght@300;400;500;600;700&family=Inconsolata:wdth,wght@105.8,200..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Quicksand:wght@300..700&family=Rajdhani:wght@300;400;500;600;700&family=Sometype+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     
-    <style> 
-        * {
+
+    <style>
+      * {
             padding: 0px;
             margin: 0px;
             font-family: "Sometype Mono", monospace;
@@ -21,6 +22,7 @@
             display: none;
         }
 
+        
        
     </style>
 
@@ -118,10 +120,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
         }
 
-        .Main > .Menu > .Main_Items > button > span {
+        .Main > .Menu > .Main_Items > button > img {
+            width: 14px;
+        }
+
+        .Main > .Menu > .Main_Items > button > .New_Item {
             position: absolute;
             right: 0px;
             top: 0px;
@@ -138,9 +143,8 @@
             color: rgb(255, 255, 255);
         }
 
-        .Main > .Menu > .Move > span {
-            font-size: 10px;
-            display: flex;
+        .Main > .Menu > .Move > img {
+            width: 14px;
         }
 
         .Main > .Widgets {
@@ -263,16 +267,17 @@
             position: absolute;
             top: 150px;
             width: 250px;
-            height: 400px;
+            height: 70px;
             background-color: rgba(41, 41, 41, 0.5);
             backdrop-filter: blur(30px);
+            z-index: 2;
         }
 
         .Menu_Settings > .Top_Bar {
             position: absolute;
             top: 0px;
             width: 100%;
-            height: 40px;
+            height: 30px;
             background-color: rgba(0, 0, 0, 0.1);
             font-size: 10px;
             display: flex;
@@ -299,6 +304,10 @@
             font-size: 10px;
         }
 
+        .Menu_Settings > .Top_Bar > .Move_Window > img{
+            width: 14px;
+        }
+
         .Menu_Settings > .Top_Bar > .Close {
             position: absolute;
             right: 10px;
@@ -309,7 +318,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
+        }
+
+        .Menu_Settings > .Top_Bar > .Close > img {
+            width: 14px;
         }
 
         .Menu_Settings > .Close_Bar_Button {
@@ -357,25 +369,25 @@
         <img src="/Images/Wallpaper/d4d8c1bd0247089e0a24a76cab9a53ed.jpg" alt="">
     </div>
     <div class="Main">
-        <div class="Menu">
+        <div class="Menu" id="Menu">
             <div class="Profile_Img">
                 <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
             </div>
             <div class="Main_Items">
-                <button id="Open_Apps"><i class="fa-solid fa-grip"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-house"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-envelope"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-bell"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-message"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-wallet"></i><span class="New_Item"></span></button>
-                <button><i class="fa-solid fa-gear"></i><span class="New_Item"></span></button>
+                <button id="Open_Apps"><img src="/Images/Icons/apps_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button><img src="/Images/Icons/home_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button><img src="/Images/Icons/mail_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button><img src="/Images/Icons/notifications_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button><img src="/Images/Icons/chat_bubble_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button><img src="/Images/Icons/currency_bitcoin_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Menu_Settings"><img src="/Images/Icons/settings_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+
             </div>
-            <span class="Move"><i class="fa-solid fa-ellipsis"></i></span>
+            <span class="Move"><img src="/Images/Icons/more_horiz_24dp_1F1F1F.svg" alt=""></span>
         </div>
         <div class="Widgets">
             
         </div>
-        
     </div>
     <div class="Windows" id="Windows">
         <div class="Apps" id="Apps">
@@ -405,22 +417,20 @@
         </div>
         
     </div>
-    <div class="Menu_Settings">
-        <div class="Top_Bar">
+    <div class="Menu_Settings" id="Menu_Settings">
+        <div class="Top_Bar" id="Menu_Settings_Header">
             <span class="Window_Title">Menu Settings</span>
-            <button class="Move_Window"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-            <button class="Close"><i class="fa-solid fa-xmark"></i></button>
+            <button class="Close" id="Close_Menu_Settings"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
         </div>
         <div class="Close_Bar_Button">
-            <button>Close Bar</button>
+            <button id="Close_Menu_Bar">Close Bar</button>
         </div>
     </div>
 </body>
 
 
     <!-- This is where you add the behaviors of the elements -->
-     
-<script src="https://kit.fontawesome.com/523bea46a0.js" crossorigin="anonymous"></script>
+
 <script>
 
     var Open_Apps = document.getElementById("Open_Apps");
@@ -437,6 +447,63 @@
         Apps.style.display = "none";
         Windows.style.display = "none";
     }
+
+
+//Menu_Settings/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Menu_Settings = document.getElementById("Open_Menu_Settings");
+    var Menu_Settings = document.getElementById("Menu_Settings");
+    
+    Open_Menu_Settings.onclick = function() {
+        Menu_Settings.style.display = "flex";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const Menu = document.getElementById('Menu');
+    const Menu_Settings = document.getElementById('Menu_Settings');
+    const Menu_Settings_Header = document.getElementById('Menu_Settings_Header');
+    const Close_Menu_Settings = document.getElementById("Close_Menu_Settings");
+    const Close_Menu_Bar = document.getElementById("Close_Menu_Bar");
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Touch Start Event
+    Menu_Settings_Header.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - Menu_Settings.getBoundingClientRect().left;
+        offsetY = touch.clientY - Menu_Settings.getBoundingClientRect().top;
+        Menu_Settings.style.cursor = 'grabbing';
+        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+    });
+
+    // Touch Move Event
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        Menu_Settings.style.left = (touch.clientX - offsetX) + 'px';
+        Menu_Settings.style.top = (touch.clientY - offsetY) + 'px';
+        e.preventDefault();
+    });
+
+    // Touch End Event
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        Menu_Settings.style.cursor = 'grab';
+    });
+
+    Close_Menu_Settings.addEventListener('touchend', () => {
+        Menu_Settings.style.display = 'none';
+    });
+
+    Close_Menu_Bar.addEventListener('touchend', () => {
+        Menu.style.display = 'none';
+        Menu_Settings.style.display = 'none';
+    });
+});
+
+   
 
 
 
