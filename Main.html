@@ -49,17 +49,7 @@
             background-size: cover;
         }
 
-        .Main {
-            position: absolute;
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .Main > .Start {
+        .Start {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -68,7 +58,7 @@
             align-items: center;
         }
 
-        .Main > .Start > button {
+        .Start > button {
             position: absolute;
             top: 20px;
             width: 50px;
@@ -81,10 +71,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            
         }
 
-        .Main > .Start > button {
+        .Start > button {
             position: absolute;
             top: 20px;
             width: 50px;
@@ -97,11 +87,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10;
             transition: ease 1s;
         }
 
-        .Main > .Start > button:hover {
+        .Start > button:hover {
             content: '';
             width: 55px;
             height: 55px;
@@ -117,13 +106,62 @@
             transition: ease 80ms;
         }
 
-        .Main > .Start > button > img {
+        .Start > button > img {
             width: 20px;
         }
 
+        .Main {
+            position: absolute;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background-color: rgba(41, 41, 41, 0.1);
+            backdrop-filter: blur(20px);
+            display: none;
+        }
+
+        .Main > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .Main > .Top_Bar > .Window_Title {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Main > Menu*/
+
         .Main > .Menu {
             position: absolute;
-            top: 10px;
+            top: 40px;
             left: 10px;
             width: 50px;
             height: 400px;
@@ -132,7 +170,6 @@
             display: flex;
             align-items: center;
             flex-direction: column;
-            z-index: 2; 
         }
 
         .Main > .Menu > .Profile_Img {
@@ -211,128 +248,319 @@
             width: 14px;
         }
 
-        .Main > .Widgets {
-            position: absolute;
-            width: 100vw;
-            height: 100dvh;
-            background-color: rgba(41, 41, 41, 0.1);
-            backdrop-filter: blur(30px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
+        /*Menu Item Windows*/
 
-        .Windows {
+        /*Apps*/
+
+        .Apps {
             position: absolute;
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            top: 140px;
+            width: 300px;
+            height: 400px;
+            background-color: rgba(41, 41, 41, 0.5);
             backdrop-filter: blur(30px);
+            z-index: 2;
             display: none;
         }
 
-        .Windows > .Apps {
+        .Apps > .Top_Bar {
             position: absolute;
-            top: 150px;
-            width: 300px;
-            height: 500px;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
             display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .Apps > .Top_Bar > .Window_Title {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Apps > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Apps > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Home*/
+
+        .Home {
+            position: absolute;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
             align-items: center;
             flex-direction: column;
             background-color: rgba(41, 41, 41, 0.5);
             backdrop-filter: blur(30px);
-            border-radius: 10px;
+            z-index: 3;
+            display: none;
         }
 
-        .Windows > .Apps > .Title {
+        .Home > .Top_Bar {
             position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-
-        .Windows > .Apps > .Title > p {
-            font-size: 20px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Windows > .Apps > .Content_Apps {
-            position: absolute;
-            top: 70px;
-            width: calc(100% - 20px);
-            height: 420px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-
-        }
-
-        .Windows > .Apps > .Content_Apps > .Apps_Container {
-            width: 70px;
-            height: 100%;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: scroll;
-        }
-
-        .Windows > .Apps > .Content_Apps > .Apps_Container > button {
-            width: 70px;
-            min-height: 70px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            border: none;
-            border-radius: 10px;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-
-        .Windows > .Apps > .Content_Apps > .Discription {
-            width: calc(100% - 80px);
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-
-        .Windows > .Apps > .Close_Button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
-        .Windows > .Apps > .Close_Button > button {
-            position: relative;
-            width: 30px;
+            top: 0px;
+            width: 100%;
             height: 30px;
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Home > .Top_Bar > .Window_Title  {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Home > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
             border: none;
-            border-radius: 50%;
             outline: none;
             color: rgb(255, 255, 255);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
         }
+
+        .Home > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Mail*/
+
+        .Mail {
+            position: absolute;
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(41, 41, 41, 0.5);
+            backdrop-filter: blur(30px);
+            z-index: 3;
+            display: none;
+        }
+
+        .Mail > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Mail > .Top_Bar > .Window_Title  {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Mail > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Mail > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Notifications*/
+
+        .Notifications {
+            position: absolute;
+            top: 150px;
+            width: 200px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(41, 41, 41, 0.5);
+            backdrop-filter: blur(30px);
+            z-index: 2;
+            display: none;
+        }
+
+        .Notifications > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Notifications > .Top_Bar > .Window_Title  {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Notifications > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Notifications > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Messages*/
+
+        .Messages {
+            position: absolute;
+            top: 150px;
+            width: 250px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(41, 41, 41, 0.5);
+            backdrop-filter: blur(30px);
+            z-index: 2;
+            display: none;
+        }
+
+        .Messages > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Messages > .Top_Bar > .Window_Title  {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Messages > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Messages > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+
+        /*Bitcoin_Wallet*/
+
+        .Bitcoin_Wallet {
+            position: absolute;
+            top: 150px;
+            width: 300px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(41, 41, 41, 0.5);
+            backdrop-filter: blur(30px);
+            z-index: 2;
+            display: none;
+        }
+
+        .Bitcoin_Wallet > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Bitcoin_Wallet > .Top_Bar > .Window_Title  {
+            position: absolute;
+            left: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Bitcoin_Wallet > .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            outline: none;
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Bitcoin_Wallet > .Top_Bar > .Close > img {
+            width: 14px;
+        }
+    
+        /*Menu_Settings*/
 
         .Menu_Settings {
             position: absolute;
             top: 150px;
             width: 250px;
-            height: 70px;
+            height: 140px;
             background-color: rgba(41, 41, 41, 0.5);
             backdrop-filter: blur(30px);
             z-index: 2;
+            display: none;
         }
 
         .Menu_Settings > .Top_Bar {
@@ -353,22 +581,6 @@
             color: rgb(255, 255, 255);
         }
 
-        .Menu_Settings > .Top_Bar > .Move_Window {
-            position: absolute;
-            right: 40px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-
-        .Menu_Settings > .Top_Bar > .Move_Window > img{
-            width: 14px;
-        }
 
         .Menu_Settings > .Top_Bar > .Close {
             position: absolute;
@@ -385,30 +597,6 @@
         .Menu_Settings > .Top_Bar > .Close > img {
             width: 14px;
         }
-
-        .Menu_Settings > .Close_Bar_Button {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .Menu_Settings > .Close_Bar_Button > button {
-            width: calc(100% - 20px);
-            height: 20px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-
-
-
 
         @keyframes Apps {
             0% {opacity: 0;transform-origin: 0% 50%;transform: scale(0.2) translate(-200%, 0%);}
@@ -428,101 +616,323 @@
 
 <body id="Main">
     <div class="Wallpaper">
-        <img src="/Images/Wallpaper/d4d8c1bd0247089e0a24a76cab9a53ed.jpg" alt="">
+        <img src="/Images/Wallpaper/3ebe82d8b7a956a82809c8977ab36814.jpg" alt="">
     </div>
-    <div class="Main">
-        <div class="Start">
-            <button id="Open_Menu"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
+    <div class="Start">
+        <button id="Open_Main"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
+    </div>
+    <div class="Main" id="Main_Window">
+        <div class="Top_Bar">
+            <span class="Window_Title">Desk Top</span>
+            <button class="Close" id="Close_Main"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
         </div>
-        <div class="Menu" id="Menu">
+        <div class="Menu">
             <div class="Profile_Img">
                 <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
             </div>
             <div class="Main_Items">
                 <button id="Open_Apps"><img src="/Images/Icons/apps_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button><img src="/Images/Icons/home_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button><img src="/Images/Icons/mail_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button><img src="/Images/Icons/notifications_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button><img src="/Images/Icons/chat_bubble_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button><img src="/Images/Icons/currency_bitcoin_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Home"><img src="/Images/Icons/home_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Mail"><img src="/Images/Icons/mail_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Notifications"><img src="/Images/Icons/notifications_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Messages"><img src="/Images/Icons/chat_bubble_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+                <button id="Open_Bitcoin_Wallet"><img src="/Images/Icons/currency_bitcoin_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
                 <button id="Open_Menu_Settings"><img src="/Images/Icons/settings_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-
             </div>
             <span class="Move"><img src="/Images/Icons/more_horiz_24dp_1F1F1F.svg" alt=""></span>
         </div>
-        <div class="Widgets">
-            
-        </div>
     </div>
-    <div class="Windows" id="Windows">
-        <div class="Apps" id="Apps">
-            <div class="Title">
-                <p>Apps</p>
-            </div>
-            <div class="Content_Apps">
-                <div class="Apps_Container">
-                    <button>Friends</button>
-                    <button>Clans</button>
-                    <button>Social</button>
-                    <button>Dating</button>
-                    <button>Universe</button>
-                    <button>Corporation</button>
-                    <button>Militias</button>
-                    <button>Market</button>
-                    <button>Jobs</button>
-                    <button>Housing</button>
-                </div>
-                <div class="Discription">
 
-                </div>
-            </div>
-            <div class="Close_Button">
-                <button id="Close_Apps"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+    <!-- Menu Item Windows -->
+
+    <div class="Apps" id="Apps">
+        <div class="Top_Bar" id="Apps_Header">
+            <span class="Window_Title">Apps</span>
+            <button class="Close" id="Close_Apps"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
         </div>
-        
     </div>
+
+    <div class="Home" id="Home">
+        <div class="Top_Bar" id="Home_Header">
+            <span class="Window_Title">Home</span>
+            <button class="Close" id="Close_Home"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+        </div>
+    </div>
+
+    <div class="Mail" id="Mail">
+        <div class="Top_Bar" id="Mail_Header">
+            <span class="Window_Title">Mail</span>
+            <button class="Close" id="Close_Mail"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+        </div>
+    </div>
+
+    <div class="Notifications" id="Notifications">
+        <div class="Top_Bar" id="Notifications_Header">
+            <span class="Window_Title">Notifications</span>
+            <button class="Close" id="Close_Notifications"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+        </div>
+    </div>
+
+    <div class="Messages" id="Messages">
+        <div class="Top_Bar" id="Messages_Header">
+            <span class="Window_Title">Messages</span>
+            <button class="Close" id="Close_Messages"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+        </div>
+    </div>
+
+    <div class="Bitcoin_Wallet" id="Bitcoin_Wallet">
+        <div class="Top_Bar" id="Bitcoin_Wallet_Header">
+            <span class="Window_Title">Bitcoin Wallet</span>
+            <button class="Close" id="Close_Bitcoin_Wallet"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+        </div>
+    </div>
+
     <div class="Menu_Settings" id="Menu_Settings">
         <div class="Top_Bar" id="Menu_Settings_Header">
             <span class="Window_Title">Menu Settings</span>
             <button class="Close" id="Close_Menu_Settings"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
         </div>
-        <div class="Close_Bar_Button">
-            <button id="Close_Menu_Bar">Close Bar</button>
-        </div>
     </div>
+    
 </body>
 
-
-    <!-- This is where you add the behaviors of the elements -->
+<!-- This is where you add the behaviors of the elements -->
 
 <script>
+//Apps/////////////////////////////////////////////////////////////////////////////
+//Open_Main////////////////////////////////////////////////////////////////////////
+
+    var Open_Main = document.getElementById("Open_Main");
+    var Close_Main = document.getElementById("Close_Main");
+    var Main_Window = document.getElementById("Main_Window");
+
+    
+    Open_Main.onclick = function() {
+        Main_Window.style.display = "flex";
+    }
+
+    Close_Main.onclick = function() {
+        Main_Window.style.display = "none";
+    }
+//Menu Bar Items///////////////////////////////////////////////////////////////////
+//Apps/////////////////////////////////////////////////////////////////////////////
 
     var Open_Apps = document.getElementById("Open_Apps");
-    var Close_Apps = document.getElementById("Close_Apps");
     var Apps = document.getElementById("Apps");
-    var Windows = document.getElementById("Windows");
     
     Open_Apps.onclick = function() {
         Apps.style.display = "flex";
-        Windows.style.display = "flex";
-    }
-    
-    Close_Apps.onclick = function() {
-        Apps.style.display = "none";
-        Windows.style.display = "none";
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+    const Apps = document.getElementById('Apps');
+    const Apps_Header = document.getElementById('Apps_Header');
+    const Close_Apps = document.getElementById("Close_Apps");
 
-//Open_Menu/////////////////////////////////////////////////////////////////////////////
+    let isDragging = false;
+    let offsetX, offsetY;
 
-    var Open_Menu = document.getElementById("Open_Menu");
-    var Menu = document.getElementById("Menu");
-    
-    
-    Open_Menu.onclick = function() {
-        Menu.style.display = "flex";
+    // Touch Start Event
+    Apps_Header.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - Apps.getBoundingClientRect().left;
+        offsetY = touch.clientY - Apps.getBoundingClientRect().top;
+        Apps.style.cursor = 'grabbing';
+        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+    });
+
+    // Touch Move Event
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        Apps.style.left = (touch.clientX - offsetX) + 'px';
+        Apps.style.top = (touch.clientY - offsetY) + 'px';
+        e.preventDefault();
+    });
+
+    // Touch End Event
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        Apps.style.cursor = 'grab';
+    });
+
+    Close_Apps.addEventListener('touchend', () => {
+        Apps.style.display = 'none';
+    });
+
+});
+
+//Home/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Home = document.getElementById("Open_Home");
+    var Close_Home = document.getElementById("Close_Home");
+    var Home = document.getElementById("Home");
+
+    Open_Home.onclick = function() {
+        Home.style.display = "flex";
     }
+
+    Close_Home.onclick = function() {
+        Home.style.display = "none";
+    }
+
+//Mail/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Mail = document.getElementById("Open_Mail");
+    var Close_Mail = document.getElementById("Close_Mail");
+    var Mail = document.getElementById("Mail");
+
+    Open_Mail.onclick = function() {
+        Mail.style.display = "flex";
+    }
+
+    Close_Mail.onclick = function() {
+        Mail.style.display = "none";
+    }
+
+//Notifications/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Notifications = document.getElementById("Open_Notifications");
+    var Notifications = document.getElementById("Notifications");
+    
+    Open_Notifications.onclick = function() {
+        Notifications.style.display = "flex";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const Notifications = document.getElementById('Notifications');
+    const Notifications_Header = document.getElementById('Notifications_Header');
+    const Close_Notifications = document.getElementById("Close_Notifications");
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Touch Start Event
+    Notifications_Header.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - Notifications.getBoundingClientRect().left;
+        offsetY = touch.clientY - Notifications.getBoundingClientRect().top;
+        Apps.style.cursor = 'grabbing';
+        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+    });
+
+    // Touch Move Event
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        Notifications.style.left = (touch.clientX - offsetX) + 'px';
+        Notifications.style.top = (touch.clientY - offsetY) + 'px';
+        e.preventDefault();
+    });
+
+    // Touch End Event
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        Notifications.style.cursor = 'grab';
+    });
+
+    Close_Notifications.addEventListener('touchend', () => {
+        Notifications.style.display = 'none';
+    });
+
+});
+
+//Messages/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Messages = document.getElementById("Open_Messages");
+    var Messages = document.getElementById("Messages");
+    
+    Open_Messages.onclick = function() {
+        Messages.style.display = "flex";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const Messages = document.getElementById('Messages');
+    const Messages_Header = document.getElementById('Messages_Header');
+    const Close_Messages = document.getElementById("Close_Messages");
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Touch Start Event
+    Messages_Header.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - Messages.getBoundingClientRect().left;
+        offsetY = touch.clientY - Messages.getBoundingClientRect().top;
+        Apps.style.cursor = 'grabbing';
+        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+    });
+
+    // Touch Move Event
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        Messages.style.left = (touch.clientX - offsetX) + 'px';
+        Messages.style.top = (touch.clientY - offsetY) + 'px';
+        e.preventDefault();
+    });
+
+    // Touch End Event
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        Messages.style.cursor = 'grab';
+    });
+
+    Close_Messages.addEventListener('touchend', () => {
+        Messages.style.display = 'none';
+    });
+
+});
+
+//Bitcoin_Wallet/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Bitcoin_Wallet = document.getElementById("Open_Bitcoin_Wallet");
+    var Bitcoin_Wallet = document.getElementById("Bitcoin_Wallet");
+    
+    Open_Bitcoin_Wallet.onclick = function() {
+        Bitcoin_Wallet.style.display = "flex";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const Bitcoin_Wallet = document.getElementById('Bitcoin_Wallet');
+    const Bitcoin_Wallet_Header = document.getElementById('Bitcoin_Wallet_Header');
+    const Close_Bitcoin_Wallet = document.getElementById("Close_Bitcoin_Wallet");
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Touch Start Event
+    Bitcoin_Wallet_Header.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - Bitcoin_Wallet.getBoundingClientRect().left;
+        offsetY = touch.clientY - Bitcoin_Wallet.getBoundingClientRect().top;
+        Apps.style.cursor = 'grabbing';
+        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+    });
+
+    // Touch Move Event
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        Bitcoin_Wallet.style.left = (touch.clientX - offsetX) + 'px';
+        Bitcoin_Wallet.style.top = (touch.clientY - offsetY) + 'px';
+        e.preventDefault();
+    });
+
+    // Touch End Event
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        Bitcoin_Wallet.style.cursor = 'grab';
+    });
+
+    Close_Bitcoin_Wallet.addEventListener('touchend', () => {
+        Bitcoin_Wallet.style.display = 'none';
+    });
+});
 
 //Menu_Settings/////////////////////////////////////////////////////////////////////////////
 
@@ -538,22 +948,21 @@
     const Menu_Settings = document.getElementById('Menu_Settings');
     const Menu_Settings_Header = document.getElementById('Menu_Settings_Header');
     const Close_Menu_Settings = document.getElementById("Close_Menu_Settings");
-    const Close_Menu_Bar = document.getElementById("Close_Menu_Bar");
 
     let isDragging = false;
     let offsetX, offsetY;
 
-    // Touch Start Event
+
     Menu_Settings_Header.addEventListener('touchstart', (e) => {
         isDragging = true;
         const touch = e.touches[0];
         offsetX = touch.clientX - Menu_Settings.getBoundingClientRect().left;
         offsetY = touch.clientY - Menu_Settings.getBoundingClientRect().top;
         Menu_Settings.style.cursor = 'grabbing';
-        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+        e.preventDefault();
     });
 
-    // Touch Move Event
+
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         const touch = e.touches[0];
@@ -571,15 +980,6 @@
     Close_Menu_Settings.addEventListener('touchend', () => {
         Menu_Settings.style.display = 'none';
     });
-
-    Close_Menu_Bar.addEventListener('touchend', () => {
-        Menu.style.display = 'none';
-        Menu_Settings.style.display = 'none';
-    });
 });
-
-   
-
-
 
 </script>
