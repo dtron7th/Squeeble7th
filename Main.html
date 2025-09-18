@@ -23,587 +23,235 @@
             display: none;
         }
 
-        
-       
     </style>
 
     <!-- Index -->
     <style>
         body {
-            background-color: rgb(48, 48, 48);
+            background-color: rgb(0, 0, 0);
             display: flex;
             justify-content: center;
         }
 
-        .Wallpaper {
+        .Login {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .Login > .Login_Box {
             position: absolute;
+            top: 200px;
+            width: 350px;
+            height: 350px;
+            background-color: rgb(22, 0, 82);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .Login > .Login_Box > .Profile_Img {
+            position: absolute;
+            top: 30px;
+        }
+
+        .Login > .Login_Box > .Profile_Img > img {
+            width: 70px;
+        }
+
+        .Login > .Login_Box > .Inputs {
+            position: absolute;
+            top: 150px;
             width: 100%;
-            height: 100%;
-            background-color: rgb(34, 39, 39);
-            z-index: -1;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
-        .Wallpaper > img {
-            height: 100%;
-            background-size: cover;
+        .Login > .Login_Box > .Inputs > input {
+            width: calc(100% - 60px);
+            height: 30px;
+            background-color: rgb(255, 255, 255) ;
+            border: none;
+            text-indent: 10px;
         }
 
-        .Start {
+        .Login > .Login_Box > .Inputs > input::placeholder {   
+            color: rgb(70, 70, 70);
+            font-size: 10px;
+        }
+
+        .Login > .Login_Box > .Buttons {
             position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Login > .Login_Box > .Buttons > button {
             width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Start > button {
-            position: absolute;
-            top: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.2);
+            height: 30px;
+            background-color: rgb(71, 71, 71);
             border: none;
-            border-radius: 50%;
+            color: rgb(61, 61, 61);
             outline: none;
+            font-size: 10px;
             color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            
-        }
-
-        .Start > button {
-            position: absolute;
-            top: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border: none;
-            border-radius: 50%;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: ease 1s;
-        }
-
-        .Start > button:hover {
-            content: '';
-            width: 55px;
-            height: 55px;
-            background-color: rgba(155, 155, 155, 0.3);
-            border: 5px solid rgba(243, 243, 243, 0.267);
-            border-radius: 50%;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: (cubic-bezier(0,1,0,1));
-            transition: ease 80ms;
-        }
-
-        .Start > button > img {
-            width: 20px;
         }
 
         .Main {
-            position: absolute;
             width: 100vw;
-            height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.1);
-            backdrop-filter: blur(20px);
-            display: none;
-        }
-
-        .Main > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center
-        }
-
-        .Main > .Top_Bar > .Window_Title {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: rgb(187, 187, 187);
         }
-
-        .Main > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        /*Main > Menu*/
 
         .Main > .Menu {
             position: absolute;
-            top: 40px;
-            left: 10px;
-            width: 50px;
-            height: 400px;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            display: flex;
-            align-items: center;
-            flex-direction: column;
+            top: 0px;
+            width: 100%;
         }
 
-        .Main > .Menu > .Profile_Img {
-            margin-top: 10px;
-            width: auto;
-            height: auto;
-            background: none;
+        .Main > .Menu > .Menu_Bar {
+            width: 100%;
+            height: 30px;
+            background-color: rgb(54, 54, 54);
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .Main > .Menu > .Menu_Bar > .Menu_Items {
+            width: 100%;
             font-size: 10px;
             color: rgb(255, 255, 255);
+            display: flex;
+            gap: 30px;
+            text-indent: 10px;
+        }
+
+
+        .Main > .Menu > .Menu_Main {
+            position: absolute;
+            width: 200px;
+            height: 350px;
+            background-color: rgb(143, 143, 143);
+            box-shadow: 10px 10px rgb(0, 0, 0);
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            display: none;
+        }
+
+        .Main > .Menu > .Menu_Main > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: rgb(54, 54, 54);
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 10px;
         }
 
-        .Main > .Menu > .Profile_Img > button {
-            width: 30px;
+        .Main > .Menu > .Menu_Main > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: 10px;
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main > .Top_Bar > .2 {
+            position: absolute;
+            right: 10px;
+            width: 12px;
+        }
+
+        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container {
+            position: absolute;
+            top: 40px;
+            width: calc(100% - 20px);
+            height: calc(100% - 50px);   
+            border: 1px solid rgb(100, 100, 100);
+        }
+
+        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container > button {
+            width: 100%;
             height: 30px;
+            font-size: 10px;
+            display: flex;
+            align-items: center; 
             background: none;
+            color: rgb(29, 29, 29);
+            text-indent: 10px;
             border: none;
             outline: none;
-            border-radius: 50%;
-            overflow: hidden;
         }
 
-        .Main > .Menu > .Profile_Img > button > img {
-            width: 100%;
+        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container > button:active {
+            background-color: rgb(51, 51, 51);
+            color: rgb(255, 255, 255);
         }
         
-        .Main > .Menu > .Main_Items {
-            position: absolute;
-            top: 70px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            gap: 10px;
-        }
-
-        .Main > .Menu > .Main_Items > button {
+        .Main > .Menu > .Profile {
             position: relative;
-            width: 30px;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border: none;
-            border-radius: 50%;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 10px;
+            width: 350px;
+            height: 300px;
+            background-color: rgb(224, 224, 224);
+            box-shadow: 10px 10px rgb(0, 0, 0);
         }
 
-        .Main > .Menu > .Main_Items > button > img {
-            width: 14px;
-        }
-
-        .Main > .Menu > .Main_Items > button > .New_Item {
-            position: absolute;
-            right: 0px;
-            top: 0px;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background-color: rgb(236, 0, 0);
-            display: none;
-        }
-
-        .Main > .Menu > .Move {
-            position: absolute;
-            bottom: 0px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Move > img {
-            width: 14px;
-        }
-
-        /*Menu Item Windows*/
-
-        /*Apps*/
-
-        .Apps {
-            position: absolute;
-            top: 140px;
-            width: 300px;
-            height: 400px;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 2;
-            display: none;
-        }
-
-        .Apps > .Top_Bar {
+        .Main > .Menu > .Profile > .Top_Bar {
             position: absolute;
             top: 0px;
             width: 100%;
             height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
+            background-color: rgb(54, 54, 54);
             display: flex;
-            justify-content: center;
-            align-items: center
+            flex-direction: row;
+            align-items: center;
         }
 
-        .Apps > .Top_Bar > .Window_Title {
+        .Main > .Menu > .Profile > .Top_Bar > .Title {
             position: absolute;
             left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Apps > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Apps > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        /*Home*/
-
-        .Home {
-            position: absolute;
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 3;
-            display: none;
-        }
-
-        .Home > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
             font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Home > .Top_Bar > .Window_Title  {
-            position: absolute;
-            left: 10px;
             color: rgb(255, 255, 255);
         }
 
-        .Home > .Top_Bar > .Close {
+        .Main > .Menu > .Profile > .Top_Bar > .Close {
             position: absolute;
             right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 12px;
         }
 
-        .Home > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        /*Mail*/
-
-        .Mail {
+        .Main > .Menu > .Profile > .Bottom_Buttons > .Upload {
             position: absolute;
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 3;
-            display: none;
-        }
-
-        .Mail > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Mail > .Top_Bar > .Window_Title  {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Mail > .Top_Bar > .Close {
-            position: absolute;
+            bottom: 10px;
             right: 10px;
-            background: none;
+            width: 50px;
+            height: 20px;
+            background-color: rgb(68, 68, 68);
             border: none;
             outline: none;
-            color: rgb(255, 255, 255);
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .Mail > .Top_Bar > .Close > img {
-            width: 14px;
+        .Main > .Menu > .Profile > .Bottom_Buttons > .Upload > img {
+            width: 12px;
         }
-
-        /*Notifications*/
-
-        .Notifications {
-            position: absolute;
-            top: 150px;
-            width: 200px;
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 2;
-            display: none;
-        }
-
-        .Notifications > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Notifications > .Top_Bar > .Window_Title  {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Notifications > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Notifications > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        /*Messages*/
-
-        .Messages {
-            position: absolute;
-            top: 150px;
-            width: 250px;
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 2;
-            display: none;
-        }
-
-        .Messages > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Messages > .Top_Bar > .Window_Title  {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Messages > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Messages > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        /*Bitcoin_Wallet*/
-
-        .Bitcoin_Wallet {
-            position: absolute;
-            top: 150px;
-            width: 300px;
-            height: 400px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 2;
-            display: none;
-        }
-
-        .Bitcoin_Wallet > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Bitcoin_Wallet > .Top_Bar > .Window_Title  {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-        .Bitcoin_Wallet > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Bitcoin_Wallet > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-    
-        /*Menu_Settings*/
-
-        .Menu_Settings {
-            position: absolute;
-            top: 150px;
-            width: 250px;
-            height: 140px;
-            background-color: rgba(41, 41, 41, 0.5);
-            backdrop-filter: blur(30px);
-            z-index: 2;
-            display: none;
-        }
-
-        .Menu_Settings > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.1);
-            font-size: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Menu_Settings > .Top_Bar > .Window_Title {
-            position: absolute;
-            left: 10px;
-            color: rgb(255, 255, 255);
-        }
-
-
-        .Menu_Settings > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            background: none;
-            border: none;
-            outline: none;
-            color: rgb(255, 255, 255);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Menu_Settings > .Top_Bar > .Close > img {
-            width: 14px;
-        }
-
-        @keyframes Apps {
-            0% {opacity: 0;transform-origin: 0% 50%;transform: scale(0.2) translate(-200%, 0%);}
-            100% {opacity: 1;transform-origin: 0% 50%;transform: scale(1) translate(0%, 0%);}
-        }
-       
-
+        
     </style>
     <!-- Do Not Touch -->
     <script>
@@ -614,131 +262,91 @@
 
     <!-- This is where you can add to the app -->
 
-<body id="Main">
-    <div class="Wallpaper">
-        <img src="/Images/Wallpaper/3ebe82d8b7a956a82809c8977ab36814.jpg" alt="">
-    </div>
-    <div class="Start">
-        <button id="Open_Main"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
-    </div>
-    <div class="Main" id="Main_Window">
-        <div class="Top_Bar">
-            <span class="Window_Title">Desk Top</span>
-            <button class="Close" id="Close_Main"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-        <div class="Menu">
+<body id="Main_Body">
+    <div class="Login">
+        <div class="Login_Box">
             <div class="Profile_Img">
-                <button><img src="/Images/Profile Pics/LinkedIn-studio-headshot-photographer-london-1024x1024.jpg" alt=""></button>
+                <img src="/Images/Icons/account_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg" alt="">
             </div>
-            <div class="Main_Items">
-                <button id="Open_Apps"><img src="/Images/Icons/apps_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Home"><img src="/Images/Icons/home_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Mail"><img src="/Images/Icons/mail_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Notifications"><img src="/Images/Icons/notifications_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Messages"><img src="/Images/Icons/chat_bubble_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Bitcoin_Wallet"><img src="/Images/Icons/currency_bitcoin_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
-                <button id="Open_Menu_Settings"><img src="/Images/Icons/settings_24dp_1F1F1F.svg" alt=""><span class="New_Item"></span></button>
+            <div class="Inputs">
+                <input type="text" placeholder="User Name">
+                <input type="text" placeholder="Password">
             </div>
-            <span class="Move"><img src="/Images/Icons/more_horiz_24dp_1F1F1F.svg" alt=""></span>
+            <div class="Buttons">
+                <button>Sign In</button>
+                <button>Continue</button>
+            </div>
         </div>
     </div>
+    <div class="Main">
+        <div class="Menu">
+            <div class="Menu_Bar">
+                <div class="Menu_Items">
+                    <span id="Open_Menu_Main">Menu</span>
+                    <span>Profile</span>
+                    <span>Market</span>
+                    <span>Maps</span>
+                    <span>Wallet</span>
+                </div>
+            </div>
+            <div class="Menu_Main" id="Menu_Main">
+                <div class="Top_Bar" id="Menu_Main_Header">
+                    <p class="Title">Menu</p>
+                    <img class="Close" id="Close_Menu_Main" src="/Images/Icons/close_24dp_1F1F1F.svg" alt="">
+                </div>
+                <div class="Menu_Main_Items_Container">
+                    <button>[Friends]</button>
+                    <button>[Clans]</button>
+                    <button>[Corporation]</button>
+                    <button>[Messages]</button>
+                    <button>[Notifications]</button>
+                    <button>[Log out]</button>
+                </div>
+            </div>
 
-    <!-- Menu Item Windows -->
-
-    <div class="Apps" id="Apps">
-        <div class="Top_Bar" id="Apps_Header">
-            <span class="Window_Title">Apps</span>
-            <button class="Close" id="Close_Apps"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
+            <div class="Profile">
+                <div class="Top_Bar" id="Menu_Main_Header">
+                    <p class="Title">Menu</p>
+                    <img class="Close" id="Close_Menu_Main" src="/Images/Icons/close_24dp_1F1F1F.svg" alt="">
+                </div>
+                <div class="Bottom_Buttons">
+                    <button class="Upload"><img src="/Images/Icons/upload_24dp_1F1F1F_FILL1_wght400_GRAD0_opsz24.svg" alt=""></button>
+                </div>
+            </div>
+        </div>
+        <div class="Ads">
+            
         </div>
     </div>
-
-    <div class="Home" id="Home">
-        <div class="Top_Bar" id="Home_Header">
-            <span class="Window_Title">Home</span>
-            <button class="Close" id="Close_Home"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-
-    <div class="Mail" id="Mail">
-        <div class="Top_Bar" id="Mail_Header">
-            <span class="Window_Title">Mail</span>
-            <button class="Close" id="Close_Mail"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-
-    <div class="Notifications" id="Notifications">
-        <div class="Top_Bar" id="Notifications_Header">
-            <span class="Window_Title">Notifications</span>
-            <button class="Close" id="Close_Notifications"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-
-    <div class="Messages" id="Messages">
-        <div class="Top_Bar" id="Messages_Header">
-            <span class="Window_Title">Messages</span>
-            <button class="Close" id="Close_Messages"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-
-    <div class="Bitcoin_Wallet" id="Bitcoin_Wallet">
-        <div class="Top_Bar" id="Bitcoin_Wallet_Header">
-            <span class="Window_Title">Bitcoin Wallet</span>
-            <button class="Close" id="Close_Bitcoin_Wallet"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-
-    <div class="Menu_Settings" id="Menu_Settings">
-        <div class="Top_Bar" id="Menu_Settings_Header">
-            <span class="Window_Title">Menu Settings</span>
-            <button class="Close" id="Close_Menu_Settings"><img src="/Images/Icons/close_24dp_1F1F1F.svg" alt=""></button>
-        </div>
-    </div>
-    
 </body>
 
 <!-- This is where you add the behaviors of the elements -->
 
 <script>
-//Apps/////////////////////////////////////////////////////////////////////////////
-//Open_Main////////////////////////////////////////////////////////////////////////
+//Menu_Main/////////////////////////////////////////////////////////////////////////////
 
-    var Open_Main = document.getElementById("Open_Main");
-    var Close_Main = document.getElementById("Close_Main");
-    var Main_Window = document.getElementById("Main_Window");
-
+    var Open_Menu_Main = document.getElementById("Open_Menu_Main");
+    var Menu_Main = document.getElementById("Menu_Main");
     
-    Open_Main.onclick = function() {
-        Main_Window.style.display = "flex";
-    }
-
-    Close_Main.onclick = function() {
-        Main_Window.style.display = "none";
-    }
-//Menu Bar Items///////////////////////////////////////////////////////////////////
-//Apps/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Apps = document.getElementById("Open_Apps");
-    var Apps = document.getElementById("Apps");
-    
-    Open_Apps.onclick = function() {
-        Apps.style.display = "flex";
+    Open_Menu_Main.onclick = function() {
+        Menu_Main.style.display = "flex";
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-    const Apps = document.getElementById('Apps');
-    const Apps_Header = document.getElementById('Apps_Header');
-    const Close_Apps = document.getElementById("Close_Apps");
+    const Menu_Main = document.getElementById('Menu_Main');
+    const Menu_Main_Header = document.getElementById('Menu_Main_Header');
+    const Close_Menu_Main = document.getElementById("Close_Menu_Main");
 
     let isDragging = false;
     let offsetX, offsetY;
 
     // Touch Start Event
-    Apps_Header.addEventListener('touchstart', (e) => {
+    Menu_Main_Header.addEventListener('touchstart', (e) => {
         isDragging = true;
         const touch = e.touches[0];
-        offsetX = touch.clientX - Apps.getBoundingClientRect().left;
-        offsetY = touch.clientY - Apps.getBoundingClientRect().top;
-        Apps.style.cursor = 'grabbing';
+        offsetX = touch.clientX - Menu_Main.getBoundingClientRect().left;
+        offsetY = touch.clientY - Menu_Main.getBoundingClientRect().top;
+        Menu_Main.style.cursor = 'grabbing';
         e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
     });
 
@@ -746,240 +354,21 @@
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         const touch = e.touches[0];
-        Apps.style.left = (touch.clientX - offsetX) + 'px';
-        Apps.style.top = (touch.clientY - offsetY) + 'px';
+        Menu_Main.style.left = (touch.clientX - offsetX) + 'px';
+        Menu_Main.style.top = (touch.clientY - offsetY) + 'px';
         e.preventDefault();
     });
 
     // Touch End Event
     document.addEventListener('touchend', () => {
         isDragging = false;
-        Apps.style.cursor = 'grab';
+        Menu_Main.style.cursor = 'grab';
     });
 
-    Close_Apps.addEventListener('touchend', () => {
-        Apps.style.display = 'none';
+    Close_Menu_Main.addEventListener('touchend', () => {
+        Menu_Main.style.display = 'none';
     });
 
-});
-
-//Home/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Home = document.getElementById("Open_Home");
-    var Close_Home = document.getElementById("Close_Home");
-    var Home = document.getElementById("Home");
-
-    Open_Home.onclick = function() {
-        Home.style.display = "flex";
-    }
-
-    Close_Home.onclick = function() {
-        Home.style.display = "none";
-    }
-
-//Mail/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Mail = document.getElementById("Open_Mail");
-    var Close_Mail = document.getElementById("Close_Mail");
-    var Mail = document.getElementById("Mail");
-
-    Open_Mail.onclick = function() {
-        Mail.style.display = "flex";
-    }
-
-    Close_Mail.onclick = function() {
-        Mail.style.display = "none";
-    }
-
-//Notifications/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Notifications = document.getElementById("Open_Notifications");
-    var Notifications = document.getElementById("Notifications");
-    
-    Open_Notifications.onclick = function() {
-        Notifications.style.display = "flex";
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const Notifications = document.getElementById('Notifications');
-    const Notifications_Header = document.getElementById('Notifications_Header');
-    const Close_Notifications = document.getElementById("Close_Notifications");
-
-    let isDragging = false;
-    let offsetX, offsetY;
-
-    // Touch Start Event
-    Notifications_Header.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - Notifications.getBoundingClientRect().left;
-        offsetY = touch.clientY - Notifications.getBoundingClientRect().top;
-        Apps.style.cursor = 'grabbing';
-        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
-    });
-
-    // Touch Move Event
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        Notifications.style.left = (touch.clientX - offsetX) + 'px';
-        Notifications.style.top = (touch.clientY - offsetY) + 'px';
-        e.preventDefault();
-    });
-
-    // Touch End Event
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        Notifications.style.cursor = 'grab';
-    });
-
-    Close_Notifications.addEventListener('touchend', () => {
-        Notifications.style.display = 'none';
-    });
-
-});
-
-//Messages/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Messages = document.getElementById("Open_Messages");
-    var Messages = document.getElementById("Messages");
-    
-    Open_Messages.onclick = function() {
-        Messages.style.display = "flex";
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const Messages = document.getElementById('Messages');
-    const Messages_Header = document.getElementById('Messages_Header');
-    const Close_Messages = document.getElementById("Close_Messages");
-
-    let isDragging = false;
-    let offsetX, offsetY;
-
-    // Touch Start Event
-    Messages_Header.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - Messages.getBoundingClientRect().left;
-        offsetY = touch.clientY - Messages.getBoundingClientRect().top;
-        Apps.style.cursor = 'grabbing';
-        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
-    });
-
-    // Touch Move Event
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        Messages.style.left = (touch.clientX - offsetX) + 'px';
-        Messages.style.top = (touch.clientY - offsetY) + 'px';
-        e.preventDefault();
-    });
-
-    // Touch End Event
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        Messages.style.cursor = 'grab';
-    });
-
-    Close_Messages.addEventListener('touchend', () => {
-        Messages.style.display = 'none';
-    });
-
-});
-
-//Bitcoin_Wallet/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Bitcoin_Wallet = document.getElementById("Open_Bitcoin_Wallet");
-    var Bitcoin_Wallet = document.getElementById("Bitcoin_Wallet");
-    
-    Open_Bitcoin_Wallet.onclick = function() {
-        Bitcoin_Wallet.style.display = "flex";
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const Bitcoin_Wallet = document.getElementById('Bitcoin_Wallet');
-    const Bitcoin_Wallet_Header = document.getElementById('Bitcoin_Wallet_Header');
-    const Close_Bitcoin_Wallet = document.getElementById("Close_Bitcoin_Wallet");
-
-    let isDragging = false;
-    let offsetX, offsetY;
-
-    // Touch Start Event
-    Bitcoin_Wallet_Header.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - Bitcoin_Wallet.getBoundingClientRect().left;
-        offsetY = touch.clientY - Bitcoin_Wallet.getBoundingClientRect().top;
-        Apps.style.cursor = 'grabbing';
-        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
-    });
-
-    // Touch Move Event
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        Bitcoin_Wallet.style.left = (touch.clientX - offsetX) + 'px';
-        Bitcoin_Wallet.style.top = (touch.clientY - offsetY) + 'px';
-        e.preventDefault();
-    });
-
-    // Touch End Event
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        Bitcoin_Wallet.style.cursor = 'grab';
-    });
-
-    Close_Bitcoin_Wallet.addEventListener('touchend', () => {
-        Bitcoin_Wallet.style.display = 'none';
-    });
-});
-
-//Menu_Settings/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Menu_Settings = document.getElementById("Open_Menu_Settings");
-    var Menu_Settings = document.getElementById("Menu_Settings");
-    
-    Open_Menu_Settings.onclick = function() {
-        Menu_Settings.style.display = "flex";
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const Menu = document.getElementById('Menu');
-    const Menu_Settings = document.getElementById('Menu_Settings');
-    const Menu_Settings_Header = document.getElementById('Menu_Settings_Header');
-    const Close_Menu_Settings = document.getElementById("Close_Menu_Settings");
-
-    let isDragging = false;
-    let offsetX, offsetY;
-
-
-    Menu_Settings_Header.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - Menu_Settings.getBoundingClientRect().left;
-        offsetY = touch.clientY - Menu_Settings.getBoundingClientRect().top;
-        Menu_Settings.style.cursor = 'grabbing';
-        e.preventDefault();
-    });
-
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        Menu_Settings.style.left = (touch.clientX - offsetX) + 'px';
-        Menu_Settings.style.top = (touch.clientY - offsetY) + 'px';
-        e.preventDefault();
-    });
-
-    // Touch End Event
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        Menu_Settings.style.cursor = 'grab';
-    });
-
-    Close_Menu_Settings.addEventListener('touchend', () => {
-        Menu_Settings.style.display = 'none';
-    });
 });
 
 </script>

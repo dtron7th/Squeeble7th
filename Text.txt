@@ -1061,3 +1061,16 @@
                 <button><i class="fa-solid fa-wallet"></i><span class="New_Item"></span></button>
             </div>
             <span class="Move"><i class="fa-solid fa-ellipsis"></i></span>
+
+       .Main > .Menu > .Profile {
+            margin: 10px;
+            width: 350px;
+            height: 300px;
+            background-color: aliceblue;
+        }
+
+        .Main > .Menu > .Profile {
+            width: 350px;
+            height: 300px;
+            background-color: aliceblue;
+        }
