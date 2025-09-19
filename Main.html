@@ -14,9 +14,14 @@
       * {
             padding: 0px;
             margin: 0px;
-            font-family: "Sometype Mono", monospace;
+            font-family: DOS;
             font-weight: 100;
             
+        }
+
+        @font-face {
+            font-family: DOS;
+            src: url(/Squeeble7th/Fonts/DOS/Px437_ACM_VGA_9x14.ttf)
         }
 
         *::-webkit-scrollbar {
@@ -111,7 +116,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: rgb(187, 187, 187);
+            background-color: rgb(0, 0, 0);
         }
 
         .Main > .Menu {
@@ -123,7 +128,7 @@
         .Main > .Menu > .Menu_Bar {
             width: 100%;
             height: 30px;
-            background-color: rgb(54, 54, 54);
+            background-color: rgb(0, 26, 195);
             display: flex;
             align-items: center;
             gap: 50px;
@@ -165,11 +170,11 @@
         .Main > .Menu > .Menu_Main > .Top_Bar > .Title {
             position: absolute;
             left: 10px;
-            font-size: 10px;
+            font-size: 8px;
             color: rgb(255, 255, 255);
         }
 
-        .Main > .Menu > .Menu_Main > .Top_Bar > .2 {
+        .Main > .Menu > .Menu_Main > .Top_Bar > .CLose {
             position: absolute;
             right: 10px;
             width: 12px;
@@ -186,7 +191,7 @@
         .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container > button {
             width: 100%;
             height: 30px;
-            font-size: 10px;
+            font-size: 10 px;
             display: flex;
             align-items: center; 
             background: none;
@@ -238,18 +243,16 @@
             position: absolute;
             bottom: 10px;
             right: 10px;
-            width: 50px;
+            width: 60px;
             height: 20px;
-            background-color: rgb(68, 68, 68);
+            background-color: rgb(19, 19, 19);
+            color: rgb(255, 255, 255);
+            font-size: 10px;
             border: none;
             outline: none;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .Main > .Menu > .Profile > .Bottom_Buttons > .Upload > img {
-            width: 12px;
         }
         
     </style>
@@ -304,15 +307,46 @@
                 </div>
             </div>
 
-            <div class="Profile">
+            <div class="Profile" id="Profile">
                 <div class="Top_Bar" id="Menu_Main_Header">
                     <p class="Title">Menu</p>
-                    <img class="Close" id="Close_Menu_Main" src="/Images/Icons/close_24dp_1F1F1F.svg" alt="">
+                    <img class="Close" id="Close_Menu_Main" src="/Squeeble7th/Images/Icons/close_24dp_1F1F1F.svg" alt="">
                 </div>
                 <div class="Bottom_Buttons">
-                    <button class="Upload"><img src="/Images/Icons/upload_24dp_1F1F1F_FILL1_wght400_GRAD0_opsz24.svg" alt=""></button>
+                    <button class="Upload">Upload</button>
                 </div>
             </div>
+            <div class="Market" id="Market">
+
+            </div>
+            <div class="Maps" id="Maps">
+
+            </div>
+            <div class="Wallet" id="Wallet">
+
+            </div>
+
+            <!--Menu_Main_Items////////////////////////////////////////////////-->
+
+            <div class="Friends" id="Friends">
+
+            </div>
+            <div class="Clans" id="Clans">
+
+            </div>
+            <div class="Corporation" id="Corporation">
+
+            </div>
+            <div class="Messages" id="Messages">
+
+            </div>
+            <div class="Notificaitons" id="Notificaitons">
+
+            </div>
+            <div class="Logout" id="Logout">
+
+            </div>
+
         </div>
         <div class="Ads">
             
