@@ -15,17 +15,35 @@
             padding: 0px;
             margin: 0px;
             font-family: DOS;
-            font-weight: 100;
+            font-weight: 100;  
             
         }
 
         @font-face {
             font-family: DOS;
-            src: url(/Squeeble7th/Fonts/DOS/Px437_ACM_VGA_9x14.ttf)
+            src: url(/Fonts/DOS/Px437_ACM_VGA_8x14.ttf)
         }
 
         *::-webkit-scrollbar {
             display: none;
+        }
+
+        :root {
+            /*Windows*/
+            --Body: rgb(124, 124, 124);
+            --Main_Text: 10px;
+            --Main_Window_Color: rgb(0, 0, 209) ;
+            --Border_Color: rgb(173, 173, 173) ;
+            --Menu_Bar_Color: rgb(87, 87, 87) ;
+            --Menu_Text_Color: rgb(255, 255, 255) ;
+            --Box_Shadow: rgb(0, 0, 0);
+
+            /*Main_Content*/
+            --Main_Content_Text_Color: rgb(0, 0, 0);
+            --Main_Content_Border_Color: rgb(0, 0, 0) ;
+            --Main_Content_Text: 14px;
+
+
         }
 
     </style>
@@ -33,7 +51,7 @@
     <!-- Index -->
     <style>
         body {
-            background-color: rgb(0, 0, 0);
+            background-color: rgb(95, 95, 95);
             display: flex;
             justify-content: center;
         }
@@ -87,7 +105,7 @@
 
         .Login > .Login_Box > .Inputs > input::placeholder {   
             color: rgb(70, 70, 70);
-            font-size: 10px;
+            font-size: var(--Main_Text);
         }
 
         .Login > .Login_Box > .Buttons {
@@ -106,7 +124,7 @@
             border: none;
             color: rgb(61, 61, 61);
             outline: none;
-            font-size: 10px;
+            font-size: var(--Main_Text);
             color: rgb(255, 255, 255);
         }
 
@@ -116,138 +134,307 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: rgb(0, 0, 0);
+            background-color: var(--Body);
         }
+
+        /*Menu/////////////////////////////////////////////////////////////////////////////////////*/
 
         .Main > .Menu {
             position: absolute;
             top: 0px;
             width: 100%;
+            height: 100%;
         }
 
-        .Main > .Menu > .Menu_Bar {
+        .Main > .Menu > .Main_Menu_Bar {
             width: 100%;
-            height: 30px;
-            background-color: rgb(0, 26, 195);
+            height: 40px;
+            background-color: var(--Menu_Bar_Color);
             display: flex;
+            flex-direction: row;
             align-items: center;
             gap: 50px;
+            
         }
 
-        .Main > .Menu > .Menu_Bar > .Menu_Items {
+        .Main > .Menu > .Main_Menu_Bar > .Menu_Bar {
             width: 100%;
-            font-size: 10px;
+            height: 30px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 50px;
+            
+        }
+
+        .Main > .Menu > .Main_Menu_Bar > .Menu_Bar > .Menu_Items {
+            margin-left: 10px;
+            width: 100%;
+            font-size: var(--Main_Text);
             color: rgb(255, 255, 255);
             display: flex;
-            gap: 30px;
-            text-indent: 10px;
+            gap: 40px; 
+            z-index: 2;
         }
 
+        /*Menu_Main/////////////////////////////////////////////////////////////////////////////////////*/
 
-        .Main > .Menu > .Menu_Main {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window {
             position: absolute;
-            width: 200px;
-            height: 350px;
-            background-color: rgb(143, 143, 143);
-            box-shadow: 10px 10px rgb(0, 0, 0);
-            margin: 10px;
+            top: 50px;
+            left: 10px;
+            width: 220px;
+            height: 400px;
+            background-color: var(--Main_Window_Color);
             display: flex;
             justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
             display: none;
         }
 
-        .Main > .Menu > .Menu_Main > .Top_Bar {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main {
+            position: absolute;
+            width: 200px;
+            height: 380px;
+            border: 1px solid var(--Border_Color);
+            display: flex;
+            justify-content: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar {
             position: absolute;
             top: 0px;
             width: 100%;
-            height: 30px;
-            background-color: rgb(54, 54, 54);
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
             display: flex;
             flex-direction: row;
             align-items: center;
         }
 
-        .Main > .Menu > .Menu_Main > .Top_Bar > .Title {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar > .Title {
             position: absolute;
             left: 10px;
-            font-size: 8px;
+            font-size: var(--Main_Text);
             color: rgb(255, 255, 255);
         }
 
-        .Main > .Menu > .Menu_Main > .Top_Bar > .CLose {
-            position: absolute;
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar > .Close {
+            position: absolute;                                                                              
             right: 10px;
-            width: 12px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container {
             position: absolute;
-            top: 40px;
+            top: 50px;
             width: calc(100% - 20px);
-            height: calc(100% - 50px);   
-            border: 1px solid rgb(100, 100, 100);
+            height: calc(100% - 60px);   
+            border: 1px solid var(--Border_Color);
         }
 
-        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container > button {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 {
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button {
             width: 100%;
-            height: 30px;
-            font-size: 10 px;
+            height: 20px;
+            font-size: var(--Main_Text);
             display: flex;
             align-items: center; 
             background: none;
-            color: rgb(29, 29, 29);
+            color: rgb(255, 255, 255);
             text-indent: 10px;
             border: none;
             outline: none;
         }
 
-        .Main > .Menu > .Menu_Main > .Menu_Main_Items_Container > button:active {
-            background-color: rgb(51, 51, 51);
-            color: rgb(255, 255, 255);
-        }
-        
-        .Main > .Menu > .Profile {
-            position: relative;
-            margin: 10px;
-            width: 350px;
-            height: 300px;
-            background-color: rgb(224, 224, 224);
-            box-shadow: 10px 10px rgb(0, 0, 0);
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
         }
 
-        .Main > .Menu > .Profile > .Top_Bar {
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button > span {
+            position: absolute;
+            right: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 {
+            border-bottom: 1px solid var(--Border_Color);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button {
+            width: 100%;
+            height: 20px;
+            font-size: var(--Main_Text);
+            display: flex;
+            align-items: center; 
+            background: none;
+            color: rgb(255, 255, 255);
+            text-indent: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button > span {
+            position: absolute;
+            right: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 {
+            border-bottom: 1px solid var(--Border_Color);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button {
+            width: 100%;
+            height: 20px;
+            font-size: var(--Main_Text);
+            display: flex;
+            align-items: center; 
+            background: none;
+            color: rgb(255, 255, 255);
+            text-indent: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button > span {
+            position: absolute;
+            right: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button {
+            width: 100%;
+            height: 20px;
+            font-size: var(--Main_Text);
+            display: flex;
+            align-items: center; 
+            background: none;
+            color: rgb(255, 255, 255);
+            text-indent: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button > span {
+            position: absolute;
+            right: 10px;
+        }
+
+        /*Menu_Bar Windows/////////////////////////////////////////////////////////////////////////////////////*/
+        /*Profile/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: 370px;
+            height: 320px;
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile {
+            position: absolute;
+            width: 350px;
+            height: 300px;
+            border: 1px solid var(--Border_Color);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar {
             position: absolute;
             top: 0px;
             width: 100%;
-            height: 30px;
-            background-color: rgb(54, 54, 54);
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
             display: flex;
             flex-direction: row;
             align-items: center;
         }
 
-        .Main > .Menu > .Profile > .Top_Bar > .Title {
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar > .Title {
             position: absolute;
             left: 10px;
-            font-size: 10px;
+            font-size: var(--Main_Text);
             color: rgb(255, 255, 255);
         }
 
-        .Main > .Menu > .Profile > .Top_Bar > .Close {
-            position: absolute;
-            right: 10px;
-            width: 12px;
-        }
-
-        .Main > .Menu > .Profile > .Bottom_Buttons > .Upload {
-            position: absolute;
-            bottom: 10px;
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar > .Close {
+            position: absolute;                                                                              
             right: 10px;
             width: 60px;
             height: 20px;
-            background-color: rgb(19, 19, 19);
+            background-color: rgb(0, 151, 151);
             color: rgb(255, 255, 255);
-            font-size: 10px;
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Bottom_Buttons {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Bottom_Buttons > button {
+            width: 60px;
+            height: 20px;
+            background-color: rgb(255, 166, 0);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
             border: none;
             outline: none;
             display: flex;
@@ -255,6 +442,709 @@
             align-items: center;
         }
         
+        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Main_Content {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: calc(100% - 20px );
+            height: calc(100% - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        /*Market/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: calc(100vw - 30px);
+            height: calc(100dvh - 70px);
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market {
+            position: absolute;
+            width: calc(100vw - 50px);
+            height: calc(100dvh - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Bottom_Buttons {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Bottom_Buttons > button {
+            width: 60px;
+            height: 20px;
+            background-color: rgb(255, 166, 0);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Main_Content {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: calc(100% - 20px );
+            height: calc(100% - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        /*Maps/////////////////////////////////////////////////////////////////////////////////////*/
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: calc(100vw - 30px);
+            height: calc(100dvh - 70px);
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps {
+            position: absolute;
+            width: calc(100vw - 50px);
+            height: calc(100dvh - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Bottom_Buttons {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Bottom_Buttons > button {
+            width: 60px;
+            height: 20px;
+            background-color: rgb(255, 166, 0);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Main_Content {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: calc(100% - 20px );
+            height: calc(100% - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        /*Wallet/////////////////////////////////////////////////////////////////////////////////////*/
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: 420px;
+            height: 320px;
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            border: 1px solid var(--Border_Color);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Bottom_Buttons {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Bottom_Buttons > button {
+            width: 60px;
+            height: 20px;
+            background-color: rgb(255, 166, 0);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Main_Content {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: calc(100% - 20px );
+            height: calc(100% - 90px);
+            border: 1px solid var(--Border_Color);
+        }
+
+        /*Menu_Main Friends/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Main_Windows > .Friends_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: 220px;
+            height: 520px;
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+        
+        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends {
+            position: absolute;
+            width: 200px;
+            height: 500px;
+            border: 1px solid var(--Border_Color);
+            clip-path: 5px ;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*Menu_Main Clans/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Main_Windows > .Clans_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: 220px;
+            height: 520px;
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+        
+        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans {
+            position: absolute;
+            width: 200px;
+            height: 500px;
+            border: 1px solid var(--Border_Color);
+            clip-path: 5px ;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*Menu_Main Dating/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Main_Windows > .Dating_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: calc(100vw - 30px);
+            height: calc(100dvh - 70px);
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+        
+        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating {
+            position: absolute;
+            width: calc(100vw - 50px);
+            height: calc(100dvh - 90px);
+            border: 1px solid var(--Border_Color);
+            clip-path: 5px ;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*Menu_Main Military/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Main_Windows > .Military_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: calc(100vw - 30px);
+            height: calc(100dvh - 70px);
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+        
+        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military {
+            position: absolute;
+            width: calc(100vw - 50px);
+            height: calc(100dvh - 90px);
+            border: 1px solid var(--Border_Color);
+            clip-path: 5px ;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*Menu_Main Corporation/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: calc(100vw - 30px);
+            height: calc(100dvh - 70px);
+            background-color: var(--Main_Window_Color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 10px 10px var(--Box_Shadow);
+            z-index: 3;
+            display: none;
+        }
+        
+        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation {
+            position: absolute;
+            width: calc(100vw - 50px);
+            height: calc(100dvh - 90px);
+            border: 1px solid var(--Border_Color);
+            clip-path: 5px ;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+            border-bottom: 1px solid var(--Border_Color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar > .Title {
+            position: absolute;
+            left: 10px;
+            font-size: var(--Main_Text);
+            color: rgb(255, 255, 255);
+        }
+
+        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar > .Close {
+            position: absolute;                                                                              
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background-color: rgb(0, 151, 151);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*Main_Content/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Main_Content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .Main > .Main_Content > .Title {
+            margin-top: 200px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .Main > .Main_Content > .Title > p {
+            font-size: 30px;
+            color: var(--Main_Content_Text_Color);
+        }
+
+        .Main > .Main_Content > .About {
+            margin-top: 100px;
+            width: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .Main > .Main_Content > .About > p {
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .Main > .Main_Content > .Donate {
+            margin-top: 40px;
+        }
+
+        .Main > .Main_Content > .Donate > button {
+            position: relative;
+            width: 200px;
+            height: 40px;
+            background-color: var(--Main_Window_Color);
+            color: rgb(255, 255, 255);
+            font-size: 16px;
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Main > .Main_Content > .Donate > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        /*Clothes/////////////////////////////////////////////////////////////////////////////////////*/
+
+        .Main > .Main_Content > .Clothes {
+            margin-top: 160px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section {
+            width: calc(100% - 40px);
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Title {
+            font-size: var(--Main_Content_Text);
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop {
+            margin-top: 10px;
+            width: 100%;
+            height: auto;
+            font-size: var(--Main_Text);
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container {
+            width: 100%;
+            height: auto;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button {
+            position: relative;
+            width: 100%;
+            height: 30px;
+            text-indent: 10px;
+            background-color: var(--Main_Window_Color);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button:active {
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button > .Size {
+            position: absolute;
+            left: 100px;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button > .Price {
+            position: absolute;
+            right: 10px;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Buttons {
+            position: absolute;
+            margin-top: 20px;
+        }
+
+        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Buttons > button {
+            position: relative;
+            width: 100px;
+            height: 20px;
+            background-color: var(--Main_Window_Color);
+            color: rgb(255, 255, 255);
+            font-size: var(--Main_Text);
+            border: none;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
     </style>
     <!-- Do Not Touch -->
     <script>
@@ -283,70 +1173,243 @@
     </div>
     <div class="Main">
         <div class="Menu">
-            <div class="Menu_Bar">
-                <div class="Menu_Items">
-                    <span id="Open_Menu_Main">Menu</span>
-                    <span>Profile</span>
-                    <span>Market</span>
-                    <span>Maps</span>
-                    <span>Wallet</span>
+            <!--Menu_Bar//////////////////////////////////////////////////////////-->
+            <div class="Main_Menu_Bar">
+                <div class="Menu_Bar">
+                    <div class="Menu_Items">
+                        <span id="Open_Menu_Main">Menu</span>
+                        <span id="Open_Profile">Profile</span>
+                        <span id="Open_Market">Market</span>
+                        <span id="Open_Maps">Maps</span>
+                        <span id="Open_Wallet">Wallet</span>
+                    </div>
                 </div>
             </div>
-            <div class="Menu_Main" id="Menu_Main">
-                <div class="Top_Bar" id="Menu_Main_Header">
-                    <p class="Title">Menu</p>
-                    <img class="Close" id="Close_Menu_Main" src="/Images/Icons/close_24dp_1F1F1F.svg" alt="">
+            
+            <div class="Menu_Bar_Windows">
+            <!--Menu > Menu_Main/////////////////////////////////////////////////////////-->
+                <div class="Menu_Main_Window" id="Menu_Main" >
+                    <div class="Menu_Main">
+                        <div class="Top_Bar">
+                            <p class="Title">Main Menu</p>
+                            <button class="Close" id="Close_Menu_Main">Close</button>
+                        </div>
+                        <div class="Menu_Main_Items_Container">
+                            <div class="Group_1">
+                                <button>[Friends]<span>......</span></button>
+                                <button>[Clans]<span>......</span></button>
+                                <button>[Dating]<span>......</span></button>
+                                <button>[Military]<span>......</span></button>
+                                <button>[Corporation]<span>......</span></button>
+                            </div>
+                            <div class="Group_2">
+                                <button>[Mail]<span>......</span></button>
+                                <button>[Tools]<span>......</span></button>
+                                <button>[Data Space]<span>......</span></button>
+                                <button>[Other]<span>......</span></button>
+                            </div>
+                            <div class="Group_3">
+                                <button>[Notifications]<span>......</span></button>
+                                <button>[Messages]<span>......</span></button>
+                            </div>
+                            <div class="Group_4">
+                                <button>[Logout]<span>......</span></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="Menu_Main_Items_Container">
-                    <button>[Friends]</button>
-                    <button>[Clans]</button>
-                    <button>[Corporation]</button>
-                    <button>[Messages]</button>
-                    <button>[Notifications]</button>
-                    <button>[Log out]</button>
+                
+                <!--Menu > Menu_Main/////////////////////////////////////////////////////////-->
+                <!--Menu > Profile/////////////////////////////////////////////////////////-->
+                <div class="Profile_Window" id="Profile">
+                    <div class="Profile">
+                        <div class="Top_Bar">
+                            <p class="Title">Profile</p>
+                            <button class="Close" id="Close_Profile">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom_Buttons">
+                            <button>Settings</button>
+                            <button>Upload</button>
+                            <button>Download</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--Menu > Profile///////////////////////////////////////////////////////-->
+                <!--Menu > Market/////////////////////////////////////////////////////////-->
+                <div class="Market_Window" id="Market">
+                    <div class="Market">
+                        <div class="Top_Bar">
+                            <p class="Title">Market</p>
+                            <button class="Close" id="Close_Market">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom_Buttons">
+                            <button>Settings</button>
+                            <button>Upload</button>
+                            <button>Sell</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--Menu > Market///////////////////////////////////////////////////////-->
+                <!--Menu > Maps/////////////////////////////////////////////////////////-->
+                <div class="Maps_Window" id="Maps">
+                    <div class="Maps">
+                        <div class="Top_Bar">
+                            <p class="Title">Maps</p>
+                            <button class="Close" id="Close_Maps">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom_Buttons">
+                            <button>Settings</button>
+                            <button>Upload</button>
+                            <button>Sell</button>
+                        </div>
+                    </div>
+                </div>
+                <!--Menu > Maps/////////////////////////////////////////////////////////-->
+                <!--Menu > Wallet///////////////////////////////////////////////////////-->
+                <div class="Wallet_Window" id="Wallet">
+                    <div class="Wallet">
+                        <div class="Top_Bar">
+                            <p class="Title">Wallet</p>
+                            <button class="Close" id="Close_Wallet">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom_Buttons">
+                            <button>Settings</button>
+                            <button>Upload</button>
+                            <button>Sell</button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="Menu_Main_Windows">
+                <!--Menu_Main > Friends//////////////////////////////////////////////////////-->
+                <div class="Friends_Window">
+                    <div class="Friends" id="Friends">
+                        <div class="Top_Bar">
+                            <p class="Title">Friends</p>
+                            <button class="Close">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom">
+
+                        </div>
+                    </div>
+                </div>
+                <!--Menu_Main > Clans//////////////////////////////////////////////////////-->
+                <div class="Clans_Window">
+                    <div class="Clans" id="Clans">
+                        <div class="Top_Bar">
+                            <p class="Title">Clans</p>
+                            <button class="Close">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom">
+
+                        </div>
+                    </div>
+                </div>
+                <!--Menu_Main > Dating//////////////////////////////////////////////////////-->
+                <div class="Dating_Window">
+                    <div class="Dating" id="Dating">
+                        <div class="Top_Bar">
+                            <p class="Title">Dating</p>
+                            <button class="Close">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom">
+
+                        </div>
+                    </div>
+                </div>
+                <!--Menu_Main > Military//////////////////////////////////////////////////////-->
+                <div class="Military_Window">
+                    <div class="Military" id="Military">
+                        <div class="Top_Bar">
+                            <p class="Title">Military</p>
+                            <button class="Close">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom">
+
+                        </div>
+                    </div>
+                </div>
+                <!--Menu_Main > Corporation//////////////////////////////////////////////////////-->
+                <div class="Corporation_Window">
+                    <div class="Corporation" id="Corporation">
+                        <div class="Top_Bar">
+                            <p class="Title">Corporation</p>
+                            <button class="Close">Close</button>
+                        </div>
+                        <div class="Main_Content">
+
+                        </div>
+                        <div class="Bottom">
+
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="Main_Content">
+            <div class="Title">
+                <p style="font-size: 50px;">The 666</p>
+                <p>Resistance Network</p>
+            </div>
+            <div class="About">
+                <p>We will never get the mark of the beast, no matter what happens to us. The 666 resistance network is a globle tribe network where we cam stay save from the mark of the beast.</p>
+                <p>Get news, go on missions and help the world stay safe from the mark of the beast</p>
+            </div>
+            <div class="Donate">
+                <button>Donate</button>
+            </div>
 
-            <div class="Profile" id="Profile">
-                <div class="Top_Bar" id="Menu_Main_Header">
-                    <p class="Title">Menu</p>
-                    <img class="Close" id="Close_Menu_Main" src="/Squeeble7th/Images/Icons/close_24dp_1F1F1F.svg" alt="">
+            <!--Clothes//////////////////////////////////////////////////////////-->
+            <div class="Clothes">
+                <div class="Clothes_Section">
+                    <p class="Title">Clothes Store</p>
+                    <div class="Clothes_Shop">
+                        <div class="Clothes_Shop_Container">
+                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        </div>
+                        <div class="Buttons">
+                            <button>Add Product</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="Bottom_Buttons">
-                    <button class="Upload">Upload</button>
-                </div>
             </div>
-            <div class="Market" id="Market">
+            <div class="Blueprints">
 
             </div>
-            <div class="Maps" id="Maps">
+            <div class="Missions">
 
             </div>
-            <div class="Wallet" id="Wallet">
-
-            </div>
-
-            <!--Menu_Main_Items////////////////////////////////////////////////-->
-
-            <div class="Friends" id="Friends">
-
-            </div>
-            <div class="Clans" id="Clans">
-
-            </div>
-            <div class="Corporation" id="Corporation">
-
-            </div>
-            <div class="Messages" id="Messages">
-
-            </div>
-            <div class="Notificaitons" id="Notificaitons">
-
-            </div>
-            <div class="Logout" id="Logout">
-
-            </div>
-
         </div>
         <div class="Ads">
             
@@ -357,52 +1420,74 @@
 <!-- This is where you add the behaviors of the elements -->
 
 <script>
-//Menu_Main/////////////////////////////////////////////////////////////////////////////
+    //Menu_Main/////////////////////////////////////////////////////////////////////////////
 
     var Open_Menu_Main = document.getElementById("Open_Menu_Main");
+    var Close_Menu_Main = document.getElementById("Close_Menu_Main");
     var Menu_Main = document.getElementById("Menu_Main");
     
     Open_Menu_Main.onclick = function() {
         Menu_Main.style.display = "flex";
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-    const Menu_Main = document.getElementById('Menu_Main');
-    const Menu_Main_Header = document.getElementById('Menu_Main_Header');
-    const Close_Menu_Main = document.getElementById("Close_Menu_Main");
+    Close_Menu_Main.onclick = function() {
+        Menu_Main.style.display = "none";
+    }
 
-    let isDragging = false;
-    let offsetX, offsetY;
+    //Profile/////////////////////////////////////////////////////////////////////////////
 
-    // Touch Start Event
-    Menu_Main_Header.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - Menu_Main.getBoundingClientRect().left;
-        offsetY = touch.clientY - Menu_Main.getBoundingClientRect().top;
-        Menu_Main.style.cursor = 'grabbing';
-        e.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
-    });
+    var Open_Profile = document.getElementById("Open_Profile");
+    var Close_Profile = document.getElementById("Close_Profile");
+    var Profile = document.getElementById("Profile");
+    
+    Open_Profile.onclick = function() {
+        Profile.style.display = "flex";
+    }
 
-    // Touch Move Event
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const touch = e.touches[0];
-        Menu_Main.style.left = (touch.clientX - offsetX) + 'px';
-        Menu_Main.style.top = (touch.clientY - offsetY) + 'px';
-        e.preventDefault();
-    });
+    Close_Profile.onclick = function() {
+        Profile.style.display = "none";
+    }
 
-    // Touch End Event
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        Menu_Main.style.cursor = 'grab';
-    });
+    //Market/////////////////////////////////////////////////////////////////////////////
 
-    Close_Menu_Main.addEventListener('touchend', () => {
-        Menu_Main.style.display = 'none';
-    });
+    var Open_Market = document.getElementById("Open_Market");
+    var Close_Market = document.getElementById("Close_Market");
+    var Market = document.getElementById("Market");
+    
+    Open_Market.onclick = function() {
+        Market.style.display = "flex";
+    }
 
-});
+    Close_Market.onclick = function() {
+        Market.style.display = "none";
+    }
+
+    //Maps/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Maps = document.getElementById("Open_Maps");
+    var Close_Maps = document.getElementById("Close_Maps");
+    var Maps = document.getElementById("Maps");
+    
+    Open_Maps.onclick = function() {
+        Maps.style.display = "flex";
+    }
+
+    Close_Maps.onclick = function() {
+        Maps.style.display = "none";
+    }
+
+    //Wallet/////////////////////////////////////////////////////////////////////////////
+
+    var Open_Wallet = document.getElementById("Open_Wallet");
+    var Close_Wallet = document.getElementById("Close_Wallet");
+    var Wallet = document.getElementById("Wallet");
+    
+    Open_Wallet.onclick = function() {
+        Wallet.style.display = "flex";
+    }
+
+    Close_Wallet.onclick = function() {
+        Wallet.style.display = "none";
+    }
 
 </script>
