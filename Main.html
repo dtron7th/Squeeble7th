@@ -30,7 +30,7 @@
 
         :root {
             /*Windows*/
-            --Body: rgb(124, 124, 124);
+            --Body: rgb(146, 146, 146);
             --Main_Text: 10px;
             --Main_Window_Color: rgb(0, 0, 209) ;
             --Border_Color: rgb(173, 173, 173) ;
@@ -130,7 +130,7 @@
 
         .Main {
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1006,16 +1006,17 @@
         /*Main_Content/////////////////////////////////////////////////////////////////////////////////////*/
 
         .Main > .Main_Content {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 1;
+            overflow-y: scroll;
         }
 
         .Main > .Main_Content > .Title {
-            margin-top: 200px;
+            margin-top: 150px;
             width: 300px;
             text-align: center;
         }
@@ -1026,7 +1027,7 @@
         }
 
         .Main > .Main_Content > .About {
-            margin-top: 100px;
+            margin-top: 50px;
             width: calc(100% - 40px);
             display: flex;
             flex-direction: column;
@@ -1039,14 +1040,18 @@
             text-align: center;
         }
 
-        .Main > .Main_Content > .Donate {
+        .Main > .Main_Content > .Main_Buttons {
             margin-top: 40px;
+            width: calc(100% - 40px);
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
         }
 
-        .Main > .Main_Content > .Donate > button {
+        .Main > .Main_Content > .Main_Buttons > button {
             position: relative;
-            width: 200px;
-            height: 40px;
+            width: 100%;
+            height: 30px;
             background-color: var(--Main_Window_Color);
             color: rgb(255, 255, 255);
             font-size: 16px;
@@ -1057,21 +1062,22 @@
             align-items: center;
         }
 
-        .Main > .Main_Content > .Donate > button:active {
+        .Main > .Main_Content > .Main_Buttons > button:active {
             background-color: rgb(255, 255, 255);
             color: rgb(0, 0, 0);
         }
 
         /*Clothes/////////////////////////////////////////////////////////////////////////////////////*/
 
-        .Main > .Main_Content > .Clothes {
-            margin-top: 160px;
+        .Main > .Main_Content > .Actions {
+            position: absolute;
+            bottom: 20px;
             width: 100%;
             display: flex;
             justify-content: center;
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section {
+        .Main > .Main_Content > .Actions > .Actions_Section {
             width: calc(100% - 40px);
             height: auto;
             display: flex;
@@ -1080,23 +1086,18 @@
             
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Title {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Title {
             font-size: var(--Main_Content_Text);
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container {
             margin-top: 10px;
             width: 100%;
             height: auto;
             font-size: var(--Main_Text);
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container {
-            width: 100%;
-            height: auto;
-        }
-
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button {
             position: relative;
             width: 100%;
             height: 30px;
@@ -1111,27 +1112,27 @@
             text-align: left;
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button:active {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button:active {
             background-color: rgb(255, 255, 255);
             color: rgb(0, 0, 0);
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button > .Size {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button > .Size {
             position: absolute;
             left: 100px;
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Clothes_Shop_Container > button > .Price {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button > .Price {
             position: absolute;
             right: 10px;
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Buttons {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > .Buttons {
             position: absolute;
             margin-top: 20px;
         }
 
-        .Main > .Main_Content > .Clothes > .Clothes_Section > .Clothes_Shop > .Buttons > button {
+        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > .Buttons > button {
             position: relative;
             width: 100px;
             height: 20px;
@@ -1145,6 +1146,9 @@
             align-items: center;
         }
 
+
+
+        
     </style>
     <!-- Do Not Touch -->
     <script>
@@ -1383,32 +1387,26 @@
                 <p>We will never get the mark of the beast, no matter what happens to us. The 666 resistance network is a globle tribe network where we cam stay save from the mark of the beast.</p>
                 <p>Get news, go on missions and help the world stay safe from the mark of the beast</p>
             </div>
-            <div class="Donate">
+            <div class="Main_Buttons">
+                <button>Explore</button>
                 <button>Donate</button>
             </div>
 
             <!--Clothes//////////////////////////////////////////////////////////-->
-            <div class="Clothes">
-                <div class="Clothes_Section">
+            <div class="Actions">
+                <div class="Actions_Section">
                     <p class="Title">Clothes Store</p>
-                    <div class="Clothes_Shop">
-                        <div class="Clothes_Shop_Container">
-                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                            <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        </div>
-                        <div class="Buttons">
-                            <button>Add Product</button>
-                        </div>
+                    <div class="Actions_Container">
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
+                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
                     </div>
                 </div>
-            </div>
-            <div class="Blueprints">
-
-            </div>
-            <div class="Missions">
-
             </div>
         </div>
         <div class="Ads">
