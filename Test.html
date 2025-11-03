@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <!-- Include the qrcode.js library from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* Basic styling */
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+        .qr-container { margin-top: 20px; padding: 20px; border: 1px solid #ccc; }
+        input[type="text"] { padding: 10px; width: 250px; }
+        button { padding: 10px 15px; margin-left: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Generate a QR Code</h1>
+    <input type="text" id="text-input" placeholder="Enter URL or text" value="Hello World">
+    <button onclick="generateQr()">Generate</button>
+    
+    <div class="qr-container">
+        <div id="qrcode"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+    // Initialize the QR code instance globally or within the function scope
+    let qr = null;
+
+    function generateQr() {
+        const textInput = document.getElementById('text-input');
+        const qrCodeDiv = document.getElementById('qrcode');
+        const data = textInput.value;
+
+        if (!data) {
+            alert("Please enter text or a URL.");
+            return;
+        }
+
+        // Clear previous QR code if it exists
+        if (qr) {
+            qrCodeDiv.innerHTML = ""; 
+            qr = null; // Reset the instance
+        }
+
+        // Create a new QR code instance
+        qr = new QRCode(qrCodeDiv, {
+            text: data,
+            width: 128,
+            height: 128,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H // High error correction level
+        });
+    }
+
+    // Generate a default QR code on page load
+    document.addEventListener('DOMContentLoaded', (event) => {
+        generateQr();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "squeeble7th",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/dtron7th/Squeeble7th#readme",
+  "bugs": {
+    "url": "https://github.com/dtron7th/Squeeble7th/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtron7th/Squeeble7th.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

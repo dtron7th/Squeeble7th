@@ -14,9 +14,8 @@
       * {
             padding: 0px;
             margin: 0px;
-            font-family: DOS;
+            font-family: "Sometype Mono", monospace;
             font-weight: 100;  
-            
         }
 
         @font-face {
@@ -29,21 +28,17 @@
         }
 
         :root {
-            /*Windows*/
-            --Body: rgb(146, 146, 146);
             --Main_Text: 10px;
-            --Main_Window_Color: rgb(0, 0, 209) ;
-            --Border_Color: rgb(173, 173, 173) ;
-            --Menu_Bar_Color: rgb(87, 87, 87) ;
-            --Menu_Text_Color: rgb(255, 255, 255) ;
-            --Box_Shadow: rgb(0, 0, 0);
-
-            /*Main_Content*/
-            --Main_Content_Text_Color: rgb(0, 0, 0);
-            --Main_Content_Border_Color: rgb(0, 0, 0) ;
-            --Main_Content_Text: 14px;
-
-
+            --Main_Text_1: 13px;
+            --Main_Text_Color: rgb(255, 255, 255);
+            --Main_Window_Color-1: rgba(0, 0, 0, 0.103);
+            --Main_Window_Color-2: rgba(0, 0, 0, 0.212);
+            --Main_Window_Header_Color-1: rgba(0, 0, 0, 0.2);
+            --Login_Window_Color-1: rgb(0, 0, 0);
+            --Login_Window_Color-2: rgb(255, 255, 255);
+            --Main_Border: rgba(255, 255, 255, 0.2);
+            --Text_Input_Field: rgba(0, 0, 0, 0.253);
+            --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
         }
 
     </style>
@@ -51,1104 +46,255 @@
     <!-- Index -->
     <style>
         body {
-            background-color: rgb(95, 95, 95);
-            display: flex;
-            justify-content: center;
+            background-color: rgb(255, 255, 255);
+            overflow: hidden;
+            width: 100dvw;
+            height: 100dvh;
         }
 
-        .Login {
-            width: 100vw;
-            height: 100vh;
+        /* Wallpaper for login screen*/
+
+        .Wallpaper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            background-size: contain;
+        }
+
+        .Wallpaper > .Img_List {
+            display: flex;
+        }
+
+        .Wallpaper > .Img_List > img {
+            width: 100dvw;
+            height: 100dvh;
+            background-size: cover;
+        }
+
+        /* UI system */
+
+        .Window {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--Main_Window_Color-1);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            border: 1px solid var(--Main_Border);
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .Window > .Window_Header {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 30px;
+            background-color: var(--Main_Window_Header_Color-1);
+            display: flex;
+            align-items: center;
+        }
+
+        .Window >.Window_Header > .Title {
+            margin-left: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Text);
+        }
+
+        .Window > .Window_Header > .Close_Button {
+            position: absolute;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            background-color: rgb(255, 0, 0);
+            border: none;
+            outline: none;
+            border-radius: 50%;
+        }
+
+        .Window > .Content {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            height: calc( 100% - 30px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            border: none;
+            outline: none;
+            background-color: var(--Text_Input_Field);
+            text-indent: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Text);
+        }
+
+        input::placeholder {
+            text-indent: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Text);
+        }
+
+        button {
+            border: none;
+            outline: none;
+            background-color: var(--Text_Input_Field);
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Text);
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: var(--Text_Input_Field-Active);
+        }
+
+        /* Main */
+        
+        .Disclaimer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            background-color: var(--Main_Window_Color-2);
             display: flex;
             justify-content: center;
             align-items: center;
             display: none;
-        }
-
-        .Login > .Login_Box {
-            position: absolute;
-            top: 200px;
-            width: 350px;
-            height: 350px;
-            background-color: rgb(22, 0, 82);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .Login > .Login_Box > .Profile_Img {
-            position: absolute;
-            top: 30px;
-        }
-
-        .Login > .Login_Box > .Profile_Img > img {
-            width: 70px;
-        }
-
-        .Login > .Login_Box > .Inputs {
-            position: absolute;
-            top: 150px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .Login > .Login_Box > .Inputs > input {
-            width: calc(100% - 60px);
-            height: 30px;
-            background-color: rgb(255, 255, 255) ;
-            border: none;
-            text-indent: 10px;
-        }
-
-        .Login > .Login_Box > .Inputs > input::placeholder {   
-            color: rgb(70, 70, 70);
-            font-size: var(--Main_Text);
-        }
-
-        .Login > .Login_Box > .Buttons {
-            position: absolute;
-            bottom: 10px;
-            width: calc(100% - 20px);
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-
-        .Login > .Login_Box > .Buttons > button {
-            width: 100%;
-            height: 30px;
-            background-color: rgb(71, 71, 71);
-            border: none;
-            color: rgb(61, 61, 61);
-            outline: none;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main {
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--Body);
-        }
-
-        /*Menu/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 100%;
-        }
-
-        .Main > .Menu > .Main_Menu_Bar {
-            width: 100%;
-            height: 40px;
-            background-color: var(--Menu_Bar_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 50px;
-            
-        }
-
-        .Main > .Menu > .Main_Menu_Bar > .Menu_Bar {
-            width: 100%;
-            height: 30px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 50px;
-            
-        }
-
-        .Main > .Menu > .Main_Menu_Bar > .Menu_Bar > .Menu_Items {
-            margin-left: 10px;
-            width: 100%;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-            display: flex;
-            gap: 40px; 
             z-index: 2;
         }
 
-        /*Menu_Main/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window {
+        .Disclaimer > .Disclaimer_Window {
             position: absolute;
-            top: 50px;
-            left: 10px;
-            width: 220px;
-            height: 400px;
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main {
-            position: absolute;
-            width: 200px;
-            height: 380px;
-            border: 1px solid var(--Border_Color);
-            display: flex;
-            justify-content: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container {
-            position: absolute;
-            top: 50px;
-            width: calc(100% - 20px);
-            height: calc(100% - 60px);   
-            border: 1px solid var(--Border_Color);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 {
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: column;
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button {
-            width: 100%;
-            height: 20px;
-            font-size: var(--Main_Text);
-            display: flex;
-            align-items: center; 
-            background: none;
-            color: rgb(255, 255, 255);
-            text-indent: 10px;
-            border: none;
-            outline: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_1 > button > span {
-            position: absolute;
-            right: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 {
-            border-bottom: 1px solid var(--Border_Color);
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button {
-            width: 100%;
-            height: 20px;
-            font-size: var(--Main_Text);
-            display: flex;
-            align-items: center; 
-            background: none;
-            color: rgb(255, 255, 255);
-            text-indent: 10px;
-            border: none;
-            outline: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_2 > button > span {
-            position: absolute;
-            right: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 {
-            border-bottom: 1px solid var(--Border_Color);
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button {
-            width: 100%;
-            height: 20px;
-            font-size: var(--Main_Text);
-            display: flex;
-            align-items: center; 
-            background: none;
-            color: rgb(255, 255, 255);
-            text-indent: 10px;
-            border: none;
-            outline: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_3 > button > span {
-            position: absolute;
-            right: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 {
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button {
-            width: 100%;
-            height: 20px;
-            font-size: var(--Main_Text);
-            display: flex;
-            align-items: center; 
-            background: none;
-            color: rgb(255, 255, 255);
-            text-indent: 10px;
-            border: none;
-            outline: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Menu_Main_Window > .Menu_Main > .Menu_Main_Items_Container > .Group_4 > button > span {
-            position: absolute;
-            right: 10px;
-        }
-
-        /*Menu_Bar Windows/////////////////////////////////////////////////////////////////////////////////////*/
-        /*Profile/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: 370px;
-            height: 320px;
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile {
-            position: absolute;
-            width: 350px;
-            height: 300px;
-            border: 1px solid var(--Border_Color);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Bottom_Buttons {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Bottom_Buttons > button {
-            width: 60px;
-            height: 20px;
-            background-color: rgb(255, 166, 0);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Profile_Window > .Profile > .Main_Content {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            width: calc(100% - 20px );
-            height: calc(100% - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        /*Market/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: calc(100vw - 30px);
-            height: calc(100dvh - 70px);
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market {
-            position: absolute;
-            width: calc(100vw - 50px);
-            height: calc(100dvh - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Bottom_Buttons {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Bottom_Buttons > button {
-            width: 60px;
-            height: 20px;
-            background-color: rgb(255, 166, 0);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Market_Window > .Market > .Main_Content {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            width: calc(100% - 20px );
-            height: calc(100% - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        /*Maps/////////////////////////////////////////////////////////////////////////////////////*/
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: calc(100vw - 30px);
-            height: calc(100dvh - 70px);
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps {
-            position: absolute;
-            width: calc(100vw - 50px);
-            height: calc(100dvh - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Bottom_Buttons {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Bottom_Buttons > button {
-            width: 60px;
-            height: 20px;
-            background-color: rgb(255, 166, 0);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Maps_Window > .Maps > .Main_Content {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            width: calc(100% - 20px );
-            height: calc(100% - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        /*Wallet/////////////////////////////////////////////////////////////////////////////////////*/
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: 420px;
-            height: 320px;
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet {
-            position: absolute;
-            width: 400px;
-            height: 300px;
-            border: 1px solid var(--Border_Color);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Bottom_Buttons {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Bottom_Buttons > button {
-            width: 60px;
-            height: 20px;
-            background-color: rgb(255, 166, 0);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .Main > .Menu > .Menu_Bar_Windows > .Wallet_Window > .Wallet > .Main_Content {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            width: calc(100% - 20px );
-            height: calc(100% - 90px);
-            border: 1px solid var(--Border_Color);
-        }
-
-        /*Menu_Main Friends/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Main_Windows > .Friends_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: 220px;
-            height: 520px;
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-        
-        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends {
-            position: absolute;
-            width: 200px;
-            height: 500px;
-            border: 1px solid var(--Border_Color);
-            clip-path: 5px ;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Friends_Window > .Friends > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*Menu_Main Clans/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Main_Windows > .Clans_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: 220px;
-            height: 520px;
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-        
-        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans {
-            position: absolute;
-            width: 200px;
-            height: 500px;
-            border: 1px solid var(--Border_Color);
-            clip-path: 5px ;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Clans_Window > .Clans > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*Menu_Main Dating/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Main_Windows > .Dating_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: calc(100vw - 30px);
-            height: calc(100dvh - 70px);
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-        
-        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating {
-            position: absolute;
-            width: calc(100vw - 50px);
-            height: calc(100dvh - 90px);
-            border: 1px solid var(--Border_Color);
-            clip-path: 5px ;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Dating_Window > .Dating > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*Menu_Main Military/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Main_Windows > .Military_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: calc(100vw - 30px);
-            height: calc(100dvh - 70px);
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-        
-        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military {
-            position: absolute;
-            width: calc(100vw - 50px);
-            height: calc(100dvh - 90px);
-            border: 1px solid var(--Border_Color);
-            clip-path: 5px ;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Military_Window > .Military > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*Menu_Main Corporation/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            width: calc(100vw - 30px);
-            height: calc(100dvh - 70px);
-            background-color: var(--Main_Window_Color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 10px 10px var(--Box_Shadow);
-            z-index: 3;
-            display: none;
-        }
-        
-        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation {
-            position: absolute;
-            width: calc(100vw - 50px);
-            height: calc(100dvh - 90px);
-            border: 1px solid var(--Border_Color);
-            clip-path: 5px ;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar {
-            position: absolute;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-            border-bottom: 1px solid var(--Border_Color);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar > .Title {
-            position: absolute;
-            left: 10px;
-            font-size: var(--Main_Text);
-            color: rgb(255, 255, 255);
-        }
-
-        .Main > .Menu > .Menu_Main_Windows > .Corporation_Window > .Corporation > .Top_Bar > .Close {
-            position: absolute;                                                                              
-            right: 10px;
-            width: 60px;
-            height: 20px;
-            background-color: rgb(0, 151, 151);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*Main_Content/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Main_Content {
-            width: 100vw;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1;
-            overflow-y: scroll;
-        }
-
-        .Main > .Main_Content > .Title {
-            margin-top: 150px;
             width: 300px;
-            text-align: center;
-        }
-
-        .Main > .Main_Content > .Title > p {
-            font-size: 30px;
-            color: var(--Main_Content_Text_Color);
-        }
-
-        .Main > .Main_Content > .About {
-            margin-top: 50px;
-            width: calc(100% - 40px);
+            height: 200px;
+            background-color: var(--Main_Window_Color-2);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 20px;
-        }
-        
-        .Main > .Main_Content > .About > p {
-            font-size: 16px;
-            text-align: center;
         }
 
-        .Main > .Main_Content > .Main_Buttons {
-            margin-top: 40px;
+        .Login {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Login > .Login_Window > .Content > .Main {
+            position: absolute;
+            top: 100px;
             width: calc(100% - 40px);
             display: flex;
-            flex-direction: row;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .Login > .Login_Window > .Content > .Main  > .Inputs {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
             gap: 10px;
         }
 
-        .Main > .Main_Content > .Main_Buttons > button {
-            position: relative;
+        .Login > .Login_Window > .Content > .Main  > .Inputs > .SHA-256 {
             width: 100%;
             height: 30px;
-            background-color: var(--Main_Window_Color);
-            color: rgb(255, 255, 255);
-            font-size: 16px;
-            border: none;
-            outline: none;
+            background-color: var(--Text_Input_Field);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+            gap: 10px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
-            align-items: center;
+            text-indent: 10px;
+            overflow: hidden;
         }
 
-        .Main > .Main_Content > .Main_Buttons > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
+        .Login > .Login_Window > .Content > .Main > .Buttons {
+            position: absolute;
+            top: 90px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
         }
 
-        /*Clothes/////////////////////////////////////////////////////////////////////////////////////*/
-
-        .Main > .Main_Content > .Actions {
+        .Login > .Login_Window > .Content > .Manual {
             position: absolute;
             bottom: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section {
             width: calc(100% - 40px);
-            height: auto;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            
+            gap: 10px;
         }
 
-        .Main > .Main_Content > .Actions > .Actions_Section > .Title {
-            font-size: var(--Main_Content_Text);
+        .Login > .Login_Window > .Content > p {
+            width: calc(100% - 40px);
         }
 
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container {
-            margin-top: 10px;
-            width: 100%;
-            height: auto;
-            font-size: var(--Main_Text);
+        .Login > .Verification_Window {
+            display: none;
         }
 
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button {
-            position: relative;
-            width: 100%;
-            height: 30px;
-            text-indent: 10px;
-            background-color: var(--Main_Window_Color);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
-            display: flex;
-            align-items: center;
-            text-align: left;
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button:active {
-            background-color: rgb(255, 255, 255);
-            color: rgb(0, 0, 0);
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button > .Size {
-            position: absolute;
-            left: 100px;
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > button > .Price {
-            position: absolute;
-            right: 10px;
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > .Buttons {
-            position: absolute;
-            margin-top: 20px;
-        }
-
-        .Main > .Main_Content > .Actions > .Actions_Section > .Actions_Container > .Buttons > button {
-            position: relative;
-            width: 100px;
-            height: 20px;
-            background-color: var(--Main_Window_Color);
-            color: rgb(255, 255, 255);
-            font-size: var(--Main_Text);
-            border: none;
-            outline: none;
+        .Login > .Verification_Window > .Content {
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        .Login > .Verification_Window > .Content > .Profiele {
+            position: absolute;
+            top: 30px;
+            width: 70px;
+            height: 70px;
+            overflow: hidden;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .Login > .Verification_Window > .Content > .Profiele > img {
+            width: 100%;
+            background-size: contain;
+        }
+
+        .Login > .Verification_Window > .Content > .Data {
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .Login > .Verification_Window > .Content > .Data > span {
+            width: 150px;
+            text-align: center;
+            font-size: var(--Main_Text_1);
+            color: var(--Main_Text_Color);
+        }
+
+        .Login > .Verification_Window > .Content > .Buttons {
+            width: 100%;
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
         
+
     </style>
     <!-- Do Not Touch -->
     <script>
@@ -1160,332 +306,530 @@
     <!-- This is where you can add to the app -->
 
 <body id="Main_Body">
+    <div class="Wallpaper">
+        <div class="Img_List">
+            <img src="/Images/Background Img/Login_wallpaper-1.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-2.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-3.jpg" alt="">
+        </div>
+    </div>
+
+    <!-- UI system -->
+    
+    <!-- UI system -->
+
+    <!-- Game system
+        Profile
+        Wallet
+        
+        market
+
+
+    -->
+     
+    <!-- Main -->
+    <div class="Disclaimer" id="Disclaimer">
+        <div class="Disclaimer_Window">
+            <p style=" position: absolute; top: 40px; width: 250px; color: var(--Main_Text_Color); font-size: 12px; text-align: center;">This web app is ment for phones and some tablets, but mostly phones. The UI nor the website wouldn't work on desktops and laptops </p>
+            <button id="Close_Disclaimer" style="position: absolute; bottom: 20px; width: 150px; height: 30px; font-size: var(--Main_Text);">Accept</button>
+        </div>
+    </div>
     <div class="Login">
-        <div class="Login_Box">
-            <div class="Profile_Img">
-                <img src="/Images/Icons/account_circle_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg" alt="">
+        <div class="Window Login_Window" style="width: 300px; height: 400px;">
+            <div class="Window_Header">
+                <p class="Title">Log in</p>
+                <button class="Close_Button"></button>
             </div>
-            <div class="Inputs">
-                <input type="text" placeholder="User Name">
-                <input type="text" placeholder="Password">
+            <div class="Content">
+                <p style="color: var(--Main_Text_Color); position: absolute; top: 40px; left: 20px; font-size: var(--Main_Text);">This uses the crypto hash SHA-256 algoritm to secure your account, just use your email address and name below to login.</p>
+
+                <div class="Main">
+                    <div class="Inputs">
+                        <code class="SHA-256" id="SHA-256"></code>
+                        <input class="Field" id="Printed_Text" type="text" style="width: 100%; height: 30px;" placeholder="Credentials">
+                    </div>
+                    <div class="Buttons">
+                        <button id="Open_Verification_Window" style="width: 100%; height: 30px;">Login</button>
+                        <button style="width: 100%; height: 30px;">Sign Up</button>
+                    </div>
+                </div>
+                <div class="Manual">
+                    <input id="Hash_Name" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Name">
+                    <input id="Password" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Password">
+                </div>
             </div>
-            <div class="Buttons">
-                <button>Sign In</button>
-                <button>Continue</button>
+        </div>
+        <div class="Window Verification_Window" id="Verification_Window" style="width: 200px; height: 300px;">
+            <div class="Window_Header">
+                <p class="Title">Verification</p>
+                <button class="Close_Button" id="Close_Verification_Window"></button>
+            </div>
+            <div class="Content">
+                <div class="Profiele">
+                    <img src="/Images/Profile Pics/images.jpeg" alt="">
+                </div>
+                <div class="Data">
+                    <span>Verification Success</span>
+                    <span style="font-size: var(--Main_Text);">04 : 30</span>
+                </div>
+                <div class="Buttons">
+                    <button style="width: calc(100% - 40px); height: 30px;">Go on</button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="Main">
-        <div class="Menu">
-            <!--Menu_Bar//////////////////////////////////////////////////////////-->
-            <div class="Main_Menu_Bar">
-                <div class="Menu_Bar">
-                    <div class="Menu_Items">
-                        <span id="Open_Menu_Main">Menu</span>
-                        <span id="Open_Profile">Profile</span>
-                        <span id="Open_Market">Market</span>
-                        <span id="Open_Maps">Maps</span>
-                        <span id="Open_Wallet">Wallet</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="Menu_Bar_Windows">
-            <!--Menu > Menu_Main/////////////////////////////////////////////////////////-->
-                <div class="Menu_Main_Window" id="Menu_Main" >
-                    <div class="Menu_Main">
-                        <div class="Top_Bar">
-                            <p class="Title">Main Menu</p>
-                            <button class="Close" id="Close_Menu_Main">Close</button>
-                        </div>
-                        <div class="Menu_Main_Items_Container">
-                            <div class="Group_1">
-                                <button>[Friends]<span>......</span></button>
-                                <button>[Clans]<span>......</span></button>
-                                <button>[Dating]<span>......</span></button>
-                                <button>[Military]<span>......</span></button>
-                                <button>[Corporation]<span>......</span></button>
-                            </div>
-                            <div class="Group_2">
-                                <button>[Mail]<span>......</span></button>
-                                <button>[Tools]<span>......</span></button>
-                                <button>[Data Space]<span>......</span></button>
-                                <button>[Other]<span>......</span></button>
-                            </div>
-                            <div class="Group_3">
-                                <button>[Notifications]<span>......</span></button>
-                                <button>[Messages]<span>......</span></button>
-                            </div>
-                            <div class="Group_4">
-                                <button>[Logout]<span>......</span></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!--Menu > Menu_Main/////////////////////////////////////////////////////////-->
-                <!--Menu > Profile/////////////////////////////////////////////////////////-->
-                <div class="Profile_Window" id="Profile">
-                    <div class="Profile">
-                        <div class="Top_Bar">
-                            <p class="Title">Profile</p>
-                            <button class="Close" id="Close_Profile">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom_Buttons">
-                            <button>Settings</button>
-                            <button>Upload</button>
-                            <button>Download</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!--Menu > Profile///////////////////////////////////////////////////////-->
-                <!--Menu > Market/////////////////////////////////////////////////////////-->
-                <div class="Market_Window" id="Market">
-                    <div class="Market">
-                        <div class="Top_Bar">
-                            <p class="Title">Market</p>
-                            <button class="Close" id="Close_Market">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom_Buttons">
-                            <button>Settings</button>
-                            <button>Upload</button>
-                            <button>Sell</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!--Menu > Market///////////////////////////////////////////////////////-->
-                <!--Menu > Maps/////////////////////////////////////////////////////////-->
-                <div class="Maps_Window" id="Maps">
-                    <div class="Maps">
-                        <div class="Top_Bar">
-                            <p class="Title">Maps</p>
-                            <button class="Close" id="Close_Maps">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom_Buttons">
-                            <button>Settings</button>
-                            <button>Upload</button>
-                            <button>Sell</button>
-                        </div>
-                    </div>
-                </div>
-                <!--Menu > Maps/////////////////////////////////////////////////////////-->
-                <!--Menu > Wallet///////////////////////////////////////////////////////-->
-                <div class="Wallet_Window" id="Wallet">
-                    <div class="Wallet">
-                        <div class="Top_Bar">
-                            <p class="Title">Wallet</p>
-                            <button class="Close" id="Close_Wallet">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom_Buttons">
-                            <button>Settings</button>
-                            <button>Upload</button>
-                            <button>Sell</button>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="Menu_Main_Windows">
-                <!--Menu_Main > Friends//////////////////////////////////////////////////////-->
-                <div class="Friends_Window">
-                    <div class="Friends" id="Friends">
-                        <div class="Top_Bar">
-                            <p class="Title">Friends</p>
-                            <button class="Close">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom">
-
-                        </div>
-                    </div>
-                </div>
-                <!--Menu_Main > Clans//////////////////////////////////////////////////////-->
-                <div class="Clans_Window">
-                    <div class="Clans" id="Clans">
-                        <div class="Top_Bar">
-                            <p class="Title">Clans</p>
-                            <button class="Close">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom">
-
-                        </div>
-                    </div>
-                </div>
-                <!--Menu_Main > Dating//////////////////////////////////////////////////////-->
-                <div class="Dating_Window">
-                    <div class="Dating" id="Dating">
-                        <div class="Top_Bar">
-                            <p class="Title">Dating</p>
-                            <button class="Close">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom">
-
-                        </div>
-                    </div>
-                </div>
-                <!--Menu_Main > Military//////////////////////////////////////////////////////-->
-                <div class="Military_Window">
-                    <div class="Military" id="Military">
-                        <div class="Top_Bar">
-                            <p class="Title">Military</p>
-                            <button class="Close">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom">
-
-                        </div>
-                    </div>
-                </div>
-                <!--Menu_Main > Corporation//////////////////////////////////////////////////////-->
-                <div class="Corporation_Window">
-                    <div class="Corporation" id="Corporation">
-                        <div class="Top_Bar">
-                            <p class="Title">Corporation</p>
-                            <button class="Close">Close</button>
-                        </div>
-                        <div class="Main_Content">
-
-                        </div>
-                        <div class="Bottom">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="Main_Content">
-            <div class="Title">
-                <p style="font-size: 50px;">The 666</p>
-                <p>Resistance Network</p>
-            </div>
-            <div class="About">
-                <p>We will never get the mark of the beast, no matter what happens to us. The 666 resistance network is a globle tribe network where we cam stay save from the mark of the beast.</p>
-                <p>Get news, go on missions and help the world stay safe from the mark of the beast</p>
-            </div>
-            <div class="Main_Buttons">
-                <button>Explore</button>
-                <button>Donate</button>
-            </div>
-
-            <!--Clothes//////////////////////////////////////////////////////////-->
-            <div class="Actions">
-                <div class="Actions_Section">
-                    <p class="Title">Clothes Store</p>
-                    <div class="Actions_Container">
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                        <button><p class="Title">Sweater</p><p class="Size">Size LLL</p> <p class="Price">$30</p></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="Ads">
-            
-        </div>
     </div>
 </body>
 
 <!-- This is where you add the behaviors of the elements -->
 
 <script>
-    //Menu_Main/////////////////////////////////////////////////////////////////////////////
 
-    var Open_Menu_Main = document.getElementById("Open_Menu_Main");
-    var Close_Menu_Main = document.getElementById("Close_Menu_Main");
-    var Menu_Main = document.getElementById("Menu_Main");
+    // Fullscreen helper: request fullscreen on first user gesture and provide a fallback button
+    async function enterFullScreen() {
+        const el = document.documentElement;
+        if (document.fullscreenElement) return;
+        try {
+            if (el.requestFullscreen) await el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) await el.msRequestFullscreen();
+            // Attempt to lock orientation on supported mobile browsers (best-effort)
+            if (screen.orientation && screen.orientation.lock) {
+                try { await screen.orientation.lock('portrait-primary'); } catch (e) {}
+            }
+        } catch (e) {
+            // ignore failures (user agents may block programmatic fullscreen)
+        }
+    }
+
+    function onFirstGesture() {
+        enterFullScreen();
+        window.removeEventListener('pointerdown', onFirstGesture);
+        window.removeEventListener('keydown', onFirstGesture);
+    }
+
+    (function () {
+        // Try to enter fullscreen on the first user gesture (required by most browsers)
+        window.addEventListener('pointerdown', onFirstGesture, { passive: true });
+        window.addEventListener('keydown', onFirstGesture, { passive: true });
+
+        // Fallback visible button so the user can explicitly request fullscreen
+        const btn = document.createElement('button');
+        btn.id = 'EnterFullScreenButton';
+        btn.textContent = 'Enter Fullscreen';
+        Object.assign(btn.style, {
+            position: 'fixed',
+            right: '12px',
+            bottom: '12px',
+            zIndex: 9999,
+            padding: '8px 12px',
+            fontSize: '12px',
+            background: 'rgba(0,0,0,0.6)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            backdropFilter: 'blur(4px)',
+            cursor: 'pointer'
+        });
+        btn.addEventListener('click', async () => {
+            await enterFullScreen();
+            btn.style.display = 'none';
+        });
+        document.body.appendChild(btn);
+
+        // Hide/show the button depending on fullscreen state
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) btn.style.display = 'none';
+            else btn.style.display = '';
+        });
+    })();
+
+    // Wallpaper Image Slider
+
+    const imgList = document.querySelectorAll('.Wallpaper .Img_List img');
+    console.log(imgList);
+     
+    let currentIndex = 0;
+    imgList.forEach((img, i) => {
+        img.style.position = 'absolute';
+        img.style.top = 0;
+        img.style.left = 0;
+        img.style.opacity = i === 0 ? '1' : '0';
+        img.style.transition = 'opacity 1s';
+    });
+
+    function showImage(index) {
+        imgList.forEach((img, i) => {
+            img.style.opacity = i === index ? '1' : '0';
+        });
+    }
+
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % imgList.length;
+        showImage(currentIndex);
+    }, 10000);
+
+    function shuffleImages(images) {
+        for (let i = images.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            images[i].parentNode.insertBefore(images[j], images[i]);
+            [images[i], images[j]] = [images[j], images[i]];
+        }
+    }
+
+    shuffleImages(Array.from(imgList));
+
+    // UI Dragging Window
     
-    Open_Menu_Main.onclick = function() {
-        Menu_Main.style.display = "flex";
+    // make windowElement var available for other functions below
+    let windowElement = null;
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const windows = Array.from(document.querySelectorAll('.Window'));
+
+    windows.forEach(win => {
+        const header = win.querySelector('.Window_Header');
+        if (!header) return;
+
+        header.addEventListener('mousedown', (e) => {
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            document.body.style.userSelect = 'none';
+        });
+
+        header.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.touches[0].clientX - rect.left;
+            offsetY = e.touches[0].clientY - rect.top;
+            document.body.style.userSelect = 'none';
+        });
+    });
+
+    // global mouse/touch handlers drive the active window
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !windowElement) return;
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
+        // call existing setWindowPosition (uses global windowElement)
+        setWindowPosition(x, y);
+        windowElement.style.position = 'absolute';
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        windowElement = null;
+        document.body.style.userSelect = '';
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging || !windowElement || e.touches.length !== 1) return;
+        const x = e.touches[0].clientX - offsetX;
+        const y = e.touches[0].clientY - offsetY;
+        setWindowPosition(x, y);
+        windowElement.style.position = 'absolute';
+    });
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        windowElement = null;
+        document.body.style.userSelect = '';
+    });
+
+    // Snap to grid
+
+    function snapToGrid(x, y, gridSize = 20) {
+        const snappedX = Math.round(x / gridSize) * gridSize;
+        const snappedY = Math.round(y / gridSize) * gridSize;
+        return { x: snappedX, y: snappedY };
+        
     }
 
-    Close_Menu_Main.onclick = function() {
-        Menu_Main.style.display = "none";
+    function setWindowPosition(x, y) {
+        const snapped = snapToGrid(x, y);
+        windowElement.style.left = snapped.x + 'px';
+        windowElement.style.top = snapped.y + 'px';
     }
-
-    //Profile/////////////////////////////////////////////////////////////////////////////
-
-    var Open_Profile = document.getElementById("Open_Profile");
-    var Close_Profile = document.getElementById("Close_Profile");
-    var Profile = document.getElementById("Profile");
     
-    Open_Profile.onclick = function() {
-        Profile.style.display = "flex";
+    function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
     }
 
-    Close_Profile.onclick = function() {
-        Profile.style.display = "none";
+    function setWindowPosition(x, y) {
+        const snapped = snapToGrid(x, y);
+        const winRect = windowElement.getBoundingClientRect();
+        const bodyRect = document.body.getBoundingClientRect();
+        const maxX = bodyRect.width - winRect.width;
+        const maxY = bodyRect.height - winRect.height;
+        windowElement.style.left = clamp(snapped.x, 0, maxX) + 'px';
+        windowElement.style.top = clamp(snapped.y, 0, maxY) + 'px';
     }
 
-    //Market/////////////////////////////////////////////////////////////////////////////
+    // bring active window forward (z-index stacking)
+    let nextZIndex = 10;
 
-    var Open_Market = document.getElementById("Open_Market");
-    var Close_Market = document.getElementById("Close_Market");
-    var Market = document.getElementById("Market");
+    function bringToFront(el) {
+        if (!el) return;
+        el.style.zIndex = nextZIndex++;
+    }
+
+    // bring to front when any window is interacted with
+    windows.forEach(win => {
+        win.addEventListener('mousedown', () => bringToFront(win));
+        win.addEventListener('touchstart', () => bringToFront(win));
+    });
     
-    Open_Market.onclick = function() {
-        Market.style.display = "flex";
+
+    // Disclaimer
+
+    document.getElementById('Close_Disclaimer').addEventListener('click', function() {
+        document.getElementById('Disclaimer').style.display = 'none';
+    });
+
+    // Combine Name and Password into Printed_Text
+
+    const nameInput = document.getElementById('Hash_Name');
+    const passInput = document.getElementById('Password');
+    const shaField = document.getElementById('Printed_Text');
+
+    function updateSHAField() {
+        shaField.value = (nameInput.value || '') + (passInput.value || '');
     }
 
-    Close_Market.onclick = function() {
-        Market.style.display = "none";
+    nameInput.addEventListener('input', updateSHAField);
+    passInput.addEventListener('input', updateSHAField);
+
+    // initialize
+    updateSHAField();
+
+    const shaOutput = document.getElementById('SHA-256');
+    function syncPrintedToSHA() {
+        shaOutput.value = (shaField.value || '');
     }
+    shaField.addEventListener('input', syncPrintedToSHA);
+    nameInput.addEventListener('input', syncPrintedToSHA);
+    passInput.addEventListener('input', syncPrintedToSHA);
+    syncPrintedToSHA();
 
-    //Maps/////////////////////////////////////////////////////////////////////////////
+    // Login // Windows
 
-    var Open_Maps = document.getElementById("Open_Maps");
-    var Close_Maps = document.getElementById("Close_Maps");
-    var Maps = document.getElementById("Maps");
-    
-    Open_Maps.onclick = function() {
-        Maps.style.display = "flex";
-    }
+    // Login / Verification window behaviors
 
-    Close_Maps.onclick = function() {
-        Maps.style.display = "none";
-    }
+    // Open Verification Window when the Login button is clicked
+    (function() {
+        const openBtn = document.getElementById('Open_Verification_Window');
+        const verification = document.getElementById('Verification_Window');
+        const loginWindow = document.querySelector('.Login_Window');
+        const closeVerificationBtn = document.getElementById('Close_Verification_Window');
+        const shaDisplay = document.getElementById('SHA-256'); // <p> element showing SHA-256
+        const printedText = document.getElementById('Printed_Text'); // combined credentials field
+        const nameInput = document.getElementById('Hash_Name');
+        const passInput = document.getElementById('Password');
+        let verificationDataSpans = verification ? verification.querySelectorAll('.Data > span') : [];
 
-    //Wallet/////////////////////////////////////////////////////////////////////////////
+        // compute SHA-256 hex digest for a string
+        async function computeSHA256Hex(str) {
+            const enc = new TextEncoder();
+            const data = enc.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-    var Open_Wallet = document.getElementById("Open_Wallet");
-    var Close_Wallet = document.getElementById("Close_Wallet");
-    var Wallet = document.getElementById("Wallet");
-    
-    Open_Wallet.onclick = function() {
-        Wallet.style.display = "flex";
-    }
+        // update the printedText (already updated elsewhere) and the visible SHA-256 <p>
+        async function updateAndShowSHA() {
+            const combined = (printedText.value || '') || ((nameInput.value || '') + (passInput.value || ''));
+            if (!combined) {
+            shaDisplay.innerText = '';
+            return '';
+            }
+            const hex = await computeSHA256Hex(combined);
+            shaDisplay.innerText = hex;
+            return hex;
+        }
 
-    Close_Wallet.onclick = function() {
-        Wallet.style.display = "none";
-    }
+        function centerAndShow(winEl) {
+            if (!winEl) return;
+            winEl.style.display = 'flex';
+            winEl.style.position = 'absolute';
+            const winRect = winEl.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            winEl.style.left = Math.max(0, (bodyRect.width - winRect.width) / 2) + 'px';
+            winEl.style.top = Math.max(0, (bodyRect.height - winRect.height) / 2) + 'px';
+            bringToFront(winEl);
+        }
+
+        function hideWindow(winEl) {
+            if (!winEl) return;
+            winEl.style.display = 'none';
+        }
+
+        // Time display utilities
+        let clockInterval = null;
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function formatTime(d) {
+            return pad(d.getHours()) + ' : ' + pad(d.getMinutes()) + ' : ' + pad(d.getSeconds());
+        }
+        function ensureTimeSpan() {
+            if (!verification) return null;
+            const dataEl = verification.querySelector('.Data');
+            if (!dataEl) return null;
+            // refresh list
+            verificationDataSpans = verification.querySelectorAll('.Data > span');
+            if (verificationDataSpans[1]) return verificationDataSpans[1];
+            // create a second span if missing
+            const span = document.createElement('span');
+            span.style.fontSize = 'var(--Main_Text)';
+            span.textContent = formatTime(new Date());
+            dataEl.appendChild(span);
+            // refresh again
+            verificationDataSpans = verification.querySelectorAll('.Data > span');
+            return verificationDataSpans[1] || span;
+        }
+        function startClock(targetSpan) {
+            if (!targetSpan) targetSpan = ensureTimeSpan();
+            if (!targetSpan) return;
+            if (clockInterval) clearInterval(clockInterval);
+            const tick = () => { targetSpan.innerText = formatTime(new Date()); };
+            tick();
+            clockInterval = setInterval(tick, 1000);
+        }
+        function stopClock() {
+            if (clockInterval) {
+            clearInterval(clockInterval);
+            clockInterval = null;
+            }
+        }
+
+        // keep SHA display in sync as inputs change
+        [nameInput, passInput, printedText].forEach(el => {
+            if (!el) return;
+            el.addEventListener('input', () => {
+            // fire-and-forget update
+            updateAndShowSHA().catch(() => {});
+            });
+        });
+
+        if (openBtn) {
+            openBtn.addEventListener('click', async () => {
+            // compute/update SHA and use it for verification
+            const hex = await updateAndShowSHA();
+            if (!hex) {
+                // show feedback in verification window if needed
+                if (verificationDataSpans[0]) verificationDataSpans[0].innerText = 'No credentials provided';
+                // show current time in second span
+                const timeSpan = ensureTimeSpan();
+                if (timeSpan) startClock(timeSpan);
+                if (verificationDataSpans[1]) verificationDataSpans[1].innerText = formatTime(new Date());
+                centerAndShow(verification);
+                // do not hide the login window
+                return;
+            }
+
+            // basic client-side verification: check SHA length/format and display it
+            const ok = /^[0-9a-f]{64}$/.test(hex);
+            if (verificationDataSpans[0]) verificationDataSpans[0].innerText = ok ? 'Verification Success' : 'Verification Failed';
+
+            // show current time in the second span (live)
+            const timeSpan = ensureTimeSpan();
+            if (timeSpan) startClock(timeSpan);
+
+            centerAndShow(verification);
+            // do not hide the login window
+            });
+        }
+
+        if (closeVerificationBtn) {
+            closeVerificationBtn.addEventListener('click', () => {
+            hideWindow(verification);
+            stopClock();
+            // keep the login window open; do not change its display
+            if (loginWindow) bringToFront(loginWindow);
+            });
+        }
+        })();
+
+
+        // Hash Display
+
+        (function() {
+            const printed = document.getElementById('Printed_Text');
+            const sha = document.getElementById('SHA-256');
+            if (!printed || !sha) return;
+            function updateSHA() { sha.innerText = printed.value || ''; }
+            printed.addEventListener('input', updateSHA);
+            // also update when name/password change (if present)
+            document.getElementById('Hash_Name')?.addEventListener('input', updateSHA);
+            document.getElementById('Password')?.addEventListener('input', updateSHA);
+            updateSHA();
+        })();
+
+        // Hash Generation (using SubtleCrypto API)
+
+        (function() {
+            const nameEl = document.getElementById('Hash_Name');
+            const passEl = document.getElementById('Password');
+            if (!nameEl || !passEl) return;
+
+            async function computeSHA256Hex(str) {
+                const enc = new TextEncoder();
+                const data = enc.encode(str);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            async function generateHashHex() {
+                const source = (nameEl.value || '') + (passEl.value || '');
+                if (!source) return '';
+                const hex = await computeSHA256Hex(source);
+                return hex;
+            }
+
+            // update hash whenever related inputs change
+            [nameEl, passEl].forEach(el => {
+                if (!el) return;
+                el.addEventListener('input', () => { generateHashHex().catch(() => {}); });
+            });
+
+            // expose for manual triggering and initialize
+            window.generateHashHex = generateHashHex;
+            generateHashHex().catch(() => {});
+        })();
+
+        // Hash Display Update
+        (function() {
+            const printed = document.getElementById('Printed_Text');
+            const sha = document.getElementById('SHA-256');
+            if (!printed || !sha) return;
+            async function updateSHA() {
+                const source = printed.value || '';
+                if (!source) {
+                    sha.innerText = '';
+                    return;
+                }
+                const enc = new TextEncoder();
+                const data = enc.encode(source);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                sha.innerText = hex;
+            }
+            printed.addEventListener('input', () => { updateSHA().catch(() => {}); });
+            // also update when name/password change (if present)
+            document.getElementById('Hash_Name')?.addEventListener('input', () => { updateSHA().catch(() => {}); });
+            document.getElementById('Password')?.addEventListener('input', () => { updateSHA().catch(() => {}); });
+            updateSHA().catch(() => {});
+        })();
+
+
+
 
 </script>
