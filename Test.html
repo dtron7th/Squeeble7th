@@ -1,64 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
-    <!-- Include the qrcode.js library from a CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        /* Basic styling */
-        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
-        .qr-container { margin-top: 20px; padding: 20px; border: 1px solid #ccc; }
-        input[type="text"] { padding: 10px; width: 250px; }
-        button { padding: 10px 15px; margin-left: 10px; cursor: pointer; }
-    </style>
+    <title>SHA-256 Hash Generator</title>
 </head>
 <body>
-    <h1>Generate a QR Code</h1>
-    <input type="text" id="text-input" placeholder="Enter URL or text" value="Hello World">
-    <button onclick="generateQr()">Generate</button>
-    
-    <div class="qr-container">
-        <div id="qrcode"></div>
-    </div>
+    <h1>Generate SHA-256 Hash</h1>
+    <textarea id="inputContent" rows="10" cols="50" placeholder="Enter HTML content here..."></textarea><br><br>
+    <button id="generateBtn">Generate SHA-256 Hash</button><br><br>
+    <p>SHA-256 Hash (Hex):</p>
+    <textarea id="outputHash" rows="3" cols="50" readonly></textarea>
 
-    <script src="script.js"></script>
     <script>
-    // Initialize the QR code instance globally or within the function scope
-    let qr = null;
+        async function generateHash() {
+            const inputContent = document.getElementById('inputContent').value;
+            const encoder = new TextEncoder();
+            const data = encoder.encode(inputContent); // Encode the string as UTF-8
 
-    function generateQr() {
-        const textInput = document.getElementById('text-input');
-        const qrCodeDiv = document.getElementById('qrcode');
-        const data = textInput.value;
+            try {
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data); // Compute the SHA-256 hash
+                const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
+                const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
 
-        if (!data) {
-            alert("Please enter text or a URL.");
-            return;
+                document.getElementById('outputHash').value = hexHash;
+            } catch (error) {
+                console.error("Error generating hash:", error);
+                document.getElementById('outputHash').value = "Error generating hash.";
+            }
         }
-
-        // Clear previous QR code if it exists
-        if (qr) {
-            qrCodeDiv.innerHTML = ""; 
-            qr = null; // Reset the instance
-        }
-
-        // Create a new QR code instance
-        qr = new QRCode(qrCodeDiv, {
-            text: data,
-            width: 128,
-            height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H // High error correction level
-        });
-    }
-
-    // Generate a default QR code on page load
-    document.addEventListener('DOMContentLoaded', (event) => {
-        generateQr();
-    });
     </script>
 </body>
 </html>

@@ -39,6 +39,8 @@
             --Main_Border: rgba(255, 255, 255, 0.2);
             --Text_Input_Field: rgba(0, 0, 0, 0.253);
             --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
+
+            --Menu_Background: rgba(0, 0, 0, 0.3);
         }
 
     </style>
@@ -50,6 +52,8 @@
             overflow: hidden;
             width: 100dvw;
             height: 100dvh;
+            display: flex;
+            justify-content: center;
         }
 
         /* Wallpaper for login screen*/
@@ -75,13 +79,15 @@
 
         /* UI system */
 
+        
+
         .Window {
             position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: var(--Main_Window_Color-1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             overflow: hidden;
             border: 1px solid var(--Main_Border);
             box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
@@ -154,6 +160,19 @@
             background-color: var(--Text_Input_Field-Active);
         }
 
+        .Floating_Button {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+            font-size: var(--Main_Text);
+            border: 1px solid var(--Main_Border);
+            outline: none;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
         /* Main */
         
         .Disclaimer {
@@ -162,10 +181,11 @@
             height: 100%;
             backdrop-filter: blur(10px);
             background-color: var(--Main_Window_Color-2);
+            border: 1px solid var(--Main_Border);
             display: flex;
             justify-content: center;
             align-items: center;
-            display: none;
+            
             z-index: 2;
         }
 
@@ -208,9 +228,32 @@
             height: 20px;
         }
 
-        .Login_Menu {
+        .Progress_Bar {
             position: absolute;
-            margin: 10px;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            height: 30px;
+            background-color: var(--Text_Input_Field);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .Progress_Fill {
+            position: absolute;
+            left: 0px;
+            height: 30px;
+            width: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .Progress_Label {
+            position: absolute;
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
         }
 
         .Login {
@@ -273,6 +316,26 @@
 
         .Login > .Login_Window > .Content > p {
             width: calc(100% - 40px);
+        }
+
+        .Login > .Close_Login_Menu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--Menu_Background);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .Login > .Close_Login_Menu > .Menu_Container {
+            position: absolute;
+            width: 200px;
+            height: auto;
+            background-color: var(--Main_Window_Color-2);
+            border: 1px solid var(--Main_Border);
         }
 
         .Login > .Verification_Window {
@@ -346,7 +409,326 @@
             <img src="/Images/Background Img/Login_wallpaper-1.jpg" alt="">
             <img src="/Images/Background Img/Login_wallpaper-2.jpg" alt="">
             <img src="/Images/Background Img/Login_wallpaper-3.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-4.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-5.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-6.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-7.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-8.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-9.jpg" alt="">
         </div>
+    </div>
+
+    <div class="Keyboard">
+        <!-- Virtual Keyboard -->
+        <style>
+            .VirtualKeyboard {
+                position: fixed;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                background: var(--Main_Window_Color-2);
+                border: 1px solid var(--Main_Border);
+                backdrop-filter: blur(12px);
+                padding: 8px;
+                z-index: 9999;
+                box-shadow: 6px 6px 14px rgba(0,0,0,0.45);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            .vk-row {
+                display: flex;
+                gap: 6px;
+                margin-bottom: 6px;
+                justify-content: center;
+            }
+
+            .vk-key {
+                flex: 1 0 0;
+                min-width: 28px;
+                padding: 10px 6px;
+                text-align: center;
+                background: var(--Text_Input_Field);
+                color: var(--Main_Text_Color);
+                
+                font-size: calc(var(--Main_Text));
+                border: 1px solid var(--Main_Border);
+                box-shadow: inset 0 -2px rgba(0,0,0,0.15);
+                touch-action: manipulation;
+            }
+
+            .vk-key.wide { flex: 2.4; min-width: 60px; }
+            .vk-key.extra { flex: 1.6; min-width: 48px; }
+            .vk-key:active { transform: translateY(1px); background: var(--Text_Input_Field-Actove); }
+            .vk-hidden { display: none !important; }
+        </style>
+
+        <div class="VirtualKeyboard" id="VirtualKeyboard" aria-hidden="false" role="application">
+            <div class="vk-row" id="vk-row-1">
+                <button class="vk-key" data-key="q">q</button>
+                <button class="vk-key" data-key="w">w</button>
+                <button class="vk-key" data-key="e">e</button>
+                <button class="vk-key" data-key="r">r</button>
+                <button class="vk-key" data-key="t">t</button>
+                <button class="vk-key" data-key="y">y</button>
+                <button class="vk-key" data-key="u">u</button>
+                <button class="vk-key" data-key="i">i</button>
+                <button class="vk-key" data-key="o">o</button>
+                <button class="vk-key" data-key="p">p</button>
+            </div>
+
+            <div class="vk-row" id="vk-row-2">
+                <button class="vk-key" data-key="a">a</button>
+                <button class="vk-key" data-key="s">s</button>
+                <button class="vk-key" data-key="d">d</button>
+                <button class="vk-key" data-key="f">f</button>
+                <button class="vk-key" data-key="g">g</button>
+                <button class="vk-key" data-key="h">h</button>
+                <button class="vk-key" data-key="j">j</button>
+                <button class="vk-key" data-key="k">k</button>
+                <button class="vk-key" data-key="l">l</button>
+            </div>
+
+            <div class="vk-row" id="vk-row-3">
+                <button class="vk-key extra" data-action="shift" id="vk-shift">Shift</button>
+                <button class="vk-key" data-key="z">z</button>
+                <button class="vk-key" data-key="x">x</button>
+                <button class="vk-key" data-key="c">c</button>
+                <button class="vk-key" data-key="v">v</button>
+                <button class="vk-key" data-key="b">b</button>
+                <button class="vk-key" data-key="n">n</button>
+                <button class="vk-key" data-key="m">m</button>
+                <button class="vk-key extra" data-action="backspace">⌫</button>
+            </div>
+
+            <div class="vk-row" id="vk-row-4">
+                <button class="vk-key wide" data-action="numbers" id="vk-numbers">123</button>
+                <button class="vk-key" data-key=",">,</button>
+                <button class="vk-key" data-key=".">.</button>
+                <button class="vk-key wide" data-action="space">Space</button>
+                <button class="vk-key" data-action="enter">⏎</button>
+                <button class="vk-key" data-action="hide" id="vk-hide">Hide</button>
+            </div>
+        </div>
+
+        <script>
+        (function(){
+            const keyboard = document.getElementById('VirtualKeyboard');
+            const keys = keyboard.querySelectorAll('.vk-key');
+            let shift = false;
+            let numbersMode = false;
+            let activeInput = null;
+
+            // target inputs we care about
+            const inputSelector = 'input.Field, #Printed_Text, #Hash_Name, #Password';
+            const inputs = Array.from(document.querySelectorAll(inputSelector));
+
+            // Ensure each key keeps its original base character so we can switch back reliably
+            keyboard.querySelectorAll('.vk-key[data-key]').forEach(btn => {
+                const k = btn.getAttribute('data-key') || '';
+                if (!btn.dataset.base) btn.dataset.base = k.toLowerCase();
+            });
+
+            // show keyboard when a tracked input receives focus
+            document.addEventListener('focusin', (e) => {
+                if (e.target && e.target.matches && e.target.matches(inputSelector)) {
+                    activeInput = e.target;
+                    keyboard.style.display = 'block';
+                    keyboard.setAttribute('aria-hidden','false');
+                }
+            });
+
+            // keep activeInput when tapping keyboard (prevent blur)
+            keyboard.addEventListener('touchstart', (ev) => {
+                ev.preventDefault(); // prevent mobile from blurring inputs
+            }, { passive: false });
+
+            // helper to dispatch input events
+            function dispatchInput(el) {
+                try {
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                } catch(e){}
+            }
+
+            function insertAtCursor(el, text) {
+                if (!el) return;
+                if (typeof el.selectionStart === 'number') {
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const value = el.value || '';
+                    el.value = value.slice(0, start) + text + value.slice(end);
+                    const pos = start + text.length;
+                    el.selectionStart = el.selectionEnd = pos;
+                    dispatchInput(el);
+                } else {
+                    el.value = (el.value || '') + text;
+                    dispatchInput(el);
+                }
+                // keep focus on input
+                try { el.focus(); } catch(e){}
+            }
+
+            function performBackspace(el) {
+                if (!el) return;
+                if (typeof el.selectionStart === 'number') {
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    if (start === end && start > 0) {
+                        const value = el.value || '';
+                        el.value = value.slice(0, start - 1) + value.slice(end);
+                        el.selectionStart = el.selectionEnd = start - 1;
+                    } else if (start !== end) {
+                        const value = el.value || '';
+                        el.value = value.slice(0, start) + value.slice(end);
+                        el.selectionStart = el.selectionEnd = start;
+                    }
+                    dispatchInput(el);
+                } else {
+                    el.value = (el.value || '').slice(0, -1);
+                    dispatchInput(el);
+                }
+                try { el.focus(); } catch(e){}
+            }
+
+            function toggleShift() {
+                shift = !shift;
+                updateKeys();
+                document.getElementById('vk-shift').style.background = shift ? 'rgba(255,255,255,0.06)' : '';
+            }
+
+            function toggleNumbers() {
+                numbersMode = !numbersMode;
+                // reset shift when entering numbers for consistent UX
+                if (numbersMode) shift = false;
+                updateKeys();
+                document.getElementById('vk-numbers').textContent = numbersMode ? 'ABC' : '123';
+            }
+
+            function updateKeys() {
+                const letterButtons = keyboard.querySelectorAll('.vk-key[data-key]');
+                letterButtons.forEach(btn => {
+                    const base = (btn.dataset.base || btn.getAttribute('data-key') || '').toLowerCase();
+                    if (!base) return;
+
+                    if (!numbersMode) {
+                        // restore alphabetic layout from base and apply shift
+                        const display = shift ? base.toUpperCase() : base.toLowerCase();
+                        btn.textContent = display;
+                        btn.setAttribute('data-key', display);
+                    } else {
+                        // numbers/symbols layout mapped from base (base remains unchanged)
+                        const map = {
+                            'q':'1','w':'2','e':'3','r':'4','t':'5','y':'6','u':'7','i':'8','o':'9','p':'0',
+                            'a':'@','s':'_','d':'-','f':'/','g':':','h':';','j':'(', 'k':')','l':'$',
+                            'z':'&','x':'*','c':'"','v':'\'','b':'%','n':'+','m':'='
+                        };
+                        const out = map[base] || base;
+                        btn.textContent = out;
+                        btn.setAttribute('data-key', out);
+                    }
+                });
+            }
+
+            // initial state
+            updateKeys();
+
+            keyboard.addEventListener('click', (e) => {
+                const btn = e.target.closest('.vk-key');
+                if (!btn) return;
+                const action = btn.getAttribute('data-action');
+                const key = btn.getAttribute('data-key');
+
+                // find active input or fallback to Printed_Text
+                if (!activeInput || !document.body.contains(activeInput)) {
+                    activeInput = document.getElementById('Printed_Text') || document.querySelector('input.Field');
+                }
+
+                if (action === 'shift') {
+                    toggleShift();
+                    return;
+                }
+
+                if (action === 'numbers') {
+                    toggleNumbers();
+                    return;
+                }
+
+                if (action === 'backspace') {
+                    performBackspace(activeInput);
+                    // update shared fields
+                    try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                    return;
+                }
+
+                if (action === 'space') {
+                    insertAtCursor(activeInput, ' ');
+                    try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                    return;
+                }
+
+                if (action === 'enter') {
+                    // prefer to submit login if focused on Printed_Text
+                    const goBtn = document.getElementById('Open_Verification_Window');
+                    if (goBtn && (activeInput && activeInput.id === 'Printed_Text')) {
+                        goBtn.click();
+                    } else {
+                        insertAtCursor(activeInput, '\n');
+                    }
+                    try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                    return;
+                }
+
+                if (action === 'hide') {
+                    keyboard.style.display = 'none';
+                    keyboard.setAttribute('aria-hidden','true');
+                    return;
+                }
+
+                if (key) {
+                    insertAtCursor(activeInput, key);
+                    // if shift was a single-use, turn it off after a key (common mobile behavior)
+                    if (shift && !numbersMode) {
+                        shift = false;
+                        updateKeys();
+                        document.getElementById('vk-shift').style.background = '';
+                    }
+                    // call existing update function for combined fields
+                    try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                    return;
+                }
+            });
+
+            // track focus changes from programmatic clicks or touch; keep keyboard visible
+            document.addEventListener('touchend', (e) => {
+                const focused = document.activeElement;
+                if (focused && focused.matches && focused.matches(inputSelector)) {
+                    activeInput = focused;
+                    keyboard.style.display = 'block';
+                    keyboard.setAttribute('aria-hidden','false');
+                }
+            });
+
+            // small accessibility: hide keyboard if user taps outside inputs and keyboard
+            document.addEventListener('click', (e) => {
+                const el = e.target;
+                if (el.closest && (el.closest(inputSelector) || el.closest('#VirtualKeyboard'))) return;
+                // hide for desktops where not desired
+                keyboard.style.display = 'none';
+                keyboard.setAttribute('aria-hidden','true');
+                activeInput = null;
+            });
+
+            // expose a small API
+            window._virtualKeyboard = {
+                show() { keyboard.style.display = 'block'; keyboard.setAttribute('aria-hidden','false'); },
+                hide() { keyboard.style.display = 'none'; keyboard.setAttribute('aria-hidden','true'); },
+                toggle() { keyboard.style.display = (keyboard.style.display === 'none' || keyboard.style.display === '') ? 'block' : 'none'; }
+            };
+
+        })();
+
+        
+        </script>
     </div>
 
     <!-- UI system -->
@@ -370,26 +752,27 @@
         </div>
     </div>
     <div class="On_Button">
-        <button id="Full_Screen_Button" style="width: 50px; height: 50px;"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
+        <button id="Full_Screen_Button" style="width: 80px; height: 80px;"><img src="/Images/Icons/power_settings_new_24dp_1F1F1F.svg" alt=""></button>
     </div>       
-    <div class="Login_Menu">
-        <div class="Window Login_Window" style="width: 100px; height: 30px;">
-            p
-        </div>
+
+    <div class="Progress_Bar" id="Progress_Bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="Progress_Fill" class="Progress_Fill"></div>
+        <span id="Progress_Label" class="Progress_Label">0%</span>
     </div>
-    </div>                 
-    <div class="Login">
+
+
+    <div class="Login" id="Login">
         <div class="Window Login_Window" style="width: 300px; height: 400px;">
             <div class="Window_Header">
                 <p class="Title">Log in</p>
-                <button class="Close_Button"></button>
+                <button class="Close_Button" id="Close_Login_Button"></button>
             </div>
             <div class="Content">
                 <p style="color: var(--Main_Text_Color); position: absolute; top: 40px; left: 20px; font-size: var(--Main_Text);">This uses the crypto hash SHA-256 algoritm to secure your account, just use your email address and name below to login.</p>
 
                 <div class="Main">
                     <div class="Inputs">
-                        <code class="SHA-256" id="SHA-256"></code>
+                        <output class="SHA-256" id="SHA-256"></output>
                         <input class="Field" id="Printed_Text" type="text" style="width: 100%; height: 30px;" placeholder="Credentials">
                     </div>
                     <div class="Buttons">
@@ -401,6 +784,12 @@
                     <input id="Hash_Name" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Name">
                     <input id="Password" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Password">
                 </div>
+            </div>
+        </div>
+        <div class="Close_Login_Menu" id="Close_Login_Menu">
+            <div class="Menu_Container">
+                <button class="" id="Exit_Page" style="width: 100%; height: 30px;">Exit page</button>
+                <button class="" id="Revert_Back_To_Login" style="width: 100%; height: 30px;">Revert back to login</button>
             </div>
         </div>
         <div class="Window Verification_Window" id="Verification_Window" style="width: 200px; height: 300px;">
@@ -429,41 +818,819 @@
 
 <script>
 
-   
+    //First
+
+    // Disable native Android/iOS soft keyboard for tracked inputs and rely on the in-page virtual keyboard.
+    // Place this where the placeholder was.
+    (function(){
+        const selector = 'input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field';
+        const inputs = Array.from(document.querySelectorAll(selector));
+        if (!inputs.length) return;
+
+        // Apply attributes that prevent the on-screen keyboard on modern mobile browsers
+        inputs.forEach(el => {
+            try {
+                el.setAttribute('inputmode', 'none'); // Chrome/Android honor this
+                el.readOnly = true;                    // broad fallback to stop keyboard
+                el.setAttribute('aria-readonly', 'true');
+            } catch (e) {}
+
+            // On touchstart we prevent the default that might trigger IME and focus programmatically.
+            // Programmatic focus on a readonly/inputmode=none input will not open the soft keyboard,
+            // but keeps the element focused so the virtual keyboard can operate.
+            el.addEventListener('touchstart', (ev) => {
+                ev.preventDefault();
+                try { el.focus(); } catch(e) {}
+            }, { passive: false });
+
+            // Allow mouse users to focus normally (desktop)
+            el.addEventListener('mousedown', () => {
+                try { el.focus(); } catch(e) {}
+            });
+        });
+
+        // Small API to toggle native keyboard behavior if you ever need it
+        window._nativeKeyboardControl = {
+            disable() {
+                document.querySelectorAll(selector).forEach(el => {
+                    try { el.setAttribute('inputmode','none'); el.readOnly = true; el.setAttribute('aria-readonly','true'); } catch(e){}
+                });
+            },
+            enable() {
+                document.querySelectorAll(selector).forEach(el => {
+                    try { el.removeAttribute('inputmode'); el.readOnly = false; el.removeAttribute('aria-readonly'); } catch(e){}
+                });
+            }
+        };
+    })();
+
+
+    (function(){
+        // Make the in-page VirtualKeyboard act like the native keyboard:
+        // - prevent the OS soft keyboard from opening
+        // - show/hide the virtual keyboard on focus/blur
+        // - allow hardware keyboards to type into readonly inputs via synthetic handling
+
+        const selector = 'input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field';
+        const keyboard = document.getElementById('VirtualKeyboard');
+        if (!keyboard) return;
+
+        let activeInput = null;
+        keyboard.setAttribute('aria-hidden','true');
+        keyboard.style.display = 'none';
+
+        // helper to dispatch input events
+        function dispatchInput(el) {
+            try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+        }
+
+        function insertAtCursor(el, text) {
+            if (!el) return;
+            if (typeof el.selectionStart === 'number') {
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const value = el.value || '';
+                el.value = value.slice(0, start) + text + value.slice(end);
+                const pos = start + text.length;
+                el.selectionStart = el.selectionEnd = pos;
+                dispatchInput(el);
+            } else {
+                el.value = (el.value || '') + text;
+                dispatchInput(el);
+            }
+            try { el.focus(); } catch(e){}
+        }
+
+        function performBackspace(el) {
+            if (!el) return;
+            if (typeof el.selectionStart === 'number') {
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                if (start === end && start > 0) {
+                    const value = el.value || '';
+                    el.value = value.slice(0, start - 1) + value.slice(end);
+                    el.selectionStart = el.selectionEnd = start - 1;
+                } else if (start !== end) {
+                    const value = el.value || '';
+                    el.value = value.slice(0, start) + value.slice(end);
+                    el.selectionStart = el.selectionEnd = start;
+                }
+                dispatchInput(el);
+            } else {
+                el.value = (el.value || '').slice(0, -1);
+                dispatchInput(el);
+            }
+            try { el.focus(); } catch(e){}
+        }
+
+        // prepare tracked inputs to avoid native IME
+        function prepareInputs() {
+            const els = Array.from(document.querySelectorAll(selector));
+            els.forEach(el => {
+                try {
+                    // prevent most mobile browsers from showing IME
+                    el.setAttribute('inputmode', 'none');
+                    el.readOnly = true;
+                    el.setAttribute('aria-readonly','true');
+                } catch(e){}
+                // on touchstart, prevent default (which can trigger IME) and focus programmatically
+                el.addEventListener('touchstart', (ev) => {
+                    ev.preventDefault();
+                    try { el.focus(); } catch(e){}
+                }, { passive: false });
+
+                // desktop mouse should just focus normally (no preventDefault)
+                el.addEventListener('mousedown', (ev) => {
+                    try { el.focus(); } catch(e){}
+                });
+
+                // ensure focus event shows virtual keyboard
+                el.addEventListener('focus', () => {
+                    activeInput = el;
+                    keyboard.style.display = 'block';
+                    keyboard.setAttribute('aria-hidden','false');
+                    // place caret at end if possible
+                    try {
+                        const len = (el.value || '').length;
+                        el.selectionStart = el.selectionEnd = len;
+                    } catch(e){}
+                });
+
+                // on blur, schedule hide unless keyboard or another tracked input will receive focus
+                el.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        const af = document.activeElement;
+                        if (!af) { hideKeyboard(); return; }
+                        if (af.closest && (af.closest(selector) || af.closest('#VirtualKeyboard'))) return;
+                        hideKeyboard();
+                    }, 50);
+                });
+            });
+        }
+
+        function showKeyboardFor(el){
+            if (!el) return;
+            activeInput = el;
+            try { el.focus(); } catch(e){}
+            keyboard.style.display = 'block';
+            keyboard.setAttribute('aria-hidden','false');
+        }
+
+        function hideKeyboard(){
+            keyboard.style.display = 'none';
+            keyboard.setAttribute('aria-hidden','true');
+            activeInput = null;
+        }
+
+        // click outside inputs/keyboard hides it (desktop-friendly)
+        document.addEventListener('click', (e) => {
+            const el = e.target;
+            if (el.closest && (el.closest(selector) || el.closest('#VirtualKeyboard'))) return;
+            hideKeyboard();
+        });
+
+        // touch outside keyboard hide
+        document.addEventListener('touchstart', (e) => {
+            const el = e.target;
+            if (el.closest && (el.closest(selector) || el.closest('#VirtualKeyboard'))) return;
+            // small delay so focus events can run
+            setTimeout(hideKeyboard, 50);
+        }, { passive: true });
+
+        // Ensure newly added inputs are handled (basic live watch)
+        const mo = new MutationObserver(() => prepareInputs());
+        mo.observe(document.body, { childList: true, subtree: true });
+
+        // initial run
+        prepareInputs();
+
+        // Allow hardware keyboards to type into the readonly inputs by synthesizing edits.
+        // This is necessary because readOnly prevents native IME/OS keyboard but also blocks hardware input.
+        document.addEventListener('keydown', (ev) => {
+            if (!activeInput) return;
+            // ignore modifier-only combos
+            if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+            // printable characters: single character keys
+            if (ev.key.length === 1) {
+                ev.preventDefault();
+                insertAtCursor(activeInput, ev.key);
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+            // handle common editing keys
+            if (ev.key === 'Backspace') {
+                ev.preventDefault();
+                performBackspace(activeInput);
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                // if there's an enter handler on the page (like login button) attempt to trigger it
+                const goBtn = document.getElementById('Open_Verification_Window');
+                if (goBtn && activeInput && activeInput.id === 'Printed_Text') {
+                    goBtn.click();
+                } else {
+                    insertAtCursor(activeInput, '\n');
+                }
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+            if (ev.key === 'ArrowLeft') {
+                // move caret left
+                try {
+                    const pos = activeInput.selectionStart || 0;
+                    activeInput.selectionStart = activeInput.selectionEnd = Math.max(0, pos - 1);
+                } catch(e){}
+                return;
+            }
+            if (ev.key === 'ArrowRight') {
+                try {
+                    const pos = activeInput.selectionStart || 0;
+                    activeInput.selectionStart = activeInput.selectionEnd = Math.min((activeInput.value || '').length, pos + 1);
+                } catch(e){}
+                return;
+            }
+        });
+
+        // expose small API to control keyboard programmatically
+        window._virtualKeyboard = {
+            showFor(el) { showKeyboardFor(el || document.querySelector(selector)); },
+            show() { keyboard.style.display = 'block'; keyboard.setAttribute('aria-hidden','false'); },
+            hide() { hideKeyboard(); },
+            toggle() { keyboard.style.display = (keyboard.style.display === 'none' || keyboard.style.display === '') ? 'block' : 'none'; }
+        };
+    })();
+
+    (function(){
+        document.addEventListener('DOMContentLoaded', () => {
+            const vk = document.getElementById('VirtualKeyboard');
+            if (!vk) return;
+
+            // ensure known initial state
+            vk.style.display = 'none';
+            vk.setAttribute('aria-hidden', 'true');
+            vk.setAttribute('role','application');
+            // helper to show/hide keyboard reliably
+            function showKeyboardFor(el) {
+                if (!el) return;
+                try { el.focus(); } catch (e) {}
+                vk.style.display = 'block';
+                vk.setAttribute('aria-hidden', 'false');
+                // ensure any existing API stays in sync
+                try { window._virtualKeyboard && window._virtualKeyboard.showFor && window._virtualKeyboard.showFor(el); } catch (e) {}
+            }
+            function hideKeyboard() {
+                vk.style.display = 'none';
+                vk.setAttribute('aria-hidden', 'true');
+                try { window._virtualKeyboard && window._virtualKeyboard.hide && window._virtualKeyboard.hide(); } catch (e) {}
+            }
+
+            // activate keyboard for the primary tracked input if present
+            const primary = document.getElementById('Printed_Text') || document.querySelector('input.Field');
+            if (primary) {
+                // give a brief delay so other init code runs first
+                setTimeout(() => showKeyboardFor(primary), 120);
+            }
+
+            // expose a small global helper to programmatically attach keyboard to any element
+            window.activateVirtualKeyboardFor = showKeyboardFor;
+            window.deactivateVirtualKeyboard = hideKeyboard;
+
+            // hide keyboard when login/verification proceeds
+            const openVerBtn = document.getElementById('Open_Verification_Window');
+            if (openVerBtn) openVerBtn.addEventListener('click', hideKeyboard);
+
+            // keep keyboard visible when a tracked input gets focus (covers dynamic inputs)
+            document.addEventListener('focusin', (ev) => {
+                const t = ev.target;
+                if (!t) return;
+                if (t.matches && t.matches('input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field')) {
+                    showKeyboardFor(t);
+                }
+            });
+
+            // click/touch outside inputs + keyboard hides it (desktop-friendly)
+            document.addEventListener('click', (ev) => {
+                if (ev.target.closest && (ev.target.closest('input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field') || ev.target.closest('#VirtualKeyboard'))) return;
+                hideKeyboard();
+            });
+            document.addEventListener('touchstart', (ev) => {
+                if (ev.target.closest && (ev.target.closest('input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field') || ev.target.closest('#VirtualKeyboard'))) return;
+                // slight delay to allow focus events
+                setTimeout(hideKeyboard, 50);
+            }, { passive: true });
+
+            // keep keyboard visible when screen resizes if an input is focused
+            window.addEventListener('resize', () => {
+                const af = document.activeElement;
+                if (af && af.matches && af.matches('input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field')) {
+                    vk.style.display = 'block';
+                    vk.setAttribute('aria-hidden', 'false');
+                }
+            });
+        });
+    })();
+
+    (function(){
+        const keyboard = document.getElementById('VirtualKeyboard');
+        if (!keyboard) return;
+
+        // improve touch responsiveness
+        keyboard.style.touchAction = 'none';
+        keyboard.style.userSelect = 'none';
+
+        // add a small active style (some browsers don't apply :active reliably on touch)
+        const s = document.createElement('style');
+        s.textContent = `
+            .vk-key.active {
+                transform: translateY(1px) !important;
+                background: var(--Text_Input_Field-Actove) !important;
+            }
+        `;
+        document.head.appendChild(s);
+
+        let activeKey = null;
+        let repeatTimeout = null;
+        let repeatInterval = null;
+        let repeatStarted = false;
+
+        function clearRepeat() {
+            if (repeatTimeout) { clearTimeout(repeatTimeout); repeatTimeout = null; }
+            if (repeatInterval) { clearInterval(repeatInterval); repeatInterval = null; }
+            repeatStarted = false;
+        }
+
+        keyboard.addEventListener('pointerdown', (ev) => {
+            const btn = ev.target.closest('.vk-key');
+            if (!btn) return;
+            ev.preventDefault();
+
+            activeKey = btn;
+            btn.classList.add('active');
+            try { btn.setPointerCapture && btn.setPointerCapture(ev.pointerId); } catch(e){}
+
+            // long-press/backspace repeat: begin repeating after a short delay
+            if (btn.getAttribute('data-action') === 'backspace') {
+                repeatTimeout = setTimeout(() => {
+                    repeatStarted = true;
+                    repeatInterval = setInterval(() => {
+                        btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                    }, 80);
+                }, 350);
+            }
+        }, { passive: false });
+
+        function endPointerInteraction(ev, cancel) {
+            if (!activeKey) return;
+            try { activeKey.releasePointerCapture && activeKey.releasePointerCapture(ev && ev.pointerId); } catch(e){}
+            activeKey.classList.remove('active');
+
+            // if user didn't trigger repeating behaviour, dispatch a click
+            if (!repeatStarted && !cancel) {
+                // ensure pointer ended over the same key (avoid accidental clicks when dragging away)
+                if (ev && typeof ev.clientX === 'number' && typeof ev.clientY === 'number') {
+                    const under = document.elementFromPoint(ev.clientX, ev.clientY);
+                    if (!under || !under.closest || !under.closest('.vk-key')) {
+                        clearRepeat();
+                        activeKey = null;
+                        return;
+                    }
+                }
+                activeKey.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+            }
+
+            clearRepeat();
+            activeKey = null;
+        }
+
+        keyboard.addEventListener('pointerup', (ev) => {
+            endPointerInteraction(ev, false);
+        });
+
+        keyboard.addEventListener('pointercancel', (ev) => {
+            endPointerInteraction(ev, true);
+        });
+
+        // if the pointer leaves the key while pressed, cancel the pending click/repeat
+        keyboard.addEventListener('pointermove', (ev) => {
+            if (!activeKey) return;
+            // if pointer moved far outside the key, cancel visual state
+            const rect = activeKey.getBoundingClientRect();
+            const pad = 16; // small slack
+            if (ev.clientX < rect.left - pad || ev.clientX > rect.right + pad || ev.clientY < rect.top - pad || ev.clientY > rect.bottom + pad) {
+                // when moving away, remove active class but keep repeat cancelled
+                activeKey.classList.remove('active');
+                clearRepeat();
+            } else {
+                activeKey.classList.add('active');
+            }
+        });
+
+        // prevent context menu on long touch and avoid blurring
+        keyboard.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // keyboard should not blur tracked inputs when touched
+        keyboard.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+    })();
+
+    
+
+    //Login
+
+    (function(){
+        const fsBtn = document.getElementById('Full_Screen_Button');
+        const docEl = document.documentElement;
+        if (!fsBtn) return;
+
+        async function enterFullscreen() {
+            try {
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                    return; // already fullscreen
+                }
+                if (docEl.requestFullscreen) {
+                    await docEl.requestFullscreen();
+                } else if (docEl.webkitRequestFullscreen) {
+                    await docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) {
+                    await docEl.msRequestFullscreen();
+                }
+            } catch (err) {
+                console.warn('Failed to enter fullscreen:', err);
+            }
+        }
+
+        fsBtn.addEventListener('click', (e) => {
+            enterFullscreen();
+        });
+    })();
+
+    (function(){
+        const bar = document.getElementById('Progress_Bar');
+        const fill = document.getElementById('Progress_Fill');
+        const label = document.getElementById('Progress_Label');
+        const btn = document.getElementById('Full_Screen_Button');
+        if (!bar || !fill || !label) return;
+
+        // remember original display so we can restore it
+        const originalBtnDisplay = btn ? (btn.style.display || '') : '';
+
+        // start hidden
+        bar.style.display = 'none';
+
+        // Expose a simple API: window.setProgress(percent)
+        window.setProgress = function(percent){
+            const p = Math.max(0, Math.min(100, Math.round(percent)));
+            fill.style.width = p + '%';
+            bar.setAttribute('aria-valuenow', p);
+            label.textContent = p + '%';
+        };
+
+        let progressInterval = null;
+
+        function startProgressDemo() {
+            clearProgress();
+            // hide the fullscreen button while progress runs
+            if (btn) btn.style.display = 'none';
+
+            bar.style.display = 'flex';
+            let demo = 0;
+            window.setProgress(0);
+            progressInterval = setInterval(() => {
+                demo += 8;
+                window.setProgress(demo);
+                if (demo >= 100) {
+                    // finish: stop interval, show final state and restore button
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    window.setProgress(100);
+                    if (btn) btn.style.display = originalBtnDisplay;
+                    return;
+                }
+            }, 500);
+        }
+
+        function clearProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            // keep final state at 100 if finished, otherwise reset to 0 when stopping manually
+            if (bar.style.display === 'none') {
+                window.setProgress(0);
+            }
+        }
+
+        function stopAndHideProgress() {
+            clearProgress();
+            window.setProgress(0);
+            bar.style.display = 'none';
+            // restore fullscreen button when progress is hidden/stopped
+            if (btn) btn.style.display = originalBtnDisplay;
+        }
+
+        // If the fullscreen button exists, start progress when it's pressed.
+        if (btn) {
+            btn.addEventListener('click', () => {
+                // show and begin progress animation when button is pressed
+                startProgressDemo();
+            });
+        }
+
+        // Hide progress bar when fullscreen is exited. Listen for vendor-prefixed events too.
+        function onFullscreenChange() {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            if (!isFs) {
+                stopAndHideProgress();
+            }
+            // if entering fullscreen via other means, keep showing progress (no-op)
+        }
+
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+        document.addEventListener('msfullscreenchange', onFullscreenChange);
+
+        // Expose control if other code wants to show/hide/reset
+        window._progressControl = { start: startProgressDemo, stop: stopAndHideProgress };
+    })();
+
+    (function(){
+        const progressBar = document.getElementById('Progress_Bar');
+        if (!progressBar) return;
+        const fsBtn = document.getElementById('Full_Screen_Button');
+
+        function openLoginWindow() {
+            const loginContainer = document.querySelector('.Login');
+            const loginWindow = document.querySelector('.Login_Window');
+            if (!loginContainer || !loginWindow) return;
+
+            // show container and window
+            loginContainer.style.display = 'flex';
+            loginWindow.style.display = 'flex';
+            loginWindow.style.position = 'absolute';
+
+            // center the window
+            const winRect = loginWindow.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            loginWindow.style.left = Math.max(0, (bodyRect.width - winRect.width) / 2) + 'px';
+            loginWindow.style.top = Math.max(0, (bodyRect.height - winRect.height) / 2) + 'px';
+
+            // focus first interactive element if present
+            const first = loginWindow.querySelector('input, button, [tabindex]');
+            if (first && typeof first.focus === 'function') first.focus();
+
+            // hide fullscreen button when progress reaches 100%
+            if (fsBtn) fsBtn.style.display = 'none';
+        }
+
+        // Monkey-patch window.setProgress if it exists so we trigger when it reaches 100.
+        if (typeof window.setProgress === 'function') {
+            const origSet = window.setProgress;
+            window.setProgress = function(percent) {
+                try {
+                    origSet(percent);
+                } catch (e) {
+                    // still attempt to proceed
+                    try { origSet(Number(percent)); } catch (_) {}
+                }
+                const p = Math.max(0, Math.min(100, Math.round(Number(percent) || 0)));
+                if (p >= 100) openLoginWindow();
+            };
+        }
+
+        // Fallback: observe aria-valuenow changes on the progress bar
+        const obs = new MutationObserver(muts => {
+            for (const m of muts) {
+                if (m.type === 'attributes' && m.attributeName === 'aria-valuenow') {
+                    const v = Number(progressBar.getAttribute('aria-valuenow') || 0);
+                    if (v >= 100) {
+                        openLoginWindow();
+                        obs.disconnect();
+                        break;
+                    }
+                }
+            }
+        });
+        obs.observe(progressBar, { attributes: true });
+    })();
+
+    (function(){
+        const bar = document.getElementById('Progress_Bar');
+        if (!bar) return;
+
+        const origSet = window.setProgress;
+        window.setProgress = function(percent) {
+            try { if (typeof origSet === 'function') origSet(percent); } catch (e) {}
+            const p = Math.max(0, Math.min(100, Math.round(Number(percent) || 0)));
+            if (p >= 100) {
+                // let the fill transition complete, then hide
+                setTimeout(() => { bar.style.display = 'none'; }, 350);
+            }
+        };
+    })();
+
+    (function(){
+        const closeLoginBtn = document.getElementById('Close_Login_Button');
+        const closeMenu = document.getElementById('Close_Login_Menu');
+        const revertBtn = document.getElementById('Revert_Back_To_Login');
+        const exitBtn = document.getElementById('Exit_Page');
+
+        if (!closeLoginBtn || !closeMenu) return;
+
+        closeLoginBtn.addEventListener('click', () => {
+            // show the modal/menu overlay
+            closeMenu.style.display = 'flex';
+            // bring overlay to front if bringToFront is available
+            try { if (typeof bringToFront === 'function') bringToFront(closeMenu); } catch(e){}
+            // focus first button inside menu for keyboard users
+            const first = closeMenu.querySelector('button');
+            if (first && typeof first.focus === 'function') first.focus();
+        });
+
+        // revert back to login (hide the menu)
+        if (revertBtn) {
+            revertBtn.addEventListener('click', () => {
+                closeMenu.style.display = 'none';
+                const loginWin = document.querySelector('.Login_Window');
+                if (loginWin) try { if (typeof bringToFront === 'function') bringToFront(loginWin); } catch(e){}
+            });
+        }
+
+        async function exitFullscreenIfNeeded() {
+            try {
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
+                    else if (document.msExitFullscreen) await document.msExitFullscreen();
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        // optional: attempt to close the page on Exit_Page click (best-effort)
+        if (exitBtn) {
+            exitBtn.addEventListener('click', async () => {
+                // exit fullscreen first
+                await exitFullscreenIfNeeded();
+                // hide the menu
+                try { closeMenu.style.display = 'none'; } catch(e){}
+                // then attempt to close the window
+                try { window.close(); } catch (e) {}
+            });
+        }
+    })();
+
+    (function(){
+        const exitBtn = document.getElementById('Exit_Page');
+        const login = document.getElementById('Login');
+        const fsBtn = document.getElementById('Full_Screen_Button');
+        if (!exitBtn) return;
+
+        exitBtn.addEventListener('click', () => {
+            // hide login container
+            if (login) login.style.display = 'none';
+            // ensure full screen button is visible again
+            if (fsBtn) fsBtn.style.display = '';
+        });
+    })();
+
+    
     // Wallpaper Image Slider
 
-    const imgList = document.querySelectorAll('.Wallpaper .Img_List img');
-    console.log(imgList);
-     
-    let currentIndex = 0;
-    imgList.forEach((img, i) => {
-        img.style.position = 'absolute';
-        img.style.top = 0;
-        img.style.left = 0;
-        img.style.opacity = i === 0 ? '1' : '0';
-        img.style.transition = 'opacity 1s';
-    });
+    // Wallpaper cross-fade slideshow (fade-in between images)
+    (function(){
+        const imgList = Array.from(document.querySelectorAll('.Wallpaper .Img_List img'));
+        if (!imgList.length) return;
 
-    function showImage(index) {
+        // ensure container and images are positioned for overlap
+        const container = document.querySelector('.Wallpaper .Img_List');
+        if (container) container.style.position = 'relative';
+
         imgList.forEach((img, i) => {
-            img.style.opacity = i === index ? '1' : '0';
+            img.style.position = 'absolute';
+            img.style.top = '0';
+            img.style.left = '0';
+            img.style.width = '100dvw';
+            img.style.height = '100dvh';
+            img.style.objectFit = 'cover';
+            img.style.opacity = i === 0 ? '1' : '0';
+            img.style.transition = 'opacity 3000ms ease';
+            img.style.zIndex = i === 0 ? '2' : '1';
+            img.style.pointerEvents = 'none';
+            // optionally ensure image decoded (preload)
+            if (img.decode) img.decode().catch(()=>{});
         });
-    }
 
-    setInterval(() => {
-        currentIndex = (currentIndex + 1) % imgList.length;
-        showImage(currentIndex);
-    }, 10000);
-
-    function shuffleImages(images) {
-        for (let i = images.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            images[i].parentNode.insertBefore(images[j], images[i]);
-            [images[i], images[j]] = [images[j], images[i]];
+        // shuffle helper (Fisher-Yates) but keep existing first image visible after shuffle
+        function shuffleImages(images) {
+            for (let i = images.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                if (i === j) continue;
+                const a = images[i], b = images[j];
+                // swap DOM positions
+                const parent = a.parentNode;
+                parent.insertBefore(b, a);
+                // swap array items
+                [images[i], images[j]] = [images[j], images[i]];
+            }
         }
-    }
 
-    shuffleImages(Array.from(imgList));
+        // optional: randomize order once
+        shuffleImages(imgList);
+
+        let currentIndex = 0;
+        const fadeDuration = 1000; // ms
+        const displayDuration = 9000; // ms (so total cycle ~10s)
+        let timeoutId = null;
+        let running = true;
+
+        function crossfadeTo(nextIndex) {
+            if (!running || nextIndex === currentIndex) return;
+            const current = imgList[currentIndex];
+            const next = imgList[nextIndex];
+
+            // bring next above current
+            next.style.zIndex = (parseInt(current.style.zIndex || '1') + 1).toString();
+            next.style.opacity = '0';
+            // force reflow so transition will run
+            void next.offsetWidth;
+            next.style.opacity = '1';
+
+            // after fadeDuration, lower previous image z and set opacity to 0 for next cycles
+            setTimeout(() => {
+                current.style.opacity = '0';
+                current.style.zIndex = '1';
+                next.style.zIndex = '2';
+                currentIndex = nextIndex;
+            }, fadeDuration);
+        }
+
+        function scheduleNext() {
+            timeoutId = setTimeout(() => {
+                const nextIndex = (currentIndex + 1) % imgList.length;
+                crossfadeTo(nextIndex);
+                scheduleNext();
+            }, displayDuration);
+        }
+
+        // Start loop
+        scheduleNext();
+
+        // expose controls if needed
+        window._wallpaperSlideshow = {
+            stop() { running = false; clearTimeout(timeoutId); },
+            start() { if (!running) { running = true; scheduleNext(); } },
+            next() { clearTimeout(timeoutId); crossfadeTo((currentIndex + 1) % imgList.length); scheduleNext(); },
+            prev() { clearTimeout(timeoutId); crossfadeTo((currentIndex - 1 + imgList.length) % imgList.length); scheduleNext(); }
+        };
+    })();
+
+    (function(){
+        const container = document.querySelector('.Wallpaper .Img_List');
+        if (!container) return;
+
+        function fisherYatesShuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        function shuffleWallpaperImagesRandomly() {
+            const imgs = Array.from(container.querySelectorAll('img'));
+            if (imgs.length <= 1) return;
+
+            // detach and shuffle array
+            fisherYatesShuffle(imgs);
+
+            // re-append in shuffled order
+            imgs.forEach((img, idx) => {
+                container.appendChild(img);
+                // ensure visual state: first image visible
+                img.style.opacity = idx === 0 ? '1' : '0';
+                img.style.zIndex = idx === 0 ? '2' : '1';
+            });
+
+            // Restart the slideshow if controller exists
+            try {
+                if (window._wallpaperSlideshow) {
+                    window._wallpaperSlideshow.stop?.();
+                    // Small timeout to let styles settle before starting
+                    setTimeout(() => window._wallpaperSlideshow.start?.(), 50);
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        // expose for manual use
+        window.shuffleWallpaperImagesRandomly = shuffleWallpaperImagesRandomly;
+
+        // Shuffle once now to randomize starting order
+        shuffleWallpaperImagesRandomly();
+
+        // Optional: double-click the wallpaper area to reshuffle
+        container.addEventListener('dblclick', () => shuffleWallpaperImagesRandomly());
+    })();
 
     // UI Dragging Window
     
@@ -608,214 +1775,219 @@
 
     // Login / Verification window behaviors
 
-    // Open Verification Window when the Login button is clicked
-    (function() {
-        const openBtn = document.getElementById('Open_Verification_Window');
-        const verification = document.getElementById('Verification_Window');
-        const loginWindow = document.querySelector('.Login_Window');
-        const closeVerificationBtn = document.getElementById('Close_Verification_Window');
-        const shaDisplay = document.getElementById('SHA-256'); // <p> element showing SHA-256
-        const printedText = document.getElementById('Printed_Text'); // combined credentials field
-        const nameInput = document.getElementById('Hash_Name');
-        const passInput = document.getElementById('Password');
-        let verificationDataSpans = verification ? verification.querySelectorAll('.Data > span') : [];
-
-        // compute SHA-256 hex digest for a string
-        async function computeSHA256Hex(str) {
-            const enc = new TextEncoder();
-            const data = enc.encode(str);
+    
+    // Hash Display
+    
+    async function generateHash() {
+        try {
+            const text = (shaField && shaField.value) || '';
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        // update the printedText (already updated elsewhere) and the visible SHA-256 <p>
-        async function updateAndShowSHA() {
-            const combined = (printedText.value || '') || ((nameInput.value || '') + (passInput.value || ''));
-            if (!combined) {
-            shaDisplay.innerText = '';
-            return '';
+            if (shaOutput) {
+                // update both textContent and value to ensure visible hex output
+                shaOutput.textContent = hex;
+                try { shaOutput.value = hex; } catch (e) {}
+                // make output more legible on touch devices
+                try {
+                    const isTouch = (!!navigator.maxTouchPoints) || ('ontouchstart' in window);
+                    if (isTouch) {
+                        shaOutput.style.fontSize = '14px';
+                        shaOutput.style.padding = '6px 8px';
+                        shaOutput.style.wordBreak = 'break-all';
+                    }
+                } catch (e) {}
             }
-            const hex = await computeSHA256Hex(combined);
-            shaDisplay.innerText = hex;
-            return hex;
-        }
-
-        function centerAndShow(winEl) {
-            if (!winEl) return;
-            winEl.style.display = 'flex';
-            winEl.style.position = 'absolute';
-            const winRect = winEl.getBoundingClientRect();
-            const bodyRect = document.body.getBoundingClientRect();
-            winEl.style.left = Math.max(0, (bodyRect.width - winRect.width) / 2) + 'px';
-            winEl.style.top = Math.max(0, (bodyRect.height - winRect.height) / 2) + 'px';
-            bringToFront(winEl);
-        }
-
-        function hideWindow(winEl) {
-            if (!winEl) return;
-            winEl.style.display = 'none';
-        }
-
-        // Time display utilities
-        let clockInterval = null;
-        function pad(n) { return String(n).padStart(2, '0'); }
-        function formatTime(d) {
-            return pad(d.getHours()) + ' : ' + pad(d.getMinutes()) + ' : ' + pad(d.getSeconds());
-        }
-        function ensureTimeSpan() {
-            if (!verification) return null;
-            const dataEl = verification.querySelector('.Data');
-            if (!dataEl) return null;
-            // refresh list
-            verificationDataSpans = verification.querySelectorAll('.Data > span');
-            if (verificationDataSpans[1]) return verificationDataSpans[1];
-            // create a second span if missing
-            const span = document.createElement('span');
-            span.style.fontSize = 'var(--Main_Text)';
-            span.textContent = formatTime(new Date());
-            dataEl.appendChild(span);
-            // refresh again
-            verificationDataSpans = verification.querySelectorAll('.Data > span');
-            return verificationDataSpans[1] || span;
-        }
-        function startClock(targetSpan) {
-            if (!targetSpan) targetSpan = ensureTimeSpan();
-            if (!targetSpan) return;
-            if (clockInterval) clearInterval(clockInterval);
-            const tick = () => { targetSpan.innerText = formatTime(new Date()); };
-            tick();
-            clockInterval = setInterval(tick, 1000);
-        }
-        function stopClock() {
-            if (clockInterval) {
-            clearInterval(clockInterval);
-            clockInterval = null;
+        } catch (e) {
+            if (shaOutput) {
+                shaOutput.textContent = '';
+                try { shaOutput.value = ''; } catch (err) {}
             }
         }
+    }
 
-        // keep SHA display in sync as inputs change
-        [nameInput, passInput, printedText].forEach(el => {
-            if (!el) return;
-            el.addEventListener('input', () => {
-            // fire-and-forget update
-            updateAndShowSHA().catch(() => {});
-            });
+    // Recompute hash when inputs change (desktop and touch)
+    if (shaField) {
+        shaField.addEventListener('input', generateHash);
+        shaField.addEventListener('touchstart', generateHash, { passive: true });
+        shaField.addEventListener('touchend', generateHash, { passive: true });
+    }
+    if (nameInput) {
+        nameInput.addEventListener('input', generateHash);
+        nameInput.addEventListener('touchstart', generateHash, { passive: true });
+        nameInput.addEventListener('touchend', generateHash, { passive: true });
+    }
+    if (passInput) {
+        passInput.addEventListener('input', generateHash);
+        passInput.addEventListener('touchstart', generateHash, { passive: true });
+        passInput.addEventListener('touchend', generateHash, { passive: true });
+    }
+
+    // Also update after virtual keyboard interaction to ensure immediate display on touch screens
+    const vk = document.getElementById('VirtualKeyboard');
+    if (vk) {
+        vk.addEventListener('click', () => setTimeout(generateHash, 8));
+        vk.addEventListener('touchend', () => setTimeout(generateHash, 8), { passive: true });
+    }
+
+    // Ensure any programmatic field updates also recompute
+    try {
+        const origUpdate = window.updateSHAField;
+        window.updateSHAField = function() {
+            try { if (typeof origUpdate === 'function') origUpdate(); } catch(e){}
+            generateHash();
+        };
+    } catch(e){}
+
+    // initial compute and ensure visible immediately on touch screens
+    generateHash();
+
+    // limit SHA-256 display to first 16 characters but keep full hex in data-full and title
+    (function(){
+        const DISPLAY_CHARS = 16;
+        const out = document.getElementById('SHA-256');
+        if (!out) return;
+
+        function truncateSHAOutput() {
+            const full = (out.textContent || out.value || '') + '';
+            // store full hex for later use / tooltip
+            out.dataset.full = full;
+            out.title = full || '';
+            const display = full.slice(0, DISPLAY_CHARS);
+            // only update if different to avoid needless mutations
+            if (out.textContent !== display) {
+                try { out.textContent = display; } catch (e) {}
+            }
+            try { out.value = display; } catch (e) {}
+        }
+
+        // wrap existing generateHash so truncation runs after each compute
+        try {
+            const original = window.generateHash || generateHash;
+            window.generateHash = async function(...args) {
+                await original.apply(this, args);
+                truncateSHAOutput();
+            };
+        } catch (e) {
+            // fallback: if wrap failed, ensure we still truncate on changes
+        }
+
+        // observe direct changes to the output and re-truncate (safe/idempotent)
+        const mo = new MutationObserver(() => truncateSHAOutput());
+        mo.observe(out, { characterData: true, subtree: true, childList: true });
+
+        // initial run
+        truncateSHAOutput();
+
+        // optional: click to toggle showing full hash temporarily
+        out.addEventListener('click', () => {
+            const isFull = out.dataset.showFull === '1';
+            if (!isFull) {
+                const full = out.dataset.full || (out.textContent || out.value || '');
+                out.dataset.showFull = '1';
+                out.textContent = full;
+                try { out.value = full; } catch (e) {}
+            } else {
+                out.dataset.showFull = '0';
+                truncateSHAOutput();
+            }
+        });
+    })();
+
+    (function(){
+        const out = document.getElementById('SHA-256');
+        if (!out) return;
+
+        // Touch-friendly visual tweaks
+        out.style.whiteSpace = 'pre-wrap';
+        out.style.wordBreak = 'break-word';
+        out.style.userSelect = 'text';
+        out.style.webkitUserSelect = 'text';
+        out.style.msUserSelect = 'text';
+        out.style.cursor = 'pointer';
+
+        // Convert hex string to UTF-8 string (returns null on failure)
+        function hexToUtf8(hex) {
+            if (!hex) return null;
+            hex = String(hex).replace(/[^0-9a-fA-F]/g, '');
+            if (hex.length % 2) hex = '0' + hex;
+            try {
+                const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+                const td = new TextDecoder('utf-8', { fatal: false });
+                return td.decode(bytes);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Update output element to store full hex and UTF-8-decoded data
+        function refreshUtf8View() {
+            const fullHex = out.dataset.full || (out.textContent || out.value || '');
+            const decoded = hexToUtf8(fullHex);
+            if (decoded !== null && decoded !== '') {
+                out.dataset.utf8 = decoded;
+            } else {
+                delete out.dataset.utf8;
+            }
+
+            // On touch devices prefer showing UTF-8 if available
+            const isTouch = !!navigator.maxTouchPoints || 'ontouchstart' in window;
+            if (isTouch && out.dataset.utf8) {
+                out.textContent = out.dataset.utf8;
+                try { out.value = out.dataset.utf8; } catch (e) {}
+                out.dataset.showUtf = '1';
+            } else {
+                // keep existing truncated hex display (other logic already truncates)
+                out.dataset.showUtf = '0';
+            }
+        }
+
+        // Try to refresh when content changes
+        const mo = new MutationObserver(refreshUtf8View);
+        mo.observe(out, { childList: true, characterData: true, subtree: true, attributes: true });
+
+        // Also refresh on initial run
+        refreshUtf8View();
+
+        // Toggle between UTF-8 view and hex (short-tap toggles, helpful on touch)
+        out.addEventListener('click', () => {
+            const fullHex = out.dataset.full || (out.textContent || out.value || '');
+            const isShowingUtf = out.dataset.showUtf === '1';
+            if (!isShowingUtf && out.dataset.utf8) {
+                out.dataset.showUtf = '1';
+                out.textContent = out.dataset.utf8;
+                try { out.value = out.dataset.utf8; } catch (e) {}
+            } else {
+                out.dataset.showUtf = '0';
+                // restore truncated hex (first 16 chars) to match existing UX
+                const truncated = (fullHex + '').slice(0, 16);
+                out.textContent = truncated;
+                try { out.value = truncated; } catch (e) {}
+            }
         });
 
-        if (openBtn) {
-            openBtn.addEventListener('click', async () => {
-            // compute/update SHA and use it for verification
-            const hex = await updateAndShowSHA();
-            if (!hex) {
-                // show feedback in verification window if needed
-                if (verificationDataSpans[0]) verificationDataSpans[0].innerText = 'No credentials provided';
-                // show current time in second span
-                const timeSpan = ensureTimeSpan();
-                if (timeSpan) startClock(timeSpan);
-                if (verificationDataSpans[1]) verificationDataSpans[1].innerText = formatTime(new Date());
-                centerAndShow(verification);
-                // do not hide the login window
-                return;
+        // Double-tap / double-click copies full UTF-8 (or full hex if UTF-8 not available) to clipboard
+        out.addEventListener('dblclick', async () => {
+            const toCopy = out.dataset.utf8 || out.dataset.full || (out.textContent || out.value || '');
+            if (!toCopy) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try { await navigator.clipboard.writeText(toCopy); } catch (e) { /* ignore */ }
+            } else {
+                // fallback execCommand approach
+                const ta = document.createElement('textarea');
+                ta.value = toCopy;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
             }
+        }, { passive: true });
 
-            // basic client-side verification: check SHA length/format and display it
-            const ok = /^[0-9a-f]{64}$/.test(hex);
-            if (verificationDataSpans[0]) verificationDataSpans[0].innerText = ok ? 'Verification Success' : 'Verification Failed';
-
-            // show current time in the second span (live)
-            const timeSpan = ensureTimeSpan();
-            if (timeSpan) startClock(timeSpan);
-
-            centerAndShow(verification);
-            // do not hide the login window
-            });
-        }
-
-        if (closeVerificationBtn) {
-            closeVerificationBtn.addEventListener('click', () => {
-            hideWindow(verification);
-            stopClock();
-            // keep the login window open; do not change its display
-            if (loginWindow) bringToFront(loginWindow);
-            });
-        }
-        })();
-
-
-        // Hash Display
-
-        (function() {
-            const printed = document.getElementById('Printed_Text');
-            const sha = document.getElementById('SHA-256');
-            if (!printed || !sha) return;
-            function updateSHA() { sha.innerText = printed.value || ''; }
-            printed.addEventListener('input', updateSHA);
-            // also update when name/password change (if present)
-            document.getElementById('Hash_Name')?.addEventListener('input', updateSHA);
-            document.getElementById('Password')?.addEventListener('input', updateSHA);
-            updateSHA();
-        })();
-
-        // Hash Generation (using SubtleCrypto API)
-
-        (function() {
-            const nameEl = document.getElementById('Hash_Name');
-            const passEl = document.getElementById('Password');
-            if (!nameEl || !passEl) return;
-
-            async function computeSHA256Hex(str) {
-                const enc = new TextEncoder();
-                const data = enc.encode(str);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            }
-
-            async function generateHashHex() {
-                const source = (nameEl.value || '') + (passEl.value || '');
-                if (!source) return '';
-                const hex = await computeSHA256Hex(source);
-                return hex;
-            }
-
-            // update hash whenever related inputs change
-            [nameEl, passEl].forEach(el => {
-                if (!el) return;
-                el.addEventListener('input', () => { generateHashHex().catch(() => {}); });
-            });
-
-            // expose for manual triggering and initialize
-            window.generateHashHex = generateHashHex;
-            generateHashHex().catch(() => {});
-        })();
-
-        // Hash Display Update
-        (function() {
-            const printed = document.getElementById('Printed_Text');
-            const sha = document.getElementById('SHA-256');
-            if (!printed || !sha) return;
-            async function updateSHA() {
-                const source = printed.value || '';
-                if (!source) {
-                    sha.innerText = '';
-                    return;
-                }
-                const enc = new TextEncoder();
-                const data = enc.encode(source);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                sha.innerText = hex;
-            }
-            printed.addEventListener('input', () => { updateSHA().catch(() => {}); });
-            // also update when name/password change (if present)
-            document.getElementById('Hash_Name')?.addEventListener('input', () => { updateSHA().catch(() => {}); });
-            document.getElementById('Password')?.addEventListener('input', () => { updateSHA().catch(() => {}); });
-            updateSHA().catch(() => {});
-        })();
-
-
-
+    })();
 
 </script>

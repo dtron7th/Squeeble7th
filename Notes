@@ -1,0 +1,12 @@
+if #Full_Screen_Button is press then begin progress, else hide progress bar
+
+use #sym:input#Printed_Text.Field to output a sha-256 hex in SHA-256
+
+Get the value of #Printed_Text and display text on #SHA-256
+
+convert #SHA-256 output to a sha-256 hash hex string
+
+#SHA-256 limit displayed characters to 16
+
+display <output> data in standard UTF-8 for touch screen devices
+
