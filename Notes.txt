@@ -1,0 +1,59 @@
+if #Full_Screen_Button is press then begin progress, else hide progress bar
+
+use #sym:input#Printed_Text.Field to output a sha-256 hex in SHA-256
+
+Get the value of #Printed_Text and display text on #SHA-256
+
+convert #SHA-256 output to a sha-256 hash hex string
+
+#SHA-256 limit displayed characters to 16
+
+display <output> data in standard UTF-8 for touch screen devices
+
+get value of #Printed_Text then convert text into a Hashhex in #SHA-256
+
+#SHA-256_Output is to generate a hash hex using the value of #Printed_Text
+
+convert #SHA-256_Output string to a sha-256 hex
+
+use #sym:output#SHA-256_Output.SHA-256_Output to print a sha-256 hash hex
+
+limit #sym:output#SHA-256_Output.SHA-256_Output string to 16 characters
+
+if .Max_Size_Button is pressed, then increase the size of 
+
+if .Sign_Up_Window is maxumized, disable dragging
+
+use .Max_Size_Button to toggle .Sign_Up_Window maxumization
+
+parent position .Profile_Options_Dropdown to .Profile_Bubble
+
+use #Close_Signup_Window to close .Signup_Window
+
+if #Open_Signup_Upload_Profile_Diolog is pressed then open .Signup_Upload_Profile_Diolog
+
+if .Signup_Upload_Profile_Diolog is open then close Signup_Profile_Options
+
+if #Signup_Set_Picture is pressed, then confirm the picture as a profile picture and close .Signup_Upload_Profile_Diolog
+
+create a photo diolog, where a user can upload pictures from
+
+use #Signup_Get_Picture_From_Computer to open .Photo_Upload_Dialog
+
+cobine #Hash_First_Name, Hash_Last_Name and #Hash_Password
+
+update, new inputs, #Hash_First_Name, #Hash_Last_Name, #Hash_Password
+
+if #Open_Forgot_Password_Show_Password_Dialog is pressed then open .Forgot_Password_Show_Password_Dialog
+
+
+
+
+<div class="Fullscreen_Dialog Revert_To_Fullscreen_Dialog" style="display: none;">
+            <div class="Buttons">
+                <button class="" id="Revert_To_Fullscreen" style="width: 100%; height: 30px;">Revert to fullscreen</button>
+                <button class="" id="Exit_App_Page" style="width: 100%; height: 30px;">Exit page</button>
+            </div>
+        </div>
+
+

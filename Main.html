@@ -31,16 +31,22 @@
             --Main_Text: 10px;
             --Main_Text_1: 13px;
             --Main_Text_Color: rgb(255, 255, 255);
-            --Main_Window_Color-1: rgba(255, 255, 255, 0.05);
+            --Main_Window_Color-1: rgba(0, 0, 0, 0.05);
             --Main_Window_Color-2: rgba(0, 0, 0, 0.212);
-            --Main_Window_Header_Color-1: rgba(0, 0, 0, 0.2);
+            --Main_Window_Header_Color-1: rgb(47, 67, 80);
             --Login_Window_Color-1: rgb(0, 0, 0);
             --Login_Window_Color-2: rgb(255, 255, 255);
+            --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
             --Main_Border: rgba(255, 255, 255, 0.2);
-            --Text_Input_Field: rgba(0, 0, 0, 0.253);
+            --Text_Input_Field: rgba(0, 0, 0, 0.25);
             --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
 
             --Menu_Background: rgba(0, 0, 0, 0.3);
+            --Box_Shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+            --Back_drop: blur(20px);
+
+            --Profile_Pic_Background: rgba(0, 0, 0, 0.3);
+            --Active_Border: rgba(0, 255, 170, 0.5);
         }
 
     </style>
@@ -87,10 +93,10 @@
             justify-content: center;
             align-items: center;
             background-color: var(--Main_Window_Color-1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--Back_drop);
             overflow: hidden;
             border: 1px solid var(--Main_Border);
-            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--Box_Shadow);
             display: flex;
             flex-direction: column;
         }
@@ -105,10 +111,21 @@
             align-items: center;
         }
 
-        .Window >.Window_Header > .Title {
+        .Window > .Window_Header > .Title {
             margin-left: 10px;
             color: var(--Main_Text_Color);
             font-size: var(--Main_Text);
+        }
+
+        .Window > .Window_Header > .Max_Size_Button {
+            position: absolute;
+            right: 30px;
+            width: 10px;
+            height: 10px;
+            background-color: rgb(0, 255, 115);
+            border: none;
+            outline: none;
+            border-radius: 50%;
         }
 
         .Window > .Window_Header > .Close_Button {
@@ -147,6 +164,8 @@
             font-size: var(--Main_Text);
         }
 
+        
+
         button {
             border: none;
             outline: none;
@@ -173,19 +192,43 @@
             flex-direction: column;
         }
 
+        .Dropdown_Window {
+            position: absolute;
+            background-color: var(--Text_Input_Field);
+            box-shadow: var(--Box_Shadow);
+            backdrop-filter: var(--Back_drop);
+        }
+
+        .Dropdown_Window > .Dropdown_Window_Button {
+            text-align: left;
+            text-indent: 10px;
+        }
+
+        .Fullscreen_Dialog {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--Menu_Background);
+            backdrop-filter: var(--Back_drop);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
         /* Main */
         
         .Disclaimer {
             position: absolute;
             width: 100%;
             height: 100%;
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--Back_drop);
             background-color: var(--Main_Window_Color-2);
-            border: 1px solid var(--Main_Border);
             display: flex;
             justify-content: center;
             align-items: center;
-            
             z-index: 2;
         }
 
@@ -194,6 +237,7 @@
             width: 300px;
             height: 200px;
             background-color: var(--Main_Window_Color-2);
+            border: 1px solid var(--Main_Border);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -221,7 +265,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(20px);
+            backdrop-filter: var(--Back_drop);
         }
 
         .On_Button > button > img {
@@ -282,7 +326,21 @@
             gap: 10px;
         }
 
-        .Login > .Login_Window > .Content > .Main  > .Inputs > .SHA-256 {
+        .Login > .Login_Window > .Content > .Main  > .Inputs > .Field {
+            width: 100%;
+            height: 30px;
+            background-color: var(--Text_Input_Field);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-indent: 10px;
+            overflow: hidden;
+        }
+
+        .Login > .Login_Window > .Content > .Main  > .Inputs > .Login_SHA-256_Output {
             width: 100%;
             height: 30px;
             background-color: var(--Text_Input_Field);
@@ -314,8 +372,203 @@
             gap: 10px;
         }
 
+        .Login > .Login_Window > .Content > .Manual > .Hash_Name {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
         .Login > .Login_Window > .Content > p {
             width: calc(100% - 40px);
+        }
+
+        .Signup_Window {
+            position: relative;
+            display: none;
+            overflow: hidden;
+            overflow-y: scroll;
+        }
+
+        .Signup_Window > .Window_Header {
+            position: sticky;
+            z-index: 1;
+        }
+
+        .Signup_Window > .Content {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-self: center;
+        }
+
+        .Signup_Window > .Content > .Main_Title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .Signup_Window > .Content > .Main_Title > p {
+            font-size: 16px;
+            color: var(--Main_Text_Color);
+        }
+
+        .Signup_Window > .Content > .Signup_Profile {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: calc(100% - 120px);
+        }
+
+        .Signup_Window > .Content > .Signup_Profile > .Signup_Profile_Bubble {
+            position: absolute;
+            right: 0px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .Signup_Window > .Content > .Signup_Profile > .Signup_Profile_Bubble > img {
+            width: 70px;
+            height: 70px;
+            background-color: var(--Profile_Pic_Background);
+        }
+
+        .Signup_Window > .Content > .Signup_Profile > .Signup_Profile_Name {
+            position: absolute;
+            top: 0px;
+            right: 80px;
+            width: 50%;
+            font-size: 16px;
+            color: var(--Main_Text_Color);
+            text-align: right;
+        }
+    
+        .Signup_Window > .Content > .Signup_Profile > .Signup_Profile_Name > p {
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+        }
+
+        .Signup_Window > .Content > .Signup_Wallpaper {
+            position: absolute;
+            top: 110px;
+            width: calc(100% - 40px);
+            height: 130px;
+        }
+
+        .Signup_Window > .Content > .Signup_Wallpaper > .Signup_Wallpaper_Container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .Signup_Window > .Content > .Signup_Wallpaper > .Signup_Wallpaper_Container > img {
+            width: 100%;
+            background-size: contain;
+        }
+
+        .Signup_Window > .Content > .Signup_Wallpaper > .Get_Signup_Wallpaper {
+            margin-top: 10px;
+        }
+
+        .Signup_Window > .Content > .Inputs {
+            width: calc(100% - 40px);
+            overflow-y: scroll;
+        }
+
+        .Signup_Window > .Content > .Inputs > .First_Basic_Inputs {
+            position: absolute;
+            top: 310px;
+            width: calc(100% - 40px);
+        }
+
+        .Signup_Window > .Content > .Inputs > .First_Basic_Inputs > .Hash_Output {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+        }
+
+        .Signup_Window > .Content > .Inputs > .First_Basic_Inputs > .Hash_Output > .Signup_SHA-256_Output {
+            width: 100%;
+            height: 30px;
+            background-color: var(--Text_Input_Field);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-indent: 10px;
+            overflow: hidden;
+        }
+
+        .Signup_Window > .Content > .Inputs > .First_Basic_Inputs > .Name {
+            position: absolute;
+            top: 100px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Signup_Window > .Content > .Inputs > .First_Basic_Inputs > .Signup_Password {
+            position: absolute;
+            top: 140px;
+            width: 100%;
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs {
+            position: absolute;
+            top: 510px;
+            width: calc(100% - 40px);
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs > .Hash_Output {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs > .Hash_Output > .Signup_SHA-256_Output {
+            width: 100%;
+            height: 30px;
+            background-color: var(--Text_Input_Field);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-indent: 10px;
+            overflow: hidden;
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs > .Name {
+            position: absolute;
+            top: 100px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs > .Information_1 {
+            position: absolute;
+            top: 140px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Signup_Window > .Content > .Inputs > .Second_Basic_Inputs > .Information_2 {
+            position: absolute;
+            top: 180px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            padding-bottom: 20px;
         }
 
         .Login > .Close_Login_Menu {
@@ -323,7 +576,7 @@
             width: 100%;
             height: 100%;
             background-color: var(--Menu_Background);
-            backdrop-filter: blur(20px);
+            backdrop-filter: var(--Back_drop);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -335,7 +588,6 @@
             width: 200px;
             height: auto;
             background-color: var(--Main_Window_Color-2);
-            border: 1px solid var(--Main_Border);
         }
 
         .Login > .Verification_Window {
@@ -348,7 +600,7 @@
             align-items: center;
         }
 
-        .Login > .Verification_Window > .Content > .Profiele {
+        .Login > .Verification_Window > .Content > .Verification_Window_Profile {
             position: absolute;
             top: 30px;
             width: 70px;
@@ -360,7 +612,7 @@
             align-items: center;
         }
 
-        .Login > .Verification_Window > .Content > .Profiele > img {
+        .Login > .Verification_Window > .Content > .Verification_Window_Profile > img {
             width: 100%;
             background-size: contain;
         }
@@ -391,14 +643,139 @@
             justify-content: center;
         }
 
-        
+        /* Dropdown Styles */
 
+        .Signup_Profile_Options_Dropdown  {
+            width: 150px;
+            height: auto;
+        }
+
+        .Signup_Upload_Profile_Dialog > .Content {
+            display: flex;
+            justify-content: center;
+        }
+
+        .Signup_Upload_Profile_Dialog {
+            display: none;
+        }
+
+        .Signup_Upload_Profile_Dialog > .Content > .Signup_Upload_Profile_Dialog_Profile_Pic {
+            position: absolute;
+            top: 20px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .Signup_Upload_Profile_Dialog > .Content > .Signup_Upload_Profile_Dialog_Profile_Pic > img {
+            width: 70px;
+            height: 70px;
+            background-color: var(--Profile_Pic_Background);
+        }
+
+        .Signup_Upload_Profile_Dialog > .Content > .Buttons {
+            position: absolute;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            display: flex;
+            gap: 10px;
+        }
+
+        .Forgot_Password_Dialog {
+            display: none;
+        }
+
+        .Forgot_Password_Dialog > .Content > .Description {
+            position: absolute;
+            top: 30px;
+            width: calc(100% - 40px);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Output_Hash {
+            position: absolute;
+            top: 80px;
+            width: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Output_Hash > .Forgotpassword_SHA-256_Output {
+            width: 100%;
+            height: 30px;
+            background-color: var(--Text_Input_Field);
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-indent: 10px;
+            overflow: hidden;
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Inputs {
+            position: absolute;
+            top: 180px;
+            width: calc(100% - 40px);
+            
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Inputs > .Name {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Inputs > .Information_1 {
+            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Forgot_Password_Dialog > .Content > .Forgotpassword_Inputs > .Information_2 {
+            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .Forgot_Password_Show_Password_Dialog {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .Forgot_Password_Show_Password_Dialog > .Fields {
+            position: absolute;
+            top: 400px;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            gap: 20px; 
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color);
+        }
+
+        .Forgot_Password_Show_Password_Dialog > .Fields > .Recovered_Password {
+            font-size: 14px;
+        }
+
+        .Forgot_Password_Show_Password_Dialog > .Close_Button {
+            position: absolute;
+            top: 480px;
+        }
     </style>
-    <!-- Do Not Touch -->
-    <script>
-
-    </script>
-    <!-- Do Not Touch -->
 </head>
 
     <!-- This is where you can add to the app -->
@@ -415,6 +792,11 @@
             <img src="/Images/Background Img/Login_wallpaper-7.jpg" alt="">
             <img src="/Images/Background Img/Login_wallpaper-8.jpg" alt="">
             <img src="/Images/Background Img/Login_wallpaper-9.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-10.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-11.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-12.jpg" alt="">
+            <img src="/Images/Background Img/Login_wallpaper-13.jpg" alt="">
+            
         </div>
     </div>
 
@@ -422,45 +804,86 @@
         <!-- Virtual Keyboard -->
         <style>
             .VirtualKeyboard {
-                position: fixed;
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
-                background: var(--Main_Window_Color-2);
-                border: 1px solid var(--Main_Border);
-                backdrop-filter: blur(12px);
-                padding: 8px;
-                z-index: 9999;
-                box-shadow: 6px 6px 14px rgba(0,0,0,0.45);
-                user-select: none;
-                -webkit-user-select: none;
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: var(--Main_Window_Color-1);
+            border: 1px solid var(--Main_Border);
+            backdrop-filter: blur(20px);
+            padding: 8px;
+            z-index: 9999;
+            box-shadow: var(--Box_Shadow);
+            user-select: none;
+            -webkit-user-select: none;
+            display: none;
             }
 
             .vk-row {
-                display: flex;
-                gap: 6px;
-                margin-bottom: 6px;
-                justify-content: center;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+            justify-content: center;
             }
 
             .vk-key {
-                flex: 1 0 0;
-                min-width: 28px;
-                padding: 10px 6px;
-                text-align: center;
-                background: var(--Text_Input_Field);
-                color: var(--Main_Text_Color);
-                
-                font-size: calc(var(--Main_Text));
-                border: 1px solid var(--Main_Border);
-                box-shadow: inset 0 -2px rgba(0,0,0,0.15);
-                touch-action: manipulation;
+            flex: 1 0 0;
+            min-width: 28px;
+            padding: 10px 6px;
+            text-align: center;
+            background: var(--Text_Input_Field);
+            color: var(--Main_Text_Color);
+            font-size: calc(var(--Main_Text));
+            outline: none;
+            box-shadow: inset 0 -2px rgba(0,0,0,0.15);
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
             }
 
             .vk-key.wide { flex: 2.4; min-width: 60px; }
             .vk-key.extra { flex: 1.6; min-width: 48px; }
-            .vk-key:active { transform: translateY(1px); background: var(--Text_Input_Field-Actove); }
+            .vk-key:active { transform: translateY(1px); background: var(--Text_Input_Field-Actove); box-shadow: inset 0 -2px rgba(0,0,0,0.15), inset 0 0 0 1px var(--Active_Border); }
+            .vk-key.active { transform: translateY(1px) !important; background: var(--Text_Input_Field-Actove) !important; box-shadow: inset 0 -2px rgba(0,0,0,0.15), inset 0 0 0 1px var(--Active_Border) !important; }
             .vk-hidden { display: none !important; }
+
+            /* show caret for the tracked inputs (even when inputmode/readonly is used) */
+            input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field {
+            caret-color: var(--Main_Text_Color);
+            -webkit-text-fill-color: var(--Main_Text_Color);
+            user-select: text; /* allow selection so caret is visible */
+            }
+
+            /* make focus state clearly visible and encourage caret rendering */
+            input.Field:focus, #Printed_Text:focus, #Hash_Name:focus, #Password:focus, textarea.Field:focus {
+            outline: none;
+            border: 1px solid var(--Active_Border);
+            }
+
+            /* visible focus for keyboard users */
+            input.Field:focus-visible, #Printed_Text:focus-visible, #Hash_Name:focus-visible, #Password:focus-visible, textarea.Field:focus-visible {
+            border: 1px solid var(--Active_Border);
+            }
+
+            /* fallback: some browsers hide the native caret for readonly inputs.
+               Provide a simple blinking faux-caret using an absolutely positioned element
+               inside the Keyboard container when a tracked input is focused.
+               The script sets .vk-shows-caret on the body to toggle this. */
+            .vk-faux-caret {
+            position: absolute;
+            width: 1px;
+            background: var(--Main_Text_Color);
+            animation: vk-caret-blink 1s steps(1) infinite;
+            pointer-events: none;
+            height: 1em;
+            transform: translateY(-0.15em);
+            }
+
+            @keyframes vk-caret-blink {
+            0%   { opacity: 1; }
+            50%  { opacity: 0; }
+            100% { opacity: 1; }
+            }
         </style>
 
         <div class="VirtualKeyboard" id="VirtualKeyboard" aria-hidden="false" role="application">
@@ -510,6 +933,10 @@
                 <button class="vk-key" data-action="hide" id="vk-hide">Hide</button>
             </div>
         </div>
+
+        <audio id="vk-sound" preload="auto">
+            <source src="/Sounds/Scifi/ui-sounds-pack-3-11-359714.mp3" type="audio/mpeg">
+        </audio>
 
         <script>
         (function(){
@@ -727,6 +1154,41 @@
 
         })();
 
+        // Sound effects for virtual keyboard
+
+        (function(){
+            const soundTemplate = document.getElementById('vk-sound');
+            if (!soundTemplate) return;
+
+            // small audio pool to allow overlapping rapid keystrokes
+            const POOL_SIZE = 4;
+            const pool = [];
+            for (let i = 0; i < POOL_SIZE; i++) {
+                const a = soundTemplate.cloneNode(true);
+                a.volume = 0.18;
+                pool.push(a);
+            }
+            let idx = 0;
+
+            const keyboard = document.getElementById('VirtualKeyboard');
+            if (!keyboard) return;
+
+            keyboard.addEventListener('click', (e) => {
+                const key = e.target.closest('.vk-key');
+                if (!key) return;
+
+                // optionally skip playing for the "hide" control
+                if (key.getAttribute('data-action') === 'hide') return;
+
+                const audio = pool[idx];
+                idx = (idx + 1) % POOL_SIZE;
+                try {
+                    audio.currentTime = 0;
+                    audio.play().catch(()=>{});
+                } catch (err) {}
+            });
+        })();
+
         
         </script>
     </div>
@@ -743,7 +1205,7 @@
 
 
     -->
-     
+
     <!-- Main -->
     <div class="Disclaimer" id="Disclaimer">
         <div class="Disclaimer_Window">
@@ -760,9 +1222,8 @@
         <span id="Progress_Label" class="Progress_Label">0%</span>
     </div>
 
-
     <div class="Login" id="Login">
-        <div class="Window Login_Window" style="width: 300px; height: 400px;">
+        <div class="Window Login_Window" style="width: 300px; height: 460px;">
             <div class="Window_Header">
                 <p class="Title">Log in</p>
                 <button class="Close_Button" id="Close_Login_Button"></button>
@@ -772,17 +1233,22 @@
 
                 <div class="Main">
                     <div class="Inputs">
-                        <output class="SHA-256" id="SHA-256"></output>
-                        <input class="Field" id="Printed_Text" type="text" style="width: 100%; height: 30px;" placeholder="Credentials">
+                        <output class="Login_SHA-256_Output" id="Login_SHA-256_Output" aria-placeholder="Sha-256 Hash"></output>
+                        <output class="Field" id="Printed_Text" type="text" style="width: 100%; height: 30px;" placeholder="Credentials"></output>
                     </div>
                     <div class="Buttons">
-                        <button id="Open_Verification_Window" style="width: 100%; height: 30px;">Login</button>
-                        <button style="width: 100%; height: 30px;">Sign Up</button>
+                        <button class="" id="Open_Verification_Window" style="width: 100%; height: 30px;">Login</button>
+                        <button class="" id="Open_Signup_Window" style="width: 100%; height: 30px;">Sign Up</button>
                     </div>
                 </div>
                 <div class="Manual">
-                    <input id="Hash_Name" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Name">
-                    <input id="Password" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Password">
+                    <div class="Hash_Name">
+                        <input id="Hash_First_Name" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                        <input id="Hash_Last_Name" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                    </div>
+                    
+                    <input id="Hash_Password" class="Field" type="text" style="width: 100%; height: 30px;" placeholder="Password">
+                    <button class="" id="Open_Forgot_Password" style="width: 100%; height:30px;">Forgot Password?</button>
                 </div>
             </div>
         </div>
@@ -792,14 +1258,77 @@
                 <button class="" id="Revert_Back_To_Login" style="width: 100%; height: 30px;">Revert back to login</button>
             </div>
         </div>
+        <div class="Window Signup_Window" style="width: 300px; height: 600px;">
+            <div class="Window_Header">
+                <p class="Title">Sign up</p>
+                <button class="Close_Button" id="Close_Signup_Window"></button>
+                <button class="Max_Size_Button" id="Maximize_Signup_Window"></button>
+            </div>
+            <div class="Content">
+                <div class="Main_Title">
+                    <p>Sign up</p>
+                </div>
+                <div class="Signup_Profile">
+                    <div class="Signup_Profile_Bubble">
+                        <img id="Signup_Profile_Options_Button" src="/Images/Profile Pics/man-user-circle-icon.png" alt="">
+                    </div>
+                    <div class="Signup_Profile_Name">
+                        <p>John Doe</p>
+                    </div>
+                </div>
+                <div class="Signup_Wallpaper">
+                    <div class="Signup_Wallpaper_Container">
+                        <img src="/Images/Wallpaper/1bf2a5457e255dba1b0e2e37076b4342.jpg" alt="">
+                    </div>
+                    <button class="Get_Signup_Wallpaper" id="Get_Signup_Wallpaper" style="width: 100%; height: 30px;">Upload Wallpaper</button>
+                </div>
+                <div class="Inputs">
+                    <div class="First_Basic_Inputs">
+                        <div class="Title">
+                            <p style="color: var(--Main_Text_Color); font-size: var(--Main_Text);">Use the fields below to create your account, the SHA-256 hash will be generated from the data you input.</p>
+                        </div>
+                        <div class="Hash_Output">
+                        <output class="Signup_SHA-256_Output" id="Signup_SHA-256_Output" aria-placeholder="Sha-256 Hash"></output>
+                        </div>
+                        <div class="Name">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                        </div>
+                        <div class="Signup_Password">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="Second_Basic_Inputs">
+                        <div class="Title">
+                            <p style="color: var(--Main_Text_Color); font-size: var(--Main_Text);">This is your backup data, incase you lose your password, you can rely on your secondary information to find your password.</p>
+                        </div>
+                        <div class="Hash_Output">
+                        <output class="Signup_SHA-256_Output" id="Signup_SHA-256_Output" aria-placeholder="Sha-256 Hash"></output>
+                        </div>
+                        <div class="Name">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                        </div>
+                        <div class="Information_1">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Data of birth">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Place of birth">
+                        </div>
+                        <div class="Information_2">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Information_1">
+                            <input class="Field" id="" type="text" style="width: 100%; height: 30px;" placeholder="Information_2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="Window Verification_Window" id="Verification_Window" style="width: 200px; height: 300px;">
             <div class="Window_Header">
                 <p class="Title">Verification</p>
                 <button class="Close_Button" id="Close_Verification_Window"></button>
             </div>
             <div class="Content">
-                <div class="Profiele">
-                    <img src="/Images/Profile Pics/images.jpeg" alt="">
+                <div class="Verification_Window_Profile">
+                    <img src="/Images/Profile Pics/man-user-circle-icon.png" alt="">
                 </div>
                 <div class="Data">
                     <span>Verification Success</span>
@@ -811,6 +1340,96 @@
             </div>
         </div>
     </div>
+    <div class="Dropdowns">
+        <div class="Signup_Profile_Options">
+            <div class="Dropdown_Window Signup_Profile_Options_Dropdown">
+                <button class="Dropdown_Window_Button" id="" style="width: 100%; height: 30px;">View Picture</button>
+                <button class="Dropdown_Window_Button" id="Open_Signup_Upload_Profile_Dialog" style="width: 100%; height: 30px;">Edit Picture</button>
+            </div>
+        </div>
+    </div>
+    <div class="Popup_Dialogs_Layer1">
+        <div class="Window Signup_Upload_Profile_Dialog" style="width: 200px; height: 200px;">
+            <div class="Window_Header">
+                <p class="Title">Upload Profile Picture</p>
+                <button class="Close_Button" id="Close_Signup_Upload_Profile_Dialog"></button>
+            </div>
+            <div class="Content">
+                <div class="Signup_Upload_Profile_Dialog_Profile_Pic">
+                    <img src="/Images/Profile Pics/man-user-circle-icon.png" alt="">
+                </div>
+                <div class="Buttons">
+                    <button id="Signup_Get_Picture_From_Computer" style="width: 100%; height: 30px;">Get Profile</button>
+                    <button id="Signup_Set_Picture" style="width: 100%; height: 30px;">Set Profile</button>
+                </div>
+            </div>
+        </div>
+        <div class="Window Forgot_Password_Dialog" style="width: 300px; height: 340px;">
+            <div class="Window_Header">
+                <p class="Title">Forgot Password</p>
+                <button class="Close_Button" id="Close_Forgot_Password_Dialog"></button>
+            </div>
+            <div class="Content">
+                <div class="Description">
+                    <p>Fill out the bottom fields to help recover your password. This uses a Sha-256 hash to hide your password</p>
+                </div>
+                <div class="Forgotpassword_Output_Hash">
+                     <output class="Forgotpassword_SHA-256_Output" id="Forgotpassword_SHA-256_Output" aria-placeholder="Sha-256 Hash"></output>
+                     <button class="" id="Open_Forgot_Password_Show_Password_Dialog" style="width: 100%; height: 30px;">Get Password</button>
+                </div>
+                <div class="Forgotpassword_Inputs">
+                    <div class="Name">
+                        <input class="Field" id="Forgotpassword_First_Name" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                        <input class="Field" id="Forgotpassword_Last_Name" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                    </div>
+                    <div class="Information_1">
+                        <input class="Field" id="Forgotpassword_First_Name" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                        <input class="Field" id="Forgotpassword_Last_Name" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                    </div>
+                    <div class="Information_2">
+                        <input class="Field" id="Forgotpassword_First_Name" type="text" style="width: 100%; height: 30px;" placeholder="First Name">
+                        <input class="Field" id="Forgotpassword_Last_Name" type="text" style="width: 100%; height: 30px;" placeholder="Last Name">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Popup_Dialogs_Layer2">
+        
+    </div>
+    <div class="Popup_Dialogs_Layer3">
+
+    </div>
+    <div class="Popup_Dialogs_Layer4">
+        
+    </div>
+    <div class="Popup_Dialogs_Layer5">
+
+    </div>
+    <div class="Fullscreen_Dialogs_Layer1">
+        <div class="Fullscreen_Dialog Revert_To_Fullscreen_Dialog" style="display: none;">
+            <div class="Buttons">
+                <button class="" id="Revert_To_Fullscreen" style="width: 100%; height: 30px;">Revert to fullscreen</button>
+                <button class="" id="Exit_App_Page" style="width: 100%; height: 30px;">Exit page</button>
+            </div>
+        </div>
+        <div class="Fullscreen_Dialog Maps_Dialog" style="display: none;">
+            
+        </div> 
+    </div>
+    <div class="Fullscreen_Dialogs_Layer2">
+        <div class="Fullscreen_Dialog Forgot_Password_Show_Password_Dialog">
+            <div class="Fields">
+                <p>Your password is:</p>
+                <p class="Recovered_Password" id="Recovered_Password">Password</p>
+            </div>
+            <div class="Close_Button">
+                <button class="" id="Close_Forgot_Password_Show_Password_Dialog" style="width: 200px; height: 30px;">Close</button>
+            </div>
+        </div>
+    </div>
+    <div class="Fullscreen_Dialogs_Layer3">
+
     </div>
 </body>
 
@@ -1234,9 +1853,81 @@
         keyboard.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
     })();
 
-    
+    (function(){
+        // Show a dialog asking the user to revert to fullscreen when the page exits fullscreen.
+        function isFullscreen() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+        }
 
-    //Login
+        function centerDialog(dialog){
+            if(!dialog) return;
+            dialog.style.display = 'flex';
+            dialog.style.position = 'fixed';
+            dialog.style.left = '50%';
+            dialog.style.top = '50%';
+            dialog.style.transform = 'translate(-50%, -50%)';
+            dialog.style.zIndex = String(99999);
+            try { if (typeof bringToFront === 'function') bringToFront(dialog); } catch(e){}
+            // focus first button for accessibility
+            const btn = dialog.querySelector('button');
+            if (btn && typeof btn.focus === 'function') btn.focus();
+        }
+
+        function hideDialog(dialog){
+            if(!dialog) return;
+            dialog.style.display = 'none';
+            dialog.style.transform = '';
+        }
+
+        async function requestFullscreen() {
+            const el = document.documentElement;
+            try {
+                if (el.requestFullscreen) await el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+                else if (el.msRequestFullscreen) await el.msRequestFullscreen();
+            } catch(e){ /* ignore */ }
+        }
+
+        function onFsChange(){
+            const dialog = document.querySelector('.Fullscreen_Dialog.Revert_To_Fullscreen_Dialog');
+            if (!dialog) return;
+            if (!isFullscreen()) {
+                centerDialog(dialog);
+            } else {
+                hideDialog(dialog);
+            }
+        }
+
+        document.addEventListener('fullscreenchange', onFsChange);
+        document.addEventListener('webkitfullscreenchange', onFsChange);
+        document.addEventListener('msfullscreenchange', onFsChange);
+
+        // Wire up the dialog buttons if present
+        document.addEventListener('click', (e) => {
+            const btn = e.target;
+            if (!btn) return;
+            if (btn.id === 'Revert_To_Fullscreen') {
+                requestFullscreen().then(()=> {
+                    const d = document.querySelector('.Fullscreen_Dialog.Revert_To_Fullscreen_Dialog');
+                    if (d) hideDialog(d);
+                }).catch(()=>{});
+            } else if (btn.id === 'Exit_App_Page') {
+                // best-effort: try to close the page
+                try { window.close(); } catch(e){}
+            }
+        });
+
+        // If page starts not-fullscreen and dialog element exists, ensure it's hidden initially
+        document.addEventListener('DOMContentLoaded', () => {
+            const dialog = document.querySelector('.Fullscreen_Dialog.Revert_To_Fullscreen_Dialog');
+            if (dialog) {
+                if (!isFullscreen()) dialog.style.display = 'none';
+                else dialog.style.display = 'none';
+            }
+        });
+    })();
+
+    //Start
 
     (function(){
         const fsBtn = document.getElementById('Full_Screen_Button');
@@ -1307,7 +1998,7 @@
                     if (btn) btn.style.display = originalBtnDisplay;
                     return;
                 }
-            }, 500);
+            }, 100);
         }
 
         function clearProgress() {
@@ -1725,6 +2416,8 @@
         windowElement.style.top = clamp(snapped.y, 0, maxY) + 'px';
     }
 
+    
+
     // bring active window forward (z-index stacking)
     let nextZIndex = 10;
 
@@ -1738,7 +2431,7 @@
         win.addEventListener('mousedown', () => bringToFront(win));
         win.addEventListener('touchstart', () => bringToFront(win));
     });
-    
+
 
     // Disclaimer
 
@@ -1746,248 +2439,725 @@
         document.getElementById('Disclaimer').style.display = 'none';
     });
 
-    // Combine Name and Password into Printed_Text
-
-    const nameInput = document.getElementById('Hash_Name');
-    const passInput = document.getElementById('Password');
-    const shaField = document.getElementById('Printed_Text');
-
-    function updateSHAField() {
-        shaField.value = (nameInput.value || '') + (passInput.value || '');
-    }
-
-    nameInput.addEventListener('input', updateSHAField);
-    passInput.addEventListener('input', updateSHAField);
-
-    // initialize
-    updateSHAField();
-
-    const shaOutput = document.getElementById('SHA-256');
-    function syncPrintedToSHA() {
-        shaOutput.value = (shaField.value || '');
-    }
-    shaField.addEventListener('input', syncPrintedToSHA);
-    nameInput.addEventListener('input', syncPrintedToSHA);
-    passInput.addEventListener('input', syncPrintedToSHA);
-    syncPrintedToSHA();
-
     // Login // Windows
+
+    // Login / Verification window
+
+    (function(){
+        const openBtn = document.getElementById('Open_Verification_Window');
+        const verification = document.getElementById('Verification_Window');
+        const loginWindow = document.querySelector('.Login_Window');
+        const loginContainer = document.querySelector('.Login');
+
+        if (!openBtn || !verification) return;
+
+        function centerAndShow(el) {
+            el.style.display = 'flex';
+            el.style.position = 'absolute';
+            // center in body
+            const rect = el.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            el.style.left = Math.max(0, (bodyRect.width - rect.width) / 2) + 'px';
+            el.style.top = Math.max(0, (bodyRect.height - rect.height) / 2) + 'px';
+            try { if (typeof bringToFront === 'function') bringToFront(el); } catch(e){}
+        }
+
+        openBtn.addEventListener('click', (e) => {
+            // show verification window without hiding the login window
+            centerAndShow(verification);
+
+            // ensure login container remains visible (if needed)
+            if (loginContainer) loginContainer.style.display = 'flex';
+
+            // bring verification above the login window
+            try { if (typeof bringToFront === 'function') bringToFront(verification); } catch(e){}
+        });
+
+        // close button: hide verification but keep login open
+        const closeVerBtn = document.getElementById('Close_Verification_Window');
+        if (closeVerBtn) {
+            closeVerBtn.addEventListener('click', () => {
+                verification.style.display = 'none';
+                try { if (loginWindow) { loginWindow.style.display = 'flex'; bringToFront(loginWindow); } } catch(e){}
+            });
+        }
+    })();
 
     // Login / Verification window behaviors
 
-    
-    // Hash Display
-    
-    async function generateHash() {
-        try {
-            const text = (shaField && shaField.value) || '';
-            const encoder = new TextEncoder();
-            const data = encoder.encode(text);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    (function(){
+        function formatTime(d){
+            // use locale-aware standard time (HH:MM:SS, includes AM/PM where appropriate)
+            return d.toLocaleTimeString();
+        }
 
-            if (shaOutput) {
-                // update both textContent and value to ensure visible hex output
-                shaOutput.textContent = hex;
-                try { shaOutput.value = hex; } catch (e) {}
-                // make output more legible on touch devices
-                try {
-                    const isTouch = (!!navigator.maxTouchPoints) || ('ontouchstart' in window);
-                    if (isTouch) {
-                        shaOutput.style.fontSize = '14px';
-                        shaOutput.style.padding = '6px 8px';
-                        shaOutput.style.wordBreak = 'break-all';
-                    }
-                } catch (e) {}
-            }
-        } catch (e) {
-            if (shaOutput) {
-                shaOutput.textContent = '';
-                try { shaOutput.value = ''; } catch (err) {}
+        const timeEl = document.querySelector('.Login .Verification_Window .Data span:nth-of-type(2)');
+        function refresh() {
+            if (timeEl) timeEl.textContent = formatTime(new Date());
+        }
+
+        window.getCurrentTime = function() {
+            const now = new Date();
+            return { date: now, formatted: formatTime(now), iso: now.toISOString() };
+        };
+
+        refresh();
+        setInterval(refresh, 1000);
+    })();
+    
+    // Hash Display - Login
+
+    (function(){
+        function syncPrinted() {
+            const printed = document.getElementById('Printed_Text');
+            const first = document.getElementById('Hash_First_Name');
+            const last = document.getElementById('Hash_Last_Name');
+            const pass = document.getElementById('Hash_Password');
+            if (!printed || !first || !last || !pass) return;
+            const combined = [first.value || '', last.value || '', pass.value || ''].join(' ').trim();
+            printed.value = combined;
+            try { printed.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+            try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+        }
+
+        ['Hash_First_Name','Hash_Last_Name','Hash_Password'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', syncPrinted);
+            const mo = new MutationObserver(syncPrinted);
+            mo.observe(el, { attributes: true, attributeFilter: ['value'] });
+        });
+
+        // initial sync
+        setTimeout(syncPrinted, 0);
+    })();
+
+    (function(){
+        async function computeSHA256Hex(str) {
+            const enc = new TextEncoder();
+            const data = enc.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function updateSHAField() {
+            const out = document.getElementById('Login_SHA-256_Output');
+            if (!out) return;
+
+            const printed = document.getElementById('Printed_Text')?.value || '';
+            const first = document.getElementById('Hash_First_Name')?.value || '';
+            const last  = document.getElementById('Hash_Last_Name')?.value || '';
+            const pass  = document.getElementById('Hash_Password')?.value || '';
+
+            // combine fields deterministically
+            const combined = `${printed}|${first}|${last}|${pass}`;
+
+            try {
+                const hex = await computeSHA256Hex(combined);
+                out.textContent = hex;
+            } catch (e) {
+                out.textContent = 'hash-error';
+                console.error('SHA-256 failed', e);
             }
         }
-    }
 
-    // Recompute hash when inputs change (desktop and touch)
-    if (shaField) {
-        shaField.addEventListener('input', generateHash);
-        shaField.addEventListener('touchstart', generateHash, { passive: true });
-        shaField.addEventListener('touchend', generateHash, { passive: true });
-    }
-    if (nameInput) {
-        nameInput.addEventListener('input', generateHash);
-        nameInput.addEventListener('touchstart', generateHash, { passive: true });
-        nameInput.addEventListener('touchend', generateHash, { passive: true });
-    }
-    if (passInput) {
-        passInput.addEventListener('input', generateHash);
-        passInput.addEventListener('touchstart', generateHash, { passive: true });
-        passInput.addEventListener('touchend', generateHash, { passive: true });
-    }
+        // expose for other code
+        window.updateSHAField = updateSHAField;
 
-    // Also update after virtual keyboard interaction to ensure immediate display on touch screens
-    const vk = document.getElementById('VirtualKeyboard');
-    if (vk) {
-        vk.addEventListener('click', () => setTimeout(generateHash, 8));
-        vk.addEventListener('touchend', () => setTimeout(generateHash, 8), { passive: true });
-    }
+        // wire up inputs to update on changes (virtual keyboard dispatches 'input')
+        ['Printed_Text','Hash_First_Name','Hash_Last_Name','Hash_Password'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', updateSHAField);
+            // also update on programmatic attribute changes
+            const mo = new MutationObserver(updateSHAField);
+            mo.observe(el, { attributes: true, attributeFilter: ['value'] });
+        });
 
-    // Ensure any programmatic field updates also recompute
-    try {
-        const origUpdate = window.updateSHAField;
-        window.updateSHAField = function() {
-            try { if (typeof origUpdate === 'function') origUpdate(); } catch(e){}
-            generateHash();
-        };
-    } catch(e){}
+        // initial compute
+        setTimeout(updateSHAField, 0);
+    })();
 
-    // initial compute and ensure visible immediately on touch screens
-    generateHash();
-
-    // limit SHA-256 display to first 16 characters but keep full hex in data-full and title
     (function(){
-        const DISPLAY_CHARS = 16;
-        const out = document.getElementById('SHA-256');
+        const out = document.getElementById('Login_SHA-256_Output');
         if (!out) return;
 
-        function truncateSHAOutput() {
-            const full = (out.textContent || out.value || '') + '';
-            // store full hex for later use / tooltip
+        const orig = window.updateSHAField || (async function(){});
+
+        window.updateSHAField = async function(...args) {
+            await orig.apply(this, args);
+            const full = (out.textContent || '').toString();
+            // keep full value for debugging / future use
             out.dataset.full = full;
-            out.title = full || '';
-            const display = full.slice(0, DISPLAY_CHARS);
-            // only update if different to avoid needless mutations
-            if (out.textContent !== display) {
-                try { out.textContent = display; } catch (e) {}
-            }
-            try { out.value = display; } catch (e) {}
+            // display only first 16 characters
+            out.textContent = full.slice(0, 16);
+        };
+
+        // recompute once to apply truncation to the current value
+        setTimeout(() => { try { window.updateSHAField(); } catch(e){} }, 0);
+    })();
+
+    //Sign up Window
+
+    (function(){
+        const openBtn = document.getElementById('Open_Signup_Window');
+        const signupWin = document.querySelector('.Signup_Window');
+        const loginWin = document.querySelector('.Login_Window');
+
+        if (!openBtn || !signupWin) return;
+
+        function centerAndShow(el) {
+            el.style.display = 'flex';
+            el.style.position = 'absolute';
+            // ensure layout measured before positioning
+            const rect = el.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            el.style.left = Math.max(0, (bodyRect.width - rect.width) / 2) + 'px';
+            el.style.top = Math.max(0, (bodyRect.height - rect.height) / 2) + 'px';
+            try { if (typeof bringToFront === 'function') bringToFront(el); } catch (e) {}
         }
 
-        // wrap existing generateHash so truncation runs after each compute
-        try {
-            const original = window.generateHash || generateHash;
-            window.generateHash = async function(...args) {
-                await original.apply(this, args);
-                truncateSHAOutput();
-            };
-        } catch (e) {
-            // fallback: if wrap failed, ensure we still truncate on changes
-        }
+        openBtn.addEventListener('click', () => {
+            // keep login window visible; just show signup on top
+            centerAndShow(signupWin);
+            try { if (typeof bringToFront === 'function') bringToFront(signupWin); } catch (e) {}
 
-        // observe direct changes to the output and re-truncate (safe/idempotent)
-        const mo = new MutationObserver(() => truncateSHAOutput());
-        mo.observe(out, { characterData: true, subtree: true, childList: true });
+            // focus first interactive element inside signup for accessibility
+            try {
+                const first = signupWin.querySelector('input, button, [tabindex]');
+                if (first && typeof first.focus === 'function') first.focus();
+            } catch (e) {}
+        });
+    })();
 
-        // initial run
-        truncateSHAOutput();
+    (function(){
+        const closeBtn = document.getElementById('Close_Signup_Window');
+        const signupWin = document.querySelector('.Signup_Window');
+        const loginWin = document.querySelector('.Login_Window');
 
-        // optional: click to toggle showing full hash temporarily
-        out.addEventListener('click', () => {
-            const isFull = out.dataset.showFull === '1';
-            if (!isFull) {
-                const full = out.dataset.full || (out.textContent || out.value || '');
-                out.dataset.showFull = '1';
-                out.textContent = full;
-                try { out.value = full; } catch (e) {}
-            } else {
-                out.dataset.showFull = '0';
-                truncateSHAOutput();
+        if (!closeBtn) return;
+
+        closeBtn.addEventListener('click', () => {
+            if (signupWin) signupWin.style.display = 'none';
+            if (loginWin) {
+                loginWin.style.display = 'flex';
+                try { bringToFront(loginWin); } catch (e) {}
             }
         });
     })();
 
     (function(){
-        const out = document.getElementById('SHA-256');
-        if (!out) return;
+        const btn = document.getElementById('Maximize_Signup_Window');
+        const win = document.querySelector('.Signup_Window');
+        if (!btn || !win) return;
 
-        // Touch-friendly visual tweaks
-        out.style.whiteSpace = 'pre-wrap';
-        out.style.wordBreak = 'break-word';
-        out.style.userSelect = 'text';
-        out.style.webkitUserSelect = 'text';
-        out.style.msUserSelect = 'text';
-        out.style.cursor = 'pointer';
+        btn.addEventListener('click', () => {
+            const isMax = win.dataset.maximized === '1';
 
-        // Convert hex string to UTF-8 string (returns null on failure)
-        function hexToUtf8(hex) {
-            if (!hex) return null;
-            hex = String(hex).replace(/[^0-9a-fA-F]/g, '');
-            if (hex.length % 2) hex = '0' + hex;
-            try {
-                const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
-                const td = new TextDecoder('utf-8', { fatal: false });
-                return td.decode(bytes);
-            } catch (e) {
-                return null;
-            }
-        }
+            if (!isMax) {
+                // Save current inline styles / geometry
+                const rect = win.getBoundingClientRect();
+                win.dataset.prevLeft = win.style.left || rect.left + 'px';
+                win.dataset.prevTop = win.style.top || rect.top + 'px';
+                win.dataset.prevWidth = win.style.width || rect.width + 'px';
+                win.dataset.prevHeight = win.style.height || rect.height + 'px';
+                win.dataset.prevPosition = win.style.position || getComputedStyle(win).position;
 
-        // Update output element to store full hex and UTF-8-decoded data
-        function refreshUtf8View() {
-            const fullHex = out.dataset.full || (out.textContent || out.value || '');
-            const decoded = hexToUtf8(fullHex);
-            if (decoded !== null && decoded !== '') {
-                out.dataset.utf8 = decoded;
+                // Maximize to cover viewport
+                win.style.position = 'fixed';
+                win.style.left = '0';
+                win.style.top = '0';
+                win.style.width = '100vw';
+                win.style.height = '100vh';
+                win.style.margin = '0';
+                win.dataset.maximized = '1';
+
+                btn.style.background = 'rgb(255,255,255)';
+                try { bringToFront(win); } catch(e){}
             } else {
-                delete out.dataset.utf8;
-            }
+                // Restore previous state
+                win.style.position = win.dataset.prevPosition || '';
+                win.style.left = win.dataset.prevLeft || '';
+                win.style.top = win.dataset.prevTop || '';
+                win.style.width = win.dataset.prevWidth || '';
+                win.style.height = win.dataset.prevHeight || '';
+                win.style.margin = '';
 
-            // On touch devices prefer showing UTF-8 if available
-            const isTouch = !!navigator.maxTouchPoints || 'ontouchstart' in window;
-            if (isTouch && out.dataset.utf8) {
-                out.textContent = out.dataset.utf8;
-                try { out.value = out.dataset.utf8; } catch (e) {}
-                out.dataset.showUtf = '1';
-            } else {
-                // keep existing truncated hex display (other logic already truncates)
-                out.dataset.showUtf = '0';
-            }
-        }
+                delete win.dataset.prevLeft;
+                delete win.dataset.prevTop;
+                delete win.dataset.prevWidth;
+                delete win.dataset.prevHeight;
+                delete win.dataset.prevPosition;
+                win.dataset.maximized = '0';
 
-        // Try to refresh when content changes
-        const mo = new MutationObserver(refreshUtf8View);
-        mo.observe(out, { childList: true, characterData: true, subtree: true, attributes: true });
-
-        // Also refresh on initial run
-        refreshUtf8View();
-
-        // Toggle between UTF-8 view and hex (short-tap toggles, helpful on touch)
-        out.addEventListener('click', () => {
-            const fullHex = out.dataset.full || (out.textContent || out.value || '');
-            const isShowingUtf = out.dataset.showUtf === '1';
-            if (!isShowingUtf && out.dataset.utf8) {
-                out.dataset.showUtf = '1';
-                out.textContent = out.dataset.utf8;
-                try { out.value = out.dataset.utf8; } catch (e) {}
-            } else {
-                out.dataset.showUtf = '0';
-                // restore truncated hex (first 16 chars) to match existing UX
-                const truncated = (fullHex + '').slice(0, 16);
-                out.textContent = truncated;
-                try { out.value = truncated; } catch (e) {}
+                btn.style.background = '';
+                try { bringToFront(win); } catch(e){}
             }
         });
+    })();
 
-        // Double-tap / double-click copies full UTF-8 (or full hex if UTF-8 not available) to clipboard
-        out.addEventListener('dblclick', async () => {
-            const toCopy = out.dataset.utf8 || out.dataset.full || (out.textContent || out.value || '');
-            if (!toCopy) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                try { await navigator.clipboard.writeText(toCopy); } catch (e) { /* ignore */ }
-            } else {
-                // fallback execCommand approach
-                const ta = document.createElement('textarea');
-                ta.value = toCopy;
-                ta.style.position = 'fixed';
-                ta.style.left = '-9999px';
-                document.body.appendChild(ta);
-                ta.select();
-                try { document.execCommand('copy'); } catch (e) {}
-                document.body.removeChild(ta);
+    //Sign up Window //Dropdown
+
+    (function(){
+        const dropdown = document.querySelector('.Signup_Profile_Options_Dropdown');
+        const bubble = document.querySelector('.Signup_Profile_Bubble');
+        const toggleBtn = document.getElementById('Signup_Profile_Options_Button') || bubble;
+
+        if (!dropdown || !bubble || !toggleBtn) return;
+
+        // ensure dropdown is positioned absolutely on the page layer
+        dropdown.style.position = 'absolute';
+        dropdown.style.display = dropdown.style.display || 'none';
+        dropdown.style.zIndex = dropdown.style.zIndex || '9999';
+
+        function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+        function positionDropdown() {
+            const bRect = bubble.getBoundingClientRect();
+            const ddRect = dropdown.getBoundingClientRect();
+            const vw = document.documentElement.clientWidth;
+            const vh = document.documentElement.clientHeight;
+
+            // Preferred: place dropdown below and right-aligned to the bubble
+            let left = bRect.right - ddRect.width;
+            let top  = bRect.bottom + 8; // small gap
+
+            // If there's not enough space below, place above
+            if (top + ddRect.height > vh) {
+                top = bRect.top - ddRect.height - 8;
             }
+
+            // Clamp within viewport with small margin
+            left = clamp(left, 8, Math.max(8, vw - ddRect.width - 8));
+            top  = clamp(top, 8, Math.max(8, vh - ddRect.height - 8));
+
+            dropdown.style.left = left + window.scrollX + 'px';
+            dropdown.style.top  = top  + window.scrollY + 'px';
+        }
+
+        function showDropdown() {
+            dropdown.style.display = 'block';
+            positionDropdown();
+            dropdown.setAttribute('aria-hidden','false');
+            document.addEventListener('click', onDocClick, true);
+            window.addEventListener('resize', positionDropdown, { passive:true });
+            window.addEventListener('scroll', positionDropdown, { passive:true });
+        }
+
+        function hideDropdown() {
+            dropdown.style.display = 'none';
+            dropdown.setAttribute('aria-hidden','true');
+            document.removeEventListener('click', onDocClick, true);
+            window.removeEventListener('resize', positionDropdown);
+            window.removeEventListener('scroll', positionDropdown);
+        }
+
+        function toggleDropdown(e){
+            e && e.stopPropagation && e.stopPropagation();
+            if (dropdown.style.display === 'block') hideDropdown();
+            else showDropdown();
+        }
+
+        function onDocClick(e){
+            const t = e.target;
+            if (t && (t.closest('.Signup_Profile_Bubble') || t.closest('.Signup_Profile_Options_Dropdown') || t === toggleBtn)) return;
+            hideDropdown();
+        }
+
+        // keep dropdown repositioned if bubble size/position changes
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+                if (dropdown.style.display === 'block') positionDropdown();
+            });
+            ro.observe(bubble);
+        } else {
+            // fallback: simple interval while visible
+            let iv = null;
+            const startWatch = () => {
+                iv = setInterval(positionDropdown, 250);
+            };
+            const stopWatch = () => {
+                if (iv) { clearInterval(iv); iv = null; }
+            };
+            const origShow = showDropdown;
+            showDropdown = function(){ origShow(); startWatch(); };
+            const origHide = hideDropdown;
+            hideDropdown = function(){ stopWatch(); origHide(); };
+        }
+
+        // open on click/tap
+        toggleBtn.addEventListener('click', toggleDropdown, { passive: true });
+
+        // expose small API
+        window.profileOptions = {
+            show: showDropdown,
+            hide: hideDropdown,
+            toggle: toggleDropdown,
+            position: positionDropdown
+        };
+    })();
+
+    // close signup profile dropdown when clicking/tapping anywhere outside it
+    (function(){
+        function hideIfOpen(e){
+            const dd = document.querySelector('.Signup_Profile_Options_Dropdown');
+            if (!dd) return;
+            if (dd.style.display !== 'block') return;
+
+            // if click/tap is inside dropdown or the bubble/button that toggles it, do nothing
+            if (e.target && (e.target.closest('.Signup_Profile_Options_Dropdown') || e.target.closest('.Signup_Profile_Bubble') || e.target.closest('#Signup_Profile_Options_Button'))) {
+                return;
+            }
+
+            // prefer the exposed API if present
+            try { if (window.profileOptions && typeof window.profileOptions.hide === 'function') { window.profileOptions.hide(); return; } } catch(e){}
+
+            dd.style.display = 'none';
+        }
+
+        document.addEventListener('click', hideIfOpen, true);
+        document.addEventListener('touchstart', hideIfOpen, { passive: true, capture: true });
+    })();
+
+    //Open profile dialog
+
+    (function(){
+        const openBtn = document.getElementById('Open_Signup_Upload_Profile_Dialog');
+        const dialog = document.querySelector('.Signup_Upload_Profile_Dialog');
+        if (!openBtn || !dialog) return;
+
+        function centerAndShow(el){
+            el.style.display = 'flex';
+            el.style.position = 'absolute';
+            // ensure layout measured before positioning
+            const rect = el.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            el.style.left = Math.max(0, (bodyRect.width - rect.width) / 2) + 'px';
+            el.style.top  = Math.max(0, (bodyRect.height - rect.height) / 2) + 'px';
+            try { if (typeof bringToFront === 'function') bringToFront(el); } catch(e){}
+        }
+
+        openBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            centerAndShow(dialog);
+            // focus first interactive element for accessibility
+            try {
+                const first = dialog.querySelector('button, input, [tabindex]');
+                if (first && typeof first.focus === 'function') first.focus();
+            } catch(e){}
         }, { passive: true });
 
+        // wire close button if present
+        const closeBtn = document.getElementById('Close_Signup_Upload_Profile_Dialog');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                dialog.style.display = 'none';
+            });
+        }
     })();
 
+    (function(){
+        const dialog = document.querySelector('.Signup_Upload_Profile_Dialog');
+        const dropdown = document.querySelector('.Signup_Profile_Options_Dropdown');
+        if (!dialog || !dropdown) return;
+
+        function hideDropdown() {
+            try {
+                if (dropdown.style.display === 'block' || getComputedStyle(dropdown).display !== 'none') {
+                    dropdown.style.display = 'none';
+                    dropdown.setAttribute('aria-hidden', 'true');
+                }
+            } catch (e) {}
+        }
+
+        // Observe dialog visibility changes (inline style/class changes)
+        const mo = new MutationObserver(() => {
+            const isVisible = getComputedStyle(dialog).display !== 'none';
+            if (isVisible) hideDropdown();
+        });
+        mo.observe(dialog, { attributes: true, attributeFilter: ['style', 'class', 'aria-hidden'] });
+
+        // Also close dropdown when the dialog open button is used
+        const openBtn = document.getElementById('Open_Signup_Upload_Profile_Dialog');
+        if (openBtn) openBtn.addEventListener('click', hideDropdown, { passive: true });
+
+        // Defensive: listen for custom shows (in case other code shows dialog)
+        document.addEventListener('profileUploadDialogOpened', hideDropdown, { passive: true });
+    })();
+
+    //Get Profile Pic
+
+    (function(){
+        const btn = document.getElementById('Signup_Get_Picture_From_Computer');
+        if (!btn) return;
+
+        btn.addEventListener('click', (ev) => {
+            // create a hidden file input on demand
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) {
+                    input.remove();
+                    return;
+                }
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    input.remove();
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result;
+
+                    // dialog preview image
+                    const dialogImg = document.querySelector('.Signup_Upload_Profile_Dialog img');
+                    if (dialogImg) {
+                        dialogImg.src = dataUrl;
+                        dialogImg.alt = file.name || 'Profile picture';
+                        dialogImg.dataset.selected = '1';
+                    }
+
+                    // signup bubble / profile button image
+                    const bubbleBtnImg = document.getElementById('Signup_Profile_Options_Button') ||
+                                         document.querySelector('.Signup_Profile_Bubble img');
+                    if (bubbleBtnImg) {
+                        bubbleBtnImg.src = dataUrl;
+                        bubbleBtnImg.alt = file.name || 'Profile picture';
+                        bubbleBtnImg.dataset.selected = '1';
+                    }
+
+                    // dispatch an event in case other code wants to react
+                    try {
+                        const evt = new CustomEvent('profilePictureChosen', { detail: { file, dataUrl } });
+                        document.dispatchEvent(evt);
+                    } catch (e) {}
+
+                    input.remove();
+                };
+
+                reader.onerror = () => {
+                    alert('Failed to read image file.');
+                    input.remove();
+                };
+
+                reader.readAsDataURL(file);
+            }, { once: true });
+
+            // open file picker
+            input.click();
+        });
+    })();
+
+    (function(){
+        // inject CSS rules to prevent profile / preview images from stretching
+        const s = document.createElement('style');
+        s.textContent = `
+            /* make profile & preview images cover their container without distortion */
+            .Signup_Profile_Bubble img,
+            .Signup_Upload_Profile_Dialog img,
+            .Verification_Window_Profile img,
+            .Signup_Upload_Profile_Dialog_Profile_Pic img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center center !important;
+                display: block !important;
+            }
+        `;
+        document.head.appendChild(s);
+
+        // helper to apply inline styles for any images added/changed at runtime
+        function enforceNoStretch(sel) {
+            document.querySelectorAll(sel).forEach(img => {
+                try{
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.objectPosition = 'center';
+                    img.style.display = 'block';
+                }catch(e){}
+            });
+        }
+
+        // apply immediately for existing elements
+        ['.Signup_Profile_Bubble img',
+         '.Signup_Upload_Profile_Dialog img',
+         '.Verification_Window_Profile img',
+         '.Signup_Upload_Profile_Dialog_Profile_Pic img'
+        ].forEach(enforceNoStretch);
+
+        // react when a new profile picture is chosen by the existing file-picker flow
+        document.addEventListener('profilePictureChosen', () => {
+            ['#Signup_Profile_Options_Button',
+             '.Signup_Profile_Bubble img',
+             '.Signup_Upload_Profile_Dialog img',
+             '.Verification_Window_Profile img'
+            ].forEach(enforceNoStretch);
+        });
+
+        // observe DOM changes and ensure any newly inserted profile images get the rule
+        const mo = new MutationObserver((muts) => {
+            muts.forEach(m => {
+                if (m.addedNodes && m.addedNodes.length) {
+                    m.addedNodes.forEach(n => {
+                        if (n.nodeType === 1) {
+                            if (n.matches && n.matches('img')) {
+                                enforceNoStretch('img');
+                            } else {
+                                // check descendants
+                                enforceNoStretch('.Signup_Profile_Bubble img');
+                                enforceNoStretch('.Signup_Upload_Profile_Dialog img');
+                                enforceNoStretch('.Verification_Window_Profile img');
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        mo.observe(document.body, { childList: true, subtree: true });
+    })();
+
+    //Set Profile Picture
+
+    (function(){
+        // robustly find the "Set Profile" button (handles malformed id in markup)
+        let btn = document.getElementById('Signup_Set_Picture');
+        if (!btn) {
+            const dialog = document.querySelector('.Signup_Upload_Profile_Dialog');
+            if (dialog) {
+                btn = Array.from(dialog.querySelectorAll('button')).find(b => (b.id && b.id.startsWith('Signup_Set_Picture')) || b.textContent.trim().toLowerCase() === 'set profile');
+            }
+            if (!btn) btn = document.querySelector('button[id^="Signup_Set_Picture"]') || null;
+        }
+        if (!btn) return;
+
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const dialog = document.querySelector('.Signup_Upload_Profile_Dialog');
+            if (!dialog) return;
+
+            const dialogImg = dialog.querySelector('img');
+            if (!dialogImg || !dialogImg.src) {
+                // nothing to confirm, just close
+                dialog.style.display = 'none';
+                return;
+            }
+
+            // Apply confirmed image to signup bubble/button and verification profile where present
+            const bubbleBtnImg = document.getElementById('Signup_Profile_Options_Button') || document.querySelector('.Signup_Profile_Bubble img');
+            if (bubbleBtnImg) {
+                bubbleBtnImg.src = dialogImg.src;
+                bubbleBtnImg.alt = dialogImg.alt || 'Profile picture';
+                bubbleBtnImg.dataset.selected = '1';
+            }
+
+            const verificationImg = document.querySelector('.Verification_Window_Profile img');
+            if (verificationImg) {
+                verificationImg.src = dialogImg.src;
+                verificationImg.alt = dialogImg.alt || '';
+                verificationImg.dataset.selected = '1';
+            }
+
+            // Ensure any other conventional selectors also get updated (defensive)
+            document.querySelectorAll('.Signup_Profile_Bubble img, .Signup_Upload_Profile_Dialog img, #Signup_Profile_Options_Button, .Verification_Window_Profile img')
+                .forEach(img => {
+                    try {
+                        if (img !== dialogImg && img.tagName === 'IMG') {
+                            img.src = dialogImg.src;
+                        }
+                    } catch(e){}
+                });
+
+            // close the dialog
+            dialog.style.display = 'none';
+
+            // notify other code (reuse existing listener for profilePictureChosen and also emit a confirmed event)
+            try { document.dispatchEvent(new CustomEvent('profilePictureChosen', { detail: { src: dialogImg.src } })); } catch(e){}
+            try { document.dispatchEvent(new CustomEvent('profilePictureConfirmed', { detail: { src: dialogImg.src } })); } catch(e){}
+        }, { passive: true });
+    })();
+
+    // Revert back to fullscreen if exit fullscreen.
+
+    // Forgot Password.
+
+    (function(){
+        const openBtn = document.getElementById('Open_Forgot_Password');
+        const dialog = document.querySelector('.Forgot_Password_Dialog');
+        if (!openBtn || !dialog) return;
+
+        function centerAndShow(el){
+            el.style.display = 'flex';
+            el.style.position = 'absolute';
+            const rect = el.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            el.style.left = Math.max(0, (bodyRect.width - rect.width) / 2) + 'px';
+            el.style.top  = Math.max(0, (bodyRect.height - rect.height) / 2) + 'px';
+            try { if (typeof bringToFront === 'function') bringToFront(el); } catch(e){}
+            const first = el.querySelector('input, button, [tabindex]');
+            if (first && typeof first.focus === 'function') first.focus();
+        }
+
+        openBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            centerAndShow(dialog);
+        }, false);
+
+        const closeBtn = document.getElementById('Close_Forgot_Password_Dialog');
+        if (closeBtn) closeBtn.addEventListener('click', () => { dialog.style.display = 'none'; });
+    })();
+
+    (function(){
+        const openBtn = document.getElementById('Open_Forgot_Password_Show_Password_Dialog');
+        const dialog = document.querySelector('.Forgot_Password_Show_Password_Dialog');
+        const closeBtn = document.getElementById('Close_Forgot_Password_Show_Password_Dialog');
+        if (!openBtn || !dialog) return;
+
+        function showDialog() {
+            dialog.style.display = 'flex';
+            dialog.style.position = 'fixed';
+            dialog.style.left = '50%';
+            dialog.style.top = '50%';
+            dialog.style.transform = 'translate(-50%, -50%)';
+            dialog.style.zIndex = '99999';
+            try { if (typeof bringToFront === 'function') bringToFront(dialog); } catch (e) {}
+            const focusTarget = dialog.querySelector('button, [tabindex], input');
+            if (focusTarget && typeof focusTarget.focus === 'function') focusTarget.focus();
+        }
+
+        function hideDialog() {
+            dialog.style.display = 'none';
+        }
+
+        openBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            showDialog();
+        }, false);
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => hideDialog(), false);
+        }
+
+        // close with Escape
+        document.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Escape' && getComputedStyle(dialog).display !== 'none') hideDialog();
+        });
+    })();
+
+    
+
+    
+
+   
+
+
+    
 </script>
