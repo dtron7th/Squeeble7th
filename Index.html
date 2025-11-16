@@ -2186,6 +2186,26 @@
         });
     })();
 
+    (function(){
+        const exitBtn = document.getElementById('Exit_Page');
+        if (!exitBtn) return;
+
+        exitBtn.addEventListener('click', () => {
+            // Attempt to close the window/tab
+            window.close();
+            
+            // If window.close() doesn't work (modern browsers often block it),
+            // redirect to a blank page or show a message
+            setTimeout(() => {
+                // Check if window is still open
+                if (!window.closed) {
+                    // Fallback: redirect to about:blank
+                    window.location.href = 'about:blank';
+                }
+            }, 100);
+        });
+    })();
+
     
     // Wallpaper Image Slider
 
