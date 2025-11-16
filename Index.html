@@ -1927,6 +1927,26 @@
         });
     })();
 
+    (function(){
+        const exitAppBtn = document.getElementById('Exit_App_Page');
+        if (!exitAppBtn) return;
+
+        exitAppBtn.addEventListener('click', () => {
+            // Attempt to close the window/tab
+            window.close();
+            
+            // If window.close() doesn't work (modern browsers often block it),
+            // redirect to a blank page or show a message
+            setTimeout(() => {
+                // Check if window is still open
+                if (!window.closed) {
+                    // Fallback: redirect to about:blank
+                    window.location.href = 'about:blank';
+                }
+            }, 100);
+        });
+    })();
+
     //Start
 
     (function(){
