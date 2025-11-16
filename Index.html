@@ -2576,9 +2576,9 @@
 
         // initial compute
         setTimeout(updateSHAField, 0);
-    })();
+        })();
 
-    (function(){
+        (function(){
         const out = document.getElementById('Login_SHA-256_Output');
         if (!out) return;
 
@@ -2589,17 +2589,18 @@
             const full = (out.textContent || '').toString();
             // keep full value for debugging / future use
             out.dataset.full = full;
-            // display only first 32 characters
-            out.textContent = full.slice(0, 32);
+            // display only first 32 characters in uppercase
+            out.textContent = full.slice(0, 32).toUpperCase();
         };
 
         // recompute once to apply truncation to the current value
         setTimeout(() => { try { window.updateSHAField(); } catch(e){} }, 0);
-    })();
+        })();
+        
 
-    //Sign up Window
+        //Sign up Window
 
-    (function(){
+        (function(){
         const openBtn = document.getElementById('Open_Signup_Window');
         const signupWin = document.querySelector('.Signup_Window');
         const loginWin = document.querySelector('.Login_Window');
