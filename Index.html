@@ -43,6 +43,8 @@
             --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
             --Drop_Down_Window_Color: rgb(226, 226, 226);
 
+            --Active_Key: rgb(199, 199, 199);
+
             --Menu_Background: rgba(0, 0, 0, 0.3);
             --Box_Shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
             --Back_drop: blur(20px);
@@ -862,8 +864,8 @@
 
             .vk-key.wide { flex: 2.4; min-width: 60px; }
             .vk-key.extra { flex: 1.6; min-width: 48px; }
-            .vk-key:active { transform: translateY(1px); background: var(--Text_Input_Field-Actove); box-shadow: inset 0 -2px rgba(0,0,0,0.15), inset 0 0 0 1px var(--Active_Border); }
-            .vk-key.active { transform: translateY(1px) !important; background: var(--Text_Input_Field-Actove) !important; box-shadow: inset 0 -2px rgba(0,0,0,0.15), inset 0 0 0 1px var(--Active_Border) !important; }
+            .vk-key:active { transform: translateY(1px); background: var(--Active_Key);  }
+            .vk-key.active { transform: translateY(1px) !important; background: var(--Active_Key) !important;}
             .vk-hidden { display: none !important; }
 
             /* show caret for the tracked inputs (even when inputmode/readonly is used) */
