@@ -30,23 +30,27 @@
         :root {
             --Main_Text: 10px;
             --Main_Text_1: 13px;
-            --Main_Text_Color: rgb(255, 255, 255);
-            --Main_Window_Color-1: rgba(0, 0, 0, 0.05);
+            --Main_Text_Color: rgb(66, 66, 66);
+            --Header_Text_Color: rgb(255, 255, 255);
+            --Main_Window_Color-1: rgb(255, 255, 255);
             --Main_Window_Color-2: rgba(0, 0, 0, 0.212);
-            --Main_Window_Header_Color-1: rgb(47, 67, 80);
+            --Main_Window_Header_Color-1: rgb(75, 75, 75);
             --Login_Window_Color-1: rgb(0, 0, 0);
             --Login_Window_Color-2: rgb(255, 255, 255);
             --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
             --Main_Border: rgba(255, 255, 255, 0.2);
-            --Text_Input_Field: rgba(0, 0, 0, 0.25);
+            --Text_Input_Field: rgb(228, 228, 228);
             --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
+            --Drop_Down_Window_Color: rgb(226, 226, 226);
 
             --Menu_Background: rgba(0, 0, 0, 0.3);
             --Box_Shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
             --Back_drop: blur(20px);
 
             --Profile_Pic_Background: rgba(0, 0, 0, 0.3);
-            --Active_Border: rgba(0, 255, 170, 0.5);
+            --Active_Border: rgb(49, 59, 56);
+            --Border-Radius: 10px;
+            --Border-Radius_Button: 5px;
         }
 
     </style>
@@ -93,9 +97,8 @@
             justify-content: center;
             align-items: center;
             background-color: var(--Main_Window_Color-1);
-            backdrop-filter: var(--Back_drop);
             overflow: hidden;
-            border: 1px solid var(--Main_Border);
+            border-radius: var(--Border-Radius);
             box-shadow: var(--Box_Shadow);
             display: flex;
             flex-direction: column;
@@ -113,7 +116,7 @@
 
         .Window > .Window_Header > .Title {
             margin-left: 10px;
-            color: var(--Main_Text_Color);
+            color: var(--Header_Text_Color);
             font-size: var(--Main_Text);
         }
 
@@ -122,7 +125,7 @@
             right: 30px;
             width: 10px;
             height: 10px;
-            background-color: rgb(0, 255, 115);
+            background-color: rgb(255, 174, 0);
             border: none;
             outline: none;
             border-radius: 50%;
@@ -156,6 +159,7 @@
             text-indent: 10px;
             color: var(--Main_Text_Color);
             font-size: var(--Main_Text);
+            border-radius: var(--Border-Radius_Button);
         }
 
         input::placeholder {
@@ -173,6 +177,14 @@
             color: var(--Main_Text_Color);
             font-size: var(--Main_Text);
             cursor: pointer;
+            border-radius: var(--Border-Radius_Button);
+        }
+
+        output {
+            background-color: var(--Text_Input_Field);
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Text);
+            border-radius: var(--Border-Radius_Button);
         }
 
         button:active {
@@ -194,14 +206,16 @@
 
         .Dropdown_Window {
             position: absolute;
-            background-color: var(--Text_Input_Field);
             box-shadow: var(--Box_Shadow);
-            backdrop-filter: var(--Back_drop);
+            border-radius: var(--Border-Radius);
+            overflow: hidden;
         }
 
         .Dropdown_Window > .Dropdown_Window_Button {
             text-align: left;
             text-indent: 10px;
+            background-color: var(--Drop_Down_Window_Color);
+            border-radius: 0px;
         }
 
         .Fullscreen_Dialog {
@@ -216,6 +230,15 @@
             justify-content: center;
             align-items: center;
             z-index: 5;
+        }
+
+        .Fullscreen_Dialog > .Buttons {
+            border-radius: var(--Border-Radius_Button);
+            overflow: hidden;
+        }
+
+        .Fullscreen_Dialog > .Buttons > .Fullscreen_Dialog_Button {
+            border-radius: 0px;
         }
 
         /* Main */
@@ -236,8 +259,8 @@
             position: absolute;
             width: 300px;
             height: 200px;
-            background-color: var(--Main_Window_Color-2);
-            border: 1px solid var(--Main_Border);
+            background-color: var(--Main_Window_Color-1);
+            border-radius: var(--Border-Radius);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -343,9 +366,6 @@
         .Login > .Login_Window > .Content > .Main  > .Inputs > .Login_SHA-256_Output {
             width: 100%;
             height: 30px;
-            background-color: var(--Text_Input_Field);
-            font-size: var(--Main_Text);
-            color: var(--Main_Text_Color);
             gap: 10px;
             display: flex;
             flex-direction: column;
@@ -459,7 +479,9 @@
         .Signup_Window > .Content > .Signup_Wallpaper > .Signup_Wallpaper_Container {
             width: 100%;
             height: 100%;
+            border-radius: var(--Border-Radius_Button);
             overflow: hidden;
+            
         }
 
         .Signup_Window > .Content > .Signup_Wallpaper > .Signup_Wallpaper_Container > img {
@@ -491,9 +513,6 @@
         .Signup_Window > .Content > .Inputs > .First_Basic_Inputs > .Hash_Output > .Signup_SHA-256_Output {
             width: 100%;
             height: 30px;
-            background-color: var(--Text_Input_Field);
-            font-size: var(--Main_Text);
-            color: var(--Main_Text_Color);
             gap: 10px;
             display: flex;
             flex-direction: column;
@@ -810,8 +829,8 @@
             bottom: 10px;
             background: var(--Main_Window_Color-1);
             border: 1px solid var(--Main_Border);
-            backdrop-filter: blur(20px);
-            padding: 8px;
+            border-radius: var(--Border-Radius);
+            padding: 10px;
             z-index: 9999;
             box-shadow: var(--Box_Shadow);
             user-select: none;
@@ -828,14 +847,14 @@
 
             .vk-key {
             flex: 1 0 0;
-            min-width: 28px;
-            padding: 10px 6px;
+            min-width: 30px;
+            padding: 10px 10px;
             text-align: center;
             background: var(--Text_Input_Field);
             color: var(--Main_Text_Color);
             font-size: calc(var(--Main_Text));
+            border-radius: 5px;
             outline: none;
-            box-shadow: inset 0 -2px rgba(0,0,0,0.15);
             touch-action: manipulation;
             -webkit-appearance: none;
             appearance: none;
@@ -1210,7 +1229,7 @@
     <div class="Disclaimer" id="Disclaimer">
         <div class="Disclaimer_Window">
             <p style=" position: absolute; top: 40px; width: 250px; color: var(--Main_Text_Color); font-size: 12px; text-align: center;">This web app is ment for phones and some tablets, but mostly phones. The UI nor the website wouldn't work on desktops and laptops </p>
-            <button id="Close_Disclaimer" style="position: absolute; bottom: 20px; width: 150px; height: 30px; font-size: var(--Main_Text);">Accept</button>
+            <button id="Close_Disclaimer" style="position: absolute; bottom: 20px; width: 150px; height: 30px; font-size: var(--Main_Text); border-radius: var(--Border-Radius_Button);">Accept</button>
         </div>
     </div>
     <div class="On_Button">
@@ -1252,10 +1271,10 @@
                 </div>
             </div>
         </div>
-        <div class="Close_Login_Menu" id="Close_Login_Menu">
-            <div class="Menu_Container">
-                <button class="" id="Exit_Page" style="width: 100%; height: 30px;">Exit page</button>
-                <button class="" id="Revert_Back_To_Login" style="width: 100%; height: 30px;">Revert back to login</button>
+        <div class="Fullscreen_Dialog Close_Login_Menu" id="Close_Login_Menu">
+            <div class="Buttons">
+                <button class="Fullscreen_Dialog_Button" id="Exit_Page" style="width: 100%; height: 30px;">Exit page</button>
+                <button class="Fullscreen_Dialog_Button" id="Revert_Back_To_Login" style="width: 100%; height: 30px;">Revert back to login</button>
             </div>
         </div>
         <div class="Window Signup_Window" style="width: 300px; height: 600px;">
@@ -1409,8 +1428,8 @@
     <div class="Fullscreen_Dialogs_Layer1">
         <div class="Fullscreen_Dialog Revert_To_Fullscreen_Dialog" style="display: none;">
             <div class="Buttons">
-                <button class="" id="Revert_To_Fullscreen" style="width: 100%; height: 30px;">Revert to fullscreen</button>
-                <button class="" id="Exit_App_Page" style="width: 100%; height: 30px;">Exit page</button>
+                <button class="Fullscreen_Dialog_Button" id="Revert_To_Fullscreen" style="width: 100%; height: 30px;">Revert to fullscreen</button>
+                <button class="Fullscreen_Dialog_Button" id="Exit_App_Page" style="width: 100%; height: 30px;">Exit page</button>
             </div>
         </div>
         <div class="Fullscreen_Dialog Maps_Dialog" style="display: none;">
@@ -2226,6 +2245,130 @@
         });
     })();
 
+    //For all windows.
+
+    (function(){
+        const style = document.createElement('style');
+        style.textContent = `
+            .Window {
+                transition: left .3s cubic-bezier(0,1,0,1), 
+                            top .3s cubic-bezier(0,1,0,1), 
+                            width .3s cubic-bezier(0,1,0,1) .3s, 
+                            height .3s cubic-bezier(0,1,0,1) .3s;
+            }
+        `;
+        document.head.appendChild(style);
+    })();
+
+    // UI Dragging Window.
+    
+    // make windowElement var available for other functions below
+    let windowElement = null;
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const windows = Array.from(document.querySelectorAll('.Window'));
+
+    windows.forEach(win => {
+        const header = win.querySelector('.Window_Header');
+        if (!header) return;
+
+        header.addEventListener('mousedown', (e) => {
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            document.body.style.userSelect = 'none';
+        });
+
+        header.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.touches[0].clientX - rect.left;
+            offsetY = e.touches[0].clientY - rect.top;
+            document.body.style.userSelect = 'none';
+        });
+    });
+
+    // global mouse/touch handlers drive the active window
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !windowElement) return;
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
+        // call existing setWindowPosition (uses global windowElement)
+        setWindowPosition(x, y);
+        windowElement.style.position = 'absolute';
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        windowElement = null;
+        document.body.style.userSelect = '';
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging || !windowElement || e.touches.length !== 1) return;
+        const x = e.touches[0].clientX - offsetX;
+        const y = e.touches[0].clientY - offsetY;
+        setWindowPosition(x, y);
+        windowElement.style.position = 'absolute';
+    });
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        windowElement = null;
+        document.body.style.userSelect = '';
+    });
+
+    // Snap to grid
+
+    function snapToGrid(x, y, gridSize = 20) {
+        const snappedX = Math.round(x / gridSize) * gridSize;
+        const snappedY = Math.round(y / gridSize) * gridSize;
+        return { x: snappedX, y: snappedY };
+        
+    }
+
+    function setWindowPosition(x, y) {
+        const snapped = snapToGrid(x, y);
+        windowElement.style.left = snapped.x + 'px';
+        windowElement.style.top = snapped.y + 'px';
+    }
+    
+    function clamp(val, min, max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
+    function setWindowPosition(x, y) {
+        const snapped = snapToGrid(x, y);
+        const winRect = windowElement.getBoundingClientRect();
+        const bodyRect = document.body.getBoundingClientRect();
+        const maxX = bodyRect.width - winRect.width;
+        const maxY = bodyRect.height - winRect.height;
+        windowElement.style.left = clamp(snapped.x, 0, maxX) + 'px';
+        windowElement.style.top = clamp(snapped.y, 0, maxY) + 'px';
+    }
+
+    
+
+    // bring active window forward (z-index stacking)
+    let nextZIndex = 10;
+
+    function bringToFront(el) {
+        if (!el) return;
+        el.style.zIndex = nextZIndex++;
+    }
+
+    // bring to front when any window is interacted with
+    windows.forEach(win => {
+        win.addEventListener('mousedown', () => bringToFront(win));
+        win.addEventListener('touchstart', () => bringToFront(win));
+    });
+
     
     // Wallpaper Image Slider
 
@@ -2362,116 +2505,6 @@
         // Optional: double-click the wallpaper area to reshuffle
         container.addEventListener('dblclick', () => shuffleWallpaperImagesRandomly());
     })();
-
-    // UI Dragging Window
-    
-    // make windowElement var available for other functions below
-    let windowElement = null;
-    let isDragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    const windows = Array.from(document.querySelectorAll('.Window'));
-
-    windows.forEach(win => {
-        const header = win.querySelector('.Window_Header');
-        if (!header) return;
-
-        header.addEventListener('mousedown', (e) => {
-            windowElement = win;
-            isDragging = true;
-            const rect = windowElement.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            document.body.style.userSelect = 'none';
-        });
-
-        header.addEventListener('touchstart', (e) => {
-            if (e.touches.length !== 1) return;
-            windowElement = win;
-            isDragging = true;
-            const rect = windowElement.getBoundingClientRect();
-            offsetX = e.touches[0].clientX - rect.left;
-            offsetY = e.touches[0].clientY - rect.top;
-            document.body.style.userSelect = 'none';
-        });
-    });
-
-    // global mouse/touch handlers drive the active window
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging || !windowElement) return;
-        const x = e.clientX - offsetX;
-        const y = e.clientY - offsetY;
-        // call existing setWindowPosition (uses global windowElement)
-        setWindowPosition(x, y);
-        windowElement.style.position = 'absolute';
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        windowElement = null;
-        document.body.style.userSelect = '';
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging || !windowElement || e.touches.length !== 1) return;
-        const x = e.touches[0].clientX - offsetX;
-        const y = e.touches[0].clientY - offsetY;
-        setWindowPosition(x, y);
-        windowElement.style.position = 'absolute';
-    });
-
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-        windowElement = null;
-        document.body.style.userSelect = '';
-    });
-
-    // Snap to grid
-
-    function snapToGrid(x, y, gridSize = 20) {
-        const snappedX = Math.round(x / gridSize) * gridSize;
-        const snappedY = Math.round(y / gridSize) * gridSize;
-        return { x: snappedX, y: snappedY };
-        
-    }
-
-    function setWindowPosition(x, y) {
-        const snapped = snapToGrid(x, y);
-        windowElement.style.left = snapped.x + 'px';
-        windowElement.style.top = snapped.y + 'px';
-    }
-    
-    function clamp(val, min, max) {
-        return Math.max(min, Math.min(max, val));
-    }
-
-    function setWindowPosition(x, y) {
-        const snapped = snapToGrid(x, y);
-        const winRect = windowElement.getBoundingClientRect();
-        const bodyRect = document.body.getBoundingClientRect();
-        const maxX = bodyRect.width - winRect.width;
-        const maxY = bodyRect.height - winRect.height;
-        windowElement.style.left = clamp(snapped.x, 0, maxX) + 'px';
-        windowElement.style.top = clamp(snapped.y, 0, maxY) + 'px';
-    }
-
-    
-
-    // bring active window forward (z-index stacking)
-    let nextZIndex = 10;
-
-    function bringToFront(el) {
-        if (!el) return;
-        el.style.zIndex = nextZIndex++;
-    }
-
-    // bring to front when any window is interacted with
-    windows.forEach(win => {
-        win.addEventListener('mousedown', () => bringToFront(win));
-        win.addEventListener('touchstart', () => bringToFront(win));
-    });
-
 
     // Disclaimer
 
