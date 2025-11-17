@@ -1177,6 +1177,49 @@
 
         })();
 
+        //Keyboard Animation.
+
+        (function(){
+            const vk = document.getElementById('VirtualKeyboard');
+            if (!vk) return;
+
+            // Add CSS for scale animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes vk-scale-in {
+                    from {
+                        transform: scale(0.95);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                .VirtualKeyboard.vk-animating {
+                    animation: vk-scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Watch for display changes
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const isVisible = window.getComputedStyle(vk).display !== 'none';
+                        if (isVisible && !vk.classList.contains('vk-animating')) {
+                            vk.classList.add('vk-animating');
+                            setTimeout(() => vk.classList.remove('vk-animating'), 200);
+                        }
+                    }
+                });
+            });
+
+            observer.observe(vk, { attributes: true, attributeFilter: ['style'] });
+        })();
+
+        
         // Sound effects for virtual keyboard
 
         (function(){
@@ -3161,7 +3204,66 @@
         }, { passive: true });
     })();
 
-    // Revert back to fullscreen if exit fullscreen.
+    // Get Wallpaper.
+
+    (function(){
+        const btn = document.getElementById('Get_Signup_Wallpaper');
+        if (!btn) return;
+
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            
+            // create a hidden file input on demand
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) {
+                    input.remove();
+                    return;
+                }
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    input.remove();
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result;
+
+                    // update the wallpaper preview in signup window
+                    const wallpaperImg = document.querySelector('.Signup_Wallpaper_Container img');
+                    if (wallpaperImg) {
+                        wallpaperImg.src = dataUrl;
+                        wallpaperImg.alt = file.name || 'Custom wallpaper';
+                    }
+
+                    // dispatch an event in case other code wants to react
+                    try {
+                        const evt = new CustomEvent('signupWallpaperChosen', { detail: { file, dataUrl } });
+                        document.dispatchEvent(evt);
+                    } catch (e) {}
+
+                    input.remove();
+                };
+
+                reader.onerror = () => {
+                    alert('Failed to read image file.');
+                    input.remove();
+                };
+
+                reader.readAsDataURL(file);
+            }, { once: true });
+
+            // open file picker
+            input.click();
+        });
+    })();
 
     // Forgot Password.
 
