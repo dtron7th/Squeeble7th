@@ -32,7 +32,7 @@
             --Main_Text_1: 13px;
             --Main_Text_Color: rgb(66, 66, 66);
             --Header_Text_Color: rgb(255, 255, 255);
-            --Main_Window_Color-1: rgb(255, 255, 255);
+            --Main_Window_Color-1: rgba(255, 255, 255, 0.8);
             --Main_Window_Color-2: rgba(0, 0, 0, 0.212);
             --Main_Window_Header_Color-1: rgb(75, 75, 75);
             --Login_Window_Color-1: rgb(0, 0, 0);
@@ -99,6 +99,7 @@
             justify-content: center;
             align-items: center;
             background-color: var(--Main_Window_Color-1);
+            backdrop-filter: var(--Back_drop);
             overflow: hidden;
             border-radius: var(--Border-Radius);
             box-shadow: var(--Box_Shadow);
@@ -832,6 +833,7 @@
             background: var(--Main_Window_Color-1);
             border: 1px solid var(--Main_Border);
             border-radius: var(--Border-Radius);
+            backdrop-filter: var(--Back_drop);
             padding: 10px;
             z-index: 9999;
             box-shadow: var(--Box_Shadow);
