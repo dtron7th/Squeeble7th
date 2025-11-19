@@ -31,10 +31,11 @@
             --Main_Text: 10px;
             --Main_Text_1: 13px;
             --Main_Text_Color: rgb(66, 66, 66);
-            --Header_Text_Color: rgb(255, 255, 255);
+            --Main_Text_Color_1: rgb(255, 255, 255);
+            --Header_Text_Color: rgb(95, 95, 95);
             --Main_Window_Color-1: rgba(255, 255, 255, 0.8);
             --Main_Window_Color-2: rgba(0, 0, 0, 0.212);
-            --Main_Window_Header_Color-1: rgb(75, 75, 75);
+            --Main_Window_Header_Color-1: rgb(218, 218, 218);
             --Login_Window_Color-1: rgb(0, 0, 0);
             --Login_Window_Color-2: rgb(255, 255, 255);
             --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
@@ -1325,10 +1326,61 @@
             </div>
         </div>
         <div class="Window Signup_Window" style="width: 300px; height: 600px;">
+            
             <div class="Window_Header">
                 <p class="Title">Sign up</p>
                 <button class="Close_Button" id="Close_Signup_Window"></button>
                 <button class="Max_Size_Button" id="Maximize_Signup_Window"></button>
+            </div>
+
+            <!-- This is the fake account overlay, This section wil be deleted soon-->
+            <div class="Fake_Account">
+                <div class="Content">
+                    <div class="User_Information">
+                        <p class="First_Name">First Name: Fake</p>
+                        <p class="Last_Name">Last Name: Acccount</p>
+                        <p class="Password">Password: Titanic</p>
+                        <p class="Information">Make sure you are using capital letters when you are Using the Fake Account</p>
+                    </div>
+                </div>
+                <Style>
+                    .Fake_Account {
+                        position: absolute;
+                        top: 30px;
+                        left: 0px;
+                        width: 100%;
+                        height: calc(100% - 30px);
+                        background-color: rgba(66, 66, 66, 0.7);
+                        backdrop-filter: blur(20px);
+                        z-index: 1;
+                    }
+
+                    .Content {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+
+                    .Content > .User_Information{
+                        width: 200px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        display: flex;
+                        text-align: center;
+                    }
+
+                    .Content > .User_Information > p {
+                        font-size: var(--Main_Text);
+                        color: var(--Main_Text_Color_1);
+                    }
+
+                    .Content > .User_Information > .Information {
+                        margin-top: 30px;
+                    }
+                </Style>
             </div>
             <div class="Content">
                 <div class="Main_Title">
@@ -1385,6 +1437,7 @@
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
         <div class="Window Verification_Window" id="Verification_Window" style="width: 200px; height: 300px;">
@@ -2294,20 +2347,67 @@
 
     //For all windows.
 
+    // Smooth window dragging with bezier curve transitions
     (function(){
-        const style = document.createElement('style');
-        style.textContent = `
-            .Window {
-                transition: left .3s cubic-bezier(0,1,0,1), 
-                            top .3s cubic-bezier(0,1,0,1), 
-                            width .3s cubic-bezier(0,1,0,1) .3s, 
-                            height .3s cubic-bezier(0,1,0,1) .3s;
+        const windows = Array.from(document.querySelectorAll('.Window'));
+        
+        windows.forEach(win => {
+            // Add transition CSS when not actively dragging
+            win.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        });
+
+        // Override the global dragging handlers to disable transitions during drag
+        const originalMouseDown = document.querySelector('.Window_Header');
+        if (originalMouseDown) {
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.Window_Header') && windowElement) {
+                    windowElement.style.transition = 'none';
+                }
+            }, true);
+
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.Window_Header') && windowElement) {
+                    windowElement.style.transition = 'none';
+                }
+            }, true);
+        }
+
+        // Re-enable transitions when drag ends
+        document.addEventListener('mouseup', () => {
+            if (windowElement) {
+                windowElement.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             }
-        `;
-        document.head.appendChild(style);
+        });
+
+        document.addEventListener('touchend', () => {
+            if (windowElement) {
+                windowElement.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }
+        });
     })();
 
-    
+    // Animate opacity when maximize button is pressed
+    (function(){
+        const maxBtns = document.querySelectorAll('.Max_Size_Button');
+        if (!maxBtns.length) return;
+
+        maxBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const win = btn.closest('.Window');
+                if (!win) return;
+
+                // Add opacity animation
+                win.style.transition = 'opacity 0.1s ease-in-out, left 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.1s ease, height 0.1s ease';
+                win.style.opacity = '0';
+
+                setTimeout(() => {
+                    win.style.opacity = '1';
+                }, 150);
+            });
+        });
+    })();
+
+
 
     // UI Dragging Window.
     
@@ -3335,13 +3435,7 @@
             if (ev.key === 'Escape' && getComputedStyle(dialog).display !== 'none') hideDialog();
         });
     })();
-
-    
-
-    
-
-   
-
-
     
 </script>
+
+<script src="Database.js"></script>

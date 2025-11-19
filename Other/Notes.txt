@@ -49,6 +49,8 @@ if #Open_Forgot_Password_Show_Password_Dialog is pressed then open .Forgot_Passw
 
 
 
+
+
 <div class="Fullscreen_Dialog Revert_To_Fullscreen_Dialog" style="display: none;">
             <div class="Buttons">
                 <button class="" id="Revert_To_Fullscreen" style="width: 100%; height: 30px;">Revert to fullscreen</button>
