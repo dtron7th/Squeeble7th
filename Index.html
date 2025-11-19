@@ -1381,6 +1381,36 @@
                         margin-top: 30px;
                     }
                 </Style>
+                <script>
+                    // Disable .Signup_Window scrolling when .Fake_Account is visible
+                    (function(){
+                        const signupWindow = document.querySelector('.Signup_Window');
+                        const fakeAccount = document.querySelector('.Fake_Account');
+                        
+                        if (!signupWindow || !fakeAccount) return;
+                        
+                        // Check if fake account is visible
+                        function updateScrollBehavior() {
+                            const isFakeVisible = window.getComputedStyle(fakeAccount).display !== 'none';
+                            
+                            if (isFakeVisible) {
+                                signupWindow.style.overflow = 'hidden';
+                            } else {
+                                signupWindow.style.overflow = '';
+                            }
+                        }
+                        
+                        // Initial check
+                        updateScrollBehavior();
+                        
+                        // Observe changes to fake account visibility
+                        const observer = new MutationObserver(updateScrollBehavior);
+                        observer.observe(fakeAccount, { 
+                            attributes: true, 
+                            attributeFilter: ['style', 'class'] 
+                        });
+                    })();
+                </script>
             </div>
             <div class="Content">
                 <div class="Main_Title">
