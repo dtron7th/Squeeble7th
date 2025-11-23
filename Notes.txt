@@ -1,0 +1,38 @@
+      // Smooth window dragging with bezier curve transitions
+    (function(){
+        const windows = Array.from(document.querySelectorAll('.Window'));
+        
+        windows.forEach(win => {
+            // Add transition CSS when not actively dragging
+            win.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        });
+
+        // Override the global dragging handlers to disable transitions during drag
+        const originalMouseDown = document.querySelector('.Window_Header');
+        if (originalMouseDown) {
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.Window_Header') && windowElement) {
+                    windowElement.style.transition = 'none';
+                }
+            }, true);
+
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.Window_Header') && windowElement) {
+                    windowElement.style.transition = 'none';
+                }
+            }, true);
+        }
+
+        // Re-enable transitions when drag ends
+        document.addEventListener('mouseup', () => {
+            if (windowElement) {
+                windowElement.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (windowElement) {
+                windowElement.style.transition = 'left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }
+        });
+    })();

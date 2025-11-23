@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <link rel="stylesheet" href="CSS/UI.css">
+
+    <style>
+        body {
+            width: 100dvw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="Window" id="Notifications_Window" style="width:200px; height:300px;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Notifications_Window"></button>
+            
+        </div>
+        <div class="Content">
+            <button class="" id="Notification_Window_Button" style="width:150px; height:30px;">Notification Window</button>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    document.getElementById('Close_Notifications_Window').addEventListener('click', function() {
+        document.getElementById('Notifications_Window').style.display = 'none';
+    });
+</script>
+
+</html>
+

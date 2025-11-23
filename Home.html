@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="CSS/UI.css">
+
+    <style>
+        body {
+            background-color: rgb(255, 255, 255);
+            overflow: hidden;
+            width: 100dvw;
+            height: 100dvh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .Wallpaper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            background-size: contain;
+        }
+
+        .Wallpaper > .Img_List {
+            display: flex;
+        }
+
+        .Wallpaper > .Img_List > img {
+            width: 100dvw;
+            height: 100dvh;
+            background-size: cover;
+        }
+
+        /* ============================================================================ */
+        /* HOME MAIN */
+        /* ============================================================================ */
+
+        .Glass_Cover {
+            position: absolute;
+            width: 100dvw;
+            height: 100dvh;
+            backdrop-filter: blur(10px);
+            z-index: 0;
+        }
+
+        .Top_Bar {
+            position: absolute;
+            top: 10px;
+            width: calc(100% - 20px);
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--Back_drop);
+            border-radius: var(--Border-Radius);
+            z-index: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+            text-indent: 10px;
+            display: none;
+        }
+
+        .Top_Bar > p {
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color_1);
+        }
+        
+        .Top_Bar > .Close {
+            position: absolute;
+            right: 10px;
+        }
+
+        .Display_Top_Menu_Button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        .Clock {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            font-size: 12px;
+            color: var(--Main_Text_Color_2);
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .Side_Bar {
+            position: absolute;
+            left: 10px;
+            top: 250px;
+            width: 30px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="Wallpaper">
+        <div class="Img_List">
+            <img src="/Images/Background Img/Login_wallpaper-15.jpg" alt="">
+        </div>
+    </div>
+
+    <div class="Glass_Cover">
+
+    </div>
+    <div class="Display_Top_Menu_Button">
+        <button class="Icon_Button" id="Top_Menu_Button"><img src="/Images/Icons/apps_24dp_1F1F1F.svg"></button>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!-- TOP BAR -->
+    <!-- ============================================================================ -->
+
+    <div class="Top_Bar">
+        <p>Apps</p>
+        <p>Government</p>
+        <p>Market</p>
+        <p>Jobs</p>
+        <p>Military</p>
+        <p>More</p>
+        <div class="Close">
+            <button class="Close_Button"></button>
+        </div>
+    </div>
+
+    <script id="Top_Bar Script">
+
+
+        // Display Top Bar when Top Menu Button is clicked
+        document.getElementById('Top_Menu_Button').addEventListener('click', function() {
+            const topBar = document.querySelector('.Top_Bar');
+            const topMenuButton = document.getElementById('Top_Menu_Button');
+            
+            topBar.style.display = 'flex';
+            topBar.style.transform = 'scaleX(0)';
+            topBar.style.opacity = '0';
+            topBar.style.transformOrigin = 'left';
+            topBar.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s cubic-bezier(0, 1, 0, 1)';
+            
+            setTimeout(() => {
+                topBar.style.transform = 'scaleX(1)';
+                topBar.style.opacity = '1';
+                topMenuButton.style.display = 'none';
+            }, 10);
+        });
+
+        // Hide Top Bar when Close Button is clicked
+        document.querySelector('.Close_Button').addEventListener('click', function() {
+            const topBar = document.querySelector('.Top_Bar');
+            const topMenuButton = document.getElementById('Top_Menu_Button');
+            
+            topBar.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s cubic-bezier(0, 1, 0, 1)';
+            topBar.style.transform = 'scaleX(0)';
+            topBar.style.opacity = '0';
+            
+            setTimeout(() => {
+                topBar.style.display = 'none';
+                topMenuButton.style.display = 'flex';
+            }, 300);
+        });
+
+        // Close Top Bar when clicking outside
+        document.addEventListener('click', function(event) {
+            const topBar = document.querySelector('.Top_Bar');
+            const topMenuButton = document.getElementById('Top_Menu_Button');
+            
+            // Check if click is outside top bar and top menu button
+            if (!topBar.contains(event.target) && !topMenuButton.contains(event.target)) {
+            if (topBar.style.display === 'flex') {
+                topBar.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s cubic-bezier(0, 1, 0, 1)';
+                topBar.style.transform = 'scaleX(0)';
+                topBar.style.opacity = '0';
+                
+                setTimeout(() => {
+                topBar.style.display = 'none';
+                topMenuButton.style.display = 'flex';
+                }, 300);
+            }
+            }
+        });
+    </script>
+
+    <!-- ============================================================================ -->
+    <!-- CLOCK SCRIPT -->
+    <!-- ============================================================================ -->
+
+    <div class="Clock">
+        <p class="Clock_Time">10:10:10:10 pm</p>
+        <p class="Clock_Date">Monday: 10-10-9999</p>
+    </div>
+    <script id="Clock Script">
+
+
+        // Clock - Update every second
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const milliseconds = now.getMilliseconds().toString().padStart(3, '0');
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 should be 12
+            
+            const timeString = `${hours}:${minutes}:${seconds}:${milliseconds} ${ampm}`;
+            document.querySelector('.Clock_Time').textContent = timeString;
+        }
+
+        updateClock();
+        setInterval(updateClock, 10); // Update every 10ms for smooth milliseconds display
+
+        // Date - Update every second
+        function updateDate() {
+            const now = new Date();
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayOfWeek = daysOfWeek[now.getDay()];
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const year = now.getFullYear();
+            
+            const dateString = `${dayOfWeek}: ${month}-${day}-${year}`;
+            document.querySelector('.Clock_Date').textContent = dateString;
+        }
+
+        updateDate();
+        setInterval(updateDate, 1000);
+        
+    </script>
+
+    <!-- ============================================================================ -->
+    <!-- SIDE BAR -->
+    <!-- ============================================================================ -->
+
+    <div class="Side_Bar">
+        <button class="Icon_Button" id="Side_Bar_Notifications"><img src="/Images/Icons/notifications_24dp_1F1F1F.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_Messages"><img src="/Images/Icons/chat_bubble_24dp_1F1F1F.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_Mail"><img src="/Images/Icons/mail_24dp_1F1F1F.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_Upload"d><img src="/Images/Icons/upload_24dp_1F1F1F_FILL1_wght400_GRAD0_opsz24.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_Wallet"><img src="/Images/Icons/currency_bitcoin_24dp_1F1F1F.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_ID"><img src="/Images/Icons/id_card_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg" alt=""></button>
+        <button class="Icon_Button" id="Side_Bar_Tool"><img src="/Images/Icons/handyman_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24.svg" alt=""></button>
+    </div>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- NOTIFICATIONS WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Notifications_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Notifications_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="Notifications_Window Script">
+
+        document.getElementById('Side_Bar_Notifications').addEventListener('click', function() {
+            const notificationsWindow = document.getElementById('Notifications_Window');
+            notificationsWindow.style.display = 'flex';
+            notificationsWindow.style.transform = 'scale(0)';
+            notificationsWindow.style.opacity = '0';
+            notificationsWindow.style.transformOrigin = 'top left';
+            notificationsWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            notificationsWindow.style.transform = 'scale(1)';
+            notificationsWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Notifications_Window').addEventListener('click', function() {
+            const notificationsWindow = document.getElementById('Notifications_Window');
+            notificationsWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            notificationsWindow.style.transform = 'scale(0)';
+            notificationsWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            notificationsWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Notifications Window to Side Bar Notifications button
+        const notificationsWindow = document.getElementById('Notifications_Window');
+        const sideBarNotifications = document.getElementById('Side_Bar_Notifications');
+        
+        function positionNotificationsWindow() {
+            const buttonRect = sideBarNotifications.getBoundingClientRect();
+            notificationsWindow.style.position = 'absolute';
+            notificationsWindow.style.left = (buttonRect.right + 10) + 'px';
+            notificationsWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Notifications').addEventListener('click', function() {
+            positionNotificationsWindow();
+        });
+    </script>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- MESSAGES WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Messages_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Messages_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="Messages_Window Script">
+
+        document.getElementById('Side_Bar_Messages').addEventListener('click', function() {
+            const messagesWindow = document.getElementById('Messages_Window');
+            messagesWindow.style.display = 'flex';
+            messagesWindow.style.transform = 'scale(0)';
+            messagesWindow.style.opacity = '0';
+            messagesWindow.style.transformOrigin = 'top left';
+            messagesWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            messagesWindow.style.transform = 'scale(1)';
+            messagesWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Messages_Window').addEventListener('click', function() {
+            const messagesWindow = document.getElementById('Messages_Window');
+            messagesWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            messagesWindow.style.transform = 'scale(0)';
+            messagesWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            messagesWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Messages Window to Side Bar Messages button
+        const messagesWindow = document.getElementById('Messages_Window');
+        const sideBarMessages = document.getElementById('Side_Bar_Messages');
+        
+        function positionMessagesWindow() {
+            const buttonRect = sideBarMessages.getBoundingClientRect();
+            messagesWindow.style.position = 'absolute';
+            messagesWindow.style.left = (buttonRect.right + 10) + 'px';
+            messagesWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Messages').addEventListener('click', function() {
+            positionMessagesWindow();
+        });
+    </script>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- MAIL WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Mail_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Mail_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="Mail_Window Script">
+
+        document.getElementById('Side_Bar_Mail').addEventListener('click', function() {
+            const mailWindow = document.getElementById('Mail_Window');
+            mailWindow.style.display = 'flex';
+            mailWindow.style.transform = 'scale(0)';
+            mailWindow.style.opacity = '0';
+            mailWindow.style.transformOrigin = 'top left';
+            mailWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            mailWindow.style.transform = 'scale(1)';
+            mailWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Mail_Window').addEventListener('click', function() {
+            const mailWindow = document.getElementById('Mail_Window');
+            mailWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            mailWindow.style.transform = 'scale(0)';
+            mailWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            mailWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Mail Window to Side Bar Mail button
+        const mailWindow = document.getElementById('Mail_Window');
+        const sideBarMail = document.getElementById('Side_Bar_Mail');
+        
+        function positionMailWindow() {
+            const buttonRect = sideBarMail.getBoundingClientRect();
+            mailWindow.style.position = 'absolute';
+            mailWindow.style.left = (buttonRect.right + 10) + 'px';
+            mailWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Mail').addEventListener('click', function() {
+            positionMailWindow();
+        });
+    </script>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- UPLOAD WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Upload_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Upload_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="Upload_Window Script">
+
+        document.getElementById('Side_Bar_Upload').addEventListener('click', function() {
+            const uploadWindow = document.getElementById('Upload_Window');
+            uploadWindow.style.display = 'flex';
+            uploadWindow.style.transform = 'scale(0)';
+            uploadWindow.style.opacity = '0';
+            uploadWindow.style.transformOrigin = 'top left';
+            uploadWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            uploadWindow.style.transform = 'scale(1)';
+            uploadWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Upload_Window').addEventListener('click', function() {
+            const uploadWindow = document.getElementById('Upload_Window');
+            uploadWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            uploadWindow.style.transform = 'scale(0)';
+            uploadWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            uploadWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Upload Window to Side Bar Upload button
+        const uploadWindow = document.getElementById('Upload_Window');
+        const sideBarUpload = document.getElementById('Side_Bar_Upload');
+        
+        function positionUploadWindow() {
+            const buttonRect = sideBarUpload.getBoundingClientRect();
+            uploadWindow.style.position = 'absolute';
+            uploadWindow.style.left = (buttonRect.right + 10) + 'px';
+            uploadWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Upload').addEventListener('click', function() {
+            positionUploadWindow();
+        });
+    </script>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- WALLET WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Wallet_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_Wallet_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="Wallet_Window Script">
+
+        document.getElementById('Side_Bar_Wallet').addEventListener('click', function() {
+            const walletWindow = document.getElementById('Wallet_Window');
+            walletWindow.style.display = 'flex';
+            walletWindow.style.transform = 'scale(0)';
+            walletWindow.style.opacity = '0';
+            walletWindow.style.transformOrigin = 'top left';
+            walletWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            walletWindow.style.transform = 'scale(1)';
+            walletWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Wallet_Window').addEventListener('click', function() {
+            const walletWindow = document.getElementById('Wallet_Window');
+            walletWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            walletWindow.style.transform = 'scale(0)';
+            walletWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            walletWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Wallet Window to Side Bar Wallet button
+        const walletWindow = document.getElementById('Wallet_Window');
+        const sideBarWallet = document.getElementById('Side_Bar_Wallet');
+        
+        function positionWalletWindow() {
+            const buttonRect = sideBarWallet.getBoundingClientRect();
+            walletWindow.style.position = 'absolute';
+            walletWindow.style.left = (buttonRect.right + 10) + 'px';
+            walletWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Wallet').addEventListener('click', function() {
+            positionWalletWindow();
+        });
+    </script>
+
+    <!-- ============================================================================ -->
+    <!-- ID WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="ID_Window" style="width:200px; height:400px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Window — with header</p>
+            <button class="Close_Button" id="Close_ID_Window"></button>
+        </div>
+        <div class="Content">
+        </div>
+    </div>
+
+    <script id="ID_Window Script">
+
+        document.getElementById('Side_Bar_ID').addEventListener('click', function() {
+            const idWindow = document.getElementById('ID_Window');
+            idWindow.style.display = 'flex';
+            idWindow.style.transform = 'scale(0)';
+            idWindow.style.opacity = '0';
+            idWindow.style.transformOrigin = 'top left';
+            idWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            idWindow.style.transform = 'scale(1)';
+            idWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_ID_Window').addEventListener('click', function() {
+            const idWindow = document.getElementById('ID_Window');
+            idWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            idWindow.style.transform = 'scale(0)';
+            idWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            idWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent ID Window to Side Bar ID button
+        const idWindow = document.getElementById('ID_Window');
+        const sideBarID = document.getElementById('Side_Bar_ID');
+        
+        function positionIDWindow() {
+            const buttonRect = sideBarID.getBoundingClientRect();
+            idWindow.style.position = 'absolute';
+            idWindow.style.left = (buttonRect.right + 10) + 'px';
+            idWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_ID').addEventListener('click', function() {
+            positionIDWindow();
+        });
+    </script>
+
+
+
+    <!-- ============================================================================ -->
+    <!-- TOOL WINDOW -->
+    <!-- ============================================================================ -->
+
+    <div class="Window" id="Tool_Window" style="width:300px; height:200px; display: none;">
+        <div class="Window_Header">
+            <p class="Title">Tools</p>
+            <button class="Close_Button" id="Close_Tool_Window"></button>
+        </div>
+        <div class="Content">
+            <div class="Tools">
+                <div class="Tool_Container Alarm_Clock" id="Open_Alarm_Clock_Tool">
+                    <img src="/Images/Icons/Colored Irons/clock.png" alt="">
+
+                </div>
+                <div class="Tool_Container Calculator">
+                    <img src="/Images/Icons/Colored Irons/calculate.png" alt="">
+
+                </div>
+                <div class="Tool_Container Alarm_Clock">
+                    <p class="Tool_Title">Alarm Clock</p>
+
+                </div>
+                <div class="Tool_Container Alarm_Clock">
+                    <p class="Tool_Title">Alarm Clock</p>
+
+                </div>
+                <div class="Tool_Container Alarm_Clock">
+                    <p class="Tool_Title">Alarm Clock</p>
+
+                </div>
+                <div class="Tool_Container Alarm_Clock">
+                    <p class="Tool_Title">Alarm Clock</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Sub_Windows">
+        <div class="Window" id="Alarm_Clock_Window" style="width:200px; height:300px; display: none;">
+            <div class="Window_Header">
+                <p class="Title">Alarm Clock</p>
+                <button class="Close_Button" id="Close_Alarm_Clock_Window"></button>
+            </div>
+            <div class="Content" style="display: flex; flex-direction: column; gap: 10px; padding: 10px;">
+                <div style="text-align: center; font-size: 30px; color: var(--Main_Text_Color_1); padding: 20px;" id="Alarm_Display_Time">
+                    12:00 PM
+                </div>
+                <div style="width: calc(100% - 20px); display: flex; gap: 10px; align-items: center;">
+                    <input type="time" id="Alarm_Time_Input" style="width: 100%; height: 30px; text-indent: 10px; background-color: var(--Normal_Button); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); font-size: var(--Main_Text);">
+                    <button id="Set_Alarm_Button" style="width: 60px; height: 30px; background-color: var(--Normal_Button); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer;">Set</button>
+                </div>
+                <div id="Alarm_List" style="width: calc(100% - 20px); height: 110px; display: flex; flex-direction: column; overflow-y: auto; background-color: var(--Normal_Button); border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); font-size: var(--Main_Text);">
+                    <!-- Alarms will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #Tool_Window > .Content > .Tools {
+            width: 100%;
+            height: calc(100% - 20px);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            grid-auto-rows: 50px;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        #Tool_Window > .Content > .Tools > .Tool_Container {
+            width: 100%;
+            height: 50px;
+            background-color: var(--Normal_Button);
+            font-size: var(--Main_Text);
+            border-radius: var(--Border-Radius_Button);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+
+        #Tool_Window > .Content > .Tools > .Tool_Container > img { 
+            width: 24px;
+            height: 24px;
+
+        }
+    </style>
+
+    <script id="Tool_Window Script">
+
+        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+            const toolWindow = document.getElementById('Tool_Window');
+            toolWindow.style.display = 'flex';
+            toolWindow.style.transform = 'scale(0)';
+            toolWindow.style.opacity = '0';
+            toolWindow.style.transformOrigin = 'top left';
+            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            toolWindow.style.transform = 'scale(1)';
+            toolWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Tool_Window').addEventListener('click', function() {
+            const toolWindow = document.getElementById('Tool_Window');
+            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            toolWindow.style.transform = 'scale(0)';
+            toolWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            toolWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Tool Window to Side Bar Tool button
+        const toolWindow = document.getElementById('Tool_Window');
+        const sideBarTool = document.getElementById('Side_Bar_Tool');
+        
+        function positionToolWindow() {
+            const buttonRect = sideBarTool.getBoundingClientRect();
+            toolWindow.style.position = 'absolute';
+            toolWindow.style.left = (buttonRect.right + 10) + 'px';
+            toolWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+            positionToolWindow();
+        });
+
+        //Alarm Clock.///////////////////////////////////////////////////////////////////////////////////
+
+        // Position Alarm Clock Window at top left when opened
+        document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
+            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+            alarmClockWindow.style.position = 'absolute';
+            alarmClockWindow.style.left = '10px';
+            alarmClockWindow.style.top = '10px';
+        });
+
+        let alarms = [];
+        let alarmCheckInterval;
+
+        // Open Alarm Clock Window
+        document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
+            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+            alarmClockWindow.style.display = 'flex';
+            alarmClockWindow.style.transform = 'scale(0)';
+            alarmClockWindow.style.opacity = '0';
+            alarmClockWindow.style.transformOrigin = 'center';
+            alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+                alarmClockWindow.style.transform = 'scale(1)';
+                alarmClockWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        // Close Alarm Clock Window
+        document.getElementById('Close_Alarm_Clock_Window').addEventListener('click', function() {
+            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+            alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            alarmClockWindow.style.transform = 'scale(0)';
+            alarmClockWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+                alarmClockWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Update display time
+        function updateAlarmDisplayTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            
+            document.getElementById('Alarm_Display_Time').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+
+        setInterval(updateAlarmDisplayTime, 1000);
+
+        // Style the AM/PM text
+        function styleAMPM() {
+            const displayTime = document.getElementById('Alarm_Display_Time');
+            const timeText = displayTime.textContent;
+            const ampmMatch = timeText.match(/(AM|PM)/);
+            
+            if (ampmMatch) {
+                const timePart = timeText.replace(/(AM|PM)/, '');
+                displayTime.innerHTML = `${timePart}<span style="font-size: var(--Main_Text);">${ampmMatch[0]}</span>`;
+            }
+        }
+
+        setInterval(() => {
+            updateAlarmDisplayTime();
+            styleAMPM();
+        }, 1000);
+
+        updateAlarmDisplayTime();
+        styleAMPM();
+
+        //Open Alarm Clock Window
+
+        // Set Alarm
+        document.getElementById('Set_Alarm_Button').addEventListener('click', function() {
+            const timeInput = document.getElementById('Alarm_Time_Input').value;
+            if (!timeInput) return;
+            
+            const alarm = {
+                id: Date.now(),
+                time: timeInput,
+                active: true
+            };
+            
+            alarms.push(alarm);
+            renderAlarms();
+            startAlarmCheck();
+        });
+
+        // Render alarms
+        function renderAlarms() {
+            const alarmList = document.getElementById('Alarm_List');
+            alarmList.innerHTML = '';
+            
+            alarms.forEach(alarm => {
+            const alarmElement = document.createElement('div');
+            alarmElement.style.cssText = 'width: 100%; height: 30px; background-color: var(--Normal_Button); display: flex; justify-content: space-between; align-items: center; text-indent: 10px;';
+            
+            alarmElement.innerHTML = `
+                <span style="color: var(--Main_Text_Color_1); font-size: var(--Main_Text);">${alarm.time}</span>
+                <button id="Delete" onclick="event.stopPropagation(); deleteAlarm(${alarm.id})" style="margin-right: 10px; background: none; border: none; color: var(--Main_Text_Color_1); cursor: pointer;">Delete</button>
+            `;
+            
+            alarmList.appendChild(alarmElement);
+            });
+        }
+
+        // Delete alarm
+        window.deleteAlarm = function(id) {
+            alarms = alarms.filter(alarm => alarm.id !== id);
+            renderAlarms();
+            if (alarms.length === 0) {
+                clearInterval(alarmCheckInterval);
+            }
+        };
+
+        // Check alarms
+        function startAlarmCheck() {
+            if (alarmCheckInterval) return;
+            
+            alarmCheckInterval = setInterval(() => {
+                const now = new Date();
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                alarms.forEach(alarm => {
+                    if (alarm.active && alarm.time === currentTime) {
+                        alert(`Alarm! It's ${alarm.time}`);
+                        alarm.active = false;
+                        setTimeout(() => alarm.active = true, 60000);
+                    }
+                });
+            }, 1000);
+        }
+    </script>
+
+
+
+    <script id="ESSENTIALS Script">
+
+        // ============================================================================
+        // ESSENTIALS
+        // ============================================================================
+
+        // ============================================================================
+        // START
+        // ============================================================================
+
+        // Disable Android's default systems
+        if ('vibrate' in navigator) {
+            // Prevent default alarm behavior
+            document.getElementById('Set_Alarm_Button').addEventListener('click', function(e) {
+            e.preventDefault();
+            });
+        }
+
+        // Disable pull-to-refresh
+        document.body.style.overscrollBehavior = 'none';
+        
+        // Disable default touch actions (pinch zoom, double-tap zoom)
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+            e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Disable context menu (long press)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable text selection on long press
+        document.body.style.webkitUserSelect = 'none';
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitTouchCallout = 'none';
+
+        // ============================================================================
+        // CLOSING WINDOWS
+        // ============================================================================
+
+        // Close windows when clicking outside
+        document.addEventListener('click', function(event) {
+            const windows = document.querySelectorAll('.Window');
+            const sideBarButtons = document.querySelectorAll('.Side_Bar button');
+            
+            // Check if click is outside all windows and sidebar buttons
+            let clickedInsideWindow = false;
+            let clickedSideBarButton = false;
+            
+            windows.forEach(window => {
+            if (window.contains(event.target)) {
+                clickedInsideWindow = true;
+            }
+            });
+            
+            sideBarButtons.forEach(button => {
+            if (button.contains(event.target)) {
+                clickedSideBarButton = true;
+            }
+            });
+            
+            // If click is outside, close all visible windows
+            if (!clickedInsideWindow && !clickedSideBarButton) {
+            windows.forEach(window => {
+                if (window.style.display === 'flex') {
+                window.style.display = 'none';
+                }
+            });
+            }
+        });
+        document.addEventListener('click', function(event) {
+            const windows = document.querySelectorAll('.Window');
+            const sideBarButtons = document.querySelectorAll('.Side_Bar button');
+            
+            // Check if click is outside all windows and sidebar buttons
+            let clickedInsideWindow = false;
+            let clickedSideBarButton = false;
+            
+            windows.forEach(window => {
+                if (window.contains(event.target)) {
+                    clickedInsideWindow = true;
+                }
+            });
+            
+            sideBarButtons.forEach(button => {
+                if (button.contains(event.target)) {
+                    clickedSideBarButton = true;
+                }
+            });
+            
+            // If click is outside, close all visible windows
+            if (!clickedInsideWindow && !clickedSideBarButton) {
+                windows.forEach(window => {
+                    if (window.style.display === 'flex') {
+                        window.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                        window.style.transform = 'scale(0)';
+                        window.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            window.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            }
+        });
+
+        // ============================================================================
+        // WINDOW DRAGGING SYSTEM
+        // ============================================================================
+
+        let windowElement = null;
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+        let nextZIndex = 10;
+        let animationFrameId = null;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windows = Array.from(document.querySelectorAll('.Window'));
+
+        // ---- Helper Functions ----
+
+        function snapToGrid(x, y, gridSize = 10) {
+            const snappedX = Math.round(x / gridSize) * gridSize;
+            const snappedY = Math.round(y / gridSize) * gridSize;
+            return { x: snappedX, y: snappedY };
+        }
+
+        function clamp(val, min, max) {
+            return Math.max(min, Math.min(max, val));
+        }
+
+        function lerp(start, end, factor) {
+            return start + (end - start) * factor;
+        }
+
+        function setWindowPosition(x, y, snap = false) {
+            const winRect = windowElement.getBoundingClientRect();
+            const bodyRect = document.body.getBoundingClientRect();
+            const maxX = bodyRect.width - winRect.width;
+            const maxY = bodyRect.height - winRect.height;
+            
+            if (snap) {
+            const snapped = snapToGrid(x, y);
+            windowElement.style.transition = 'left 0.2s cubic-bezier(0, 1, 0, 1), top 0.2s cubic-bezier(0, 1, 0, 1)';
+            windowElement.style.left = clamp(snapped.x, 0, maxX) + 'px';
+            windowElement.style.top = clamp(snapped.y, 0, maxY) + 'px';
+            } else {
+            windowElement.style.transition = 'none';
+            targetX = clamp(x, 0, maxX);
+            targetY = clamp(y, 0, maxY);
+            }
+        }
+
+        function smoothUpdate() {
+            if (!isDragging || !windowElement) {
+            animationFrameId = null;
+            return;
+            }
+
+            const currentX = parseFloat(windowElement.style.left) || 0;
+            const currentY = parseFloat(windowElement.style.top) || 0;
+            
+            const newX = lerp(currentX, targetX, 0.3);
+            const newY = lerp(currentY, targetY, 0.3);
+            
+            windowElement.style.left = newX + 'px';
+            windowElement.style.top = newY + 'px';
+
+            animationFrameId = requestAnimationFrame(smoothUpdate);
+        }
+
+        function bringToFront(el) {
+            if (!el) return;
+            el.style.zIndex = nextZIndex++;
+        }
+
+        // ---- Event Handlers ----
+
+        windows.forEach(win => {
+            const header = win.querySelector('.Window_Header');
+            if (!header) return;
+
+            header.addEventListener('mousedown', (e) => {
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            targetX = rect.left;
+            targetY = rect.top;
+            document.body.style.userSelect = 'none';
+            
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(smoothUpdate);
+            }
+            });
+
+            header.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            windowElement = win;
+            isDragging = true;
+            const rect = windowElement.getBoundingClientRect();
+            offsetX = e.touches[0].clientX - rect.left;
+            offsetY = e.touches[0].clientY - rect.top;
+            targetX = rect.left;
+            targetY = rect.top;
+            document.body.style.userSelect = 'none';
+            
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(smoothUpdate);
+            }
+            });
+
+            // Bring to front on interaction
+            win.addEventListener('mousedown', () => bringToFront(win));
+            win.addEventListener('touchstart', () => bringToFront(win));
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !windowElement) return;
+            const x = e.clientX - offsetX;
+            const y = e.clientY - offsetY;
+            setWindowPosition(x, y, false);
+            windowElement.style.position = 'absolute';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging && windowElement) {
+            const rect = windowElement.getBoundingClientRect();
+            setWindowPosition(rect.left, rect.top, true);
+            }
+            isDragging = false;
+            windowElement = null;
+            document.body.style.userSelect = '';
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging || !windowElement || e.touches.length !== 1) return;
+            const x = e.touches[0].clientX - offsetX;
+            const y = e.touches[0].clientY - offsetY;
+            setWindowPosition(x, y, false);
+            windowElement.style.position = 'absolute';
+        });
+
+        document.addEventListener('touchend', () => {
+            if (isDragging && windowElement) {
+            const rect = windowElement.getBoundingClientRect();
+            setWindowPosition(rect.left, rect.top, true);
+            }
+            isDragging = false;
+            windowElement = null;
+            document.body.style.userSelect = '';
+        });
+
+       
+
+
+    </script>
+
+    
+</body>
+</html>
+
