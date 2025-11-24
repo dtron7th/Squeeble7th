@@ -2,7 +2,9 @@
     padding: 0px;
     margin: 0px;
     font-family: "Sometype Mono", monospace;
-    font-weight: 100;  
+    font-weight: 100; 
+    
+    
 }
 
 @font-face {
@@ -15,16 +17,23 @@
 }
 
 :root {
-    --Main_Text: 10px;
-    --Main_Text_1: 13px;
-    --Main_Text_Color: rgb(66, 66, 66);
+    --Main_Text: 9px;
+    --Main_Text_1: 12px;
+    --Main_Text_2: 14px;
+    --Main_Text_3: 16px;
+    --Main_Text_4: 20px;
+    --Main_Text_5: 24px;
+    --Main_Text_6: 30px;
+    --Main_Text_7: 32px;
+    --Main_Text_8: 36px;
+    --Main_Text_Color: rgb(255, 255, 255);
     --Main_Text_Color_1: rgb(255, 255, 255);
     --Main_Text_Color_2: rgb(255, 255, 255);
     --Main_Text_Color_3: rgb(255, 255, 255);
-    --Header_Text_Color: rgb(95, 95, 95);
-    --Main_Window_Color-1: rgba(255, 255, 255, 0.5);
+    --Header_Text_Color: rgb(255, 255, 255);
+    --Main_Window_Color-1: rgb(51, 51, 51);
     --Main_Window_Color-2: rgba(0, 0, 0, 0.5);
-    --Main_Window_Header_Color-1: rgb(255, 255, 255);
+    --Main_Window_Header_Color-1: rgb(34, 34, 34);
     --Login_Window_Color-1: rgb(0, 0, 0);
     --Login_Window_Color-2: rgb(255, 255, 255);
     --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
@@ -33,19 +42,41 @@
     --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
     --Drop_Down_Window_Color: rgb(226, 226, 226);
 
+    --UI-Buttons-Fields-Color-1: rgb(60, 60, 60);
+    --UI-Buttons-Fields-Color-2: rgb(60, 60, 60);
+    --UI-Buttons-Fields-Color-3: rgba(0, 0, 0, 0.3);
+    --UI-Buttons-Fields-Color-4: rgba(0, 0, 0, 0.3);
+    --UI-Buttons-Fields-Color-5: rgba(0, 0, 0, 0.3);
+
+    --UI-Buttons-Fields-Color_Active-1: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color_Active-2: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color_Active-3: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color_Active-4: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color_Active-5: rgb(0, 0, 0);
+    
+
     --Active_Key: rgb(199, 199, 199);
 
     --Menu_Background: rgba(0, 0, 0, 0.3);
-    --Box_Shadow: 10px 10px 10px rgba(0, 0, 0, 0.3);
+    --Box_Shadow: 10px 10px 5px rgba(0, 0, 0, 0.3);
     --Back_drop: blur(20px);
 
     --Profile_Pic_Background: rgba(0, 0, 0, 0.3);
     --Active_Border: rgb(49, 59, 56);
-    --Border-Radius: 10px;
-    --Border-Radius_Button: 5px;
+    --Border-Radius-1: 0px;
+    --Border-Radius-2: 5px;
+    --Border-Radius-3: 10px;
+    
+    --Border-Radius_Button-1: 0px;
+    --Border-Radius_Button-2: 0px;
+    --Border-Radius_Button-3: 0px;
+    --Border-Radius_Button-4: 0px;
+    --Border-Radius_Button-5: 0px;
+    
+
 
     --Round_Button: rgba(46, 46, 46, 0.5);
-    --Normal_Button: rgba(150, 150, 150, 0.5);
+    --Normal_Button: rgba(31, 31, 31, 0.5);
 }
 
 .Window {
@@ -97,7 +128,7 @@
     background-color: rgb(255, 0, 0);
     border: none;
     outline: none;
-    border-radius: 50%;
+    border-radius: var(--Border-Radius-1);
 }
 
 .Window > .Content {
@@ -113,7 +144,7 @@
 input {
     border: none;
     outline: none;
-    background-color: var(--Text_Input_Field);
+    background-color: var(--UI-Buttons-Fields-Color-1);
     text-indent: 10px;
     color: var(--Main_Text_Color);
     font-size: var(--Main_Text);
@@ -129,7 +160,7 @@ input::placeholder {
 button {
     border: none;
     outline: none;
-    background-color: var(--Text_Input_Field);
+    background-color: var(--UI-Buttons-Fields-Color-1);
     color: var(--Main_Text_Color);
     font-size: var(--Main_Text);
     cursor: pointer;
@@ -139,6 +170,7 @@ button {
 button:active {
     background-color: var(--Text_Input_Field-Active);
 }
+    
 
 .Floating_Button {
     position: absolute;
@@ -156,13 +188,13 @@ button:active {
 .Icon_Button {
     width: 30px;
     height: 30px;
-    background-color: var(--Round_Button);
+    background-color: var(--UI-Buttons-Fields-Color-1);
     backdrop-filter: blur(10px);
     color: var(--Main_Text_Color);
     font-size: var(--Main_Text);
     border: none;
     outline: none;
-    border-radius: 50%;
+    border-radius: var(--Border-Radius_Button-1);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -181,11 +213,11 @@ button:active {
     background-color: rgb(255, 0, 0);
     border: none;
     outline: none;
-    border-radius: 50%;
+    border-radius: var(--Border-Radius-1);
 }
 
 output {
-    background-color: var(--Text_Input_Field);
+    background-color: var(--UI-Buttons-Fields-Color-1);
     color: var(--Main_Text_Color);
     font-size: var(--Main_Text);
     border-radius: var(--Border-Radius_Button);
