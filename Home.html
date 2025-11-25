@@ -330,7 +330,7 @@
             <div class="Content">
                 <div class="Title">
                     <p class="Theme_Market_Title" style="font-size: var(--Main_Text_5); color: var(--Main_Text_Color_1);">Theme Market</p>
-                    <p class="Theme_Market_Title" style="font-size: var(--Main_Text_2); color: var(--Main_Text_Color_1);">An open source theme repository</p>
+                    <p class="Theme_Market_Title" style="font-size: var(--Main_Text_1); color: var(--Main_Text_Color_1);">An open source theme repository</p>
                 </div>
                 <div class="Theme_Count">
                     <p class="Theme_Count">2 Themes on the market</p>
@@ -371,11 +371,111 @@
                         </div>
                         <button class="Install_Theme">Install</button>
                     </div>
+
+                    <div class="Theme_Container">
+                        <p class="Theme_Name">Military Green</p>
+                        <div class="Color_Pallet">
+                            <span class="Color" style="background-color:#003f5c;"></span>
+                            <span class="Color" style="background-color:#2f6690;"></span>
+                            <span class="Color" style="background-color:#3a86b8;"></span>
+                            <span class="Color" style="background-color:#52a9e3;"></span>
+                            <span class="Color" style="background-color:#9ed9ff;"></span>
+                        </div>
+                        <button class="Install_Theme">Install</button>
+                    </div>
+
+                    <div class="Theme_Container">
+                        <p class="Theme_Name">Military Green</p>
+                        <div class="Color_Pallet">
+                            <span class="Color" style="background-color:#8B0000;"></span>
+                            <span class="Color" style="background-color:#C8102E;"></span>
+                            <span class="Color" style="background-color:#DC143C;"></span>
+                            <span class="Color" style="background-color:#E63946;"></span>
+                            <span class="Color" style="background-color:#FF6B6B;"></span>
+                        </div>
+                        <button class="Install_Theme">Install</button>
+                    </div>
                     
                 </div>
                 <div class="Download_Raw_File">
                     <button class="Download_Raw_File_Button">Download raw themes file</button>
                 </div>
+
+                <div class="Theme_Market_Content">
+                    <div class="Catagory_List">
+                        <span>Light Themes</span>
+                        <span>Dark Themes</span>
+                        <span>Colorful Themes</span>
+                        <span>Minimal Themes</span>
+                        <span>High Contrast</span>
+                        <span>Pastel Themes</span>
+                        <span>Neon Themes</span>
+                        <span>Nature Themes</span>
+                        <span>Retro Themes</span>
+                    </div>
+                    <div class="Theme_Library">
+                        <div class="Theme_Container">
+                            <p class="Theme_Name">Light Mode</p>
+                            <div class="Color_Pallet">
+                                <span class="Color" style="background-color: #ffffff;"></span>
+                                <span class="Color" style="background-color: #f5f5f5;"></span>
+                                <span class="Color" style="background-color: #e0e0e0;"></span>
+                                <span class="Color" style="background-color: #d0d0d0;"></span>
+                                <span class="Color" style="background-color: #b0b0b0;"></span>
+                            </div>
+                            <button class="Install_Theme">Install</button>
+                        </div>
+                        
+                        <div class="Theme_Container">
+                            <p class="Theme_Name">Dark Mode</p>
+                            <div class="Color_Pallet">
+                                <span class="Color" style="background-color: #1a1a1a;"></span>
+                                <span class="Color" style="background-color: #2b2b2b;"></span>
+                                <span class="Color" style="background-color: #3d3d3d;"></span>
+                                <span class="Color" style="background-color: #4a4a4a;"></span>
+                                <span class="Color" style="background-color: #5a5a5a;"></span>
+                            </div>
+                            <button class="Install_Theme">Install</button>
+                        </div>
+
+                        <div class="Theme_Container">
+                            <p class="Theme_Name">Military Green</p>
+                            <div class="Color_Pallet">
+                                <span class="Color" style="background-color: #4b5320;"></span>
+                                <span class="Color" style="background-color: #6b8e23;"></span>
+                                <span class="Color" style="background-color: #8fbc8f;"></span>
+                                <span class="Color" style="background-color: #556b2f;"></span>
+                                <span class="Color" style="background-color: #3c3c3c;"></span>
+                            </div>
+                            <button class="Install_Theme">Install</button>
+                        </div>
+
+                        <div class="Theme_Container">
+                            <p class="Theme_Name">Ocean Blue</p>
+                            <div class="Color_Pallet">
+                                <span class="Color" style="background-color:#003f5c;"></span>
+                                <span class="Color" style="background-color:#2f6690;"></span>
+                                <span class="Color" style="background-color:#3a86b8;"></span>
+                                <span class="Color" style="background-color:#52a9e3;"></span>
+                                <span class="Color" style="background-color:#9ed9ff;"></span>
+                            </div>
+                            <button class="Install_Theme">Install</button>
+                        </div>
+
+                        <div class="Theme_Container">
+                            <p class="Theme_Name">Deep Red</p>
+                            <div class="Color_Pallet">
+                                <span class="Color" style="background-color:#8B0000;"></span>
+                                <span class="Color" style="background-color:#C8102E;"></span>
+                                <span class="Color" style="background-color:#DC143C;"></span>
+                                <span class="Color" style="background-color:#E63946;"></span>
+                                <span class="Color" style="background-color:#FF6B6B;"></span>
+                            </div>
+                            <button class="Install_Theme">Install</button>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
         <Style>
@@ -408,17 +508,14 @@
             #Theme_Market_Window > .Content > .Top_Themes {
                 position: absolute;
                 top: 100px;
-                width: calc(100% - 40px);
+                width: calc(100% - 20px);
                 height: 100px;
-                background-color: var(--UI-Buttons-Fields-Color-2);
                 display: flex;
                 flex-direction: row;
                 gap: 10px;
-                
                 overflow-x: auto;
                 justify-content: start;
                 align-items: center;
-                padding: 10px;
             }
 
             #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container {
@@ -465,7 +562,7 @@
 
             #Theme_Market_Window > .Content > .Download_Raw_File {
                 position: absolute;
-                top: 230px;
+                top: 210px;
                 width: calc(100% - 20px);
             }
 
@@ -474,15 +571,92 @@
                 height: 30px;
                 background-color: var(--UI-Buttons-Fields-Color-3);
                 color: var(--Main_Text_Color);
-                
             }
 
-            
+            #Theme_Market_Window > .Content > .Theme_Market_Content {
+                position: absolute;
+                top: 250px;
+                width: calc(100% - 20px);
+                height: calc(100% - 260px);
+                background-color: var(--UI-Buttons-Fields-Color-3);
+                color: var(--Main_Text_Color);
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+            }
 
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Catagory_List {
+                width: 200px;
+                height: 100%;
+                text-indent: 10px;
+                display: flex;
+                flex-direction: column;
+            }
 
-            
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Catagory_List > span {
+                font-size: var(--Main_Text);
+                width: 100%;
+                height: 30px;
+                display: flex;
+                align-items: center;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library {
+                width: calc(100% - 0px);
+                height: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+                overflow-y: auto;
+                padding: 10px;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library > .Theme_Container {
+                position: relative;
+                width: 100%;
+                height: 100px;
+                background-color: var(--UI-Buttons-Fields-Color-3);
+                font-size: var(--Main_Text);
+                color: var(--Main_Text_Color_1);
+                display: flex;
+                justify-content: center;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library > .Theme_Container > p {
+                position: absolute;
+                top: 10px;
+                width: 100%;
+                text-align: center;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library > .Theme_Container > .Color_Pallet {
+                position: absolute;
+                top: 30px;
+                width: calc(100% - 20px);
+                height: 30px;
+                display: flex;
+                flex-direction: row;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library > .Theme_Container > .Color_Pallet > span {
+                width: 100%;
+                height: 100%;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Market_Content > .Theme_Library > .Theme_Container > button {
+                position: absolute;
+                bottom: 10px;
+                width: calc(100% - 20px);
+                height: 20px;
+            }
+
         </Style>
         <script>
+
+
+
+            //Theme Market Window
+
             (function(){
                 const themesBtn = document.getElementById('Open_Themes_Market');
                 const themeWin = document.getElementById('Theme_Market_Window');
@@ -560,9 +734,45 @@
                     if (themeWin.style.display === 'flex') positionThemeWindow();
                 });
             })();
+
+            //Active Span in Catagory List
+            (function(){
+                const categorySpans = document.querySelectorAll('#Theme_Market_Window .Catagory_List span');
+                
+                categorySpans.forEach(span => {
+                    span.style.transition = 'color 0.3s ease, transform 0.2s ease';
+                    
+                    span.addEventListener('click', function() {
+                        // Remove active state from all spans
+                        categorySpans.forEach(s => {
+                            s.style.color = 'var(--Main_Text_Color_1)';
+                            s.style.transform = 'translateX(0)';
+                            const text = s.textContent.replace(/^\[|\]$/g, '').trim();
+                            s.textContent = text;
+                        });
+                        
+                        // Add active state to clicked span
+                        this.style.color = 'var(--Active_Brackets_Span)';
+                        this.style.transform = 'translateX(2px)';
+                        const text = this.textContent.replace(/^\[|\]$/g, '').trim();
+                        this.textContent = `[${text}]`;
+                    });
+                });
+            })();
+
+            document.addEventListener('click', function(event) {
+                const categorySpans = document.querySelectorAll('#Theme_Market_Window .Catagory_List span');
+                categorySpans.forEach(span => {
+                    if (!span.contains(event.target)) {
+                        span.style.color = 'var(--Main_Text_Color_1)';
+                        span.style.transform = 'translateX(0)';
+                        const text = span.textContent.replace(/^\[|\]$/g, '').trim();
+                        span.textContent = text;
+                    }
+                });
+            });
         </script>
     </div>
-
 
     <!-- ============================================================================ -->
     <!-- CLOCK SCRIPT -->

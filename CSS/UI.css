@@ -79,6 +79,8 @@
 
     --Round_Button: rgba(46, 46, 46, 0.5);
     --Normal_Button: rgba(31, 31, 31, 0.5);
+
+    --Active_Brackets_Span: rgb(255, 153, 0);
 }
 
 .Window {
