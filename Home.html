@@ -89,16 +89,12 @@
     <audio src="/Sounds/Audio/mixkit-warning-alarm-buzzer-991.wav"></audio>
 
     <!-- ============================================================================ -->
-    <!-- TOP BAR BUTTON -->
-    <!-- ============================================================================ -->
-
-    <div class="Display_Top_Menu_Button">
-        <button class="Icon_Button" id="Top_Menu_Button"><img src="/Images/Icons/apps_24dp_1F1F1F.svg"></button>
-    </div>
-
-    <!-- ============================================================================ -->
     <!-- TOP BAR -->
     <!-- ============================================================================ -->
+
+    <div class="Display_Top_Menu_Button" style="position: absolute; top: 10px; left: 10px;">
+        <button class="Icon_Button" id="Top_Menu_Button"><img src="/Images/Icons/apps_24dp_1F1F1F.svg"></button>
+    </div>
 
     <div class="Top_Bar">
         <p>Apps</p>
@@ -112,8 +108,8 @@
         </div>
     </div>
 
-    <script id="Top_Bar Script">
 
+    <script id="Top_Bar Script">
 
         // Display Top Bar when Top Menu Button is clicked
         document.getElementById('Top_Menu_Button').addEventListener('click', function() {
@@ -168,6 +164,321 @@
             }
         });
     </script>
+
+    <!-- ============================================================================ -->
+    <!-- SETTINGS BUTTON -->
+    <!-- ============================================================================ -->
+
+    <div class="Display_Settings_Button" style="position: absolute; top: 10px; right: 10px;">
+        <button class="Icon_Button" id="Settings_Button"><img src="/Images/Icons/settings_24dp_1F1F1F.svg"></button>
+    </div>
+
+    <!-- SETTINGS DROPDOWN MENU -->
+    <style>
+        .Settings_Dropdown {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: 180px;
+            background: var(--UI-Buttons-Fields-Color-1);
+            backdrop-filter: var(--Back_drop);
+            border-radius: var(--Border-Radius);
+            box-shadow: 0 6px 18px rgba(0,0,0,.45);
+            display: none;
+            flex-direction: column;
+            padding: 6px 0;
+            transform: scale(.85);
+            transform-origin: top right;
+            opacity: 0;
+            transition: transform .25s cubic-bezier(0,1,0,1), opacity .25s cubic-bezier(0,1,0,1);
+            z-index: 999;
+        }
+        .Settings_Dropdown.open {
+            display: flex;
+            transform: scale(1);
+            opacity: 1;
+        }
+        .Settings_Dropdown button {
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 8px 14px;
+            font-size: var(--Main_Text);
+            color: var(--Main_Text_Color_1);
+            cursor: pointer;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .Settings_Dropdown button:hover,
+        .Settings_Dropdown button:focus {
+            background: var(--UI-Buttons-Fields-Color-2);
+            outline: none;
+        }
+        .Settings_Dropdown hr {
+            border: none;
+            height: 1px;
+            background: rgba(255,255,255,.08);
+            margin: 4px 0;
+        }
+    </style>
+
+    <div class="Settings_Dropdown" id="Settings_Menu" role="menu" aria-label="Settings Menu">
+        <button role="menuitem" data-action="profile">Profile</button>
+        <button role="menuitem" data-action="preferences">Preferences</button>
+        <button id="Open_Themes_Market" role="menuitem" data-action="themes">Theme Market</button>
+        <hr>
+        <button role="menuitem" data-action="help">Help</button>
+        <button role="menuitem" data-action="about">About</button>
+        <hr>
+        <button role="menuitem" data-action="logout">Logout</button>
+    </div>
+
+    <script>
+    (function(){
+        const btn = document.getElementById('Settings_Button');
+        const menu = document.getElementById('Settings_Menu');
+        let closeTimeout = null;
+
+        function openMenu() {
+            menu.classList.add('open');
+            btn.setAttribute('aria-expanded','true');
+            setTimeout(()=> {
+                const first = menu.querySelector('button');
+                first && first.focus();
+            },10);
+        }
+
+        function closeMenu() {
+            if (!menu.classList.contains('open')) return;
+            menu.classList.remove('open');
+            btn.setAttribute('aria-expanded','false');
+            closeTimeout = setTimeout(()=> { if(!menu.classList.contains('open')) menu.style.display='none'; },250);
+        }
+
+        btn.setAttribute('aria-haspopup','true');
+        btn.setAttribute('aria-expanded','false');
+
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout=null; }
+            if (!menu.classList.contains('open')) {
+                menu.style.display='flex';
+                requestAnimationFrame(openMenu);
+            } else {
+                closeMenu();
+            }
+        });
+
+        document.addEventListener('click', e => {
+            if (!menu.contains(e.target) && e.target !== btn) closeMenu();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (!menu.classList.contains('open')) return;
+            const items = Array.from(menu.querySelectorAll('button'));
+            const idx = items.indexOf(document.activeElement);
+            if (e.key === 'Escape') {
+                closeMenu();
+                btn.focus();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = items[(idx + 1) % items.length];
+                next && next.focus();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = items[(idx - 1 + items.length) % items.length];
+                prev && prev.focus();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                items[0] && items[0].focus();
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                items[items.length-1] && items[items.length-1].focus();
+            }
+        });
+
+        menu.addEventListener('click', e => {
+            const btnItem = e.target.closest('button[data-action]');
+            if (!btnItem) return;
+            const action = btnItem.getAttribute('data-action');
+            // Placeholder handlers
+            switch(action){
+                case 'profile': console.log('Open profile'); break;
+                case 'preferences': console.log('Open preferences'); break;
+                case 'theme': console.log('Open theme'); break;
+                case 'help': console.log('Open help'); break;
+                case 'about': console.log('Open about'); break;
+                case 'logout': console.log('Logout'); break;
+            }
+            closeMenu();
+        });
+    })();
+    </script>
+
+    <!-- ============================================================================ -->
+    <!-- THEMES MARKET -->
+    <!-- ============================================================================ -->
+
+    <div class="Theme_Market">
+        <div class="Window" id="Theme_Market_Window" style="display: none;">
+            <div class="Window_Header">
+                <p class="Title">Theme Market</p>
+                <button class="Close_Button"></button>
+            </div>
+            <div class="Content">
+                <div class="Title">
+                    <p class="Theme_Market_Title" style="font-size: var(--Main_Text_5); color: var(--Main_Text_Color_1);">Theme Market</p>
+                    <p class="Theme_Market_Title" style="font-size: var(--Main_Text_2); color: var(--Main_Text_Color_1);">An open source theme repository</p>
+                </div>
+                <div class="Theme_Count">
+                    <p class="Theme_Count">2 Themes on the market</p>
+                </div>
+                <div class="Top_Themes">
+
+                </div>
+                <div class="Download_Raw_File">
+                    <button class="Download_Raw_File_Button">Download raw themes file</button>
+                </div>
+            </div>
+        </div>
+        <Style>
+            #Theme_Market_Window {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100dvw;
+                height: 100dvh;
+                z-index: 10;
+            }
+
+            #Theme_Market_Window > .Content > .Title {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #Theme_Market_Window > .Content > .Theme_Count {
+                position: absolute;
+                top: 20px;
+                right: 10px;
+                font-size: var(--Main_Text);
+                color: var(--Main_Text_Color_1);
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes {
+                position: absolute;
+                top: 100px;
+                width: calc(100% - 20px);
+                height: 100px;
+                background-color: var(--UI-Buttons-Fields-Color-2);
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #Theme_Market_Window > .Content > .Download_Raw_File {
+                position: absolute;
+                top: 210px;
+                width: calc(100% - 20px);
+            }
+
+            #Theme_Market_Window > .Content > .Download_Raw_File > button {
+                width: 100%;
+                height: 30px;
+                background-color: var(--UI-Buttons-Fields-Color-3);
+                color: var(--Main_Text_Color);
+                
+            }
+
+
+            
+        </Style>
+        <script>
+            (function(){
+                const themesBtn = document.getElementById('Open_Themes_Market');
+                const themeWin = document.getElementById('Theme_Market_Window');
+                const closeBtn = themeWin.querySelector('.Close_Button');
+
+                function cancelSettingsDropdown() {
+                    const settingsMenu = document.getElementById('Settings_Menu');
+                    const settingsBtn = document.getElementById('Settings_Button');
+                    if (!settingsMenu) return;
+                    if (getComputedStyle(themeWin).display === 'flex') {
+                        settingsMenu.classList.remove('open');
+                        settingsMenu.style.display = 'none';
+                        settingsBtn && settingsBtn.setAttribute('aria-expanded','false');
+                    }
+                }
+
+                function positionThemeWindow() {
+                    themeWin.style.position = 'absolute';
+                    themeWin.style.top = '0px';
+                    themeWin.style.left = '0px';
+                    themeWin.style.right = 'auto';
+                }
+
+                function openThemeWindow() {
+                    positionThemeWindow();
+                    if (themeWin.style.display !== 'flex') {
+                        themeWin.style.display = 'flex';
+                        themeWin.style.transform = 'scale(0)';
+                        themeWin.style.opacity = '0';
+                        themeWin.style.transformOrigin = 'top left';
+                        themeWin.style.transition = 'transform .3s cubic-bezier(0,1,0,1), opacity .3s cubic-bezier(0,1,0,1)';
+                        requestAnimationFrame(()=>{
+                            themeWin.style.transform = 'scale(1)';
+                            themeWin.style.opacity = '1';
+                        });
+                    }
+                    cancelSettingsDropdown();
+                }
+
+                function closeThemeWindow() {
+                    themeWin.style.transition = 'transform .3s cubic-bezier(0,1,0,1), opacity .3s ease-in-out';
+                    themeWin.style.transform = 'scale(0)';
+                    themeWin.style.opacity = '0';
+                    setTimeout(()=>{ themeWin.style.display = 'none'; },300);
+                }
+
+                themesBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    openThemeWindow();
+                });
+
+                closeBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    closeThemeWindow();
+                });
+
+                document.addEventListener('click', e => {
+                    if (themeWin.style.display === 'flex' &&
+                        !themeWin.contains(e.target) &&
+                        e.target !== themesBtn) {
+                        closeThemeWindow();
+                    }
+                });
+
+                // MutationObserver to cancel dropdown whenever theme window becomes visible
+                const observer = new MutationObserver(() => cancelSettingsDropdown());
+                observer.observe(themeWin, { attributes: true, attributeFilter: ['style'] });
+
+                if (themeWin.style.display === 'flex') {
+                    positionThemeWindow();
+                    cancelSettingsDropdown();
+                }
+
+                window.addEventListener('resize', () => {
+                    if (themeWin.style.display === 'flex') positionThemeWindow();
+                });
+            })();
+        </script>
+    </div>
+
 
     <!-- ============================================================================ -->
     <!-- CLOCK SCRIPT -->
@@ -595,7 +906,7 @@
         <div class="Content">
             <div class="Tools">
                 <button id="Open_Alarm_Clock_Tool" style="width: 100%; height: 30px;">Alarm Clock</button>
-                <button style="width: 100%; height: 30px;">Calculator</button>
+                <button id="Open_Calculator_Tool" style="width: 100%; height: 30px;">Calculator</button>
                 <button style="width: 100%; height: 30px;"></button>
                 <button style="width: 100%; height: 30px;"></button>
                 <button style="width: 100%; height: 30px;"></button>
@@ -639,8 +950,379 @@
                     <!-- Alarms will be listed here -->
                 </div>
             </div>
-            <script>
-            (function(){
+        </div>
+
+        <!-- ============================================================================ -->
+        <!-- TIME PICKER WINDOW -->
+        <!-- ============================================================================ -->
+
+        <div class="Window" id="Time_Picker_Window" style="width:250px; height:380px; display: none;">
+            <div class="Window_Header">
+                <p class="Title">Select Time</p>
+                <button class="Close_Button" id="Close_Time_Picker_Window"></button>
+            </div>
+            <div class="Content" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div style="display:flex; flex-direction: column; gap:8px; align-items:center;">
+                        <button id="Toggle_24H" class="Icon_Button" style="width:60px; height:34px;">24H</button>
+                        <button id="Toggle_12H" class="Icon_Button" style="width:60px; height:34px;">12H</button>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <button class="Icon_Button" id="Hour_Up">▲</button>
+                            <div id="Hour_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">12</div>
+                            <button class="Icon_Button" id="Hour_Down">▼</button>
+                        </div>
+                        <span style="font-size: 24px; color: var(--Main_Text_Color_1);">:</span>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <button class="Icon_Button" id="Minute_Up">▲</button>
+                            <div id="Minute_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">00</div>
+                            <button class="Icon_Button" id="Minute_Down">▼</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="AMPM_Container" style="display: flex; gap: 10px;">
+                    <button id="AM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">AM</button>
+                    <button id="PM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">PM</button>
+                </div>
+                <button id="Confirm_Time_Button" style="position: absolute; bottom: 10px; width: calc(100% - 20px); height: 30px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">Confirm</button>
+            </div>
+        </div>
+
+        <!-- ============================================================================ -->
+        <!-- CALCULATOR -->
+        <!-- ============================================================================ -->
+
+        <!-- CALCULATOR WINDOW -->
+        <div class="Window" id="Calculator_Window" role="dialog" aria-modal="true" aria-labelledby="Calculator_Title" style="width:auto;min-width:280px;height:auto;min-height:420px;display:none;">
+            <div class="Window_Header" style="user-select:none;cursor:move;">
+                <p class="Title" id="Calculator_Title">Calculator</p>
+                <div style="display:flex; gap:10px;align-items:center;margin-left:auto;margin-right:10px;">
+                    <button
+                        id="Toggle_Scientific_Calc"
+                        style="position: absolute; left: 80px; width: auto; height:auto; padding:0 10px; background:none; border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;"
+                    >
+                        Scientific
+                    </button>
+                </div>
+                <button class="Close_Button" id="Close_Calculator_Window" aria-label="Close Calculator"></button>
+            </div>
+            <div class="Content" style="display:flex;flex-direction:column;gap:10px;padding:10px;">
+                <div
+                    id="Calculator_Display"
+                    aria-live="polite"
+                    style="width:calc(100% - 40px);height:60px;background-color:var(--UI-Buttons-Fields-Color-2);border-radius:var(--Border-Radius);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-size:var(--Main_Text-5);color:var(--Main_Text_Color_1);overflow:hidden;text-overflow:ellipsis;"
+                >
+                    0
+                </div>
+
+                <div id="Scientific_Buttons" style="display:none;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
+                    <button class="calc-btn calc-scientific" data-value="sin" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">sin</button>
+                    <button class="calc-btn calc-scientific" data-value="cos" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">cos</button>
+                    <button class="calc-btn calc-scientific" data-value="tan" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">tan</button>
+                    <button class="calc-btn calc-scientific" data-value="sqrt" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">√</button>
+                    <button class="calc-btn calc-scientific" data-value="log" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">log</button>
+                    <button class="calc-btn calc-scientific" data-value="ln" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">ln</button>
+                    <button class="calc-btn calc-scientific" data-value="^" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">x²</button>
+                    <button class="calc-btn calc-scientific" data-value="pi" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">π</button>
+                </div>
+
+                <div id="Standard_Buttons" style="display:grid;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
+                    <button class="calc-btn" data-value="C" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">C</button>
+                    <button class="calc-btn" data-value="DEL" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">DEL</button>
+                    <button class="calc-btn calc-operator" data-value="/" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">÷</button>
+
+                    <button class="calc-btn" data-value="7" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">7</button>
+                    <button class="calc-btn" data-value="8" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">8</button>
+                    <button class="calc-btn" data-value="9" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">9</button>
+                    <button class="calc-btn calc-operator" data-value="*" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">×</button>
+
+                    <button class="calc-btn" data-value="4" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">4</button>
+                    <button class="calc-btn" data-value="5" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">5</button>
+                    <button class="calc-btn" data-value="6" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">6</button>
+                    <button class="calc-btn calc-operator" data-value="-" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">−</button>
+
+                    <button class="calc-btn" data-value="1" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">1</button>
+                    <button class="calc-btn" data-value="2" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">2</button>
+                    <button class="calc-btn" data-value="3" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">3</button>
+                    <button class="calc-btn calc-operator" data-value="+" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">+</button>
+
+                    <button class="calc-btn" data-value="0" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">0</button>
+                    <button class="calc-btn" data-value="." style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">.</button>
+                    <button class="calc-btn calc-operator" data-value="=" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">=</button>
+                </div>
+            </div>
+        </div>
+
+        <script id="Calculator_Window Script">
+            document.getElementById('Open_Calculator_Tool').addEventListener('click', function() {
+            const calculatorWindow = document.getElementById('Calculator_Window');
+            calculatorWindow.style.position = 'absolute';
+            calculatorWindow.style.left = '10px';
+            calculatorWindow.style.top = '10px';
+            calculatorWindow.style.display = 'flex';
+            calculatorWindow.style.transform = 'scale(0)';
+            calculatorWindow.style.opacity = '0';
+            calculatorWindow.style.transformOrigin = 'center';
+            calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+                calculatorWindow.style.transform = 'scale(1)';
+                calculatorWindow.style.opacity = '1';
+            }, 10);
+            });
+
+            document.getElementById('Close_Calculator_Window').addEventListener('click', function() {
+            const calculatorWindow = document.getElementById('Calculator_Window');
+            calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            calculatorWindow.style.transform = 'scale(0)';
+            calculatorWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+                calculatorWindow.style.display = 'none';
+            }, 300);
+            });
+
+            // Toggle Scientific Mode
+            document.getElementById('Toggle_Scientific_Calc').addEventListener('click', function() {
+            const scientificButtons = document.getElementById('Scientific_Buttons');
+            const calculatorWindow = document.getElementById('Calculator_Window');
+            const toggleBtn = document.getElementById('Toggle_Scientific_Calc');
+            
+            if (scientificButtons.style.display === 'none' || scientificButtons.style.display === '') {
+                scientificButtons.style.display = 'grid';
+                calculatorWindow.style.height = '540px';
+                toggleBtn.textContent = 'Standard';
+            } else {
+                scientificButtons.style.display = 'none';
+                calculatorWindow.style.height = '420px';
+                toggleBtn.textContent = 'Scientific';
+            }
+            });
+
+            (function() {
+            let currentValue = '0';
+            let previousValue = '';
+            let operation = null;
+            let shouldResetDisplay = false;
+
+            const display = document.getElementById('Calculator_Display');
+            const buttons = document.querySelectorAll('.calc-btn');
+
+            function updateDisplay() {
+                display.textContent = currentValue;
+            }
+
+            function clear() {
+                currentValue = '0';
+                previousValue = '';
+                operation = null;
+                shouldResetDisplay = false;
+                updateDisplay();
+            }
+
+            function deleteLast() {
+                if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+                } else {
+                currentValue = '0';
+                }
+                updateDisplay();
+            }
+
+            function appendNumber(number) {
+                if (shouldResetDisplay) {
+                currentValue = number;
+                shouldResetDisplay = false;
+                } else {
+                if (currentValue === '0' && number !== '.') {
+                    currentValue = number;
+                } else if (number === '.' && currentValue.includes('.')) {
+                    return;
+                } else {
+                    currentValue += number;
+                }
+                }
+                updateDisplay();
+            }
+
+            function setOperation(op) {
+                if (operation !== null) calculate();
+                previousValue = currentValue;
+                operation = op;
+                shouldResetDisplay = true;
+            }
+
+            function calculate() {
+                if (operation === null || previousValue === '') return;
+                
+                const prev = parseFloat(previousValue);
+                const current = parseFloat(currentValue);
+                let result = 0;
+
+                switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = current !== 0 ? prev / current : 'Error';
+                    break;
+                }
+
+                currentValue = result.toString();
+                operation = null;
+                previousValue = '';
+                shouldResetDisplay = true;
+                updateDisplay();
+            }
+
+            function scientificFunction(func) {
+                const current = parseFloat(currentValue);
+                let result = 0;
+
+                switch (func) {
+                case 'sin':
+                    result = Math.sin(current * Math.PI / 180);
+                    break;
+                case 'cos':
+                    result = Math.cos(current * Math.PI / 180);
+                    break;
+                case 'tan':
+                    result = Math.tan(current * Math.PI / 180);
+                    break;
+                case 'sqrt':
+                    result = Math.sqrt(current);
+                    break;
+                case 'log':
+                    result = Math.log10(current);
+                    break;
+                case 'ln':
+                    result = Math.log(current);
+                    break;
+                case '^':
+                    result = Math.pow(current, 2);
+                    break;
+                case 'pi':
+                    result = Math.PI;
+                    break;
+                }
+
+                currentValue = result.toString();
+                shouldResetDisplay = true;
+                updateDisplay();
+            }
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                const value = button.getAttribute('data-value');
+
+                if (value === 'C') {
+                    clear();
+                } else if (value === 'DEL') {
+                    deleteLast();
+                } else if (value === '=') {
+                    calculate();
+                } else if (['+', '-', '*', '/'].includes(value)) {
+                    setOperation(value);
+                } else if (['sin', 'cos', 'tan', 'sqrt', 'log', 'ln', '^', 'pi'].includes(value)) {
+                    scientificFunction(value);
+                } else {
+                    appendNumber(value);
+                }
+                });
+            });
+            })();
+        </script>
+        
+        
+        </script>
+    </div>
+
+    <style>
+        #Tool_Window > .Content > .Tools {
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* List items (supports either .Tool_Container divs or plain buttons) */
+        #Tool_Window > .Content > .Tools > .Tool_Container,
+        #Tool_Window > .Content > .Tools > button {
+            width: 100%;
+            height: 30px;
+            background-color: var(--UI-Buttons-Fields-Color-2);
+            color: var(--Main_Text_Color_1);
+            font-size: var(--Main_Text);
+            border-radius: var(--Border-Radius_Button);
+            display: flex;
+            align-items: center;
+            
+            text-indent: 10px;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        #Tool_Window > .Content > .Tools > .Tool_Container:hover,
+        #Tool_Window > .Content > .Tools > button:hover {
+            background-color: var(--Normal_Button);
+        }
+    </style>
+
+    <script id="Tool_Window Script">
+
+        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+            const toolWindow = document.getElementById('Tool_Window');
+            toolWindow.style.display = 'flex';
+            toolWindow.style.transform = 'scale(0)';
+            toolWindow.style.opacity = '0';
+            toolWindow.style.transformOrigin = 'top left';
+            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            
+            setTimeout(() => {
+            toolWindow.style.transform = 'scale(1)';
+            toolWindow.style.opacity = '1';
+            }, 10);
+        });
+
+        document.getElementById('Close_Tool_Window').addEventListener('click', function() {
+            const toolWindow = document.getElementById('Tool_Window');
+            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            toolWindow.style.transform = 'scale(0)';
+            toolWindow.style.opacity = '0';
+            
+            setTimeout(() => {
+            toolWindow.style.display = 'none';
+            }, 300);
+        });
+
+        // Parent Tool Window to Side Bar Tool button
+        const toolWindow = document.getElementById('Tool_Window');
+        const sideBarTool = document.getElementById('Side_Bar_Tool');
+        
+        function positionToolWindow() {
+            const buttonRect = sideBarTool.getBoundingClientRect();
+            toolWindow.style.position = 'absolute';
+            toolWindow.style.left = (buttonRect.right + 10) + 'px';
+            toolWindow.style.top = buttonRect.top + 'px';
+        }
+        
+        // Position window when opened
+        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+            positionToolWindow();
+        });
+
+        //Alarm Clock.///////////////////////////////////////////////////////////////////////////////////
+
+        (function(){
                 const select = document.getElementById('Alarm_Sound_Select');
                 const hidden = document.getElementById('Selected_Alarm_Sound');
                 const previewBtn = document.getElementById('Preview_Alarm_Sound');
@@ -746,49 +1428,7 @@
                 // Schedule existing alarms (if any)
                 alarms.forEach(scheduleAlarm);
             })();
-            
 
-            </script>
-        </div>
-
-        <!-- ============================================================================ -->
-        <!-- TIME PICKER WINDOW -->
-        <!-- ============================================================================ -->
-
-        <div class="Window" id="Time_Picker_Window" style="width:250px; height:380px; display: none;">
-            <div class="Window_Header">
-                <p class="Title">Select Time</p>
-                <button class="Close_Button" id="Close_Time_Picker_Window"></button>
-            </div>
-            <div class="Content" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <div style="display:flex; flex-direction: column; gap:8px; align-items:center;">
-                        <button id="Toggle_24H" class="Icon_Button" style="width:60px; height:34px;">24H</button>
-                        <button id="Toggle_12H" class="Icon_Button" style="width:60px; height:34px;">12H</button>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <button class="Icon_Button" id="Hour_Up">▲</button>
-                            <div id="Hour_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">12</div>
-                            <button class="Icon_Button" id="Hour_Down">▼</button>
-                        </div>
-                        <span style="font-size: 24px; color: var(--Main_Text_Color_1);">:</span>
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <button class="Icon_Button" id="Minute_Up">▲</button>
-                            <div id="Minute_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">00</div>
-                            <button class="Icon_Button" id="Minute_Down">▼</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="AMPM_Container" style="display: flex; gap: 10px;">
-                    <button id="AM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">AM</button>
-                    <button id="PM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">PM</button>
-                </div>
-                <button id="Confirm_Time_Button" style="position: absolute; bottom: 10px; width: calc(100% - 20px); height: 30px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">Confirm</button>
-            </div>
-        </div>
-
-        <script id="Time_Picker_Window Script">
             let pickerHour = 12;
             let pickerMinute = 0;
             let pickerAMPM = 'AM';
@@ -970,86 +1610,6 @@
             });
 
             document.getElementById('Time_Picker_Window').addEventListener('click', function(e){ e.stopPropagation(); });
-        </script>
-    </div>
-
-    <style>
-        #Tool_Window > .Content > .Tools {
-            width: calc(100% - 20px);
-            height: calc(100% - 20px);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* List items (supports either .Tool_Container divs or plain buttons) */
-        #Tool_Window > .Content > .Tools > .Tool_Container,
-        #Tool_Window > .Content > .Tools > button {
-            width: 100%;
-            height: 30px;
-            background-color: var(--UI-Buttons-Fields-Color-2);
-            color: var(--Main_Text_Color_1);
-            font-size: var(--Main_Text);
-            border-radius: var(--Border-Radius_Button);
-            display: flex;
-            align-items: center;
-            
-            text-indent: 10px;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        #Tool_Window > .Content > .Tools > .Tool_Container:hover,
-        #Tool_Window > .Content > .Tools > button:hover {
-            background-color: var(--Normal_Button);
-        }
-    </style>
-
-    <script id="Tool_Window Script">
-
-        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
-            const toolWindow = document.getElementById('Tool_Window');
-            toolWindow.style.display = 'flex';
-            toolWindow.style.transform = 'scale(0)';
-            toolWindow.style.opacity = '0';
-            toolWindow.style.transformOrigin = 'top left';
-            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            
-            setTimeout(() => {
-            toolWindow.style.transform = 'scale(1)';
-            toolWindow.style.opacity = '1';
-            }, 10);
-        });
-
-        document.getElementById('Close_Tool_Window').addEventListener('click', function() {
-            const toolWindow = document.getElementById('Tool_Window');
-            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            toolWindow.style.transform = 'scale(0)';
-            toolWindow.style.opacity = '0';
-            
-            setTimeout(() => {
-            toolWindow.style.display = 'none';
-            }, 300);
-        });
-
-        // Parent Tool Window to Side Bar Tool button
-        const toolWindow = document.getElementById('Tool_Window');
-        const sideBarTool = document.getElementById('Side_Bar_Tool');
-        
-        function positionToolWindow() {
-            const buttonRect = sideBarTool.getBoundingClientRect();
-            toolWindow.style.position = 'absolute';
-            toolWindow.style.left = (buttonRect.right + 10) + 'px';
-            toolWindow.style.top = buttonRect.top + 'px';
-        }
-        
-        // Position window when opened
-        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
-            positionToolWindow();
-        });
-
-        //Alarm Clock.///////////////////////////////////////////////////////////////////////////////////
 
         // Position Alarm Clock Window at top left when opened
         document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
@@ -1433,6 +1993,11 @@
             });
             };
         })();
+
+        //Calculator.///////////////////////////////////////////////////////////////////////////////////
+
+
+        
     </script>
 
 

@@ -3,8 +3,6 @@
     margin: 0px;
     font-family: "Sometype Mono", monospace;
     font-weight: 100; 
-    
-    
 }
 
 @font-face {
@@ -26,6 +24,10 @@
     --Main_Text_6: 30px;
     --Main_Text_7: 32px;
     --Main_Text_8: 36px;
+    --Main_Text_9: 40px;
+    --Main_Text_10: 50px;
+    --Main_Text_11: 60px;
+    --Main_Text_12: 72px;
     --Main_Text_Color: rgb(255, 255, 255);
     --Main_Text_Color_1: rgb(255, 255, 255);
     --Main_Text_Color_2: rgb(255, 255, 255);
@@ -44,7 +46,7 @@
 
     --UI-Buttons-Fields-Color-1: rgb(60, 60, 60);
     --UI-Buttons-Fields-Color-2: rgb(60, 60, 60);
-    --UI-Buttons-Fields-Color-3: rgba(0, 0, 0, 0.3);
+    --UI-Buttons-Fields-Color-3: rgb(37, 37, 37);
     --UI-Buttons-Fields-Color-4: rgba(0, 0, 0, 0.3);
     --UI-Buttons-Fields-Color-5: rgba(0, 0, 0, 0.3);
 
