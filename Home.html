@@ -336,7 +336,42 @@
                     <p class="Theme_Count">2 Themes on the market</p>
                 </div>
                 <div class="Top_Themes">
+                    <div class="Theme_Container">
+                        <p class="Theme_Name">Light Mode</p>
+                        <div class="Color_Pallet">
+                            <span class="Color" style="background-color: #ffffff;"></span>
+                            <span class="Color" style="background-color: #f5f5f5;"></span>
+                            <span class="Color" style="background-color: #e0e0e0;"></span>
+                            <span class="Color" style="background-color: #d0d0d0;"></span>
+                            <span class="Color" style="background-color: #b0b0b0;"></span>
+                        </div>
+                        <button class="Intall_Theme">Install</button>
+                    </div>
+                    
+                    <div class="Theme_Container">
+                        <p class="Theme_Name">Dark Mode</p>
+                        <div class="Color_Pallet">
+                            <span class="Color" style="background-color: #1a1a1a;"></span>
+                            <span class="Color" style="background-color: #2b2b2b;"></span>
+                            <span class="Color" style="background-color: #3d3d3d;"></span>
+                            <span class="Color" style="background-color: #4a4a4a;"></span>
+                            <span class="Color" style="background-color: #5a5a5a;"></span>
+                        </div>
+                        <button class="Install_Theme">Install</button>
+                    </div>
 
+                    <div class="Theme_Container">
+                        <p class="Theme_Name">Military Green</p>
+                        <div class="Color_Pallet">
+                            <span class="Color" style="background-color: #4b5320;"></span>
+                            <span class="Color" style="background-color: #6b8e23;"></span>
+                            <span class="Color" style="background-color: #8fbc8f;"></span>
+                            <span class="Color" style="background-color: #556b2f;"></span>
+                            <span class="Color" style="background-color: #3c3c3c;"></span>
+                        </div>
+                        <button class="Install_Theme">Install</button>
+                    </div>
+                    
                 </div>
                 <div class="Download_Raw_File">
                     <button class="Download_Raw_File_Button">Download raw themes file</button>
@@ -373,17 +408,64 @@
             #Theme_Market_Window > .Content > .Top_Themes {
                 position: absolute;
                 top: 100px;
-                width: calc(100% - 20px);
+                width: calc(100% - 40px);
                 height: 100px;
                 background-color: var(--UI-Buttons-Fields-Color-2);
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
                 gap: 10px;
+                
+                overflow-x: auto;
+                justify-content: start;
+                align-items: center;
+                padding: 10px;
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container {
+                position: relative;
+                width: 140px;
+                height: 100%;
+                background-color: var(--UI-Buttons-Fields-Color-3);
+                flex-shrink: 0;
+                font-size: var(--Main_Text);
+                color: var(--Main_Text_Color_1);
+                display: flex;
+                justify-content: center;
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container > p {
+                position: absolute;
+                top: 10px;
+                width: 100%;
+                text-align: center;
+
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container > .Color_Pallet {
+                position: absolute;
+                top: 30px;
+                width: calc(100% - 20px);
+                height: 30px;
+                display: flex;
+                flex-direction: row;
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container > .Color_Pallet > span {
+                width: 100%;
+                height: 100%;
+            }
+
+            #Theme_Market_Window > .Content > .Top_Themes > .Theme_Container > button {
+                position: absolute;
+                bottom: 10px;
+                width: calc(100% - 20px);
+                height: 20px;
+
             }
 
             #Theme_Market_Window > .Content > .Download_Raw_File {
                 position: absolute;
-                top: 210px;
+                top: 230px;
                 width: calc(100% - 20px);
             }
 
@@ -394,6 +476,8 @@
                 color: var(--Main_Text_Color);
                 
             }
+
+            
 
 
             
