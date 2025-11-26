@@ -437,22 +437,39 @@
                             <input type="text" placeholder="Theme name">
                         </div>
                         <div class="Theme_Parameters">
-                            <div class="Color_Parameter">
-                                <label for="Primary_Color">Primary Color:</label>
-                                <input type="color" id="Primary_Color" name="Primary_Color" value="#ffffff">
+                            <div class="UI_Parameters">
+                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">UI</p>
+                                <div class="Color_Parameter">
+                                    <label for="Main_UI" id="Color_Main_UI">Main UI:</label>
+                                    <input type="color" id="Color_Parameter_Main_UI" name="Main_UI" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Windows" id="Color_Windows">Windows:</label>
+                                    <input type="color" id="Color_Parameter_Windows" name="Windows" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Headers" id="Color_Headers">Headers:</label>
+                                    <input type="color" id="Color_Parameter_Headers" name="Headers" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Background" id="Color_Background">Background:</label>
+                                    <input type="color" id="Color_Parameter_Background" name="Background" value="#ffffff">
+                                </div>
                             </div>
-                            <div class="Color_Parameter">
-                                <label for="Primary_Color">Primary Color:</label>
-                                <input type="color" id="Primary_Color" name="Primary_Color" value="#ffffff">
+                            <div class="Keyboard_Parameters">
+                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">Keyboard</p>
+                                <div class="Color_Parameter">
+                                    <label for="Keyboard" id="Color_Keyboard">Keyboard:</label>
+                                    <input type="color" id="Color_Parameter_Keyboard" name="Keyboard" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Keys" id="Color_Keys">Keys:</label>
+                                    <input type="color" id="Color_Parameter_Keys" name="Keys" value="#ffffff">
+                                </div>
                             </div>
-                            <div class="Color_Parameter">
-                                <label for="Primary_Color">Primary Color:</label>
-                                <input type="color" id="Primary_Color" name="Primary_Color" value="#ffffff">
-                            </div>
-                            <div class="Color_Parameter">
-                                <label for="Primary_Color">Primary Color:</label>
-                                <input type="color" id="Primary_Color" name="Primary_Color" value="#ffffff">
-                            </div>
+                        </div>
+                        <div class="Color_Picker">
+                            
                         </div>
                         <div class="Save_Theme">
                             <button class="Save_Theme_Button">Save Theme</button>
@@ -667,27 +684,54 @@
 
             #Create_Theme_File_Window > .Content > .Theme_Parameters {
                 position: absolute;
-                top: 80px;
+                top: 90px;
                 width: calc(100% - 20px);
-                height: calc(100% - 130px);
-                background-color: rgb(49, 90, 128);
+                height: calc(100% - 140px);
+                display: flex;
+                flex-direction: row;
+                gap: 50px;
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .UI_Parameters {
+                position: relative;
+                width: 100%;
                 display: flex;
                 flex-direction: column;
                 gap: 20px;
             }
 
-            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Color_Parameter {
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .UI_Parameters > .Color_Parameter {
+                width: 100%;
+                display: flex;
+                flex-direction: row;            
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .UI_Parameters > .Color_Parameter > input {
+                position: absolute;
+                right: 0px;
+                width: 15px;
+                height: 15px;
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters {
+                position: relative;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Color_Parameter {
                 width: 100%;
                 display: flex;
                 flex-direction: row;
-                 
             }
 
-            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Color_Parameter > input {
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Color_Parameter > input {
                 position: absolute;
                 right: 0px;
-                width: 20px;
-                height: 20px;
+                width: 15px;
+                height: 15px;
             }
 
             #Create_Theme_File_Window > .Content > .Save_Theme {
@@ -703,6 +747,34 @@
             }
         </Style>
         <script>
+            //Disable chrome color picker
+
+            (function () {
+                // hide chrome swatch visuals (best-effort)
+                const s = document.createElement('style');
+                s.textContent = `
+                    input[type="color"]::-webkit-color-swatch-wrapper { display: none !important; }
+                    input[type="color"]::-webkit-color-swatch { display: none !important; }
+                `;
+                document.head.appendChild(s);
+
+                // Prevent native color picker from opening
+                const inputs = Array.from(document.querySelectorAll('input[type="color"]'));
+                inputs.forEach(input => {
+                    input.setAttribute('readonly', 'readonly');
+
+                    // Block mouse/touch/keyboard activation that would open the native picker
+                    ['click', 'mousedown', 'mouseup', 'focus', 'keydown', 'touchstart'].forEach(ev =>
+                        input.addEventListener(ev, function (e) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            // keep visual focus if needed but never open native UI
+                            if (ev === 'focus') this.blur();
+                        }, { passive: false })
+                    );
+                });
+            })();
+
             // Open Create Theme File Window
             
             (function(){
@@ -1326,6 +1398,38 @@
     </div>
     <div class="Sub_Windows">
 
+        <style>
+            #Tool_Window > .Content > .Tools {
+                width: calc(100% - 20px);
+                height: calc(100% - 20px);
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            /* List items (supports either .Tool_Container divs or plain buttons) */
+            #Tool_Window > .Content > .Tools > .Tool_Container,
+            #Tool_Window > .Content > .Tools > button {
+                width: 100%;
+                height: 30px;
+                background-color: var(--UI-Buttons-Fields-Color-2);
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text);
+                border-radius: var(--Border-Radius_Button);
+                display: flex;
+                align-items: center;
+                text-indent: 10px;
+                border: none;
+                text-align: left;
+                cursor: pointer;
+            }
+
+            #Tool_Window > .Content > .Tools > .Tool_Container:hover,
+            #Tool_Window > .Content > .Tools > button:hover {
+                background-color: var(--Normal_Button);
+            }
+        </style>
+
         <!-- ============================================================================ -->
         <!-- ALARM CLOCK WINDOW -->
         <!-- ============================================================================ -->
@@ -1362,6 +1466,107 @@
                 </div>
             </div>
         </div>
+
+        <script class="Alarm_Clock_Script">
+            (function(){
+                const select = document.getElementById('Alarm_Sound_Select');
+                const hidden = document.getElementById('Selected_Alarm_Sound');
+                const previewBtn = document.getElementById('Preview_Alarm_Sound');
+                let previewAudio = new Audio();
+
+                select.addEventListener('change', () => {
+                    hidden.value = select.value;
+                });
+
+                previewBtn.addEventListener('click', () => {
+                    previewAudio.pause();
+                    previewAudio = new Audio(select.value);
+                    previewAudio.currentTime = 0;
+                    previewAudio.play();
+                });
+
+                // Attach extra handler to store sound on alarm object (after original listener runs)
+                document.getElementById('Set_Alarm_Button').addEventListener('click', () => {
+                    if (window.alarms && alarms.length) {
+                        const last = alarms[alarms.length - 1];
+                        last.sound = hidden.value;
+                    }
+                });
+
+                // Provide helper to play an alarm sound
+                window.playAlarmSound = function(src){
+                    try {
+                        const a = new Audio(src);
+                        a.play().catch(()=>{});
+                    } catch(e){}
+                };
+
+                // Lightweight poll to ensure alarms with sound play if set
+                setInterval(() => {
+                    if (!window.alarms) return;
+                    const now = new Date();
+                    const current = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+                    alarms.forEach(alarm => {
+                        if (alarm.active === false) return;
+                        if (alarm.time === current && alarm.sound && !alarm._playedAtMinute) {
+                            playAlarmSound(alarm.sound);
+                            alarm._playedAtMinute = current;
+                        }
+                        if (alarm._playedAtMinute && alarm._playedAtMinute !== current) {
+                            delete alarm._playedAtMinute;
+                        }
+                    });
+                }, 1000);
+            })();
+
+            (function(){
+                // Ensure alarm audio keeps playing when other windows open / focus changes.
+                function resumeAllAlarmAudio(){
+                    if (!window.alarms) return;
+                    window.alarms.forEach(a => {
+                        if (a && a._audio instanceof HTMLAudioElement) {
+                            try { if (a._audio.paused) a._audio.play().catch(()=>{}); } catch(e){}
+                        }
+                    });
+                }
+
+                // Watch .Window style changes and resume audio when a window is shown
+                const windows = Array.from(document.querySelectorAll('.Window'));
+                const observer = new MutationObserver(records => {
+                    for (const r of records) {
+                        if (r.type === 'attributes' && r.attributeName === 'style') {
+                            const el = r.target;
+                            if (getComputedStyle(el).display === 'flex') resumeAllAlarmAudio();
+                        }
+                    }
+                });
+                windows.forEach(w => observer.observe(w, { attributes: true, attributeFilter: ['style'] }));
+
+                // Resume after delegated clicks that may open windows (small delay to allow open logic)
+                document.addEventListener('click', () => setTimeout(resumeAllAlarmAudio, 20), true);
+
+                // Resume when tab becomes visible again
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) resumeAllAlarmAudio(); });
+
+                // Wrap showAlarmNotification to ensure created audio is configured to continue playing
+                if (typeof window.showAlarmNotification === 'function') {
+                    const orig = window.showAlarmNotification;
+                    window.showAlarmNotification = function(alarm){
+                        orig(alarm);
+                        if (alarm && alarm._audio instanceof HTMLAudioElement) {
+                            try {
+                                alarm._audio.loop = true;
+                                alarm._audio.preload = 'auto';
+                                alarm._audio.crossOrigin = 'anonymous';
+                                // attempt immediate resume
+                                alarm._audio.play().catch(()=>{});
+                            } catch(e){}
+                        }
+                        resumeAllAlarmAudio();
+                    };
+                }
+            })();
+        </script>
 
         <!-- ============================================================================ -->
         <!-- TIME PICKER WINDOW -->
@@ -1400,446 +1605,7 @@
             </div>
         </div>
 
-        <!-- ============================================================================ -->
-        <!-- CALCULATOR -->
-        <!-- ============================================================================ -->
-
-        <!-- CALCULATOR WINDOW -->
-        <div class="Window" id="Calculator_Window" role="dialog" aria-modal="true" aria-labelledby="Calculator_Title" style="width:auto;min-width:280px;height:auto;min-height:420px;display:none;">
-            <div class="Window_Header" style="user-select:none;cursor:move;">
-                <p class="Title" id="Calculator_Title">Calculator</p>
-                <div style="display:flex; gap:10px;align-items:center;margin-left:auto;margin-right:10px;">
-                    <button
-                        id="Toggle_Scientific_Calc"
-                        style="position: absolute; left: 80px; width: auto; height:auto; padding:0 10px; background:none; border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;"
-                    >
-                        Scientific
-                    </button>
-                </div>
-                <button class="Close_Button" id="Close_Calculator_Window" aria-label="Close Calculator"></button>
-            </div>
-            <div class="Content" style="display:flex;flex-direction:column;gap:10px;padding:10px;">
-                <div
-                    id="Calculator_Display"
-                    aria-live="polite"
-                    style="width:calc(100% - 40px);height:60px;background-color:var(--UI-Buttons-Fields-Color-2);border-radius:var(--Border-Radius);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-size:var(--Main_Text-5);color:var(--Main_Text_Color_1);overflow:hidden;text-overflow:ellipsis;"
-                >
-                    0
-                </div>
-
-                <div id="Scientific_Buttons" style="display:none;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
-                    <button class="calc-btn calc-scientific" data-value="sin" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">sin</button>
-                    <button class="calc-btn calc-scientific" data-value="cos" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">cos</button>
-                    <button class="calc-btn calc-scientific" data-value="tan" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">tan</button>
-                    <button class="calc-btn calc-scientific" data-value="sqrt" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">√</button>
-                    <button class="calc-btn calc-scientific" data-value="log" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">log</button>
-                    <button class="calc-btn calc-scientific" data-value="ln" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">ln</button>
-                    <button class="calc-btn calc-scientific" data-value="^" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">x²</button>
-                    <button class="calc-btn calc-scientific" data-value="pi" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">π</button>
-                </div>
-
-                <div id="Standard_Buttons" style="display:grid;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
-                    <button class="calc-btn" data-value="C" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">C</button>
-                    <button class="calc-btn" data-value="DEL" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">DEL</button>
-                    <button class="calc-btn calc-operator" data-value="/" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">÷</button>
-
-                    <button class="calc-btn" data-value="7" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">7</button>
-                    <button class="calc-btn" data-value="8" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">8</button>
-                    <button class="calc-btn" data-value="9" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">9</button>
-                    <button class="calc-btn calc-operator" data-value="*" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">×</button>
-
-                    <button class="calc-btn" data-value="4" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">4</button>
-                    <button class="calc-btn" data-value="5" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">5</button>
-                    <button class="calc-btn" data-value="6" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">6</button>
-                    <button class="calc-btn calc-operator" data-value="-" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">−</button>
-
-                    <button class="calc-btn" data-value="1" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">1</button>
-                    <button class="calc-btn" data-value="2" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">2</button>
-                    <button class="calc-btn" data-value="3" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">3</button>
-                    <button class="calc-btn calc-operator" data-value="+" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">+</button>
-
-                    <button class="calc-btn" data-value="0" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">0</button>
-                    <button class="calc-btn" data-value="." style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">.</button>
-                    <button class="calc-btn calc-operator" data-value="=" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">=</button>
-                </div>
-            </div>
-        </div>
-
-        <script id="Calculator_Window Script">
-            document.getElementById('Open_Calculator_Tool').addEventListener('click', function() {
-            const calculatorWindow = document.getElementById('Calculator_Window');
-            calculatorWindow.style.position = 'absolute';
-            calculatorWindow.style.left = '10px';
-            calculatorWindow.style.top = '10px';
-            calculatorWindow.style.display = 'flex';
-            calculatorWindow.style.transform = 'scale(0)';
-            calculatorWindow.style.opacity = '0';
-            calculatorWindow.style.transformOrigin = 'center';
-            calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            
-            setTimeout(() => {
-                calculatorWindow.style.transform = 'scale(1)';
-                calculatorWindow.style.opacity = '1';
-            }, 10);
-            });
-
-            document.getElementById('Close_Calculator_Window').addEventListener('click', function() {
-            const calculatorWindow = document.getElementById('Calculator_Window');
-            calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            calculatorWindow.style.transform = 'scale(0)';
-            calculatorWindow.style.opacity = '0';
-            
-            setTimeout(() => {
-                calculatorWindow.style.display = 'none';
-            }, 300);
-            });
-
-            // Toggle Scientific Mode
-            document.getElementById('Toggle_Scientific_Calc').addEventListener('click', function() {
-            const scientificButtons = document.getElementById('Scientific_Buttons');
-            const calculatorWindow = document.getElementById('Calculator_Window');
-            const toggleBtn = document.getElementById('Toggle_Scientific_Calc');
-            
-            if (scientificButtons.style.display === 'none' || scientificButtons.style.display === '') {
-                scientificButtons.style.display = 'grid';
-                calculatorWindow.style.height = '540px';
-                toggleBtn.textContent = 'Standard';
-            } else {
-                scientificButtons.style.display = 'none';
-                calculatorWindow.style.height = '420px';
-                toggleBtn.textContent = 'Scientific';
-            }
-            });
-
-            (function() {
-            let currentValue = '0';
-            let previousValue = '';
-            let operation = null;
-            let shouldResetDisplay = false;
-
-            const display = document.getElementById('Calculator_Display');
-            const buttons = document.querySelectorAll('.calc-btn');
-
-            function updateDisplay() {
-                display.textContent = currentValue;
-            }
-
-            function clear() {
-                currentValue = '0';
-                previousValue = '';
-                operation = null;
-                shouldResetDisplay = false;
-                updateDisplay();
-            }
-
-            function deleteLast() {
-                if (currentValue.length > 1) {
-                currentValue = currentValue.slice(0, -1);
-                } else {
-                currentValue = '0';
-                }
-                updateDisplay();
-            }
-
-            function appendNumber(number) {
-                if (shouldResetDisplay) {
-                currentValue = number;
-                shouldResetDisplay = false;
-                } else {
-                if (currentValue === '0' && number !== '.') {
-                    currentValue = number;
-                } else if (number === '.' && currentValue.includes('.')) {
-                    return;
-                } else {
-                    currentValue += number;
-                }
-                }
-                updateDisplay();
-            }
-
-            function setOperation(op) {
-                if (operation !== null) calculate();
-                previousValue = currentValue;
-                operation = op;
-                shouldResetDisplay = true;
-            }
-
-            function calculate() {
-                if (operation === null || previousValue === '') return;
-                
-                const prev = parseFloat(previousValue);
-                const current = parseFloat(currentValue);
-                let result = 0;
-
-                switch (operation) {
-                case '+':
-                    result = prev + current;
-                    break;
-                case '-':
-                    result = prev - current;
-                    break;
-                case '*':
-                    result = prev * current;
-                    break;
-                case '/':
-                    result = current !== 0 ? prev / current : 'Error';
-                    break;
-                }
-
-                currentValue = result.toString();
-                operation = null;
-                previousValue = '';
-                shouldResetDisplay = true;
-                updateDisplay();
-            }
-
-            function scientificFunction(func) {
-                const current = parseFloat(currentValue);
-                let result = 0;
-
-                switch (func) {
-                case 'sin':
-                    result = Math.sin(current * Math.PI / 180);
-                    break;
-                case 'cos':
-                    result = Math.cos(current * Math.PI / 180);
-                    break;
-                case 'tan':
-                    result = Math.tan(current * Math.PI / 180);
-                    break;
-                case 'sqrt':
-                    result = Math.sqrt(current);
-                    break;
-                case 'log':
-                    result = Math.log10(current);
-                    break;
-                case 'ln':
-                    result = Math.log(current);
-                    break;
-                case '^':
-                    result = Math.pow(current, 2);
-                    break;
-                case 'pi':
-                    result = Math.PI;
-                    break;
-                }
-
-                currentValue = result.toString();
-                shouldResetDisplay = true;
-                updateDisplay();
-            }
-
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                const value = button.getAttribute('data-value');
-
-                if (value === 'C') {
-                    clear();
-                } else if (value === 'DEL') {
-                    deleteLast();
-                } else if (value === '=') {
-                    calculate();
-                } else if (['+', '-', '*', '/'].includes(value)) {
-                    setOperation(value);
-                } else if (['sin', 'cos', 'tan', 'sqrt', 'log', 'ln', '^', 'pi'].includes(value)) {
-                    scientificFunction(value);
-                } else {
-                    appendNumber(value);
-                }
-                });
-            });
-            })();
-        </script>
-        
-        
-        </script>
-    </div>
-
-    <style>
-        #Tool_Window > .Content > .Tools {
-            width: calc(100% - 20px);
-            height: calc(100% - 20px);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* List items (supports either .Tool_Container divs or plain buttons) */
-        #Tool_Window > .Content > .Tools > .Tool_Container,
-        #Tool_Window > .Content > .Tools > button {
-            width: 100%;
-            height: 30px;
-            background-color: var(--UI-Buttons-Fields-Color-2);
-            color: var(--Main_Text_Color_1);
-            font-size: var(--Main_Text);
-            border-radius: var(--Border-Radius_Button);
-            display: flex;
-            align-items: center;
-            
-            text-indent: 10px;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        #Tool_Window > .Content > .Tools > .Tool_Container:hover,
-        #Tool_Window > .Content > .Tools > button:hover {
-            background-color: var(--Normal_Button);
-        }
-    </style>
-
-    <script id="Tool_Window Script">
-
-        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
-            const toolWindow = document.getElementById('Tool_Window');
-            toolWindow.style.display = 'flex';
-            toolWindow.style.transform = 'scale(0)';
-            toolWindow.style.opacity = '0';
-            toolWindow.style.transformOrigin = 'top left';
-            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            
-            setTimeout(() => {
-            toolWindow.style.transform = 'scale(1)';
-            toolWindow.style.opacity = '1';
-            }, 10);
-        });
-
-        document.getElementById('Close_Tool_Window').addEventListener('click', function() {
-            const toolWindow = document.getElementById('Tool_Window');
-            toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            toolWindow.style.transform = 'scale(0)';
-            toolWindow.style.opacity = '0';
-            
-            setTimeout(() => {
-            toolWindow.style.display = 'none';
-            }, 300);
-        });
-
-        // Parent Tool Window to Side Bar Tool button
-        const toolWindow = document.getElementById('Tool_Window');
-        const sideBarTool = document.getElementById('Side_Bar_Tool');
-        
-        function positionToolWindow() {
-            const buttonRect = sideBarTool.getBoundingClientRect();
-            toolWindow.style.position = 'absolute';
-            toolWindow.style.left = (buttonRect.right + 10) + 'px';
-            toolWindow.style.top = buttonRect.top + 'px';
-        }
-        
-        // Position window when opened
-        document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
-            positionToolWindow();
-        });
-
-        //Alarm Clock.///////////////////////////////////////////////////////////////////////////////////
-
-        (function(){
-                const select = document.getElementById('Alarm_Sound_Select');
-                const hidden = document.getElementById('Selected_Alarm_Sound');
-                const previewBtn = document.getElementById('Preview_Alarm_Sound');
-                let previewAudio = new Audio();
-
-                select.addEventListener('change', () => {
-                hidden.value = select.value;
-                });
-
-                previewBtn.addEventListener('click', () => {
-                previewAudio.pause();
-                previewAudio = new Audio(select.value);
-                previewAudio.currentTime = 0;
-                previewAudio.play();
-                });
-
-                // Attach extra handler to store sound on alarm object (after original listener runs)
-                document.getElementById('Set_Alarm_Button').addEventListener('click', () => {
-                if (window.alarms && alarms.length) {
-                    const last = alarms[alarms.length - 1];
-                    last.sound = hidden.value;
-                }
-                });
-
-                // Optional: play sound when alarm fires (wrap original alert)
-                const originalAlert = window.alert;
-                window.playAlarmSound = function(src){
-                const a = new Audio(src);
-                a.play();
-                };
-
-                // Poll alarms array to hook when they trigger (lightweight augmentation)
-                setInterval(() => {
-                if (!window.alarms) return;
-                const now = new Date();
-                const current = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-                alarms.forEach(alarm => {
-                    if (alarm.active === false) return;
-                    if (alarm.time === current && alarm.sound && !alarm._playedAtMinute) {
-                    playAlarmSound(alarm.sound);
-                    alarm._playedAtMinute = current;
-                    }
-                    if (alarm._playedAtMinute && alarm._playedAtMinute !== current) {
-                    delete alarm._playedAtMinute;
-                    }
-                });
-                }, 1000);
-            })();
-
-            // Schedule alarms on load and when added
-
-            (function() {
-                if (!window.alarms) return;
-
-                function scheduleAlarm(alarm) {
-                    if (!alarm || !alarm.time) return;
-                    const soundSrc = alarm.sound || document.getElementById('Selected_Alarm_Sound')?.value;
-                    if (!soundSrc) return;
-
-                    const now = new Date();
-                    const parts = alarm.time.split(':');
-                    if (parts.length < 2) return;
-                    const h = parseInt(parts[0], 10);
-                    const m = parseInt(parts[1], 10);
-                    if (isNaN(h) || isNaN(m)) return;
-
-                    const target = new Date();
-                    target.setHours(h, m, 0, 0);
-                    if (target <= now) target.setDate(target.getDate() + 1);
-
-                    const delay = target - now;
-                    if (alarm._timeoutId) clearTimeout(alarm._timeoutId);
-
-                    alarm._timeoutId = setTimeout(() => {
-                        if (alarm.active !== false) {
-                            try {
-                                const audio = new Audio(soundSrc);
-                                audio.play().catch(() => {});
-                            } catch (e) {}
-                        }
-                        if (alarm.active) scheduleAlarm(alarm);
-                    }, delay);
-                }
-
-                // Patch push to auto schedule
-                const originalPush = alarms.push.bind(alarms);
-                alarms.push = function(...newAlarms) {
-                    const r = originalPush(...newAlarms);
-                    newAlarms.forEach(scheduleAlarm);
-                    return r;
-                };
-
-                // Patch deleteAlarm to clear timeout
-                if (window.deleteAlarm) {
-                    const origDelete = window.deleteAlarm;
-                    window.deleteAlarm = function(id) {
-                        const alarm = alarms.find(a => a.id === id);
-                        if (alarm && alarm._timeoutId) clearTimeout(alarm._timeoutId);
-                        origDelete(id);
-                    };
-                }
-
-                // Schedule existing alarms (if any)
-                alarms.forEach(scheduleAlarm);
-            })();
-
+        <script class="Time_Picker_Script">
             let pickerHour = 12;
             let pickerMinute = 0;
             let pickerAMPM = 'AM';
@@ -2021,395 +1787,670 @@
             });
 
             document.getElementById('Time_Picker_Window').addEventListener('click', function(e){ e.stopPropagation(); });
+        </script>
 
-        // Position Alarm Clock Window at top left when opened
-        document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
-            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
-            alarmClockWindow.style.position = 'absolute';
-            alarmClockWindow.style.left = '10px';
-            alarmClockWindow.style.top = '10px';
-        });
+        <!-- ============================================================================ -->
+        <!-- CALCULATOR -->
+        <!-- ============================================================================ -->
 
-        let alarms = [];
-        let alarmCheckInterval;
+        <div class="Window" id="Calculator_Window" role="dialog" aria-modal="true" aria-labelledby="Calculator_Title" style="width:auto;min-width:280px;height:auto;min-height:420px;display:none;">
+            <div class="Window_Header" style="user-select:none;cursor:move;">
+                <p class="Title" id="Calculator_Title">Calculator</p>
+                <div style="display:flex; gap:10px;align-items:center;margin-left:auto;margin-right:10px;">
+                    <button
+                        id="Toggle_Scientific_Calc"
+                        style="position: absolute; left: 80px; width: auto; height:auto; padding:0 10px; background:none; border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;"
+                    >
+                        Scientific
+                    </button>
+                </div>
+                <button class="Close_Button" id="Close_Calculator_Window" aria-label="Close Calculator"></button>
+            </div>
+            <div class="Content" style="display:flex;flex-direction:column;gap:10px;padding:10px;">
+                <div
+                    id="Calculator_Display"
+                    aria-live="polite"
+                    style="width:calc(100% - 40px);height:60px;background-color:var(--UI-Buttons-Fields-Color-2);border-radius:var(--Border-Radius);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-size:var(--Main_Text-5);color:var(--Main_Text_Color_1);overflow:hidden;text-overflow:ellipsis;"
+                >
+                    0
+                </div>
 
-        // Open Alarm Clock Window
-        document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
-            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
-            alarmClockWindow.style.display = 'flex';
-            alarmClockWindow.style.transform = 'scale(0)';
-            alarmClockWindow.style.opacity = '0';
-            alarmClockWindow.style.transformOrigin = 'center';
-            alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            
-            setTimeout(() => {
-                alarmClockWindow.style.transform = 'scale(1)';
-                alarmClockWindow.style.opacity = '1';
-            }, 10);
-        });
+                <div id="Scientific_Buttons" style="display:none;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
+                    <button class="calc-btn calc-scientific" data-value="sin" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">sin</button>
+                    <button class="calc-btn calc-scientific" data-value="cos" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">cos</button>
+                    <button class="calc-btn calc-scientific" data-value="tan" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">tan</button>
+                    <button class="calc-btn calc-scientific" data-value="sqrt" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">√</button>
+                    <button class="calc-btn calc-scientific" data-value="log" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">log</button>
+                    <button class="calc-btn calc-scientific" data-value="ln" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">ln</button>
+                    <button class="calc-btn calc-scientific" data-value="^" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">x²</button>
+                    <button class="calc-btn calc-scientific" data-value="pi" style="height:40px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">π</button>
+                </div>
 
-        // Close Alarm Clock Window
-        document.getElementById('Close_Alarm_Clock_Window').addEventListener('click', function() {
-            const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
-            alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-            alarmClockWindow.style.transform = 'scale(0)';
-            alarmClockWindow.style.opacity = '0';
-            
-            setTimeout(() => {
-                alarmClockWindow.style.display = 'none';
-            }, 300);
-        });
+                <div id="Standard_Buttons" style="display:grid;grid-template-columns:repeat(4,minmax(50px,1fr));gap:8px;width:calc(100% - 20px);">
+                    <button class="calc-btn" data-value="C" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">C</button>
+                    <button class="calc-btn" data-value="DEL" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">DEL</button>
+                    <button class="calc-btn calc-operator" data-value="/" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">÷</button>
 
-        // Update display time
-        function updateAlarmDisplayTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            
-            document.getElementById('Alarm_Display_Time').textContent = `${hours}:${minutes} ${ampm}`;
-        }
+                    <button class="calc-btn" data-value="7" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">7</button>
+                    <button class="calc-btn" data-value="8" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">8</button>
+                    <button class="calc-btn" data-value="9" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">9</button>
+                    <button class="calc-btn calc-operator" data-value="*" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">×</button>
 
-        setInterval(updateAlarmDisplayTime, 1000);
+                    <button class="calc-btn" data-value="4" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">4</button>
+                    <button class="calc-btn" data-value="5" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">5</button>
+                    <button class="calc-btn" data-value="6" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">6</button>
+                    <button class="calc-btn calc-operator" data-value="-" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">−</button>
 
-        // Style the AM/PM text
-        function styleAMPM() {
-            const displayTime = document.getElementById('Alarm_Display_Time');
-            const timeText = displayTime.textContent;
-            const ampmMatch = timeText.match(/(AM|PM)/);
-            
-            if (ampmMatch) {
-                const timePart = timeText.replace(/(AM|PM)/, '');
-                displayTime.innerHTML = `${timePart}<span style="font-size: var(--Main_Text);">${ampmMatch[0]}</span>`;
+                    <button class="calc-btn" data-value="1" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">1</button>
+                    <button class="calc-btn" data-value="2" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">2</button>
+                    <button class="calc-btn" data-value="3" style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">3</button>
+                    <button class="calc-btn calc-operator" data-value="+" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">+</button>
+
+                    <button class="calc-btn" data-value="0" style="grid-column:span 2;height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">0</button>
+                    <button class="calc-btn" data-value="." style="height:50px;background-color:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">.</button>
+                    <button class="calc-btn calc-operator" data-value="=" style="height:50px;background-color:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);cursor:pointer;">=</button>
+                </div>
+            </div>
+        </div>
+
+        <script id="Calculator_Window Script">
+            document.getElementById('Open_Calculator_Tool').addEventListener('click', function() {
+                const calculatorWindow = document.getElementById('Calculator_Window');
+                calculatorWindow.style.position = 'absolute';
+                calculatorWindow.style.left = '10px';
+                calculatorWindow.style.top = '10px';
+                calculatorWindow.style.display = 'flex';
+                calculatorWindow.style.transform = 'scale(0)';
+                calculatorWindow.style.opacity = '0';
+                calculatorWindow.style.transformOrigin = 'center';
+                calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                setTimeout(() => {
+                    calculatorWindow.style.transform = 'scale(1)';
+                    calculatorWindow.style.opacity = '1';
+                }, 10);
+            });
+
+            document.getElementById('Close_Calculator_Window').addEventListener('click', function() {
+                const calculatorWindow = document.getElementById('Calculator_Window');
+                calculatorWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                calculatorWindow.style.transform = 'scale(0)';
+                calculatorWindow.style.opacity = '0';
+                setTimeout(() => {
+                    calculatorWindow.style.display = 'none';
+                }, 300);
+            });
+
+            // Toggle Scientific Mode
+            document.getElementById('Toggle_Scientific_Calc').addEventListener('click', function() {
+                const scientificButtons = document.getElementById('Scientific_Buttons');
+                const calculatorWindow = document.getElementById('Calculator_Window');
+                const toggleBtn = document.getElementById('Toggle_Scientific_Calc');
+
+                if (scientificButtons.style.display === 'none' || scientificButtons.style.display === '') {
+                    scientificButtons.style.display = 'grid';
+                    calculatorWindow.style.height = '540px';
+                    toggleBtn.textContent = 'Standard';
+                } else {
+                    scientificButtons.style.display = 'none';
+                    calculatorWindow.style.height = '420px';
+                    toggleBtn.textContent = 'Scientific';
+                }
+            });
+
+            (function() {
+                let currentValue = '0';
+                let previousValue = '';
+                let operation = null;
+                let shouldResetDisplay = false;
+
+                const display = document.getElementById('Calculator_Display');
+                const buttons = document.querySelectorAll('.calc-btn');
+
+                function updateDisplay() {
+                    display.textContent = currentValue;
+                }
+
+                function clear() {
+                    currentValue = '0';
+                    previousValue = '';
+                    operation = null;
+                    shouldResetDisplay = false;
+                    updateDisplay();
+                }
+
+                function deleteLast() {
+                    if (currentValue.length > 1) {
+                        currentValue = currentValue.slice(0, -1);
+                    } else {
+                        currentValue = '0';
+                    }
+                    updateDisplay();
+                }
+
+                function appendNumber(number) {
+                    if (shouldResetDisplay) {
+                        currentValue = number;
+                        shouldResetDisplay = false;
+                    } else {
+                        if (currentValue === '0' && number !== '.') {
+                            currentValue = number;
+                        } else if (number === '.' && currentValue.includes('.')) {
+                            return;
+                        } else {
+                            currentValue += number;
+                        }
+                    }
+                    updateDisplay();
+                }
+
+                function setOperation(op) {
+                    if (operation !== null) calculate();
+                    previousValue = currentValue;
+                    operation = op;
+                    shouldResetDisplay = true;
+                }
+
+                function calculate() {
+                    if (operation === null || previousValue === '') return;
+
+                    const prev = parseFloat(previousValue);
+                    const current = parseFloat(currentValue);
+                    let result = 0;
+
+                    switch (operation) {
+                        case '+':
+                            result = prev + current;
+                            break;
+                        case '-':
+                            result = prev - current;
+                            break;
+                        case '*':
+                            result = prev * current;
+                            break;
+                        case '/':
+                            result = current !== 0 ? prev / current : 'Error';
+                            break;
+                    }
+
+                    currentValue = result.toString();
+                    operation = null;
+                    previousValue = '';
+                    shouldResetDisplay = true;
+                    updateDisplay();
+                }
+
+                function scientificFunction(func) {
+                    const current = parseFloat(currentValue);
+                    let result = 0;
+
+                    switch (func) {
+                        case 'sin':
+                            result = Math.sin(current * Math.PI / 180);
+                            break;
+                        case 'cos':
+                            result = Math.cos(current * Math.PI / 180);
+                            break;
+                        case 'tan':
+                            result = Math.tan(current * Math.PI / 180);
+                            break;
+                        case 'sqrt':
+                            result = Math.sqrt(current);
+                            break;
+                        case 'log':
+                            result = Math.log10(current);
+                            break;
+                        case 'ln':
+                            result = Math.log(current);
+                            break;
+                        case '^':
+                            result = Math.pow(current, 2);
+                            break;
+                        case 'pi':
+                            result = Math.PI;
+                            break;
+                    }
+
+                    currentValue = result.toString();
+                    shouldResetDisplay = true;
+                    updateDisplay();
+                }
+
+                buttons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const value = button.getAttribute('data-value');
+
+                        if (value === 'C') {
+                            clear();
+                        } else if (value === 'DEL') {
+                            deleteLast();
+                        } else if (value === '=') {
+                            calculate();
+                        } else if (['+', '-', '*', '/'].includes(value)) {
+                            setOperation(value);
+                        } else if (['sin', 'cos', 'tan', 'sqrt', 'log', 'ln', '^', 'pi'].includes(value)) {
+                            scientificFunction(value);
+                        } else {
+                            appendNumber(value);
+                        }
+                    });
+                });
+            })();
+        </script>
+
+        <!-- ============================================================================ -->
+        <!-- TOOL WINDOW -->
+        <!-- ============================================================================ -->
+
+        <div class="Window" id="Tool_Window" style="width:300px; height:200px; display: none;">
+            <div class="Window_Header">
+                <p class="Title">Tools</p>
+                <button class="Close_Button" id="Close_Tool_Window"></button>
+            </div>
+            <div class="Content">
+                <div class="Tools">
+                    <button id="Open_Alarm_Clock_Tool" style="width: 100%; height: 30px;">Alarm Clock</button>
+                    <button id="Open_Calculator_Tool" style="width: 100%; height: 30px;">Calculator</button>
+                    <button style="width: 100%; height: 30px;"></button>
+                    <button style="width: 100%; height: 30px;"></button>
+                    <button style="width: 100%; height: 30px;"></button>
+                </div>
+            </div>
+        </div>
+
+        <script id="Tool_Window Script">
+            document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+                const toolWindow = document.getElementById('Tool_Window');
+                toolWindow.style.display = 'flex';
+                toolWindow.style.transform = 'scale(0)';
+                toolWindow.style.opacity = '0';
+                toolWindow.style.transformOrigin = 'top left';
+                toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                setTimeout(() => {
+                    toolWindow.style.transform = 'scale(1)';
+                    toolWindow.style.opacity = '1';
+                }, 10);
+            });
+
+            document.getElementById('Close_Tool_Window').addEventListener('click', function() {
+                const toolWindow = document.getElementById('Tool_Window');
+                toolWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                toolWindow.style.transform = 'scale(0)';
+                toolWindow.style.opacity = '0';
+                setTimeout(() => {
+                    toolWindow.style.display = 'none';
+                }, 300);
+            });
+
+            // Parent Tool Window to Side Bar Tool button
+            const toolWindow = document.getElementById('Tool_Window');
+            const sideBarTool = document.getElementById('Side_Bar_Tool');
+
+            function positionToolWindow() {
+                const buttonRect = sideBarTool.getBoundingClientRect();
+                toolWindow.style.position = 'absolute';
+                toolWindow.style.left = (buttonRect.right + 10) + 'px';
+                toolWindow.style.top = buttonRect.top + 'px';
             }
-        }
 
-        setInterval(() => {
+            // Position window when opened
+            document.getElementById('Side_Bar_Tool').addEventListener('click', function() {
+                positionToolWindow();
+            });
+
+            // Position Alarm Clock Window at top left when opened
+            document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
+                const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+                alarmClockWindow.style.position = 'absolute';
+                alarmClockWindow.style.left = '10px';
+                alarmClockWindow.style.top = '10px';
+            });
+
+            let alarms = [];
+            let alarmCheckInterval;
+
+            // Open Alarm Clock Window
+            document.getElementById('Open_Alarm_Clock_Tool').addEventListener('click', function() {
+                const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+                alarmClockWindow.style.display = 'flex';
+                alarmClockWindow.style.transform = 'scale(0)';
+                alarmClockWindow.style.opacity = '0';
+                alarmClockWindow.style.transformOrigin = 'center';
+                alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                setTimeout(() => {
+                    alarmClockWindow.style.transform = 'scale(1)';
+                    alarmClockWindow.style.opacity = '1';
+                }, 10);
+                // ensure alarms UI rendered when opened
+                renderAlarms();
+            });
+
+            // Close Alarm Clock Window
+            document.getElementById('Close_Alarm_Clock_Window').addEventListener('click', function() {
+                const alarmClockWindow = document.getElementById('Alarm_Clock_Window');
+                alarmClockWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+                alarmClockWindow.style.transform = 'scale(0)';
+                alarmClockWindow.style.opacity = '0';
+                setTimeout(() => {
+                    alarmClockWindow.style.display = 'none';
+                }, 300);
+            });
+
+            // Update display time and AM/PM styling together
+            function updateAlarmDisplayTime() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+
+                document.getElementById('Alarm_Display_Time').textContent = `${hours}:${minutes} ${ampm}`;
+            }
+
+            function styleAMPM() {
+                const displayTime = document.getElementById('Alarm_Display_Time');
+                const timeText = displayTime.textContent;
+                const ampmMatch = timeText.match(/(AM|PM)/);
+                if (ampmMatch) {
+                    const timePart = timeText.replace(/(AM|PM)/, '');
+                    displayTime.innerHTML = `${timePart}<span style="font-size: var(--Main_Text);">${ampmMatch[0]}</span>`;
+                }
+            }
+
+            // initialize and poll once per second
             updateAlarmDisplayTime();
             styleAMPM();
-        }, 1000);
+            setInterval(() => {
+                updateAlarmDisplayTime();
+                styleAMPM();
+            }, 1000);
 
-        updateAlarmDisplayTime();
-        styleAMPM();
+            // Set Alarm
+            document.getElementById('Set_Alarm_Button').addEventListener('click', function() {
+                const timeInput = document.getElementById('Alarm_Time_Input').value;
+                if (!timeInput) return;
 
-        //Open Alarm Clock Window
+                const alarm = {
+                    id: Date.now(),
+                    time: timeInput,
+                    active: true
+                };
 
-        // Set Alarm
-        document.getElementById('Set_Alarm_Button').addEventListener('click', function() {
-            const timeInput = document.getElementById('Alarm_Time_Input').value;
-            if (!timeInput) return;
-            
-            const alarm = {
-                id: Date.now(),
-                time: timeInput,
-                active: true
-            };
-            
-            alarms.push(alarm);
-            renderAlarms();
-            startAlarmCheck();
-        });
-
-        // Render alarms
-        function renderAlarms() {
-            const alarmList = document.getElementById('Alarm_List');
-            alarmList.innerHTML = '';
-
-            const globalSoundSelect = document.getElementById('Alarm_Sound_Select');
-            const defaultSound = document.getElementById('Selected_Alarm_Sound')?.value || (globalSoundSelect?.value);
-
-            function getSoundLabel(src) {
-            if (!src) return 'No sound';
-            if (globalSoundSelect) {
-                for (const opt of globalSoundSelect.options) {
-                if (opt.value === src) return opt.textContent;
-                }
-            }
-            return src.split('/').pop().replace(/\.[a-z0-9]+$/i,'');
-            }
-
-            alarms.forEach(alarm => {
-            if (!alarm.sound) alarm.sound = defaultSound;
-            const alarmElement = document.createElement('div');
-            alarmElement.style.cssText = 'width:100%;background-color:var(--UI-Buttons-Fields-Color-2);display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.08);border-radius:var(--Border-Radius);box-sizing:border-box;';
-
-            (function formatDisplayTime(){
-                const parts = (alarm.time || '').split(':');
-                if (parts.length === 2) {
-                let h24 = parseInt(parts[0],10);
-                const m = parts[1];
-                if (!isNaN(h24)) {
-                    const ampm = h24 >= 12 ? 'PM' : 'AM';
-                    let h12 = h24 % 12;
-                    if (h12 === 0) h12 = 12;
-                    alarm.displayTime12 = h12 + ':' + m + ' ' + ampm;
-                }
-                }
-                if (!alarm.displayTime12) alarm.displayTime12 = alarm.time;
-            })();
-
-            (function computeRemaining(){
-                const now = new Date();
-                const parts = (alarm.time || '').split(':');
-                if (parts.length === 2) {
-                let h = parseInt(parts[0],10);
-                let m = parseInt(parts[1],10);
-                if (!isNaN(h) && !isNaN(m)) {
-                    const target = new Date();
-                    target.setHours(h, m, 0, 0);
-                    if (target <= now) target.setDate(target.getDate() + 1);
-                    const diff = target - now;
-                    const hrs = Math.floor(diff / 3600000);
-                    const mins = Math.floor((diff % 3600000) / 60000);
-                    alarm.remainingLabel = (hrs > 0 ? hrs + 'h ' : '') + mins + 'm remaining';
-                }
-                }
-                if (!alarm.remainingLabel) alarm.remainingLabel = '';
-            })();
-
-            const soundLabel = getSoundLabel(alarm.sound);
-
-            alarmElement.innerHTML = `
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="color:var(--Main_Text_Color_1);font-size:var(--Main_Text);">${alarm.time}</span>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <button onclick="event.stopPropagation();(function(a){ if(a && a.sound){ const au=new Audio(a.sound); au.currentTime=0; au.play(); }})(alarms.find(x=>x.id===${alarm.id}))" style="background:none;border:none;color:var(--Main_Text_Color_1);cursor:pointer;font-size:var(--Main_Text);">Play</button>
-                    <button onclick="event.stopPropagation(); deleteAlarm(${alarm.id})" style="background:none;border:none;color:var(--Main_Text_Color_1);cursor:pointer;font-size:var(--Main_Text);">Delete</button>
-                </div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:var(--Main_Text);color:var(--Main_Text_Color_2);">
-                <span>${alarm.displayTime12 || alarm.time}</span>
-                <span style="opacity:.7;">${alarm.remainingLabel}</span>
-                </div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:var(--Main_Text);color:var(--Main_Text_Color_2);">Sound:</span>
-                <span style="font-size:var(--Main_Text);color:var(--Main_Text_Color_1);">${soundLabel}</span>
-                </div>
-            `;
-
-            alarmList.appendChild(alarmElement);
+                alarms.push(alarm);
+                renderAlarms();
+                startAlarmCheck();
             });
 
-            if (!window.__alarmSoundPatchApplied && typeof startAlarmCheck === 'function') {
-            window.__alarmSoundPatchApplied = true;
-            startAlarmCheck = function() {
+            // Render alarms
+            function renderAlarms() {
+                const alarmList = document.getElementById('Alarm_List');
+                alarmList.innerHTML = '';
+
+                const globalSoundSelect = document.getElementById('Alarm_Sound_Select');
+                const defaultSound = document.getElementById('Selected_Alarm_Sound')?.value || (globalSoundSelect?.value);
+
+                function getSoundLabel(src) {
+                    if (!src) return 'No sound';
+                    if (globalSoundSelect) {
+                        for (const opt of globalSoundSelect.options) {
+                            if (opt.value === src) return opt.textContent;
+                        }
+                    }
+                    return src.split('/').pop().replace(/\.[a-z0-9]+$/i,'');
+                }
+
+                alarms.forEach(alarm => {
+                    if (!alarm.sound) alarm.sound = defaultSound;
+                    const alarmElement = document.createElement('div');
+                    alarmElement.style.cssText = 'width:100%;background-color:var(--UI-Buttons-Fields-Color-2);display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.08);border-radius:var(--Border-Radius);box-sizing:border-box;';
+
+                    (function formatDisplayTime(){
+                        const parts = (alarm.time || '').split(':');
+                        if (parts.length === 2) {
+                            let h24 = parseInt(parts[0],10);
+                            const m = parts[1];
+                            if (!isNaN(h24)) {
+                                const ampm = h24 >= 12 ? 'PM' : 'AM';
+                                let h12 = h24 % 12;
+                                if (h12 === 0) h12 = 12;
+                                alarm.displayTime12 = h12 + ':' + m + ' ' + ampm;
+                            }
+                        }
+                        if (!alarm.displayTime12) alarm.displayTime12 = alarm.time;
+                    })();
+
+                    (function computeRemaining(){
+                        const now = new Date();
+                        const parts = (alarm.time || '').split(':');
+                        if (parts.length === 2) {
+                            let h = parseInt(parts[0],10);
+                            let m = parseInt(parts[1],10);
+                            if (!isNaN(h) && !isNaN(m)) {
+                                const target = new Date();
+                                target.setHours(h, m, 0, 0);
+                                if (target <= now) target.setDate(target.getDate() + 1);
+                                const diff = target - now;
+                                const hrs = Math.floor(diff / 3600000);
+                                const mins = Math.floor((diff % 3600000) / 60000);
+                                alarm.remainingLabel = (hrs > 0 ? hrs + 'h ' : '') + mins + 'm remaining';
+                            }
+                        }
+                        if (!alarm.remainingLabel) alarm.remainingLabel = '';
+                    })();
+
+                    const soundLabel = getSoundLabel(alarm.sound);
+
+                    alarmElement.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="color:var(--Main_Text_Color_1);font-size:var(--Main_Text);">${alarm.time}</span>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <button onclick="event.stopPropagation();(function(a){ if(a && a.sound){ const au=new Audio(a.sound); au.currentTime=0; au.play(); }})(alarms.find(x=>x.id===${alarm.id}))" style="background:none;border:none;color:var(--Main_Text_Color_1);cursor:pointer;font-size:var(--Main_Text);">Play</button>
+                                <button onclick="event.stopPropagation(); deleteAlarm(${alarm.id})" style="background:none;border:none;color:var(--Main_Text_Color_1);cursor:pointer;font-size:var(--Main_Text);">Delete</button>
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:var(--Main_Text);color:var(--Main_Text_Color_2);">
+                            <span>${alarm.displayTime12 || alarm.time}</span>
+                            <span style="opacity:.7;">${alarm.remainingLabel}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:var(--Main_Text);color:var(--Main_Text_Color_2);">Sound:</span>
+                            <span style="font-size:var(--Main_Text);color:var(--Main_Text_Color_1);">${soundLabel}</span>
+                        </div>
+                    `;
+
+                    alarmList.appendChild(alarmElement);
+                });
+
+                // Patch startAlarmCheck once
+                if (!window.__alarmSoundPatchApplied && typeof startAlarmCheck === 'function') {
+                    window.__alarmSoundPatchApplied = true;
+                    const originalStart = startAlarmCheck;
+                    startAlarmCheck = function() {
+                        if (alarmCheckInterval) return;
+                        originalStart();
+                    };
+                }
+            }
+
+            // Advanced alarm action dialog, audio loop and snooze/dismiss handlers
+            (function() {
+                const SNOOZE_MINUTES_DEFAULT = 5;
+                function pad(n){ return n.toString().padStart(2,'0'); }
+                function addMinutesToTimeString(timeStr, addMinutes) {
+                    const [hStr, mStr] = timeStr.split(':');
+                    let h = parseInt(hStr,10);
+                    let m = parseInt(mStr,10);
+                    if (isNaN(h) || isNaN(m)) return timeStr;
+                    m += addMinutes;
+                    while (m >= 60) { m -= 60; h = (h + 1) % 24; }
+                    return `${pad(h)}:${pad(m)}`;
+                }
+
+                window.showAlarmNotification = function(alarm) {
+                    if (!alarm) return;
+
+                    // Stop audio for other alarms
+                    alarms.forEach(a => {
+                        if (a !== alarm && a._audio) {
+                            try { a._audio.pause(); a._audio.currentTime = 0; } catch(e){}
+                            a._audio = null;
+                        }
+                    });
+
+                    // Remove existing dialogs
+                    const existingContainer = document.getElementById('Alarm_Action_Dialog_Container');
+                    if (existingContainer) {
+                        existingContainer.querySelectorAll('.Alarm_Action_Dialog').forEach(d => d.remove());
+                    }
+
+                    if (alarm._audio) {
+                        try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
+                        alarm._audio = null;
+                    }
+
+                    if (alarm.sound) {
+                        try {
+                            const audio = new Audio(alarm.sound);
+                            audio.loop = true;
+                            alarm._audio = audio;
+                            audio.play().catch(()=>{});
+                        } catch(e){}
+                    }
+
+                    let container = document.getElementById('Alarm_Action_Dialog_Container');
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.id = 'Alarm_Action_Dialog_Container';
+                        container.style.cssText = 'position:fixed;bottom:10px;right:10px;display:flex;flex-direction:column;gap:12px;z-index:10000;';
+                        document.body.appendChild(container);
+                    }
+
+                    const dialog = document.createElement('div');
+                    dialog.className = 'Alarm_Action_Dialog';
+                    dialog.setAttribute('role','dialog');
+                    dialog.setAttribute('aria-modal','true');
+                    dialog.style.cssText = 'width:260px;background:var(--UI-Buttons-Fields-Color-1);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);border-radius:var(--Border-Radius);box-shadow:0 6px 18px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:14px;padding:14px 16px;animation:fadeIn .25s;position:relative;';
+
+                    const header = document.createElement('div');
+                    header.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+                    const title = document.createElement('span');
+                    title.textContent = 'Alarm';
+                    title.style.cssText = 'font-weight:600;letter-spacing:.5px;';
+                    const timeLine = document.createElement('span');
+                    timeLine.style.opacity = '.8';
+                    timeLine.textContent = `Time: ${alarm.time}`;
+                    header.appendChild(title);
+                    header.appendChild(timeLine);
+
+                    const soundRow = document.createElement('div');
+                    soundRow.style.cssText = 'display:flex;justify-content:space-between;font-size:var(--Main_Text);opacity:.75;';
+                    soundRow.innerHTML = `<span>Sound</span><span>${(function(){
+                        const src = alarm.sound || '';
+                        const sel = document.getElementById('Alarm_Sound_Select');
+                        if (sel) { for (const opt of sel.options) if (opt.value === src) return opt.textContent; }
+                        return src ? src.split('/').pop().replace(/\.[a-z0-9]+$/i,'') : 'Default';
+                    })()}</span>`;
+
+                    const actions = document.createElement('div');
+                    actions.style.cssText = 'display:flex;gap:10px;';
+                    const snoozeBtn = document.createElement('button');
+                    snoozeBtn.textContent = `Snooze ${SNOOZE_MINUTES_DEFAULT}m`;
+                    snoozeBtn.style.cssText = 'flex:1;height:34px;background:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);cursor:pointer;';
+                    const dismissBtn = document.createElement('button');
+                    dismissBtn.textContent = 'Dismiss';
+                    dismissBtn.style.cssText = 'flex:1;height:34px;background:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);cursor:pointer;';
+                    actions.appendChild(snoozeBtn);
+                    actions.appendChild(dismissBtn);
+
+                    dialog.appendChild(header);
+                    dialog.appendChild(soundRow);
+                    dialog.appendChild(actions);
+                    container.appendChild(dialog);
+
+                    function removeDialog() {
+                        dialog.style.opacity = '0';
+                        dialog.style.transform = 'translateY(6px)';
+                        dialog.style.transition = 'opacity .25s, transform .25s';
+                        setTimeout(()=> dialog.remove(), 250);
+                    }
+
+                    snoozeBtn.addEventListener('click', () => {
+                        const newTime = addMinutesToTimeString(alarm.time, SNOOZE_MINUTES_DEFAULT);
+                        alarm.time = newTime;
+                        alarm.active = true;
+
+                        if (alarm._audio) {
+                            try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
+                            alarm._audio = null;
+                        }
+                        if (alarm._timeoutId) { clearTimeout(alarm._timeoutId); alarm._timeoutId = null; }
+
+                        (function schedule(a){
+                            const now = new Date();
+                            const parts = a.time.split(':');
+                            if (parts.length !== 2) return;
+                            const h = parseInt(parts[0],10);
+                            const m = parseInt(parts[1],10);
+                            if (isNaN(h)||isNaN(m)) return;
+                            const target = new Date();
+                            target.setHours(h,m,0,0);
+                            if (target <= now) target.setDate(target.getDate()+1);
+                            const delay = target - now;
+                            a._timeoutId = setTimeout(()=> {
+                                if (a.active) {
+                                    try { 
+                                        if (a.sound) {
+                                            const audio = new Audio(a.sound);
+                                            audio.loop = true;
+                                            a._audio = audio;
+                                            audio.play().catch(()=>{});
+                                        }
+                                    } catch(e){}
+                                    window.showAlarmNotification(a);
+                                }
+                            }, delay);
+                        })(alarm);
+
+                        if (typeof renderAlarms === 'function') renderAlarms();
+                        removeDialog();
+                    });
+
+                    dismissBtn.addEventListener('click', () => {
+                        alarm.active = false;
+                        if (alarm._timeoutId) { clearTimeout(alarm._timeoutId); alarm._timeoutId = null; }
+                        if (alarm._audio) {
+                            try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
+                            alarm._audio = null;
+                        }
+                        if (typeof renderAlarms === 'function') renderAlarms();
+                        removeDialog();
+                    });
+                };
+            })();
+
+            window.deleteAlarm = function(id) {
+                alarms = alarms.filter(alarm => alarm.id !== id);
+                renderAlarms();
+                if (alarms.length === 0) {
+                    clearInterval(alarmCheckInterval);
+                    alarmCheckInterval = null;
+                }
+            };
+
+            function startAlarmCheck() {
                 if (alarmCheckInterval) return;
                 alarmCheckInterval = setInterval(() => {
-                const now = new Date();
-                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-                alarms.forEach(alarm => {
-                    if (alarm.active && alarm.time === currentTime) {
-                    showAlarmNotification(alarm);
-                    }
-                });
-                }, 1000);
-            };
-            }
-        }
-
-        function showAlarmNotification(alarm) {
-            let container = document.getElementById('Alarm_Toast_Container');
-            if (!container) {
-            container = document.createElement('div');
-            container.id = 'Alarm_Toast_Container';
-            container.style.cssText = 'position:fixed;bottom:10px;right:10px;display:flex;flex-direction:column;gap:10px;z-index:9999;';
-            document.body.appendChild(container);
-            }
-            const toast = document.createElement('div');
-            toast.style.cssText = 'min-width:200px;padding:10px 14px;background:var(--UI-Buttons-Fields-Color-1);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);border-radius:var(--Border-Radius);box-shadow:0 4px 12px rgba(0,0,0,.4);display:flex;justify-content:space-between;align-items:center;animation:fadeIn .3s;';
-            toast.innerHTML = `<span>Alarm ${alarm.time}</span><button style="background:none;border:none;color:var(--Main_Text_Color_1);cursor:pointer;">×</button>`;
-            const closeBtn = toast.querySelector('button');
-            closeBtn.onclick = () => {
-            toast.style.opacity = '0';
-            setTimeout(()=> toast.remove(),300);
-            };
-            container.appendChild(toast);
-        }
-
-        window.deleteAlarm = function(id) {
-            alarms = alarms.filter(alarm => alarm.id !== id);
-            renderAlarms();
-            if (alarms.length === 0) {
-            clearInterval(alarmCheckInterval);
-            alarmCheckInterval = null;
-            }
-        };
-
-        function startAlarmCheck() {
-            if (alarmCheckInterval) return;
-            alarmCheckInterval = setInterval(() => {
-            const now = new Date();
-            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            alarms.forEach(alarm => {
-                if (alarm.active && alarm.time === currentTime) {
-                showAlarmNotification(alarm);
-                }
-            });
-            }, 1000);
-        }
-
-        (function() {
-            const SNOOZE_MINUTES_DEFAULT = 5;
-            function pad(n){ return n.toString().padStart(2,'0'); }
-            function addMinutesToTimeString(timeStr, addMinutes) {
-            const [hStr, mStr] = timeStr.split(':');
-            let h = parseInt(hStr,10);
-            let m = parseInt(mStr,10);
-            if (isNaN(h) || isNaN(m)) return timeStr;
-            m += addMinutes;
-            while (m >= 60) { m -= 60; h = (h + 1) % 24; }
-            return `${pad(h)}:${pad(m)}`;
-            }
-
-            window.showAlarmNotification = function(alarm) {
-            if (!alarm) return;
-
-            // Stop audio for all other alarms (single active dialog policy)
-            alarms.forEach(a => {
-                if (a !== alarm && a._audio) {
-                try { a._audio.pause(); a._audio.currentTime = 0; } catch(e){}
-                a._audio = null;
-                }
-            });
-
-            // Remove any existing dialog (single dialog)
-            const existingContainer = document.getElementById('Alarm_Action_Dialog_Container');
-            if (existingContainer) {
-                existingContainer.querySelectorAll('.Alarm_Action_Dialog').forEach(d => d.remove());
-            }
-
-            if (alarm._audio) {
-                try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
-                alarm._audio = null;
-            }
-
-            if (alarm.sound) {
-                try {
-                const audio = new Audio(alarm.sound);
-                audio.loop = true;
-                alarm._audio = audio;
-                audio.play().catch(()=>{});
-                } catch(e){}
-            }
-
-            let container = document.getElementById('Alarm_Action_Dialog_Container');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'Alarm_Action_Dialog_Container';
-                container.style.cssText = 'position:fixed;bottom:10px;right:10px;display:flex;flex-direction:column;gap:12px;z-index:10000;';
-                document.body.appendChild(container);
-            }
-
-            const dialog = document.createElement('div');
-            dialog.className = 'Alarm_Action_Dialog';
-            dialog.setAttribute('role','dialog');
-            dialog.setAttribute('aria-modal','true');
-            dialog.style.cssText = 'width:260px;background:var(--UI-Buttons-Fields-Color-1);color:var(--Main_Text_Color_1);font-size:var(--Main_Text);border-radius:var(--Border-Radius);box-shadow:0 6px 18px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:14px;padding:14px 16px;animation:fadeIn .25s;position:relative;';
-
-            const header = document.createElement('div');
-            header.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
-            const title = document.createElement('span');
-            title.textContent = 'Alarm';
-            title.style.cssText = 'font-weight:600;letter-spacing:.5px;';
-            const timeLine = document.createElement('span');
-            timeLine.style.opacity = '.8';
-            timeLine.textContent = `Time: ${alarm.time}`;
-            header.appendChild(title);
-            header.appendChild(timeLine);
-
-            const soundRow = document.createElement('div');
-            soundRow.style.cssText = 'display:flex;justify-content:space-between;font-size:var(--Main_Text);opacity:.75;';
-            soundRow.innerHTML = `<span>Sound</span><span>${(function(){
-                const src = alarm.sound || '';
-                const sel = document.getElementById('Alarm_Sound_Select');
-                if (sel) { for (const opt of sel.options) if (opt.value === src) return opt.textContent; }
-                return src ? src.split('/').pop().replace(/\.[a-z0-9]+$/i,'') : 'Default';
-            })()}</span>`;
-
-            const actions = document.createElement('div');
-            actions.style.cssText = 'display:flex;gap:10px;';
-            const snoozeBtn = document.createElement('button');
-            snoozeBtn.textContent = `Snooze ${SNOOZE_MINUTES_DEFAULT}m`;
-            snoozeBtn.style.cssText = 'flex:1;height:34px;background:var(--UI-Buttons-Fields-Color-2);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);cursor:pointer;';
-            const dismissBtn = document.createElement('button');
-            dismissBtn.textContent = 'Dismiss';
-            dismissBtn.style.cssText = 'flex:1;height:34px;background:var(--Normal_Button);border:none;border-radius:var(--Border-Radius_Button);color:var(--Main_Text_Color_1);cursor:pointer;';
-            actions.appendChild(snoozeBtn);
-            actions.appendChild(dismissBtn);
-
-            dialog.appendChild(header);
-            dialog.appendChild(soundRow);
-            dialog.appendChild(actions);
-            container.appendChild(dialog);
-
-            function removeDialog() {
-                dialog.style.opacity = '0';
-                dialog.style.transform = 'translateY(6px)';
-                dialog.style.transition = 'opacity .25s, transform .25s';
-                setTimeout(()=> dialog.remove(), 250);
-            }
-
-            snoozeBtn.addEventListener('click', () => {
-                const newTime = addMinutesToTimeString(alarm.time, SNOOZE_MINUTES_DEFAULT);
-                alarm.time = newTime;
-                alarm.active = true;
-
-                if (alarm._audio) {
-                try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
-                alarm._audio = null;
-                }
-                if (alarm._timeoutId) { clearTimeout(alarm._timeoutId); alarm._timeoutId = null; }
-
-                (function schedule(a){
-                const now = new Date();
-                const parts = a.time.split(':');
-                if (parts.length !== 2) return;
-                const h = parseInt(parts[0],10);
-                const m = parseInt(parts[1],10);
-                if (isNaN(h)||isNaN(m)) return;
-                const target = new Date();
-                target.setHours(h,m,0,0);
-                if (target <= now) target.setDate(target.getDate()+1);
-                const delay = target - now;
-                a._timeoutId = setTimeout(()=>{
-                    if (a.active) {
-                    try { 
-                        if (a.sound) {
-                        const audio = new Audio(a.sound);
-                        audio.loop = true;
-                        a._audio = audio;
-                        audio.play().catch(()=>{});
+                    const now = new Date();
+                    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    alarms.forEach(alarm => {
+                        if (alarm.active && alarm.time === currentTime) {
+                            showAlarmNotification(alarm);
                         }
-                    } catch(e){}
-                    window.showAlarmNotification(a);
-                    }
-                }, delay);
-                })(alarm);
-
-                if (typeof renderAlarms === 'function') renderAlarms();
-                removeDialog();
-            });
-
-            dismissBtn.addEventListener('click', () => {
-                alarm.active = false;
-                if (alarm._timeoutId) { clearTimeout(alarm._timeoutId); alarm._timeoutId = null; }
-                if (alarm._audio) {
-                try { alarm._audio.pause(); alarm._audio.currentTime = 0; } catch(e){}
-                alarm._audio = null;
-                }
-                if (typeof renderAlarms === 'function') renderAlarms();
-                removeDialog();
-            });
-            };
-        })();
-
-        //Calculator.///////////////////////////////////////////////////////////////////////////////////
-
-
-        
-    </script>
+                    });
+                }, 1000);
+            }
+        </script>
+    </div>
 
 
 

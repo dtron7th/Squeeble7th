@@ -161,6 +161,18 @@ input::placeholder {
     font-size: var(--Main_Text);
 }
 
+input[type="color"] {
+  border: none; 
+  outline: none; 
+}
+
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+ 
+}
+
+
 a {
     text-decoration: none;
     color: var(--Main_Text_Color);
