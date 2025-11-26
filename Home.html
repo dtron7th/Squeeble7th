@@ -441,43 +441,423 @@
                                 <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">UI</p>
                                 <div class="Color_Parameter">
                                     <label for="Main_UI" id="Color_Main_UI">Main UI:</label>
-                                    <input type="color" id="Color_Parameter_Main_UI" name="Main_UI" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Main_UI" name="Main_UI" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
                                     <label for="Windows" id="Color_Windows">Windows:</label>
-                                    <input type="color" id="Color_Parameter_Windows" name="Windows" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Windows" name="Windows" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
                                     <label for="Headers" id="Color_Headers">Headers:</label>
-                                    <input type="color" id="Color_Parameter_Headers" name="Headers" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Headers" name="Headers" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
                                     <label for="Background" id="Color_Background">Background:</label>
-                                    <input type="color" id="Color_Parameter_Background" name="Background" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Background" name="Background" value="#ffffff">
                                 </div>
                             </div>
                             <div class="Keyboard_Parameters">
                                 <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">Keyboard</p>
                                 <div class="Color_Parameter">
                                     <label for="Keyboard" id="Color_Keyboard">Keyboard:</label>
-                                    <input type="color" id="Color_Parameter_Keyboard" name="Keyboard" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Keyboard" name="Keyboard" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
                                     <label for="Keys" id="Color_Keys">Keys:</label>
-                                    <input type="color" id="Color_Parameter_Keys" name="Keys" value="#ffffff">
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Keys" name="Keys" value="#ffffff">
                                 </div>
                             </div>
-                        </div>
-                        <div class="Color_Picker">
-                            
                         </div>
                         <div class="Save_Theme">
                             <button class="Save_Theme_Button">Save Theme</button>
                         </div>
                     </div>
                 </div>
+
+                <div class="Window" id="Parameter_Color_Picker" style="width:300px; height:200px; display: none;">
+                    <div class="Window_Header">
+                        <p class="Title">Window — with header</p>
+                        <button class="Close_Button"></button>
+                    </div>
+                    <div class="Content">
+                        <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box;">
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div id="cp-preview" style="width: 30px; height: 30px; background: #ffffff;"></div>
+                                <input id="cp-hex" type="text" inputmode="none" aria-label="Hex color" style="flex: 1; height: 30px; color: var(--Main_Text_Color_1);">
+                            </div>
+
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <canvas id="cp-wheel" width="200" height="200" style="width: 100px; height: 100px;"></canvas>
+                                <div style="display: flex; flex-direction: column; gap: 10px; flex: 1;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <label style="font-size: 12px; color: var(--Main_Text_Color_2); margin-bottom: 6px;">Brightness</label>
+                                        <input id="cp-v" type="range" min="0" max="100" value="100" style="width: 100%;">
+                                    </div>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <button id="cp-apply" style="flex: 1; height: 34px; background: var(--Normal_Button); border: none; border-radius: 6px; color: var(--Main_Text_Color_1); cursor: pointer;">Apply</button>
+                                        <button id="cp-cancel" style="width: 90px; height: 34px; background: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: 6px; color: var(--Main_Text_Color_1); cursor: pointer;">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                        (function(){
+                            const picker = document.getElementById('Parameter_Color_Picker');
+                            if (!picker) return;
+
+                            const canvas = picker.querySelector('#cp-wheel');
+                            const preview = picker.querySelector('#cp-preview');
+                            const hexInput = picker.querySelector('#cp-hex');
+                            const vRange = picker.querySelector('#cp-v');
+                            const applyBtn = picker.querySelector('#cp-apply');
+                            const cancelBtn = picker.querySelector('#cp-cancel');
+                            const closeBtn = picker.querySelector('.Close_Button');
+
+                            let ctx = canvas.getContext('2d');
+                            const W = canvas.width, H = canvas.height;
+                            const cx = W/2, cy = H/2, radius = Math.min(W,H)/2 - 1;
+
+                            // state in HSV
+                            let hue = 0;      // 0..360
+                            let sat = 0;      // 0..1
+                            let val = 1;      // 0..1
+                            let isPointerDown = false;
+                            let targetInput = null;
+
+                            function hsvToRgb(h,s,v){
+                                const c = v * s;
+                                const x = c * (1 - Math.abs(((h/60) % 2) - 1));
+                                const m = v - c;
+                                let r=0,g=0,b=0;
+                                if (h < 60) { r=c; g=x; b=0; }
+                                else if (h < 120) { r=x; g=c; b=0; }
+                                else if (h < 180) { r=0; g=c; b=x; }
+                                else if (h < 240) { r=0; g=x; b=c; }
+                                else if (h < 300) { r=x; g=0; b=c; }
+                                else { r=c; g=0; b=x; }
+                                return { r: Math.round((r+m)*255), g: Math.round((g+m)*255), b: Math.round((b+m)*255) };
+                            }
+
+                            function rgbToHex(r,g,b){
+                                return '#' + [r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('');
+                            }
+
+                            function hexToRgb(hex){
+                                hex = (hex||'').replace('#','').trim();
+                                if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+                                if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
+                                return { r: parseInt(hex.substr(0,2),16), g: parseInt(hex.substr(2,2),16), b: parseInt(hex.substr(4,2),16) };
+                            }
+
+                            // draw color wheel by iterating pixels (reasonable for 220x220)
+                            function drawWheel(){
+                                const img = ctx.createImageData(W, H);
+                                const data = img.data;
+                                for (let y=0; y<H; y++){
+                                    for (let x=0; x<W; x++){
+                                        const dx = x - cx, dy = y - cy;
+                                        const d = Math.sqrt(dx*dx + dy*dy);
+                                        const idx = (y*W + x)*4;
+                                        if (d <= radius){
+                                            // polar coords
+                                            let a = Math.atan2(dy, dx); // -PI..PI
+                                            let deg = (a * 180/Math.PI + 360) % 360;
+                                            let rnorm = d / radius; // 0..1 => saturation
+                                            const hv = hsvToRgb(deg, rnorm, 1);
+                                            data[idx]   = hv.r;
+                                            data[idx+1] = hv.g;
+                                            data[idx+2] = hv.b;
+                                            data[idx+3] = 255;
+                                        } else {
+                                            // transparent outside circle
+                                            data[idx] = data[idx+1] = data[idx+2] = 0;
+                                            data[idx+3] = 0;
+                                        }
+                                    }
+                                }
+                                ctx.putImageData(img, 0, 0);
+
+                                // apply value (darken) overlay
+                                if (val < 1){
+                                    ctx.fillStyle = `rgba(0,0,0,${1 - val})`;
+                                    ctx.beginPath();
+                                    ctx.arc(cx, cy, radius, 0, Math.PI*2);
+                                    ctx.fill();
+                                }
+
+                                // draw selector marker
+                                const selX = cx + Math.cos(hue * Math.PI / 180) * (sat * radius);
+                                const selY = cy + Math.sin(hue * Math.PI / 180) * (sat * radius);
+                                ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                ctx.arc(selX, selY, 8, 0, Math.PI*2);
+                                ctx.stroke();
+                                ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.arc(selX, selY, 8, 0, Math.PI*2);
+                                ctx.stroke();
+                            }
+
+                            function setUIFromHex(hex){
+                                const rgb = hexToRgb(hex);
+                                if (!rgb) return;
+                                // convert rgb -> hsv
+                                const r = rgb.r / 255, g = rgb.g / 255, b = rgb.b / 255;
+                                const mx = Math.max(r,g,b), mn = Math.min(r,g,b);
+                                const d = mx - mn;
+                                let h = 0;
+                                if (d === 0) h = 0;
+                                else if (mx === r) h = ((g - b) / d) % 6;
+                                else if (mx === g) h = (b - r) / d + 2;
+                                else h = (r - g) / d + 4;
+                                h = (h * 60 + 360) % 360;
+                                const s = mx === 0 ? 0 : d / mx;
+                                const v = mx;
+                                hue = h;
+                                sat = s;
+                                val = v;
+                                vRange.value = Math.round(val * 100);
+                                hexInput.value = ('#' + hex.replace('#','')).toLowerCase();
+                                preview.style.background = rgbToHex(Math.round(r*255), Math.round(g*255), Math.round(b*255));
+                                drawWheel();
+                            }
+
+                            function updateFromHSV(applyToTarget){
+                                const rgb = hsvToRgb(hue, sat, val);
+                                const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                                preview.style.background = hex;
+                                hexInput.value = hex.toLowerCase();
+                                if (applyToTarget && targetInput) {
+                                    try {
+                                        targetInput.value = hex;
+                                        targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                    } catch(e){}
+                                }
+                            }
+
+                            function getPointerHSVFromEvent(e){
+                                const rect = canvas.getBoundingClientRect();
+                                const clientX = (e.clientX !== undefined) ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX);
+                                const clientY = (e.clientY !== undefined) ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY);
+                                const x = clientX - rect.left;
+                                const y = clientY - rect.top;
+                                const dx = x - cx, dy = y - cy;
+                                const d = Math.sqrt(dx*dx + dy*dy);
+                                if (d > radius) return null;
+                                let a = Math.atan2(dy, dx);
+                                let deg = (a * 180/Math.PI + 360) % 360;
+                                const s = Math.min(1, Math.max(0, d / radius));
+                                return { h: deg, s };
+                            }
+
+                            // pointer handlers
+                            function pointerDown(e){
+                                isPointerDown = true;
+                                const hv = getPointerHSVFromEvent(e);
+                                if (!hv) return;
+                                hue = hv.h;
+                                sat = hv.s;
+                                updateFromHSV(false);
+                                drawWheel();
+                                e.preventDefault();
+                            }
+                            function pointerMove(e){
+                                if (!isPointerDown) return;
+                                const hv = getPointerHSVFromEvent(e);
+                                if (!hv) return;
+                                hue = hv.h;
+                                sat = hv.s;
+                                updateFromHSV(false);
+                                drawWheel();
+                                e.preventDefault();
+                            }
+                            function pointerUp(e){
+                                if (!isPointerDown) return;
+                                isPointerDown = false;
+                                updateFromHSV(true);
+                                drawWheel();
+                            }
+
+                            canvas.addEventListener('pointerdown', pointerDown);
+                            window.addEventListener('pointermove', pointerMove);
+                            window.addEventListener('pointerup', pointerUp);
+                            canvas.addEventListener('touchstart', pointerDown, {passive:false});
+                            canvas.addEventListener('touchmove', pointerMove, {passive:false});
+                            canvas.addEventListener('touchend', pointerUp);
+
+                            vRange.addEventListener('input', () => {
+                                val = Math.max(0, Math.min(1, vRange.value / 100));
+                                updateFromHSV(false);
+                                drawWheel();
+                            });
+                            vRange.addEventListener('change', () => {
+                                val = Math.max(0, Math.min(1, vRange.value / 100));
+                                updateFromHSV(true);
+                                drawWheel();
+                            });
+
+                            hexInput.addEventListener('input', () => {
+                                const valHex = hexInput.value.trim();
+                                const rgb = hexToRgb(valHex);
+                                if (rgb) {
+                                    setUIFromHex('#' + valHex.replace('#',''));
+                                }
+                            });
+
+                            applyBtn.addEventListener('click', () => {
+                                updateFromHSV(true);
+                                if (closeBtn) closeBtn.click();
+                            });
+                            cancelBtn.addEventListener('click', () => {
+                                if (closeBtn) closeBtn.click();
+                            });
+
+                            hexInput.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter') { e.preventDefault(); applyBtn.click(); }
+                                if (e.key === 'Escape') { e.preventDefault(); if (closeBtn) closeBtn.click(); }
+                            });
+
+                            // Heuristic to find the input that triggered the picker based on picker position
+                            function findTargetInputByPosition(){
+                                const rect = picker.getBoundingClientRect();
+                                const inputs = Array.from(document.querySelectorAll('.Color_Parameter_setting,input[type="color"].Color_Parameter_setting'));
+                                let best = null; let bestScore = Infinity;
+                                inputs.forEach(inp=>{
+                                    try{
+                                        const r = inp.getBoundingClientRect();
+                                        const score = Math.abs(r.top - rect.top) + Math.abs(r.right - rect.left);
+                                        if (score < bestScore) { bestScore = score; best = inp; }
+                                    }catch(e){}
+                                });
+                                return best;
+                            }
+
+                            // Observe when picker becomes visible so we can initialize for the correct input
+                            const obs = new MutationObserver(() => {
+                                const visible = getComputedStyle(picker).display !== 'none';
+                                if (visible) {
+                                    setTimeout(() => {
+                                        targetInput = findTargetInputByPosition();
+                                        const initial = (targetInput && targetInput.value) ? String(targetInput.value).trim() : '#ffffff';
+                                        const hex = initial.startsWith('#') ? initial : ('#'+initial);
+                                        const rgb = hexToRgb(hex);
+                                        if (rgb) {
+                                            setUIFromHex(hex);
+                                        } else {
+                                            // default
+                                            hue = 0; sat = 0; val = 1;
+                                            vRange.value = 100;
+                                            updateFromHSV(false);
+                                            drawWheel();
+                                        }
+                                    }, 10);
+                                } else {
+                                    targetInput = null;
+                                }
+                            });
+                            obs.observe(picker, { attributes:true, attributeFilter:['style'] });
+
+                            // initial draw
+                            drawWheel();
+
+                            // expose helper
+                            window.openParameterColorPickerFor = function(el){ if (el instanceof Element) {
+                                try { targetInput = el; setUIFromHex((el.value && el.value.startsWith('#')) ? el.value : ('#' + (el.value||'ffffff'))); } catch(e){}
+                                if (getComputedStyle(picker).display === 'none') picker.style.display = 'flex';
+                                drawWheel();
+                            } };
+                        })();
+                        </script>
+                    </div>
+                </div>
+
+                <script>
+                (function(){
+                    const picker = document.getElementById('Parameter_Color_Picker');
+                    if (!picker) return;
+                    let activeInput = null;
+
+                    function showPickerFor(input){
+                        activeInput = input;
+                        // compute position near input
+                        const rect = input.getBoundingClientRect();
+                        const bodyRect = document.body.getBoundingClientRect();
+                        picker.style.position = 'absolute';
+
+                        // prefer to place to the right, fallback below if not enough space
+                        const preferredLeft = rect.right + 8;
+                        const preferredTop = rect.top;
+                        picker.style.display = 'flex';
+                        picker.style.transform = 'scale(0)';
+                        picker.style.opacity = '0';
+                        picker.style.transformOrigin = 'top left';
+                        picker.style.transition = 'transform .18s cubic-bezier(0,1,0,1), opacity .18s';
+
+                        // measure after display so offsetWidth/Height are available
+                        requestAnimationFrame(() => {
+                            const pw = picker.offsetWidth || 200;
+                            const ph = picker.offsetHeight || 200;
+                            let left = preferredLeft;
+                            let top = preferredTop;
+
+                            if (left + pw > bodyRect.width) left = rect.left; // move to left side of input
+                            if (left + pw > bodyRect.width) left = Math.max(8, bodyRect.width - pw - 8); // clamp
+                            if (top + ph > bodyRect.height) top = Math.max(8, bodyRect.height - ph - 8);
+
+                            picker.style.left = left + 'px';
+                            picker.style.top = top + 'px';
+
+                            requestAnimationFrame(() => {
+                                picker.style.transform = 'scale(1)';
+                                picker.style.opacity = '1';
+                            });
+                        });
+                    }
+
+                    function hidePicker(){
+                        if (getComputedStyle(picker).display !== 'flex') return;
+                        picker.style.transform = 'scale(0)';
+                        picker.style.opacity = '0';
+                        setTimeout(()=> { picker.style.display = 'none'; activeInput = null; }, 200);
+                    }
+
+                    // Capture pointerdown so we run before other listeners that block the native picker
+                    document.addEventListener('pointerdown', function(e){
+                        const target = e.target;
+                        const input = target.closest ? target.closest('.Color_Parameter_setting, input[type="color"].Color_Parameter_setting') : (target.classList && target.classList.contains('Color_Parameter_setting') ? target : null);
+                        if (!input) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showPickerFor(input);
+                    }, { capture: true });
+
+                    // Prevent clicks inside picker from closing it
+                    picker.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+
+                    // close button in picker header (if present)
+                    const closeBtn = picker.querySelector('.Close_Button');
+                    if (closeBtn) closeBtn.addEventListener('click', function(e){ e.stopPropagation(); hidePicker(); });
+
+                    // click outside closes
+                    document.addEventListener('pointerdown', function(){
+                        hidePicker();
+                    });
+
+                    // expose a hook if you want to transfer a color back to the input later
+                    window.openParameterColorPickerFor = function(el){ if (el instanceof Element) showPickerFor(el); };
+                })();
+                </script>
+
             </div>
         </div>
+
+
+
+
+
         <Style>
             #Theme_Market_Window {
                 position: absolute;
@@ -1565,6 +1945,94 @@
                         resumeAllAlarmAudio();
                     };
                 }
+            })();
+            (function(){
+                // Try to keep screen awake and give best-effort fallback (notifications + vibration)
+                let wakeLock = null;
+                async function acquireWakeLock(){
+                    if ('wakeLock' in navigator && !wakeLock) {
+                        try {
+                            wakeLock = await navigator.wakeLock.request('screen');
+                            wakeLock.addEventListener('release', () => { wakeLock = null; });
+                        } catch (e) { /* may fail (browser/device) */ }
+                    }
+                }
+                async function releaseWakeLock(){
+                    if (wakeLock) {
+                        try { await wakeLock.release(); } catch(e) {}
+                        wakeLock = null;
+                    }
+                }
+
+                // Unlock audio autoplay on user gesture (Set button click)
+                document.getElementById('Set_Alarm_Button').addEventListener('click', async () => {
+                    try {
+                        await acquireWakeLock(); // attempt to acquire wake lock during setup
+                    } catch(e){}
+                    // Play a short muted audio to allow future audio playback without further gestures
+                    try {
+                        const p = new Audio();
+                        p.muted = true;
+                        await p.play().catch(()=>{});
+                        p.pause();
+                    } catch(e){}
+                });
+
+                // Enhance alarm behavior: try to acquire wake lock and show a system notification + vibration
+                const origShow = window.showAlarmNotification;
+                window.showAlarmNotification = function(alarm){
+                    try { acquireWakeLock(); } catch(e) {}
+                    // Vibrate if available
+                    try { navigator.vibrate && navigator.vibrate([300,150,300]); } catch(e){}
+
+                    // Show a persistent system notification when permitted
+                    try {
+                        if ('Notification' in window) {
+                            if (Notification.permission === 'default') Notification.requestPermission();
+                            if (Notification.permission === 'granted') {
+                                const tag = 'squeeble-alarm-' + (alarm && alarm.id ? alarm.id : Date.now());
+                                const notif = new Notification('Alarm', {
+                                    body: (alarm && (alarm.displayTime12 || alarm.time)) ? `Alarm — ${alarm.displayTime12 || alarm.time}` : 'Alarm',
+                                    tag,
+                                    renotify: true,
+                                    requireInteraction: true
+                                });
+                                notif.onclick = () => { try { window.focus(); notif.close(); } catch(e){} };
+                            }
+                        }
+                    } catch(e){}
+
+                    // Call original dialog / audio logic (it already attempts to play and loop audio)
+                    try { if (typeof origShow === 'function') origShow(alarm); } catch(e){}
+
+                    // As a last resort try to explicitly start audio for the alarm to overcome throttling
+                    try {
+                        if (alarm && alarm.sound) {
+                            const a = new Audio(alarm.sound);
+                            a.loop = true;
+                            a.play().catch(()=>{});
+                            alarm._audio = a;
+                        }
+                    } catch(e){}
+                };
+
+                // Try to keep wake lock while the page is hidden and there are active alarms
+                document.addEventListener('visibilitychange', async () => {
+                    try {
+                        if (document.hidden) {
+                            // if any active alarm scheduled, try to reacquire
+                            const hasActive = Array.isArray(window.alarms) && window.alarms.some(a => a && a.active);
+                            if (hasActive) await acquireWakeLock();
+                        } else {
+                            // optional: release shortly after user returns
+                            setTimeout(() => { releaseWakeLock(); }, 4000);
+                        }
+                    } catch(e){}
+                });
+
+                // Expose helpers for debugging / manual control
+                window.__acquireAlarmWakeLock = acquireWakeLock;
+                window.__releaseAlarmWakeLock = releaseWakeLock;
             })();
         </script>
 

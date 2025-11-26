@@ -38,3 +38,5 @@
     })();
 
     if #Open_Create_Theme_File_Window is pressed, then open #Create_Theme_File_Window
+
+    if color #Color_Parameter_setting is pressed, then open #Parameter_Color_Picker

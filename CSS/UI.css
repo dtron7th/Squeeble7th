@@ -164,6 +164,7 @@ input::placeholder {
 input[type="color"] {
   border: none; 
   outline: none; 
+  cursor: pointer;
 }
 
 
