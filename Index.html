@@ -163,7 +163,7 @@
         .Login > .Login_Window > .Content > .Main > .Inputs > .Field {
             width: 100%;
             height: 30px;
-            background-color: var(--Text_Input_Field);
+            background-color: var(--UI-Buttons-Fields-Color-1);
             font-size: var(--Main_Text);
             color: var(--Main_Text_Color);
             gap: 10px;
@@ -999,41 +999,6 @@
     // ============================================================================
     // EXTERNAL CONTENT INJECTION
     // ============================================================================
-
-    // Link Vk.html
-    fetch('Vk.html')
-        .then(response => {
-            if (!response.ok) throw new Error('Failed to load Vk.html');
-            return response.text();
-        })
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Inject styles
-            doc.querySelectorAll('style').forEach(style => {
-                document.head.appendChild(style.cloneNode(true));
-            });
-            
-            // Inject body content
-            doc.querySelectorAll('body > *').forEach(element => {
-                document.body.appendChild(element.cloneNode(true));
-            });
-            
-            // Execute scripts
-            doc.querySelectorAll('script').forEach(script => {
-                const newScript = document.createElement('script');
-                if (script.src) {
-                    newScript.src = script.src;
-                } else {
-                    newScript.textContent = script.textContent;
-                }
-                document.body.appendChild(newScript);
-            });
-        })
-        .catch(err => {
-            console.error('Error loading Vk.html:', err);
-        });
 
     // ============================================================================
     // FULLSCREEN FUNCTIONALITY
@@ -2132,11 +2097,938 @@
             window.location.href = 'Home.html';
         });
     })();
-
     
+    </script>
     
-</script>
+    <!-- ============================================================================ -->
+    <!-- VIRTUAL KEYBOARD -->
+    <!-- ============================================================================ -->
+    <div class="Keyboard">
+            <!-- ============================================================ -->
+            <!-- STYLES -->
+            <!-- ============================================================ -->
+            <style>
+                /* Virtual Keyboard Container */
+                .VirtualKeyboard {
+                    position: fixed;
+                    left: 10px;
+                    right: 10px;
+                    bottom: 10px;
+                    background: var(--UI-Buttons-Fields-Color-1);
+                    border-radius: var(--Border-Radius_1);
+                    backdrop-filter: var(--Back_drop);
+                    padding: 10px;
+                    z-index: 9999;
+                    box-shadow: var(--Box_Shadow);
+                    user-select: none;
+                    -webkit-user-select: none;
+                    display: none;
+                    touch-action: none;
+                }
 
-<script src="Essentials.js"></script>
+                /* Keyboard Rows */
+                .vk-row {
+                    display: flex;
+                    gap: 6px;
+                    margin-bottom: 6px;
+                    justify-content: center;
+                }
+
+                /* Key Buttons */
+                .vk-key {
+                    flex: 1 0 0;
+                    min-width: 30px;
+                    padding: 10px 10px;
+                    text-align: center;
+                    background: var(--UI-Buttons-Fields-Color-1);
+                    color: var(--Main_Text_Color);
+                    font-size: calc(var(--Main_Text));
+                    border-radius: var(--Border-Radius_1);
+                    outline: none;
+                    touch-action: manipulation;
+                    -webkit-appearance: none;
+                    appearance: none;
+                }
+
+                .vk-key.wide { flex: 2.4; min-width: 60px; }
+                .vk-key.extra { flex: 1.6; min-width: 48px; }
+                .vk-key:active { transform: translateY(1px); background: var(--Active_Key); }
+                .vk-key.active { 
+                    transform: translateY(1px) !important; 
+                    background: var(--Text_Input_Field-Actove, var(--Active_Key)) !important; 
+                }
+                .vk-hidden { display: none !important; }
+
+                /* Input Field Styles */
+                input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field {
+                    caret-color: var(--Main_Text_Color);
+                    -webkit-text-fill-color: var(--Main_Text_Color);
+                    user-select: text;
+                }
+
+                input.Field:focus, #Printed_Text:focus, #Hash_Name:focus, #Password:focus, textarea.Field:focus {
+                    outline: none;
+                    border: 1px solid var(--Active_Border);
+                }
+
+                input.Field:focus-visible, #Printed_Text:focus-visible, #Hash_Name:focus-visible, #Password:focus-visible, textarea.Field:focus-visible {
+                    border: 1px solid var(--Active_Border);
+                }
+
+                /* Animations */
+                @keyframes vk-scale-in {
+                    from {
+                        transform: scale(0.95);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                .VirtualKeyboard.vk-animating {
+                    animation: vk-scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                }
+            </style>
+
+            <!-- ============================================================ -->
+            <!-- KEYBOARD HTML STRUCTURE -->
+            <!-- ============================================================ -->
+            <div class="VirtualKeyboard" id="VirtualKeyboard" aria-hidden="true" role="application">
+                <div class="vk-row" id="vk-row-1">
+                    <button class="vk-key" data-key="q">q</button>
+                    <button class="vk-key" data-key="w">w</button>
+                    <button class="vk-key" data-key="e">e</button>
+                    <button class="vk-key" data-key="r">r</button>
+                    <button class="vk-key" data-key="t">t</button>
+                    <button class="vk-key" data-key="y">y</button>
+                    <button class="vk-key" data-key="u">u</button>
+                    <button class="vk-key" data-key="i">i</button>
+                    <button class="vk-key" data-key="o">o</button>
+                    <button class="vk-key" data-key="p">p</button>
+                </div>
+
+                <div class="vk-row" id="vk-row-2">
+                    <button class="vk-key" data-key="a">a</button>
+                    <button class="vk-key" data-key="s">s</button>
+                    <button class="vk-key" data-key="d">d</button>
+                    <button class="vk-key" data-key="f">f</button>
+                    <button class="vk-key" data-key="g">g</button>
+                    <button class="vk-key" data-key="h">h</button>
+                    <button class="vk-key" data-key="j">j</button>
+                    <button class="vk-key" data-key="k">k</button>
+                    <button class="vk-key" data-key="l">l</button>
+                </div>
+
+                <div class="vk-row" id="vk-row-3">
+                    <button class="vk-key extra" data-action="shift" id="vk-shift">Shift</button>
+                    <button class="vk-key" data-key="z">z</button>
+                    <button class="vk-key" data-key="x">x</button>
+                    <button class="vk-key" data-key="c">c</button>
+                    <button class="vk-key" data-key="v">v</button>
+                    <button class="vk-key" data-key="b">b</button>
+                    <button class="vk-key" data-key="n">n</button>
+                    <button class="vk-key" data-key="m">m</button>
+                    <button class="vk-key extra" data-action="backspace">⌫</button>
+                </div>
+
+                <div class="vk-row" id="vk-row-4">
+                    <button class="vk-key wide" data-action="numbers" id="vk-numbers">123</button>
+                    <button class="vk-key" data-key=",">,</button>
+                    <button class="vk-key" data-key=".">.</button>
+                    <button class="vk-key wide" data-action="space">Space</button>
+                    <button class="vk-key" data-action="enter">⏎</button>
+                    <button class="vk-key" data-action="hide" id="vk-hide">Hide</button>
+                </div>
+            </div>
+
+            <audio id="vk-sound" preload="auto">
+                <source src="/Sounds/Scifi/ui-sounds-pack-3-11-359714.mp3" type="audio/mpeg" />
+            </audio>
+            </audio>
+
+            <!-- ============================================================ -->
+            <!-- JAVASCRIPT -->
+            <!-- ============================================================ -->
+
+            <script>
+            // ============================================================
+            // CONSTANTS & CONFIG
+            // ============================================================
+            const VK_CONFIG = {
+                selector: 'input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field',
+                soundVolume: 0.18,
+                soundPoolSize: 4,
+                repeatDelay: 350,
+                repeatInterval: 80,
+                touchPadding: 16
+            };
+
+            // ============================================================
+            // NATIVE KEYBOARD BLOCKING
+            // ============================================================
+            (function() {
+                const inputs = Array.from(document.querySelectorAll(VK_CONFIG.selector));
+                if (!inputs.length) return;
+
+                inputs.forEach(el => {
+                    try {
+                        el.setAttribute('inputmode', 'none');
+                        el.readOnly = true;
+                        el.setAttribute('aria-readonly', 'true');
+                    } catch (e) {}
+
+                    el.addEventListener('touchstart', (ev) => {
+                        ev.preventDefault();
+                        try { el.focus(); } catch(e) {}
+                    }, { passive: false });
+
+                    el.addEventListener('mousedown', () => {
+                        try { el.focus(); } catch(e) {}
+                    });
+                });
+
+                window._nativeKeyboardControl = {
+                    disable() {
+                        document.querySelectorAll(VK_CONFIG.selector).forEach(el => {
+                            try { 
+                                el.setAttribute('inputmode','none'); 
+                                el.readOnly = true; 
+                                el.setAttribute('aria-readonly','true'); 
+                            } catch(e){}
+                        });
+                    },
+                    enable() {
+                        document.querySelectorAll(VK_CONFIG.selector).forEach(el => {
+                            try { 
+                                el.removeAttribute('inputmode'); 
+                                el.readOnly = false; 
+                                el.removeAttribute('aria-readonly'); 
+                            } catch(e){}
+                        });
+                    }
+                };
+            })();
+
+            // ============================================================
+            // CORE KEYBOARD FUNCTIONALITY
+            // ============================================================
+            (function() {
+                const keyboard = document.getElementById('VirtualKeyboard');
+                const keys = keyboard.querySelectorAll('.vk-key');
+                
+                let shift = false;
+                let numbersMode = false;
+                let activeInput = null;
+
+                // Initialize base keys
+                keyboard.querySelectorAll('.vk-key[data-key]').forEach(btn => {
+                    const k = btn.getAttribute('data-key') || '';
+                    if (!btn.dataset.base) btn.dataset.base = k.toLowerCase();
+                });
+
+                // --------------------------------------------------------
+                // Helper Functions
+                // --------------------------------------------------------
+                function dispatchInput(el) {
+                    try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+                }
+
+                function insertAtCursor(el, text) {
+                    if (!el) return;
+                    if (typeof el.selectionStart === 'number') {
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        const value = el.value || '';
+                        el.value = value.slice(0, start) + text + value.slice(end);
+                        const pos = start + text.length;
+                        el.selectionStart = el.selectionEnd = pos;
+                        dispatchInput(el);
+                    } else {
+                        el.value = (el.value || '') + text;
+                        dispatchInput(el);
+                    }
+                    try { el.focus(); } catch(e){}
+                }
+
+                function performBackspace(el) {
+                    if (!el) return;
+                    if (typeof el.selectionStart === 'number') {
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        if (start === end && start > 0) {
+                            const value = el.value || '';
+                            el.value = value.slice(0, start - 1) + value.slice(end);
+                            el.selectionStart = el.selectionEnd = start - 1;
+                        } else if (start !== end) {
+                            const value = el.value || '';
+                            el.value = value.slice(0, start) + value.slice(end);
+                            el.selectionStart = el.selectionEnd = start;
+                        }
+                        dispatchInput(el);
+                    } else {
+                        el.value = (el.value || '').slice(0, -1);
+                        dispatchInput(el);
+                    }
+                    try { el.focus(); } catch(e){}
+                }
+
+                function toggleShift() {
+                    shift = !shift;
+                    updateKeys();
+                    document.getElementById('vk-shift').style.background = shift ? 'rgba(255,255,255,0.06)' : '';
+                }
+
+                function toggleNumbers() {
+                    numbersMode = !numbersMode;
+                    if (numbersMode) shift = false;
+                    updateKeys();
+                    document.getElementById('vk-numbers').textContent = numbersMode ? 'ABC' : '123';
+                }
+
+                function updateKeys() {
+                    const letterButtons = keyboard.querySelectorAll('.vk-key[data-key]');
+                    const numberMap = {
+                        'q':'1','w':'2','e':'3','r':'4','t':'5','y':'6','u':'7','i':'8','o':'9','p':'0',
+                        'a':'@','s':'_','d':'-','f':'/','g':':','h':';','j':'(', 'k':')','l':'$',
+                        'z':'&','x':'*','c':'"','v':'\'','b':'%','n':'+','m':'='
+                    };
+
+                    letterButtons.forEach(btn => {
+                        const base = (btn.dataset.base || btn.getAttribute('data-key') || '').toLowerCase();
+                        if (!base) return;
+
+                        if (!numbersMode) {
+                            const display = shift ? base.toUpperCase() : base.toLowerCase();
+                            btn.textContent = display;
+                            btn.setAttribute('data-key', display);
+                        } else {
+                            const display = numberMap[base] || base;
+                            btn.textContent = display;
+                            btn.setAttribute('data-key', display);
+                        }
+                    });
+                }
+
+                updateKeys();
+
+                // --------------------------------------------------------
+                // Event Listeners
+                // --------------------------------------------------------
+                document.addEventListener('focusin', (e) => {
+                    if (e.target && e.target.matches && e.target.matches(VK_CONFIG.selector)) {
+                        activeInput = e.target;
+                        keyboard.style.display = 'block';
+                        keyboard.setAttribute('aria-hidden','false');
+                    }
+                });
+
+                keyboard.addEventListener('touchstart', (ev) => {
+                    ev.preventDefault();
+                }, { passive: false });
+
+                keyboard.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.vk-key');
+                    if (!btn) return;
+                    const action = btn.getAttribute('data-action');
+                    const key = btn.getAttribute('data-key');
+
+                    if (!activeInput || !document.body.contains(activeInput)) {
+                        activeInput = document.getElementById('Printed_Text') || document.querySelector('input.Field');
+                    }
+
+                    if (action === 'shift') {
+                        toggleShift();
+                        return;
+                    }
+
+                    if (action === 'numbers') {
+                        toggleNumbers();
+                        return;
+                    }
+
+                    if (action === 'backspace') {
+                        performBackspace(activeInput);
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (action === 'space') {
+                        insertAtCursor(activeInput, ' ');
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (action === 'enter') {
+                        const goBtn = document.getElementById('Open_Verification_Window');
+                        if (goBtn && (activeInput && activeInput.id === 'Printed_Text')) {
+                            goBtn.click();
+                        } else {
+                            insertAtCursor(activeInput, '\n');
+                        }
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (action === 'hide') {
+                        keyboard.style.display = 'none';
+                        keyboard.setAttribute('aria-hidden','true');
+                        return;
+                    }
+
+                    if (key) {
+                        insertAtCursor(activeInput, key);
+                        if (shift && !numbersMode) {
+                            shift = false;
+                            updateKeys();
+                            document.getElementById('vk-shift').style.background = '';
+                        }
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    const el = e.target;
+                    if (el.closest && (el.closest(VK_CONFIG.selector) || el.closest('#VirtualKeyboard'))) return;
+                    keyboard.style.display = 'none';
+                    keyboard.setAttribute('aria-hidden','true');
+                    activeInput = null;
+                });
+
+                // --------------------------------------------------------
+                // Public API
+                // --------------------------------------------------------
+                window._virtualKeyboard = {
+                    show() { 
+                        keyboard.style.display = 'block'; 
+                        keyboard.setAttribute('aria-hidden','false'); 
+                    },
+                    hide() { 
+                        keyboard.style.display = 'none'; 
+                        keyboard.setAttribute('aria-hidden','true'); 
+                    },
+                    toggle() { 
+                        keyboard.style.display = (keyboard.style.display === 'none' || keyboard.style.display === '') ? 'block' : 'none'; 
+                    }
+                };
+            })();
+
+            // ============================================================
+            // KEYBOARD ANIMATION
+            // ============================================================
+            (function() {
+                const vk = document.getElementById('VirtualKeyboard');
+                if (!vk) return;
+
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            const isVisible = window.getComputedStyle(vk).display !== 'none';
+                            if (isVisible && !vk.classList.contains('vk-animating')) {
+                                vk.classList.add('vk-animating');
+                                setTimeout(() => vk.classList.remove('vk-animating'), 200);
+                            }
+                        }
+                    });
+                });
+
+                observer.observe(vk, { attributes: true, attributeFilter: ['style'] });
+            })();
+
+            // ============================================================
+            // SOUND EFFECTS
+            // ============================================================
+            (function() {
+                const soundTemplate = document.getElementById('vk-sound');
+                if (!soundTemplate) return;
+
+                const pool = [];
+                for (let i = 0; i < VK_CONFIG.soundPoolSize; i++) {
+                    const a = soundTemplate.cloneNode(true);
+                    a.volume = VK_CONFIG.soundVolume;
+                    pool.push(a);
+                }
+                let idx = 0;
+
+                const keyboard = document.getElementById('VirtualKeyboard');
+                if (!keyboard) return;
+
+                keyboard.addEventListener('click', (e) => {
+                    const key = e.target.closest('.vk-key');
+                    if (!key || key.getAttribute('data-action') === 'hide') return;
+
+                    const audio = pool[idx];
+                    idx = (idx + 1) % VK_CONFIG.soundPoolSize;
+                    try {
+                        audio.currentTime = 0;
+                        audio.play().catch(()=>{});
+                    } catch (err) {}
+                });
+            })();
+
+            // ============================================================
+            // TOUCH INTERACTIONS
+            // ============================================================
+            (function() {
+                const keyboard = document.getElementById('VirtualKeyboard');
+                if (!keyboard) return;
+
+                let activeKey = null;
+                let repeatTimeout = null;
+                let repeatInterval = null;
+                let repeatStarted = false;
+
+                function clearRepeat() {
+                    if (repeatTimeout) { clearTimeout(repeatTimeout); repeatTimeout = null; }
+                    if (repeatInterval) { clearInterval(repeatInterval); repeatInterval = null; }
+                    repeatStarted = false;
+                }
+
+                keyboard.addEventListener('pointerdown', (ev) => {
+                    const btn = ev.target.closest('.vk-key');
+                    if (!btn) return;
+                    ev.preventDefault();
+
+                    activeKey = btn;
+                    btn.classList.add('active');
+                    try { btn.setPointerCapture && btn.setPointerCapture(ev.pointerId); } catch(e){}
+
+                    if (btn.getAttribute('data-action') === 'backspace') {
+                        repeatTimeout = setTimeout(() => {
+                            repeatStarted = true;
+                            repeatInterval = setInterval(() => {
+                                btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                            }, VK_CONFIG.repeatInterval);
+                        }, VK_CONFIG.repeatDelay);
+                    }
+                }, { passive: false });
+
+                function endPointerInteraction(ev, cancel) {
+                    if (!activeKey) return;
+                    try { activeKey.releasePointerCapture && activeKey.releasePointerCapture(ev && ev.pointerId); } catch(e){}
+                    activeKey.classList.remove('active');
+
+                    if (!repeatStarted && !cancel) {
+                        if (ev && typeof ev.clientX === 'number' && typeof ev.clientY === 'number') {
+                            const under = document.elementFromPoint(ev.clientX, ev.clientY);
+                            if (!under || !under.closest || !under.closest('.vk-key')) {
+                                clearRepeat();
+                                activeKey = null;
+                                return;
+                            }
+                        }
+                        activeKey.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                    }
+
+                    clearRepeat();
+                    activeKey = null;
+                }
+
+                keyboard.addEventListener('pointerup', (ev) => endPointerInteraction(ev, false));
+                keyboard.addEventListener('pointercancel', (ev) => endPointerInteraction(ev, true));
+
+                keyboard.addEventListener('pointermove', (ev) => {
+                    if (!activeKey) return;
+                    const rect = activeKey.getBoundingClientRect();
+                    const pad = VK_CONFIG.touchPadding;
+                    if (ev.clientX < rect.left - pad || ev.clientX > rect.right + pad || 
+                        ev.clientY < rect.top - pad || ev.clientY > rect.bottom + pad) {
+                        activeKey.classList.remove('active');
+                        clearRepeat();
+                    } else {
+                        activeKey.classList.add('active');
+                    }
+                });
+
+                keyboard.addEventListener('contextmenu', (e) => e.preventDefault());
+            })();
+
+            // ============================================================
+            // HARDWARE KEYBOARD SUPPORT
+            // ============================================================
+            (function() {
+                let activeInput = null;
+
+                document.addEventListener('focusin', (e) => {
+                    if (e.target && e.target.matches && e.target.matches(VK_CONFIG.selector)) {
+                        activeInput = e.target;
+                    }
+                });
+
+                function insertAtCursor(el, text) {
+                    if (!el) return;
+                    if (typeof el.selectionStart === 'number') {
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        const value = el.value || '';
+                        el.value = value.slice(0, start) + text + value.slice(end);
+                        const pos = start + text.length;
+                        el.selectionStart = el.selectionEnd = pos;
+                        try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+                    } else {
+                        el.value = (el.value || '') + text;
+                        try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+                    }
+                    try { el.focus(); } catch(e){}
+                }
+
+                function performBackspace(el) {
+                    if (!el) return;
+                    if (typeof el.selectionStart === 'number') {
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        if (start === end && start > 0) {
+                            const value = el.value || '';
+                            el.value = value.slice(0, start - 1) + value.slice(end);
+                            el.selectionStart = el.selectionEnd = start - 1;
+                        } else if (start !== end) {
+                            const value = el.value || '';
+                            el.value = value.slice(0, start) + value.slice(end);
+                            el.selectionStart = el.selectionEnd = start;
+                        }
+                        try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+                    } else {
+                        el.value = (el.value || '').slice(0, -1);
+                        try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+                    }
+                    try { el.focus(); } catch(e){}
+                }
+
+                document.addEventListener('keydown', (ev) => {
+                    if (!activeInput) return;
+                    if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+
+                    if (ev.key.length === 1) {
+                        ev.preventDefault();
+                        insertAtCursor(activeInput, ev.key);
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (ev.key === 'Backspace') {
+                        ev.preventDefault();
+                        performBackspace(activeInput);
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        const goBtn = document.getElementById('Open_Verification_Window');
+                        if (goBtn && activeInput && activeInput.id === 'Printed_Text') {
+                            goBtn.click();
+                        } else {
+                            insertAtCursor(activeInput, '\n');
+                        }
+                        try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                        return;
+                    }
+
+                    if (ev.key === 'ArrowLeft') {
+                        try {
+                            const pos = activeInput.selectionStart || 0;
+                            activeInput.selectionStart = activeInput.selectionEnd = Math.max(0, pos - 1);
+                        } catch(e){}
+                        return;
+                    }
+
+                    if (ev.key === 'ArrowRight') {
+                        try {
+                            const pos = activeInput.selectionStart || 0;
+                            activeInput.selectionStart = activeInput.selectionEnd = Math.min((activeInput.value || '').length, pos + 1);
+                        } catch(e){}
+                        return;
+                    }
+                });
+            })();
+
+            // ============================================================
+            // INITIALIZATION
+            // ============================================================
+            (function() {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const vk = document.getElementById('VirtualKeyboard');
+                    if (!vk) return;
+
+                    vk.style.display = 'none';
+                    vk.setAttribute('aria-hidden', 'true');
+
+                    const primary = document.getElementById('Printed_Text') || document.querySelector('input.Field');
+                    if (primary) {
+                        setTimeout(() => {
+                            try { primary.focus(); } catch(e){}
+                        }, 120);
+                    }
+
+                    const openVerBtn = document.getElementById('Open_Verification_Window');
+                    if (openVerBtn) {
+                        openVerBtn.addEventListener('click', () => {
+                            vk.style.display = 'none';
+                            vk.setAttribute('aria-hidden','true');
+                        });
+                    }
+
+                    window.addEventListener('resize', () => {
+                        const af = document.activeElement;
+                        if (af && af.matches && af.matches(VK_CONFIG.selector)) {
+                            vk.style.display = 'block';
+                            vk.setAttribute('aria-hidden', 'false');
+                        }
+                    });
+
+                    window.activateVirtualKeyboardFor = (el) => {
+                        if (!el) return;
+                        try { el.focus(); } catch (e) {}
+                        vk.style.display = 'block';
+                        vk.setAttribute('aria-hidden', 'false');
+                    };
+
+                    window.deactivateVirtualKeyboard = () => {
+                        vk.style.display = 'none';
+                        vk.setAttribute('aria-hidden', 'true');
+                    };
+                });
+            })();
+
+    // ============================================================================
+    // NATIVE KEYBOARD CONTROL
+    // ============================================================================
+
+    (function() {
+        const selector = 'input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field';
+        const inputs = Array.from(document.querySelectorAll(selector));
+        if (!inputs.length) return;
+
+        inputs.forEach(el => {
+            try {
+                el.setAttribute('inputmode', 'none');
+                el.readOnly = true;
+                el.setAttribute('aria-readonly', 'true');
+            } catch (e) {}
+
+            el.addEventListener('touchstart', (ev) => {
+                ev.preventDefault();
+                try { el.focus(); } catch(e) {}
+            }, { passive: false });
+
+            el.addEventListener('mousedown', () => {
+                try { el.focus(); } catch(e) {}
+            });
+        });
+
+        window._nativeKeyboardControl = {
+            disable() {
+                document.querySelectorAll(selector).forEach(el => {
+                    try { 
+                        el.setAttribute('inputmode','none'); 
+                        el.readOnly = true; 
+                        el.setAttribute('aria-readonly','true'); 
+                    } catch(e){}
+                });
+            },
+            enable() {
+                document.querySelectorAll(selector).forEach(el => {
+                    try { 
+                        el.removeAttribute('inputmode'); 
+                        el.readOnly = false; 
+                        el.removeAttribute('aria-readonly'); 
+                    } catch(e){}
+                });
+            }
+        };
+    })();
+
+    // ============================================================================
+    // VIRTUAL KEYBOARD - CORE FUNCTIONALITY
+    // ============================================================================
+
+    (function() {
+        const selector = 'input.Field, #Printed_Text, #Hash_Name, #Password, textarea.Field';
+        const keyboard = document.getElementById('VirtualKeyboard');
+        if (!keyboard) return;
+
+        let activeInput = null;
+        keyboard.setAttribute('aria-hidden','true');
+        keyboard.style.display = 'none';
+
+        // Helper functions
+        function dispatchInput(el) {
+            try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
+        }
+
+        function insertAtCursor(el, text) {
+            if (!el) return;
+            if (typeof el.selectionStart === 'number') {
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const value = el.value || '';
+                el.value = value.slice(0, start) + text + value.slice(end);
+                const pos = start + text.length;
+                el.selectionStart = el.selectionEnd = pos;
+                dispatchInput(el);
+            } else {
+                el.value = (el.value || '') + text;
+                dispatchInput(el);
+            }
+            try { el.focus(); } catch(e){}
+        }
+
+        function performBackspace(el) {
+            if (!el) return;
+            if (typeof el.selectionStart === 'number') {
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                if (start === end && start > 0) {
+                    const value = el.value || '';
+                    el.value = value.slice(0, start - 1) + value.slice(end);
+                    el.selectionStart = el.selectionEnd = start - 1;
+                } else if (start !== end) {
+                    const value = el.value || '';
+                    el.value = value.slice(0, start) + value.slice(end);
+                    el.selectionStart = el.selectionEnd = start;
+                }
+                dispatchInput(el);
+            } else {
+                el.value = (el.value || '').slice(0, -1);
+                dispatchInput(el);
+            }
+            try { el.focus(); } catch(e){}
+        }
+
+        function showKeyboardFor(el) {
+            if (!el) return;
+            activeInput = el;
+            try { el.focus(); } catch(e){}
+            keyboard.style.display = 'block';
+            keyboard.setAttribute('aria-hidden','false');
+        }
+
+        function hideKeyboard() {
+            keyboard.style.display = 'none';
+            keyboard.setAttribute('aria-hidden','true');
+            activeInput = null;
+        }
+
+        // Input preparation
+        function prepareInputs() {
+            const els = Array.from(document.querySelectorAll(selector));
+            els.forEach(el => {
+                try {
+                    el.setAttribute('inputmode', 'none');
+                    el.readOnly = true;
+                    el.setAttribute('aria-readonly','true');
+                } catch(e){}
+
+                el.addEventListener('touchstart', (ev) => {
+                    ev.preventDefault();
+                    try { el.focus(); } catch(e){}
+                }, { passive: false });
+
+                el.addEventListener('mousedown', (ev) => {
+                    try { el.focus(); } catch(e){}
+                });
+
+                el.addEventListener('focus', () => {
+                    activeInput = el;
+                    keyboard.style.display = 'block';
+                    keyboard.setAttribute('aria-hidden','false');
+                    try {
+                        const len = (el.value || '').length;
+                        el.selectionStart = el.selectionEnd = len;
+                    } catch(e){}
+                });
+
+                el.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        const af = document.activeElement;
+                        if (!af) { hideKeyboard(); return; }
+                        if (af.closest && (af.closest(selector) || af.closest('#VirtualKeyboard'))) return;
+                        hideKeyboard();
+                    }, 50);
+                });
+            });
+        }
+
+        // Event handlers
+        document.addEventListener('click', (e) => {
+            const el = e.target;
+            if (el.closest && (el.closest(selector) || el.closest('#VirtualKeyboard'))) return;
+            hideKeyboard();
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            const el = e.target;
+            if (el.closest && (el.closest(selector) || el.closest('#VirtualKeyboard'))) return;
+            setTimeout(hideKeyboard, 50);
+        }, { passive: true });
+
+        // Hardware keyboard support
+        document.addEventListener('keydown', (ev) => {
+            if (!activeInput) return;
+            if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+
+            if (ev.key.length === 1) {
+                ev.preventDefault();
+                insertAtCursor(activeInput, ev.key);
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+
+            if (ev.key === 'Backspace') {
+                ev.preventDefault();
+                performBackspace(activeInput);
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                const goBtn = document.getElementById('Open_Verification_Window');
+                if (goBtn && activeInput && activeInput.id === 'Printed_Text') {
+                    goBtn.click();
+                } else {
+                    insertAtCursor(activeInput, '\n');
+                }
+                try { if (typeof updateSHAField === 'function') updateSHAField(); } catch(e){}
+                return;
+            }
+
+            if (ev.key === 'ArrowLeft') {
+                try {
+                    const pos = activeInput.selectionStart || 0;
+                    activeInput.selectionStart = activeInput.selectionEnd = Math.max(0, pos - 1);
+                } catch(e){}
+                return;
+            }
+
+            if (ev.key === 'ArrowRight') {
+                try {
+                    const pos = activeInput.selectionStart || 0;
+                    activeInput.selectionStart = activeInput.selectionEnd = Math.min((activeInput.value || '').length, pos + 1);
+                } catch(e){}
+                return;
+            }
+        });
+
+        // Mutation observer for dynamic inputs
+        const mo = new MutationObserver(() => prepareInputs());
+        mo.observe(document.body, { childList: true, subtree: true });
+
+        prepareInputs();
+
+        // Public API
+        window._virtualKeyboard = {
+            showFor(el) { showKeyboardFor(el || document.querySelector(selector)); },
+            show() { keyboard.style.display = 'block'; keyboard.setAttribute('aria-hidden','false'); },
+            hide() { hideKeyboard(); },
+            toggle() { keyboard.style.display = (keyboard.style.display === 'none' || keyboard.style.display === '') ? 'block' : 'none'; }
+        };
+    })();
+    </script>
+</div>
+</body>
+</html>
 
 

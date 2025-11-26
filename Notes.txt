@@ -36,3 +36,5 @@
             }
         });
     })();
+
+    if #Open_Create_Theme_File_Window is pressed, then open #Create_Theme_File_Window

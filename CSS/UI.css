@@ -16,7 +16,7 @@
 
 :root {
     --Main_Text: 9px;
-    --Main_Text_1: 12px;
+    --Main_Text_1: 10px;
     --Main_Text_2: 14px;
     --Main_Text_3: 16px;
     --Main_Text_4: 20px;
@@ -46,9 +46,9 @@
 
     --UI-Buttons-Fields-Color-1: rgb(60, 60, 60);
     --UI-Buttons-Fields-Color-2: rgb(60, 60, 60);
-    --UI-Buttons-Fields-Color-3: rgb(37, 37, 37);
-    --UI-Buttons-Fields-Color-4: rgba(0, 0, 0, 0.3);
-    --UI-Buttons-Fields-Color-5: rgba(0, 0, 0, 0.3);
+    --UI-Buttons-Fields-Color-3: rgb(44, 44, 44);
+    --UI-Buttons-Fields-Color-4: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color-5: rgb(0, 0, 0);
 
     --UI-Buttons-Fields-Color_Active-1: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color_Active-2: rgb(0, 0, 0);
@@ -157,6 +157,16 @@ input {
 
 input::placeholder {
     text-indent: 10px;
+    color: var(--Main_Text_Color);
+    font-size: var(--Main_Text);
+}
+
+a {
+    text-decoration: none;
+    color: var(--Main_Text_Color);
+}
+
+label {
     color: var(--Main_Text_Color);
     font-size: var(--Main_Text);
 }
