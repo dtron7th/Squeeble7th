@@ -15,6 +15,7 @@
 }
 
 :root {
+    --Background: rgb(0, 0, 0);
     --Main_Text: 9px;
     --Main_Text_1: 10px;
     --Main_Text_2: 14px;
@@ -50,6 +51,8 @@
     --UI-Buttons-Fields-Color-4: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color-5: rgb(0, 0, 0);
 
+    --UI-Silder-1: rgb(255, 255, 255);
+
     --UI-Buttons-Fields-Color_Active-1: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color_Active-2: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color_Active-3: rgb(0, 0, 0);
@@ -81,6 +84,9 @@
     --Normal_Button: rgba(31, 31, 31, 0.5);
 
     --Active_Brackets_Span: rgb(255, 153, 0);
+
+    --VirtualKeyboard_Background: rgb(46, 46, 46);
+    --VirtualKeyboard_Keys: rgb(46, 46, 46);
 }
 
 .Window {
@@ -109,7 +115,7 @@
 
 .Window > .Window_Header > .Title {
     margin-left: 10px;
-    color: var(--Header_Text_Color);
+    color: var(--Main_Text_Color_1);
     font-size: var(--Main_Text);
 }
 
@@ -173,6 +179,31 @@ input[type="color"]::-webkit-color-swatch-wrapper {
  
 }
 
+input[type="range"] {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+
+  /*  overflow: hidden;  remove this line*/
+  
+  /* New additions */
+  height: 10px;
+  background-color: var(--UI-Silder-1);
+}
+
+/* Thumb: webkit */
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none; 
+    height: 10px;
+    width: 10px;
+    background-color: var(--UI-Buttons-Fields-Color-2);
+    border: none;
+
+}
 
 a {
     text-decoration: none;
@@ -188,7 +219,7 @@ button {
     border: none;
     outline: none;
     background-color: var(--UI-Buttons-Fields-Color-1);
-    color: var(--Main_Text_Color);
+    color: var(--Main_Text_Color_1);
     font-size: var(--Main_Text);
     cursor: pointer;
     border-radius: var(--Border-Radius_Button);

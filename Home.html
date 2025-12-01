@@ -424,61 +424,77 @@
                         </div>   
                     </div>
                 </div>
-                <div class="Window" id="Create_Theme_File_Window" style="width:300px; height:350px; display: none;">
+                <div class="Window" id="Create_Theme_File_Window" style="width:320px; height:480px; display: none;">
                     <div class="Window_Header">
-                        <p class="Title">Window — with header</p>
+                        <p class="Title">Theme Creator</p>
                         <button class="Close_Button"></button>
                     </div>
                     <div class="Content">
-                        <p class="Title">Theme Creator</p>
-                        <a class="Creator_Account" href="">Account: John Doe</a>
+                        <p class="Title" style=" font-size: var(--Main_Text);">Theme Creator</p>
+                        <a class="Creator_Account" href="" style=" font-size: var(--Main_Text);">Account: John Doe</a>
                         
                         <div class="Name_Of_Theme">
                             <input type="text" placeholder="Theme name">
                         </div>
                         <div class="Theme_Parameters">
                             <div class="UI_Parameters">
-                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">UI</p>
+                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color_1);">UI</p>
                                 <div class="Color_Parameter">
-                                    <label for="Main_UI" id="Color_Main_UI">Main UI 1:</label>
-                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Main_UI" name="Main_UI" value="#ffffff">
+                                    <label for="Main_UI" id="Color_Main_UI" style="font-size: var(--Main_Text); color: var(--Main_Text_Color_1);">Main UI 1:</label>
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Main_UI-1" name="Main_UI" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
-                                    <label for="Main_UI" id="Color_Main_UI">Main UI 2:</label>
-                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Main_UI" name="Main_UI" value="#ffffff">
+                                    <label for="Main_UI" id="Color_Main_UI" style="font-size: var(--Main_Text);">Main UI 2:</label>
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Main_UI-2" name="Main_UI" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
-                                    <label for="Windows" id="Color_Windows">Windows:</label>
+                                    <label for="Windows" id="Color_Windows" style="font-size: var(--Main_Text);">Windows:</label>
                                     <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Windows" name="Windows" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
-                                    <label for="Headers" id="Color_Headers">Headers:</label>
+                                    <label for="Headers" id="Color_Headers" style="font-size: var(--Main_Text);">Headers:</label>
                                     <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Headers" name="Headers" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
-                                    <label for="Background" id="Color_Background">Background:</label>
+                                    <label for="Background" id="Color_Background" style="font-size: var(--Main_Text);">Background:</label>
                                     <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Background" name="Background" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Text_Color" id="Color_Text_Color" style="font-size: var(--Main_Text);">Text Color:</label>
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Text_Color" name="Text_Color" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Brackets" id="Color_Brackets" style="font-size: var(--Main_Text);">Brackets:</label>
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Brackets" name="Brackets" value="#ffffff">
+                                </div>
+                                <div class="Color_Parameter">
+                                    <label for="Sliders" id="Color_Sliders" style="font-size: var(--Main_Text);">Sliders:</label>
+                                    <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Sliders" name="Sliders" value="#ffffff">
                                 </div>
                             </div>
                             <div class="Keyboard_Parameters">
-                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color);">Keyboard</p>
+                                <p class="Title" style="font-size: var(--Main_Text); color: var(--Main_Text_Color_1);">Keyboard</p>
                                 <div class="Color_Parameter">
-                                    <label for="Keyboard" id="Color_Keyboard">Keyboard:</label>
+                                    <label for="Keyboard" id="Color_Keyboard" style="font-size: var(--Main_Text);">Keyboard:</label>
                                     <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Keyboard" name="Keyboard" value="#ffffff">
                                 </div>
                                 <div class="Color_Parameter">
-                                    <label for="Keys" id="Color_Keys">Keys:</label>
+                                    <label for="Keys" id="Color_Keys" style="font-size: var(--Main_Text);">Keys:</label>
                                     <input type="color" class="Color_Parameter_setting" id="Color_Parameter_Keys" name="Keys" value="#ffffff">
+                                </div>
+                                <div class="Font_Size">
+                                    <label for="Font_Size" id="Font_Size" style="color: var(--Main_Text_Color_1);">Font Size:</label>
+                                    <input type="number" class="Font_Size_setting" id="Font_Size_Parameter" name="Font_Size" value="9">
                                 </div>
                             </div>
                         </div>
                         <div class="Save_Theme">
-                            <button class="Save_Theme_Button">Save Theme</button>
+                            <button class="Save_Theme_Button" style="background-color: var(--UI-Buttons-Fields-Color-2);">Save Theme</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="Window" id="Parameter_Color_Picker" style="width:300px; height:200px; display: none;">
+                <div class="Window" id="Parameter_Color_Picker" style="width:320px; height:200px; display: none;">
                     <div class="Window_Header">
                         <p class="Title">Window — with header</p>
                         <button class="Close_Button"></button>
@@ -497,7 +513,7 @@
                                         <label style="font-size: var(--Main_Text); color: var(--Main_Text_Color_2); padding-bottom: 10px;">Brightness</label>
                                         <input id="cp-v" type="range" min="0" max="100" value="100" style="width: 100%;">
                                     </div>
-                                    <div style="position: absolute; bottom: 10px; width: 170px; display: flex; gap: 10px; align-items: center;">
+                                    <div style="position: absolute; bottom: 10px; width: calc(100% - 130px); display: flex; gap: 10px; align-items: center;">
                                         <button id="cp-apply" style="width: 100%; height: 30px; background: var(--UI-Buttons-Fields-Color-1); color: var(--Main_Text_Color_1); cursor: pointer;">Apply</button>
                                         <button id="cp-cancel" style="width: 100%; height: 30px; background: var(--UI-Buttons-Fields-Color-2);  color: var(--Main_Text_Color_1); cursor: pointer;">Cancel</button>
                                     </div>
@@ -774,6 +790,359 @@
                                 drawWheel();
                             } };
                         })();
+
+                        //Get defaut theme parameters and apply to inputs
+
+                        (function(){
+                            // fallbacks that were previously used
+                            const defaultThemeParameters = {
+                                'Color_Parameter_Main_UI-1': '#ffffff',
+                                'Color_Parameter_Main_UI-2': '#f0f0f0',
+                                'Color_Parameter_Windows': '#e0e0e0',
+                                'Color_Parameter_Headers': '#d0d0d0',
+                                'Color_Parameter_Background': '#c0c0c0',
+                                'Color_Parameter_Keyboard': '#b0b0b0',
+                                'Color_Parameter_Keys': '#a0a0a0',
+                                'Color_Parameter_Text_Color': '#111111',
+                                'Color_Parameter_Brackets': '#ffcc00',
+                                'Color_Parameter_Sliders': '#888888',
+                                'Font_Size_Parameter': '9'
+                            };
+
+                            // best-effort mapping from input id => CSS variable on :root
+                            const varMap = {
+                                'Color_Parameter_Main_UI-1': '--UI-Buttons-Fields-Color-1',
+                                'Color_Parameter_Main_UI-2': '--UI-Buttons-Fields-Color-2',
+                                'Color_Parameter_Windows':    '--Main_Window_Color-1',
+                                'Color_Parameter_Headers':    '--Main_Window_Header_Color-1',
+                                'Color_Parameter_Background': '--Background',
+                                'Color_Parameter_Keyboard':   '--VirtualKeyboard_Background',
+                                'Color_Parameter_Keys':       '--VirtualKeyboard_Keys',
+                                'Color_Parameter_Text_Color': '--Main_Text_Color_1',
+                                'Color_Parameter_Brackets':   '--Active_Brackets_Span',
+                                'Color_Parameter_Sliders':    '--Slider_Color',
+                                'Font_Size_Parameter':        '--Main_Text'
+                            };
+
+                            const rootStyles = getComputedStyle(document.documentElement);
+
+                            function rgbStringToHex(s){
+                                const m = s.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+                                if(!m) return null;
+                                const r = parseInt(m[1],10), g = parseInt(m[2],10), b = parseInt(m[3],10);
+                                return '#' + [r,g,b].map(n => n.toString(16).padStart(2,'0')).join('');
+                            }
+
+                            function normalizeCssColor(value){
+                                if(!value) return null;
+                                value = String(value).trim();
+                                if(!value) return null;
+                                // handle rgb/rgba
+                                if (/^rgba?\(/i.test(value)) {
+                                    const hex = rgbStringToHex(value);
+                                    if (hex) return hex;
+                                }
+                                // handle var(--something) resolved to something already by getPropertyValue
+                                // ensure hex starts with #
+                                if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) return value.toLowerCase();
+                                // try plain hex without #
+                                if (/^[0-9a-f]{3,6}$/i.test(value)) return '#' + value.toLowerCase();
+                                return null;
+                            }
+
+                            Object.keys(varMap).forEach(id => {
+                                const el = document.getElementById(id);
+                                const cssVar = varMap[id];
+                                if (!el) return;
+
+                                let applied = false;
+                                if (cssVar) {
+                                    let cssVal = rootStyles.getPropertyValue(cssVar).trim();
+                                    if (cssVal) {
+                                        if (id === 'Font_Size_Parameter') {
+                                            // try to extract a number (px/rem) -> numeric value
+                                            const mPx = cssVal.match(/([\d.]+)px/);
+                                            if (mPx) {
+                                                el.value = Math.round(parseFloat(mPx[1]));
+                                                applied = true;
+                                            } else {
+                                                const num = parseFloat(cssVal);
+                                                if (!isNaN(num)) { el.value = num; applied = true; }
+                                            }
+                                        } else {
+                                            const color = normalizeCssColor(cssVal);
+                                            if (color) { el.value = color; applied = true; }
+                                        }
+                                    }
+                                }
+
+                                // fallback: try to probe common variables if mapped one missing
+                                if (!applied) {
+                                    // scan :root variables for likely candidates
+                                    const vars = Array.from(document.styleSheets || []).reduce((acc, sheet) => {
+                                        try {
+                                            const rules = sheet.cssRules || [];
+                                            for (const r of rules) {
+                                                if (r.selectorText && r.selectorText.toLowerCase().includes(':root')) {
+                                                    acc.push(r.style);
+                                                }
+                                            }
+                                        } catch(e){}
+                                        return acc;
+                                    }, []);
+
+                                    if (!applied && vars.length) {
+                                        for (const style of vars) {
+                                            for (const prop of style) {
+                                                try {
+                                                    if (!prop.startsWith('--')) continue;
+                                                    // heuristic: match parts of input id to var name
+                                                    const idLow = id.toLowerCase();
+                                                    const propLow = prop.toLowerCase();
+                                                    if (propLow.includes('ui') && idLow.includes('main_ui')) {
+                                                        const c = normalizeCssColor(rootStyles.getPropertyValue(prop));
+                                                        if (c) { el.value = c; applied = true; break; }
+                                                    }
+                                                    if (propLow.includes('background') && idLow.includes('background')) {
+                                                        const c = normalizeCssColor(rootStyles.getPropertyValue(prop));
+                                                        if (c) { el.value = c; applied = true; break; }
+                                                    }
+                                                    if (propLow.includes('text') && (idLow.includes('text') || idLow.includes('color'))) {
+                                                        const c = normalizeCssColor(rootStyles.getPropertyValue(prop));
+                                                        if (c) { el.value = c; applied = true; break; }
+                                                    }
+                                                    if (propLow.includes('bracket') || propLow.includes('brackets') || propLow.includes('active_brackets')) {
+                                                        if (idLow.includes('bracket') || idLow.includes('brackets')) {
+                                                            const c = normalizeCssColor(rootStyles.getPropertyValue(prop));
+                                                            if (c) { el.value = c; applied = true; break; }
+                                                        }
+                                                    }
+                                                    if (propLow.includes('slider') || propLow.includes('sliders')) {
+                                                        if (idLow.includes('slider') || idLow.includes('sliders')) {
+                                                            const c = normalizeCssColor(rootStyles.getPropertyValue(prop));
+                                                            if (c) { el.value = c; applied = true; break; }
+                                                        }
+                                                    }
+                                                } catch(e){}
+                                            }
+                                            if (applied) break;
+                                        }
+                                    }
+                                }
+
+                                // if still not applied set previously used default
+                                if (!applied) {
+                                    el.value = defaultThemeParameters[id] || el.value || '';
+                                }
+
+                                // notify UI bindings
+                                el.dispatchEvent(new Event('input', { bubbles: true }));
+                            });
+                        })();
+
+                        //Get Theme Parameters and apply to inputs
+
+                        (function(){
+                            // helper: compute whether white or black text contrasts better on hex background
+                            function getContrastTextColor(hex){
+                                if(!hex) return '#000';
+                                hex = hex.replace('#','');
+                                if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+                                const r = parseInt(hex.substr(0,2),16);
+                                const g = parseInt(hex.substr(2,2),16);
+                                const b = parseInt(hex.substr(4,2),16);
+                                // relative luminance (WCAG-ish)
+                                const [R,G,B] = [r,g,b].map(v=>{
+                                    v /= 255;
+                                    return (v <= 0.03928) ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+                                });
+                                const lum = 0.2126*R + 0.7152*G + 0.0722*B;
+                                return (lum > 0.5) ? '#000' : '#fff';
+                            }
+
+                            function updateSwatchFor(input){
+                                try {
+                                    const val = String(input.value || '').trim();
+                                    if (!val) {
+                                        input.style.background = '';
+                                        input.style.color = '';
+                                        return;
+                                    }
+                                    // set background and text color for readability
+                                    input.style.background = val;
+                                    input.style.color = getContrastTextColor(val);
+                                    // Some browsers render native swatch; ensure padding so color visible
+                                    input.style.paddingLeft = '6px';
+                                } catch(e){}
+                            }
+
+                            // initialize existing inputs and add listeners
+                            function bindColorInputs(root=document){
+                                const inputs = Array.from(root.querySelectorAll('.Color_Parameter_setting'));
+                                inputs.forEach(inp=>{
+                                    updateSwatchFor(inp);
+                                    // update swatch when value changes programmatically or via picker
+                                    inp.addEventListener('input', ()=> updateSwatchFor(inp));
+                                    // open custom parameter color picker as fallback (pointer handling already exists elsewhere)
+                                    inp.addEventListener('click', (ev)=>{
+                                        ev.stopPropagation();
+                                        // prefer the exposed helper if available
+                                        if (typeof window.openParameterColorPickerFor === 'function') {
+                                            window.openParameterColorPickerFor(inp);
+                                        }
+                                    });
+                                });
+                            }
+
+                            // initial bind
+                            bindColorInputs();
+
+                            // observe DOM changes to bind any dynamically created inputs
+                            const mo = new MutationObserver(mr => {
+                                for (const r of mr) {
+                                    if (r.addedNodes && r.addedNodes.length) {
+                                        bindColorInputs(r.target || document);
+                                    }
+                                }
+                            });
+                            mo.observe(document.body, { childList: true, subtree: true });
+
+                            // When the Parameter_Color_Picker applies a color, it dispatches 'input' on targetInput
+                            // but to be safe also listen for cp-apply clicks to update the active target swatch immediately
+                            const applyBtn = document.getElementById('cp-apply');
+                            if (applyBtn) {
+                                applyBtn.addEventListener('click', () => {
+                                    // find focused or heuristic target and update swatch
+                                    const candidate = document.querySelector('.Color_Parameter_setting:focus') || (window._lastParameterColorTarget || null);
+                                    if (candidate) updateSwatchFor(candidate);
+                                    // also update all in case target was set programmatically
+                                    document.querySelectorAll('.Color_Parameter_setting').forEach(updateSwatchFor);
+                                });
+                            }
+
+                            // keep a weak heuristic when openParameterColorPickerFor is called
+                            const originalOpenHelper = window.openParameterColorPickerFor;
+                            window.openParameterColorPickerFor = function(el){
+                                try { window._lastParameterColorTarget = el instanceof Element ? el : null; } catch(e){}
+                                if (typeof originalOpenHelper === 'function') originalOpenHelper(el);
+                            };
+                        })();
+
+                        // Change colors for selected theme parameter inputs
+
+                        (function(){
+                            const map = {
+                                'Color_Parameter_Main_UI-1': '--UI-Buttons-Fields-Color-1',
+                                'Color_Parameter_Main_UI-2': '--UI-Buttons-Fields-Color-2',
+                                'Color_Parameter_Windows':    '--Main_Window_Color-1',
+                                'Color_Parameter_Headers':    '--Main_Window_Header_Color-1',
+                                'Color_Parameter_Background': '--Background',
+                                'Color_Parameter_Text_Color': '--Main_Text_Color_1',
+                                'Color_Parameter_Brackets':   '--Active_Brackets_Span',
+                                'Color_Parameter_Sliders':    '--Slider_Color',
+                                'Color_Parameter_Keyboard':   '--VirtualKeyboard_Background',
+                                'Color_Parameter_Keys':       '--VirtualKeyboard_Keys'
+                            };
+
+                            function normalizeHex(val){
+                                if (!val) return null;
+                                let s = String(val).trim().replace(/^#/, '');
+                                if (!/^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(s)) return null;
+                                if (s.length === 3) s = s.split('').map(c => c + c).join('');
+                                return '#' + s.toLowerCase();
+                            }
+
+                            function applyVar(varName, hex){
+                                if (!varName || !hex) return;
+                                document.documentElement.style.setProperty(varName, hex);
+                            }
+
+                            function findElementsById(id){
+                                // handle duplicate ids by using attribute selector
+                                return Array.from(document.querySelectorAll('[id]')).filter(el => el.id === id);
+                            }
+
+                            // initialize from inputs (first valid)
+                            Object.keys(map).forEach(id => {
+                                const els = findElementsById(id);
+                                for (const el of els) {
+                                    const h = normalizeHex(el.value);
+                                    if (h) { applyVar(map[id], h); break; }
+                                }
+                            });
+
+                            // bind listeners for each mapped input
+                            Object.keys(map).forEach(id => {
+                                const varName = map[id];
+                                const els = findElementsById(id);
+                                if (!els.length) return;
+
+                                function handler(e){
+                                    const src = e && e.target ? e.target : this;
+                                    const hex = normalizeHex(src.value);
+                                    if (hex) applyVar(varName, hex);
+                                }
+
+                                els.forEach(el => {
+                                    el.addEventListener('input', handler, { passive: true });
+                                    el.addEventListener('change', handler, { passive: true });
+                                });
+                            });
+
+                            // react when custom color picker apply is clicked
+                            const cpApply = document.getElementById('cp-apply');
+                            if (cpApply) {
+                                cpApply.addEventListener('click', () => {
+                                    // prefer focused color input
+                                    const focused = document.querySelector('.Color_Parameter_setting:focus');
+                                    if (focused && focused.id && map[focused.id]) {
+                                        const h = normalizeHex(focused.value);
+                                        if (h) applyVar(map[focused.id], h);
+                                        return;
+                                    }
+                                    // fallback: try heuristic _lastParameterColorTarget set elsewhere
+                                    const last = window._lastParameterColorTarget;
+                                    if (last && last.id && map[last.id]) {
+                                        const h = normalizeHex(last.value);
+                                        if (h) applyVar(map[last.id], h);
+                                        return;
+                                    }
+                                    // as final fallback update all mapped inputs that have valid values
+                                    Object.keys(map).forEach(id => {
+                                        const els = findElementsById(id);
+                                        for (const el of els) {
+                                            const h = normalizeHex(el.value);
+                                            if (h) { applyVar(map[id], h); break; }
+                                        }
+                                    });
+                                }, { passive: true });
+                            }
+                        })();
+
+                        //Set font size for font size parameter input
+                        (function(){
+                            const input = document.getElementById('Font_Size_Parameter');
+                            if (!input) return;
+
+                            function applyFontSize(size){
+                                if (!size) return;
+                                const num = parseFloat(size);
+                                if (isNaN(num) || num <= 0) return;
+                                document.documentElement.style.setProperty('--Main_Text', num + 'px');
+                            }
+
+                            // initialize
+                            applyFontSize(input.value);
+
+                            // bind listener
+                            input.addEventListener('input', () => {
+                                applyFontSize(input.value);
+                            });
+                            input.addEventListener('change', () => {
+                                applyFontSize(input.value);
+                            });
+                        })();
+
                         </script>
                     </div>
                 </div>
@@ -857,10 +1226,6 @@
 
             </div>
         </div>
-
-
-
-
 
         <Style>
             #Theme_Market_Window {
@@ -956,7 +1321,7 @@
                 width: 100%;
                 height: 30px;
                 background-color: var(--UI-Buttons-Fields-Color-3);
-                color: var(--Main_Text_Color);
+                color: var(--Main_Text_Color_1);
             }
 
             #Theme_Market_Window > .Content > .Theme_Market_Content {
@@ -965,7 +1330,7 @@
                 width: calc(100% - 20px);
                 height: calc(100% - 260px);
                 background-color: var(--UI-Buttons-Fields-Color-2);
-                color: var(--Main_Text_Color);
+                color: var(--Main_Text_Color_1);
                 display: flex;
                 flex-direction: row;
                 gap: 10px;
@@ -1038,6 +1403,8 @@
                 height: 20px;
             }
 
+            /*Create Theme File Window Styles*/
+
             #Create_Theme_File_Window > .Content > .Title {
                 position: absolute;
                 top: 10px;
@@ -1066,6 +1433,10 @@
                 height: 30px;
             }
 
+            #Create_Theme_File_Window > .Content > .Name_Of_Theme > input::placeholder {
+                color: var(--Main_Text_Color_1);
+            }
+
             #Create_Theme_File_Window > .Content > .Theme_Parameters {
                 position: absolute;
                 top: 90px;
@@ -1090,6 +1461,10 @@
                 flex-direction: row;            
             }
 
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .UI_Parameters > .Color_Parameter > label {
+                color: var(--Main_Text_Color_1);
+            }
+            
             #Create_Theme_File_Window > .Content > .Theme_Parameters > .UI_Parameters > .Color_Parameter > input {
                 position: absolute;
                 right: 0px;
@@ -1111,11 +1486,27 @@
                 flex-direction: row;
             }
 
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Color_Parameter > label {
+                color: var(--Main_Text_Color_1);
+            }
+
             #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Color_Parameter > input {
                 position: absolute;
                 right: 0px;
                 width: 15px;
                 height: 15px;
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Font_Size {
+                position: relative;
+            }
+
+            #Create_Theme_File_Window > .Content > .Theme_Parameters > .Keyboard_Parameters > .Font_Size > .Font_Size_setting {
+                position: absolute;
+                top: 30px;
+                right: 0px;
+                width: 100%;
+                height: 30px;
             }
 
             #Create_Theme_File_Window > .Content > .Save_Theme {
@@ -1297,8 +1688,7 @@
                 const categorySpans = document.querySelectorAll('#Theme_Market_Window .Catagory_List span');
                 
                 categorySpans.forEach(span => {
-                    span.style.transition = 'color 0.3s ease, transform 0.2s ease';
-                    
+                    // no transition applied (remove smooth transition)
                     span.addEventListener('click', function() {
                         // Remove active state from all spans
                         categorySpans.forEach(s => {
@@ -1308,9 +1698,9 @@
                             s.textContent = text;
                         });
                         
-                        // Add active state to clicked span
+                        // Add active state to clicked span: indent text to x+5px (translateX(5px))
                         this.style.color = 'var(--Active_Brackets_Span)';
-                        this.style.transform = 'translateX(2px)';
+                        this.style.transform = 'translateX(5px)';
                         const text = this.textContent.replace(/^\[|\]$/g, '').trim();
                         this.textContent = `[${text}]`;
                     });
@@ -2046,34 +2436,34 @@
 
         <div class="Window" id="Time_Picker_Window" style="width:250px; height:380px; display: none;">
             <div class="Window_Header">
-                <p class="Title">Select Time</p>
-                <button class="Close_Button" id="Close_Time_Picker_Window"></button>
+            <p class="Title">Select Time</p>
+            <button class="Close_Button" id="Close_Time_Picker_Window"></button>
             </div>
             <div class="Content" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <div style="display:flex; flex-direction: column; gap:8px; align-items:center;">
-                        <button id="Toggle_24H" class="Icon_Button" style="width:60px; height:34px;">24H</button>
-                        <button id="Toggle_12H" class="Icon_Button" style="width:60px; height:34px;">12H</button>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <button class="Icon_Button" id="Hour_Up">▲</button>
-                            <div id="Hour_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">12</div>
-                            <button class="Icon_Button" id="Hour_Down">▼</button>
-                        </div>
-                        <span style="font-size: 24px; color: var(--Main_Text_Color_1);">:</span>
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <button class="Icon_Button" id="Minute_Up">▲</button>
-                            <div id="Minute_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">00</div>
-                            <button class="Icon_Button" id="Minute_Down">▼</button>
-                        </div>
-                    </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div style="display:flex; flex-direction: column; gap:8px; align-items:center;">
+                <button id="Toggle_24H" class="Icon_Button" style="width:60px; height:34px;">24H</button>
+                <button id="Toggle_12H" class="Icon_Button" style="width:60px; height:34px;">12H</button>
                 </div>
-                <div id="AMPM_Container" style="display: flex; gap: 10px;">
-                    <button id="AM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">AM</button>
-                    <button id="PM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">PM</button>
+                <div style="display:flex; gap:10px;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <button class="Icon_Button" id="Hour_Up">▲</button>
+                    <div id="Hour_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">12</div>
+                    <button class="Icon_Button" id="Hour_Down">▼</button>
                 </div>
-                <button id="Confirm_Time_Button" style="position: absolute; bottom: 10px; width: calc(100% - 20px); height: 30px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">Confirm</button>
+                <span style="font-size: 24px; color: var(--Main_Text_Color_1);">:</span>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <button class="Icon_Button" id="Minute_Up">▲</button>
+                    <div id="Minute_Display" style="width: 60px; height: 60px; background-color: var(--UI-Buttons-Fields-Color-2); border-radius: var(--Border-Radius); display: flex; justify-content: center; align-items: center; font-size: 24px; color: var(--Main_Text_Color_1); margin: 5px 0;">00</div>
+                    <button class="Icon_Button" id="Minute_Down">▼</button>
+                </div>
+                </div>
+            </div>
+            <div id="AMPM_Container" style="display: flex; gap: 10px;">
+                <button id="AM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">AM</button>
+                <button id="PM_Button" style="width: 60px; height: 40px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">PM</button>
+            </div>
+            <button id="Confirm_Time_Button" style="position: absolute; bottom: 10px; width: calc(100% - 20px); height: 30px; background-color: var(--UI-Buttons-Fields-Color-2); border: none; border-radius: var(--Border-Radius); color: var(--Main_Text_Color_1); cursor: pointer; font-size: var(--Main_Text);">Confirm</button>
             </div>
         </div>
 
@@ -2085,180 +2475,202 @@
 
             function pad(n){ return n.toString().padStart(2,'0'); }
 
-            function updateDisplays() {
-                const ampmContainer = document.getElementById('AMPM_Container');
-                const hourDisplay = document.getElementById('Hour_Display');
-                const minuteDisplay = document.getElementById('Minute_Display');
-                const t24 = document.getElementById('Toggle_24H');
-                const t12 = document.getElementById('Toggle_12H');
-
-                if (use24Hour) {
-                    ampmContainer.style.display = 'none';
-                    let h = pickerHour;
-                    if (h < 0) h = 0;
-                    if (h > 23) h = h % 24;
-                    hourDisplay.textContent = pad(h);
-                    t24.style.backgroundColor = 'var(--Normal_Button)';
-                    t12.style.backgroundColor = 'var(--UI-Buttons-Fields-Color-2)';
-                } else {
-                    ampmContainer.style.display = 'flex';
-                    let displayHour = pickerHour;
-                    if (displayHour > 23) displayHour = displayHour % 24;
-                    if (displayHour === 0) displayHour = 12;
-                    if (displayHour > 12) displayHour = displayHour % 12 || 12;
-                    hourDisplay.textContent = pad(displayHour);
-                    t12.style.backgroundColor = 'var(--Normal_Button)';
-                    t24.style.backgroundColor = 'var(--UI-Buttons-Fields-Color-2)';
+            // Ensure text uses root variable --Main_Text_Color_1
+            function applyRootTextColor() {
+            const container = document.getElementById('Time_Picker_Window');
+            if (!container) return;
+            // Apply color to typical text-holding elements inside the picker
+            const els = container.querySelectorAll('button,div,span,label,p,input');
+            els.forEach(el => {
+                if (el instanceof HTMLElement) {
+                el.style.color = 'var(--Main_Text_Color_1)';
                 }
-                minuteDisplay.textContent = pad(pickerMinute);
-                document.getElementById('AM_Button').style.backgroundColor = pickerAMPM === 'AM' ? 'var(--Normal_Button)' : 'var(--UI-Buttons-Fields-Color-2)';
-                document.getElementById('PM_Button').style.backgroundColor = pickerAMPM === 'PM' ? 'var(--Normal_Button)' : 'var(--UI-Buttons-Fields-Color-2)';
+            });
+            }
+
+            function updateDisplays() {
+            const ampmContainer = document.getElementById('AMPM_Container');
+            const hourDisplay = document.getElementById('Hour_Display');
+            const minuteDisplay = document.getElementById('Minute_Display');
+            const t24 = document.getElementById('Toggle_24H');
+            const t12 = document.getElementById('Toggle_12H');
+
+            if (use24Hour) {
+                ampmContainer.style.display = 'none';
+                let h = pickerHour;
+                if (h < 0) h = 0;
+                if (h > 23) h = h % 24;
+                hourDisplay.textContent = pad(h);
+                t24.style.backgroundColor = 'var(--Normal_Button)';
+                t12.style.backgroundColor = 'var(--UI-Buttons-Fields-Color-2)';
+            } else {
+                ampmContainer.style.display = 'flex';
+                let displayHour = pickerHour;
+                if (displayHour > 23) displayHour = displayHour % 24;
+                if (displayHour === 0) displayHour = 12;
+                if (displayHour > 12) displayHour = displayHour % 12 || 12;
+                hourDisplay.textContent = pad(displayHour);
+                t12.style.backgroundColor = 'var(--Normal_Button)';
+                t24.style.backgroundColor = 'var(--UI-Buttons-Fields-Color-2)';
+            }
+            minuteDisplay.textContent = pad(pickerMinute);
+            document.getElementById('AM_Button').style.backgroundColor = pickerAMPM === 'AM' ? 'var(--Normal_Button)' : 'var(--UI-Buttons-Fields-Color-2)';
+            document.getElementById('PM_Button').style.backgroundColor = pickerAMPM === 'PM' ? 'var(--Normal_Button)' : 'var(--UI-Buttons-Fields-Color-2)';
+
+            // Re-apply root text color whenever display updates
+            applyRootTextColor();
             }
 
             function setFromInputValue() {
-                const val = document.getElementById('Alarm_Time_Input').value;
-                const now = new Date();
-                if (val && val.includes(':')) {
-                    const parts = val.split(':');
-                    let h = parseInt(parts[0],10);
-                    let m = parseInt(parts[1],10) || 0;
-                    if (isNaN(h)) h = now.getHours();
-                    if (isNaN(m)) m = now.getMinutes();
-                    use24Hour = (h >= 0 && h <= 23);
-                    if (use24Hour) {
-                        pickerHour = h;
-                        pickerMinute = m;
-                        pickerAMPM = (h >= 12) ? 'PM' : 'AM';
-                    } else {
-                        pickerAMPM = h >= 12 ? 'PM' : 'AM';
-                        let hour12 = h % 12;
-                        if (hour12 === 0) hour12 = 12;
-                        pickerHour = hour12;
-                        pickerMinute = m;
-                    }
+            const val = document.getElementById('Alarm_Time_Input').value;
+            const now = new Date();
+            if (val && val.includes(':')) {
+                const parts = val.split(':');
+                let h = parseInt(parts[0],10);
+                let m = parseInt(parts[1],10) || 0;
+                if (isNaN(h)) h = now.getHours();
+                if (isNaN(m)) m = now.getMinutes();
+                use24Hour = (h >= 0 && h <= 23);
+                if (use24Hour) {
+                pickerHour = h;
+                pickerMinute = m;
+                pickerAMPM = (h >= 12) ? 'PM' : 'AM';
                 } else {
-                    const h = now.getHours();
-                    const m = now.getMinutes();
-                    use24Hour = false;
-                    pickerAMPM = h >= 12 ? 'PM' : 'AM';
-                    let hour12 = h % 12;
-                    if (hour12 === 0) hour12 = 12;
-                    pickerHour = hour12;
-                    pickerMinute = m;
+                pickerAMPM = h >= 12 ? 'PM' : 'AM';
+                let hour12 = h % 12;
+                if (hour12 === 0) hour12 = 12;
+                pickerHour = hour12;
+                pickerMinute = m;
                 }
-                updateDisplays();
+            } else {
+                const h = now.getHours();
+                const m = now.getMinutes();
+                use24Hour = false;
+                pickerAMPM = h >= 12 ? 'PM' : 'AM';
+                let hour12 = h % 12;
+                if (hour12 === 0) hour12 = 12;
+                pickerHour = hour12;
+                pickerMinute = m;
+            }
+            updateDisplays();
             }
 
             document.getElementById('Alarm_Time_Input').addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                setFromInputValue();
+            e.preventDefault();
+            e.stopPropagation();
+            setFromInputValue();
 
-                const timePickerWindow = document.getElementById('Time_Picker_Window');
-                const alarmWindow = document.getElementById('Alarm_Clock_Window');
-                const alarmRect = alarmWindow.getBoundingClientRect();
+            const timePickerWindow = document.getElementById('Time_Picker_Window');
+            const alarmWindow = document.getElementById('Alarm_Clock_Window');
+            const alarmRect = alarmWindow.getBoundingClientRect();
 
-                timePickerWindow.style.position = 'absolute';
-                timePickerWindow.style.left = (alarmRect.right + 10) + 'px';
-                timePickerWindow.style.top = alarmRect.top + 'px';
-                timePickerWindow.style.right = 'auto';
-                timePickerWindow.style.transform = 'scale(0)';
-                timePickerWindow.style.transformOrigin = 'top left';
-                timePickerWindow.style.display = 'flex';
-                timePickerWindow.style.opacity = '0';
-                timePickerWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            timePickerWindow.style.position = 'absolute';
+            timePickerWindow.style.left = (alarmRect.right + 10) + 'px';
+            timePickerWindow.style.top = alarmRect.top + 'px';
+            timePickerWindow.style.right = 'auto';
+            timePickerWindow.style.transform = 'scale(0)';
+            timePickerWindow.style.transformOrigin = 'top left';
+            timePickerWindow.style.display = 'flex';
+            timePickerWindow.style.opacity = '0';
+            timePickerWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
 
-                setTimeout(() => {
-                    timePickerWindow.style.transform = 'scale(1)';
-                    timePickerWindow.style.opacity = '1';
-                }, 10);
+            // Ensure text color applied before showing
+            applyRootTextColor();
+
+            setTimeout(() => {
+                timePickerWindow.style.transform = 'scale(1)';
+                timePickerWindow.style.opacity = '1';
+            }, 10);
             });
 
             document.getElementById('Close_Time_Picker_Window').addEventListener('click', function() {
-                const timePickerWindow = document.getElementById('Time_Picker_Window');
-                timePickerWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
-                timePickerWindow.style.transform = 'scale(0)';
-                timePickerWindow.style.opacity = '0';
-                setTimeout(() => {
-                    timePickerWindow.style.display = 'none';
-                }, 300);
+            const timePickerWindow = document.getElementById('Time_Picker_Window');
+            timePickerWindow.style.transition = 'transform 0.3s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease-in-out';
+            timePickerWindow.style.transform = 'scale(0)';
+            timePickerWindow.style.opacity = '0';
+            setTimeout(() => {
+                timePickerWindow.style.display = 'none';
+            }, 300);
             });
 
             document.getElementById('Toggle_24H').addEventListener('click', function() {
-                if (!use24Hour) {
-                    let h = pickerHour % 12;
-                    if (pickerAMPM === 'PM') h += 12;
-                    pickerHour = h;
-                    use24Hour = true;
-                    updateDisplays();
-                }
+            if (!use24Hour) {
+                let h = pickerHour % 12;
+                if (pickerAMPM === 'PM') h += 12;
+                pickerHour = h;
+                use24Hour = true;
+                updateDisplays();
+            }
             });
 
             document.getElementById('Toggle_12H').addEventListener('click', function() {
-                if (use24Hour) {
-                    let h24 = pickerHour;
-                    pickerAMPM = h24 >= 12 ? 'PM' : 'AM';
-                    let h12 = h24 % 12;
-                    if (h12 === 0) h12 = 12;
-                    pickerHour = h12;
-                    use24Hour = false;
-                    updateDisplays();
-                }
+            if (use24Hour) {
+                let h24 = pickerHour;
+                pickerAMPM = h24 >= 12 ? 'PM' : 'AM';
+                let h12 = h24 % 12;
+                if (h12 === 0) h12 = 12;
+                pickerHour = h12;
+                use24Hour = false;
+                updateDisplays();
+            }
             });
 
             document.getElementById('Hour_Up').addEventListener('click', function() {
-                if (use24Hour) {
-                    pickerHour = (pickerHour + 1) % 24;
-                } else {
-                    pickerHour = pickerHour === 12 ? 1 : pickerHour + 1;
-                }
-                updateDisplays();
+            if (use24Hour) {
+                pickerHour = (pickerHour + 1) % 24;
+            } else {
+                pickerHour = pickerHour === 12 ? 1 : pickerHour + 1;
+            }
+            updateDisplays();
             });
 
             document.getElementById('Hour_Down').addEventListener('click', function() {
-                if (use24Hour) {
-                    pickerHour = (pickerHour === 0) ? 23 : pickerHour - 1;
-                } else {
-                    pickerHour = pickerHour === 1 ? 12 : pickerHour - 1;
-                }
-                updateDisplays();
+            if (use24Hour) {
+                pickerHour = (pickerHour === 0) ? 23 : pickerHour - 1;
+            } else {
+                pickerHour = pickerHour === 1 ? 12 : pickerHour - 1;
+            }
+            updateDisplays();
             });
 
             document.getElementById('Minute_Up').addEventListener('click', function() {
-                pickerMinute = (pickerMinute + 1) % 60;
-                updateDisplays();
+            pickerMinute = (pickerMinute + 1) % 60;
+            updateDisplays();
             });
 
             document.getElementById('Minute_Down').addEventListener('click', function() {
-                pickerMinute = pickerMinute === 0 ? 59 : pickerMinute - 1;
-                updateDisplays();
+            pickerMinute = pickerMinute === 0 ? 59 : pickerMinute - 1;
+            updateDisplays();
             });
 
             document.getElementById('AM_Button').addEventListener('click', function() {
-                pickerAMPM = 'AM';
-                updateDisplays();
+            pickerAMPM = 'AM';
+            updateDisplays();
             });
 
             document.getElementById('PM_Button').addEventListener('click', function() {
-                pickerAMPM = 'PM';
-                updateDisplays();
+            pickerAMPM = 'PM';
+            updateDisplays();
             });
 
             document.getElementById('Confirm_Time_Button').addEventListener('click', function() {
-                let hour24;
-                if (use24Hour) {
-                    hour24 = pickerHour;
-                } else {
-                    hour24 = pickerHour % 12;
-                    if (pickerAMPM === 'PM') hour24 += 12;
-                    if (pickerAMPM === 'AM' && pickerHour === 12) hour24 = 0;
-                }
-                const timeString = `${pad(hour24)}:${pad(pickerMinute)}`;
-                document.getElementById('Alarm_Time_Input').value = timeString;
-                document.getElementById('Close_Time_Picker_Window').click();
+            let hour24;
+            if (use24Hour) {
+                hour24 = pickerHour;
+            } else {
+                hour24 = pickerHour % 12;
+                if (pickerAMPM === 'PM') hour24 += 12;
+                if (pickerAMPM === 'AM' && pickerHour === 12) hour24 = 0;
+            }
+            const timeString = `${pad(hour24)}:${pad(pickerMinute)}`;
+            document.getElementById('Alarm_Time_Input').value = timeString;
+            document.getElementById('Close_Time_Picker_Window').click();
             });
 
             document.getElementById('Time_Picker_Window').addEventListener('click', function(e){ e.stopPropagation(); });
+
+            // initial apply to ensure colors are correct if picker exists on load
+            applyRootTextColor();
         </script>
 
         <!-- ============================================================================ -->

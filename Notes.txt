@@ -40,3 +40,10 @@
     if #Open_Create_Theme_File_Window is pressed, then open #Create_Theme_File_Window
 
     if color #Color_Parameter_setting is pressed, then open #Parameter_Color_Picker
+
+    change color for #Color_Parameter_Main_UI whne color is chosen in the color #Parameter_Color_Picker
+
+    change the input only, not text
+
+
+    if #Color_Parameter_Main_UI is effected by color input, then change the color of root:  --UI-Buttons-Fields-Color-1
