@@ -12,78 +12,53 @@
     <style>
         body {
             background-color: rgb(0, 0, 0);
+            width: 100dvw;
+            height: 100dvh;
         }
     </style>
     <div class="Login">
-        <div class="Menu">
-            <div class="Window Menu_Window" style="width:160px; height:270px;">
-                <div class="Window_Header">
-                    <p class="Title">Menu </p>
-                </div>
-                <div class="Content">
-                    <div class="Menu_List">
-                        <button class="Menu_Item">[Login]</button>
-                        <button class="Menu_Item">[Sign Up]</button>
-                        <button class="Menu_Item">[Character Sheet]</button>
-                        <button class="Menu_Item">[Theme]</button>
-                    </div>
-                    <style aria-label="Menu_List_Style">
-                        .Menu_List {
-                            position: absolute;
-                            top: 10px;
-                            left: 0px;
-                            display: flex;
-                            flex-direction: column;
-                            gap: 10px;
-                        }
-
-                        .Menu_List > .Menu_Item {
-                            text-align: left;
-                        }
-
-                        .Menu_List > .Menu_Item > .Menu_Item:hover {
-                            background-color: var(--UI-Buttons-Fields-Color-2);
-                        }
-                    </Style>
-                    <hr class="Menu_Divider"/>
-
-                    <style aria-label="Menu_Divider_Style">
-                        .Menu_Divider {
-                            position: absolute;
-                            top: 110px;
-                            left: 0px;
-                            width: 80%;
-                            height: 10px;
-                            border: 1px solid var(--Main_Border);
-                        }
-                    </Style>
-                    
-                    <div class="Font_List">
-                        <button class="Font_Setting">[Font 10]</button>
-                        <button class="Font_Setting">[Font 12]</button>
-                        <button class="Font_Setting">[Font 14]</button>
-                        <button class="Font_Setting">[Font 16]</button>
-                    </div>
-                    <style aria-label="Font_List_Style">
-                        .Font_List {
-                            position: absolute;
-                            top: 140px;
-                            left: 0px;
-                            display: flex;
-                            flex-direction: column;
-                            gap: 10px;
-                        }
-
-                        .Font_List > .Font_Setting {
-                            text-align: left;
-                        }
-
-                        .Font_List > .Font_Setting >.Font_Setting:hover {
-                            background-color: var(--UI-Buttons-Fields-Color-2);
-                        }
-                    </Style>
-                </div>
+        <div class="Window Menu_Window" style="width:160px; height:140px;">
+            <div class="Window_Header">
+                <p class="Title">Menu </p>
             </div>
+            <div class="Content">
+                <div class="Menu_List">
+                    <button class="Menu_Item">[Login]</button>
+                    <button class="Menu_Item">[Sign Up]</button>
+                    <button class="Menu_Item">[Character Sheet]</button>
+                    <button class="Menu_Item">[Theme]</button>
+                </div>
+                <style aria-label="Menu_List_Style">
+                    .Menu_List {
+                        position: absolute;
+                        top: 10px;
+                        left: 0px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+
+                    .Menu_List > .Menu_Item {
+                        text-align: left;
+                    }
+
+                    .Menu_List > .Menu_Item > .Menu_Item:hover {
+                        background-color: var(--UI-Buttons-Fields-Color-2);
+                    }
+                </Style>
+            </div>
+            
+            <Script aria-label="Menu_Window_Script">
+                (() => {
+                    const win = document.querySelector('.Menu_Window');
+                    if (!win) return;
+                    const computed = getComputedStyle(win);
+                    if (computed.position === 'static') win.style.position = 'absolute';
+                    // Only set defaults if not already positioned
+                    if (!win.style.left) win.style.left = '10px';
+                    if (!win.style.top) win.style.top = '10px';
+                })();
+            </Script>
         </div>
     </div>
         </div>
@@ -209,6 +184,54 @@
                     rafId = null;
                 });
             });
+        })();
+
+        (() => {
+            // Clamp windows so they remain fully visible inside the viewport
+            function clampWindowToViewport(win) {
+                if (!win) return;
+                const rect = win.getBoundingClientRect();
+                const docLeft = rect.left + window.scrollX;
+                const docTop = rect.top + window.scrollY;
+                const width = rect.width;
+                const height = rect.height;
+
+                const vw = document.documentElement.clientWidth;
+                const vh = document.documentElement.clientHeight;
+
+                // document-scoped min/max (account for page scroll)
+                const minLeft = window.scrollX;
+                const minTop = window.scrollY;
+                const maxLeft = Math.max(minLeft, window.scrollX + vw - width);
+                const maxTop = Math.max(minTop, window.scrollY + vh - height);
+
+                let left = parseFloat(win.style.left);
+                let top = parseFloat(win.style.top);
+                if (!Number.isFinite(left)) left = docLeft;
+                if (!Number.isFinite(top)) top = docTop;
+
+                const clampedLeft = Math.min(Math.max(left, minLeft), maxLeft);
+                const clampedTop = Math.min(Math.max(top, minTop), maxTop);
+
+                if (clampedLeft !== left) win.style.left = Math.round(clampedLeft) + 'px';
+                if (clampedTop !== top) win.style.top = Math.round(clampedTop) + 'px';
+            }
+
+            // Throttle with rAF for smoothness
+            let raf = null;
+            function clampAllWindows() {
+                if (raf) return;
+                raf = requestAnimationFrame(() => {
+                    document.querySelectorAll('.Window').forEach(clampWindowToViewport);
+                    raf = null;
+                });
+            }
+
+            // Keep windows inside viewport while dragging and when releasing/resizing/loading
+            document.addEventListener('pointermove', clampAllWindows, { passive: true });
+            document.addEventListener('pointerup', clampAllWindows);
+            window.addEventListener('resize', clampAllWindows);
+            window.addEventListener('load', clampAllWindows);
         })();
 
     </script>

@@ -47,3 +47,6 @@
 
 
     if #Color_Parameter_Main_UI is effected by color input, then change the color of root:  --UI-Buttons-Fields-Color-1
+
+    size Menu_Window accordingly to font
+
