@@ -1,13 +1,13 @@
 * {
     padding: 0px;
     margin: 0px;
-    font-family: "Sometype Mono", monospace;
+    font-family: "DOS";
     font-weight: 100; 
 }
 
 @font-face {
     font-family: DOS;
-    src: url(/Fonts/DOS/Px437_ACM_VGA_8x14.ttf)
+    src: url(/Fonts/Hsklig-main/WOFF/OTF/SourceCodePro-Bold.otf.woff) format("woff");
 }
 
 *::-webkit-scrollbar {
@@ -16,7 +16,7 @@
 
 :root {
     --Background: rgb(0, 0, 0);
-    --Main_Text: 9px;
+    --Main_Text: 10px;
     --Main_Text_1: 10px;
     --Main_Text_2: 14px;
     --Main_Text_3: 16px;
@@ -34,13 +34,13 @@
     --Main_Text_Color_2: rgb(255, 255, 255);
     --Main_Text_Color_3: rgb(255, 255, 255);
     --Header_Text_Color: rgb(255, 255, 255);
-    --Main_Window_Color-1: rgb(51, 51, 51);
+    --Main_Window_Color-1: rgb(4, 0, 255);
     --Main_Window_Color-2: rgba(0, 0, 0, 0.5);
     --Main_Window_Header_Color-1: rgb(34, 34, 34);
     --Login_Window_Color-1: rgb(0, 0, 0);
     --Login_Window_Color-2: rgb(255, 255, 255);
     --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
-    --Main_Border: rgba(255, 255, 255, 0.2);
+    --Main_Border: rgb(255, 255, 255);
     --Text_Input_Field: rgb(228, 228, 228);
     --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
     --Drop_Down_Window_Color: rgb(226, 226, 226);
@@ -77,8 +77,6 @@
     --Border-Radius_Button-3: 0px;
     --Border-Radius_Button-4: 0px;
     --Border-Radius_Button-5: 0px;
-    
-
 
     --Round_Button: rgba(46, 46, 46, 0.5);
     --Normal_Button: rgba(31, 31, 31, 0.5);
@@ -87,6 +85,8 @@
 
     --VirtualKeyboard_Background: rgb(46, 46, 46);
     --VirtualKeyboard_Keys: rgb(46, 46, 46);
+
+    --Close_Button_Active: rgb(255, 0, 0);
 }
 
 .Window {
@@ -106,15 +106,14 @@
 .Window > .Window_Header {
     position: absolute;
     top: 0px;
-    width: 100%;
+    width: calc(100% - 20px);
     height: 30px;
-    background-color: var(--Main_Window_Header_Color-1);
     display: flex;
     align-items: center;
+    border-bottom: 1px solid var(--Main_Border);
 }
 
 .Window > .Window_Header > .Title {
-    margin-left: 10px;
     color: var(--Main_Text_Color_1);
     font-size: var(--Main_Text);
 }
@@ -132,20 +131,28 @@
 
 .Window > .Window_Header > .Close_Button {
     position: absolute;
-    right: 10px;
-    width: 10px;
-    height: 10px;
-    background-color: rgb(255, 0, 0);
+    right: 0px;
+    width: auto;
+    background: none;
     border: none;
     outline: none;
-    border-radius: var(--Border-Radius-1);
+}
+
+.Window > .Window_Header > .Close_Button:active {
+    position: absolute;
+    right: 0px;
+    width: auto;
+    color: var(--Close_Button_Active);
+    border: none;
+    outline: none;
 }
 
 .Window > .Content {
     position: absolute;
     top: 30px;
-    width: 100%;
-    height: calc( 100% - 30px);
+    width: calc(100% - 20px);
+    height: calc( 100% - 40px);
+    border-right:    1px solid var(--Main_Border);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -218,11 +225,11 @@ label {
 button {
     border: none;
     outline: none;
-    background-color: var(--UI-Buttons-Fields-Color-1);
+    background: none;
     color: var(--Main_Text_Color_1);
     font-size: var(--Main_Text);
     cursor: pointer;
-    border-radius: var(--Border-Radius_Button);
+    text-align: left;
 }
 
 button:active {
@@ -262,16 +269,6 @@ button:active {
     position: absolute;
     width: 15px;
     height: 15px;
-}
-
-
-.Close_Button {
-    width: 10px;
-    height: 10px;
-    background-color: rgb(255, 0, 0);
-    border: none;
-    outline: none;
-    border-radius: var(--Border-Radius-1);
 }
 
 output {
