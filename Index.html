@@ -149,292 +149,257 @@
                 })();
             </script>
             <script aria-label="Get_Phone_Data">
-                
-                /* ============================================================================ */
-                /* GET PHONE NETWORK INFORMATION
-                /* ============================================================================ */
 
-                (function () {
-                    function getConnection() {
-                        return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-                    }
+            (() => {
+                const START_ID = 'Start_Using_Phone_SYSTEM';
+                // Base boot text
+                const bootBase = [
+                    'IBM PC Compatible BIOS Version 1.0',
+                    'Copyright (C) 1981-1990',
+                    '',
+                    'Initializing system hardware . . .',
+                    'Detecting floppy disk drive A: 1.44MB',
+                    'Detecting hard disk drive 0: 20.0GB',
+                    'Loading device drivers . . .',
+                    'Checking memory: 64K ok, 576K ok, 640K total',
+                    'Detecting keyboard . . .',
+                    'Initializing network interface . . .',
+                    '',
+                    'Bootloader: EdenOS v0.7',
+                    'Loading kernel modules . . .',
+                    'Starting services . . .'
+                ];
 
-                    function collectNetworkInfo() {
-                        const conn = getConnection();
-                        return {
-                            online: navigator.onLine,
-                            effectiveType: conn ? (conn.effectiveType || 'unknown') : 'unsupported',
-                            downlink: conn ? (typeof conn.downlink === 'number' ? conn.downlink + ' Mbps' : 'unknown') : 'unsupported',
-                            rtt: conn ? (typeof conn.rtt === 'number' ? conn.rtt + ' ms' : 'unknown') : 'unsupported',
-                            saveData: conn ? Boolean(conn.saveData) : 'unsupported',
-                            type: conn ? (conn.type || 'unknown') : 'unsupported',
-                            userAgent: navigator.userAgent || '',
-                            userAgentData: navigator.userAgentData ? { mobile: navigator.userAgentData.mobile, brands: navigator.userAgentData.brands } : null,
-                            hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
-                            deviceMemory: navigator.deviceMemory || 'unknown'
-                        };
-                    }
-
-                    function renderNetworkInfo(info, container) {
-                        // keep the place where we typed the status then append the info
-                        const existingTyped = container.querySelector('.Type_Area');
-                        if (existingTyped) existingTyped.remove();
-
-                        const header = document.createElement('div');
-                        header.textContent = 'Network information';
-                        header.style.fontWeight = '700';
-                        header.style.marginBottom = '8px';
-                        header.style.fontSize = '10px';
-                        container.appendChild(header);
-
-                        const list = document.createElement('div');
-                        list.style.display = 'grid';
-                        list.style.gridTemplateColumns = 'max-content 1fr';
-                        list.style.gap = '6px 12px';
-                        list.style.alignItems = 'start';
-
-                        Object.entries(info).forEach(([key, val]) => {
-                            const k = document.createElement('div');
-                            k.textContent = key;
-                            k.style.opacity = '0.85';
-                            k.style.fontSize = '10px';
-
-                            const v = document.createElement('div');
-                            v.textContent = typeof val === 'object' ? JSON.stringify(val) : String(val);
-                            v.style.wordBreak = 'break-word';
-                            v.style.fontSize = '10px';
-
-                            list.appendChild(k);
-                            list.appendChild(v);
-                        });
-
-                        container.appendChild(list);
-                    }
-
-                    // Simple typewriter animation that returns a Promise when done
-                    function typeText(target, text, speed = 30) {
-                        return new Promise((resolve) => {
-                            target.innerHTML = '';
-                            const span = document.createElement('span');
-                            span.className = 'typed-text';
-                            const caret = document.createElement('span');
-                            caret.className = 'typed-caret';
-                            caret.textContent = '▌';
-                            // Inline caret animation (blink)
-                            caret.style.marginLeft = '4px';
-                            caret.style.opacity = '1';
-                            caret.style.transition = 'opacity 0.4s';
-                            let blink = setInterval(() => {
-                                caret.style.opacity = caret.style.opacity === '0' ? '1' : '0';
-                            }, 500);
-
-                            target.appendChild(span);
-                            target.appendChild(caret);
-
-                            let i = 0;
-                            function step() {
-                                if (i <= text.length) {
-                                    span.textContent = text.slice(0, i);
-                                    i++;
-                                    setTimeout(step, speed);
-                                } else {
-                                    clearInterval(blink);
-                                    caret.remove();
-                                    resolve();
-                                }
-                            }
-                            step();
-                        });
-                    }
-
-                    function init() {
-                        const phoneBtn = document.getElementById('Start_Using_Phone_System');
-                        const gd = document.querySelector('.Get_Data');
-                        if (!gd) return;
-
-                        // Create a small panel to show network info
-                        const panel = document.createElement('div');
-                        panel.className = 'Network_Info_Panel';
-                        panel.style.padding = '12px';
-                        panel.style.borderRadius = '8px';
-                        panel.style.maxWidth = '320px';
-                        panel.style.color = 'var(--Main_Text_Color_1, #fff)';
-                        panel.style.fontSize = '10px';
-                        panel.style.position = 'absolute';
-                        panel.style.top = '10px';
-                        panel.style.left = '10px';
-                        panel.style.zIndex = '9999';
-
-                        // Type area (status messages)
-                        const typeArea = document.createElement('div');
-                        typeArea.className = 'Type_Area';
-                        typeArea.style.marginBottom = '8px';
-                        typeArea.style.fontSize = '10px';
-                        panel.appendChild(typeArea);
-
-                        gd.appendChild(panel);
-
-                        async function update() {
-                            // play type animation first
-                            await typeText(typeArea, 'Collecting network information...', 28);
-
-                            const info = collectNetworkInfo();
-                            renderNetworkInfo(info, panel);
-                        }
-
-                        if (phoneBtn) phoneBtn.addEventListener('click', () => { update(); }, { once: true });
-
-                        // Live updates when connection properties change
-                        const conn = getConnection();
-                        if (conn && typeof conn.addEventListener === 'function') {
-                            conn.addEventListener('change', () => {
-                                if (gd.style.display !== 'none') {
-                                    // show quick typing status and refresh
-                                    const ta = panel.querySelector('.Type_Area') || typeArea;
-                                    typeText(ta, 'Updating network information...', 20).then(() => {
-                                        renderNetworkInfo(collectNetworkInfo(), panel);
-                                    });
-                                }
-                            });
-                        }
-
-                        window.addEventListener('online', () => {
-                            const ta = panel.querySelector('.Type_Area') || typeArea;
-                            typeText(ta, 'Back online — refreshing...', 20).then(() => renderNetworkInfo(collectNetworkInfo(), panel));
-                        });
-                        window.addEventListener('offline', () => {
-                            const ta = panel.querySelector('.Type_Area') || typeArea;
-                            typeText(ta, 'Offline — some data may be unavailable', 20).then(() => renderNetworkInfo(collectNetworkInfo(), panel));
-                        });
-                    }
-
-                    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-                    else init();
-                })();
-
-                /* ============================================================================ */
-                /* GET PHONE PROCESSOR INFORMAITON
-                /* ============================================================================ */
-
-                
-                (async function () {
-                    function getUADataHighEntropy() {
-                        if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
-                            return navigator.userAgentData.getHighEntropyValues(['architecture', 'model', 'platform', 'platformVersion', 'uaFullVersion'])
-                                .catch(() => ({}));
-                        }
-                        return Promise.resolve({});
-                    }
-
-                    function parseProcessorFromUA(ua) {
-                        if (!ua) return null;
-                        const patterns = [
-                            /(Intel\(R\)[^;()]+)/i,
-                            /(Intel[^;()]*CPU[^;()]*)/i,
-                            /(AMD[^;()]*CPU[^;()]*)/i,
-                            /(AMD Ryzen[^;()]*)/i,
-                            /(Apple\s(?:M\d+|A\d+)[^;()]*)/i,
-                            /(Apple CPU[^;()]*)/i,
-                            /(Snapdragon[^;()]*)/i,
-                            /(Exynos[^;()]*)/i,
-                            /(ARM[^;()]*(?:v\d+)?)/i,
-                            /(Qualcomm[^;()]*)/i
-                        ];
-                        for (const re of patterns) {
-                            const m = ua.match(re);
-                            if (m) return m[0].trim();
-                        }
-                        return null;
-                    }
-
-                    function buildProcessorInfoObject(uaData, uaString) {
-                        const parsedName = uaData.model || parseProcessorFromUA(uaString) || uaData.architecture || 'unknown';
-                        return {
-                            processorName: parsedName,
-                            architecture: uaData.architecture || (/\b(ARM|ARM64|AArch64|x86_64|x64|i[3-9]86|i[3-9]-\d{3,})\b/i.test(uaString) ? uaString.match(/\b(ARM|ARM64|AArch64|x86_64|x64|i[3-9]86|i[3-9]-\d{3,})\b/i)[0] : 'unknown'),
-                            model: uaData.model || 'unknown',
-                            platform: uaData.platform || navigator.platform || 'unknown',
-                            cores: typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : 'unknown',
-                            uaString: uaString || '',
-                            vendorHint: (uaString.match(/Intel|AMD|Apple|Qualcomm|Samsung|MediaTek/i) || ['unknown'])[0]
-                        };
-                    }
-
-                    function renderProcessorInfo(info, container) {
-                        const existing = container.querySelector('.Processor_Info');
-                        if (existing) existing.remove();
-
-                        const section = document.createElement('div');
-                        section.className = 'Processor_Info';
-                        section.style.marginTop = '10px';
-
-                        const header = document.createElement('div');
-                        header.textContent = 'Processor information';
-                        header.style.fontWeight = '700';
-                        header.style.marginBottom = '6px';
-                        header.style.fontSize = '10px';
-                        section.appendChild(header);
-
-                        const grid = document.createElement('div');
-                        grid.style.display = 'grid';
-                        grid.style.gridTemplateColumns = 'max-content 1fr';
-                        grid.style.gap = '6px 12px';
-                        grid.style.fontSize = '10px';
-
-                        Object.entries(info).forEach(([k, v]) => {
-                            const key = document.createElement('div');
-                            key.textContent = k;
-                            key.style.opacity = '0.85';
-                            const val = document.createElement('div');
-                            val.textContent = typeof v === 'object' ? JSON.stringify(v) : String(v);
-                            val.style.wordBreak = 'break-word';
-                            grid.appendChild(key);
-                            grid.appendChild(val);
-                        });
-
-                        section.appendChild(grid);
-                        container.appendChild(section);
-                    }
-
-                    async function showProcessor() {
-                        const gd = document.querySelector('.Get_Data');
-                        if (!gd) return;
-
-                        // find existing network panel or create a local panel if missing
-                        let panel = document.querySelector('.Network_Info_Panel');
-                        if (!panel) {
-                            panel = document.createElement('div');
-                            panel.className = 'Network_Info_Panel';
-                            panel.style.padding = '12px';
-                            panel.style.borderRadius = '8px';
-                            panel.style.maxWidth = '320px';
-                            panel.style.color = 'var(--Main_Text_Color_1, #fff)';
-                            panel.style.fontSize = '10px';
-                            panel.style.position = 'absolute';
-                            panel.style.top = '10px';
-                            panel.style.left = '10px';
-                            panel.style.zIndex = '9999';
-                            gd.appendChild(panel);
-                        }
-
-                        const uaString = navigator.userAgent || '';
-                        const uaData = await getUADataHighEntropy();
-
-                        const info = buildProcessorInfoObject(uaData, uaString);
-                        renderProcessorInfo(info, panel);
-                    }
-
-                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
-                    if (phoneBtn) phoneBtn.addEventListener('click', showProcessor, { once: true });
-
-                    // update on visibility change (optional): refresh when coming back online/visible
-                    document.addEventListener('visibilitychange', () => {
-                        if (document.visibilityState === 'visible') {
-                            const panel = document.querySelector('.Network_Info_Panel');
-                            if (panel) showProcessor();
-                        }
+                function createBootScreen() {
+                    const container = document.createElement('div');
+                    container.className = 'dos-boot-screen';
+                    Object.assign(container.style, {
+                        position: 'fixed',
+                        inset: '0',
+                        background: '#000',
+                        color: '#33ff33',
+                        fontFamily: 'monospace, monospace',
+                        fontSize: '14px',
+                        lineHeight: '1.3',
+                        padding: '18px',
+                        zIndex: '9999',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        overflow: 'auto',
+                        whiteSpace: 'pre-wrap'
                     });
-                })();
+
+                    const text = document.createElement('pre');
+                    text.style.margin = '0';
+                    text.setAttribute('aria-live', 'polite');
+
+                    const progressWrap = document.createElement('div');
+                    Object.assign(progressWrap.style, {
+                        width: '80%',
+                        maxWidth: '600px',
+                        height: '18px',
+                        border: '1px solid #33ff33',
+                        marginTop: '18px',
+                        background: 'rgba(51,255,51,0.03)'
+                    });
+                    const progressBar = document.createElement('div');
+                    Object.assign(progressBar.style, {
+                        height: '100%',
+                        width: '0%',
+                        background: 'linear-gradient(90deg, #33ff33, #aaffaa)'
+                    });
+                    progressWrap.appendChild(progressBar);
+
+                    const hint = document.createElement('div');
+                    hint.textContent = 'Press ESC to skip boot sequence';
+                    Object.assign(hint.style, {
+                        marginTop: '10px',
+                        color: '#77ff77',
+                        fontSize: '12px',
+                        opacity: '0.9'
+                    });
+
+                    container.appendChild(text);
+                    container.appendChild(progressWrap);
+                    container.appendChild(hint);
+
+                    document.body.appendChild(container);
+                    return { container, text, progressBar };
+                }
+
+                function typeLine(elem, line, speed = 8) {
+                    return new Promise((res) => {
+                        let i = 0;
+                        const t = () => {
+                            if (i <= line.length) {
+                                elem.textContent += line.slice(i, i + 1);
+                                i++;
+                                setTimeout(t, 1000 / (speed * (1 + Math.random())));
+                            } else {
+                                elem.textContent += '\n';
+                                setTimeout(res, 120 + Math.random() * 200);
+                            }
+                        };
+                        t();
+                    });
+                }
+
+                // Helpers for simulated system info
+                function fmtBytes(bytes) {
+                    if (bytes >= 1e9) return (bytes / 1e9).toFixed(1) + ' GB';
+                    if (bytes >= 1e6) return (bytes / 1e6).toFixed(1) + ' MB';
+                    return bytes + ' B';
+                }
+                function rnd(min, max) { return Math.floor(min + Math.random() * (max - min + 1)); }
+                function randomMac() {
+                    const hex = '0123456789ABCDEF';
+                    let m = [];
+                    for (let i = 0; i < 6; i++) {
+                        m.push(hex[Math.floor(Math.random() * 16)] + hex[Math.floor(Math.random() * 16)]);
+                    }
+                    return m.join(':');
+                }
+
+                async function getPublicIP(timeoutMs = 1200) {
+                    if (!('fetch' in window)) return 'Unknown';
+                    try {
+                        const p = fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+                        const res = await Promise.race([
+                            p,
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs))
+                        ]);
+                        const j = await res.json();
+                        return j.ip || 'Unknown';
+                    } catch (e) {
+                        return 'Unknown';
+                    }
+                }
+
+                function memoryLines() {
+                    // Prefer navigator.deviceMemory if available (GB)
+                    const devMemGB = navigator.deviceMemory || null;
+                    const totalMB = devMemGB ? Math.round(devMemGB * 1024) : 2048 + rnd(0, 2048);
+                    const usedMB = Math.round(totalMB * (0.18 + Math.random() * 0.46));
+                    const freeMB = totalMB - usedMB;
+                    return [
+                        '',
+                        '--- Memory Info ---',
+                        `Total Physical Memory: ${totalMB} MB`,
+                        `Memory In Use: ${usedMB} MB (${Math.round((usedMB / totalMB) * 100)}%)`,
+                        `Available Memory: ${freeMB} MB`,
+                        `CPU Cores (logical): ${navigator.hardwareConcurrency || 'Unknown'}`
+                    ];
+                }
+
+                function driveLines() {
+                    // Simulate a couple of drives
+                    const drives = [
+                        { id: '0', type: 'NVMe SSD', sizeGB: 128, usedPct: rnd(6, 70) },
+                        { id: '1', type: 'HDD', sizeGB: 1024, usedPct: rnd(12, 90) }
+                    ];
+                    const lines = ['','--- Storage Devices ---'];
+                    drives.forEach(d => {
+                        const usedGB = (d.sizeGB * d.usedPct / 100).toFixed(1);
+                        lines.push(`Drive ${d.id}: ${d.type} ${d.sizeGB} GB — Used ${usedGB} GB (${d.usedPct}%) — Health: ${d.usedPct > 92 ? 'Degraded' : 'Good'}`);
+                        lines.push(`  Partition 1: ${Math.round(d.sizeGB * 0.6)} GB (${Math.round(d.usedPct * 0.6)}% used)`);
+                    });
+                    return lines;
+                }
+
+                async function networkLines() {
+                    const lines = ['','--- Network ---'];
+                    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+                    if (conn) {
+                        lines.push(`Connection type: ${conn.type || 'unknown'} (${conn.effectiveType || 'unknown'})`);
+                        if ('downlink' in conn) lines.push(`Link speed (approx): ${conn.downlink} Mbps`);
+                        if ('rtt' in conn) lines.push(`RTT (approx): ${conn.rtt} ms`);
+                    } else {
+                        lines.push('Connection type: Unknown');
+                    }
+
+                    // Try to get public IP (best-effort)
+                    const ip = await getPublicIP();
+                    lines.push(`Public IP: ${ip}`);
+                    // Local details (simulated)
+                    lines.push(`Local IP: 192.168.${rnd(0, 255)}.${rnd(2, 254)}`);
+                    lines.push(`MAC Address: ${randomMac()}`);
+                    lines.push(`Gateway: 192.168.${rnd(0, 255)}.1`);
+                    lines.push(`DNS: 1.1.1.1, 8.8.8.8`);
+                    return lines;
+                }
+
+                async function runBootSequence(onComplete) {
+                    const { container, text, progressBar } = createBootScreen();
+
+                    let aborted = false;
+                    function abort() { aborted = true; }
+                    const escHandler = (e) => { if (e.key === 'Escape') abort(); };
+                    document.addEventListener('keydown', escHandler);
+
+                    // Build lines dynamically (memory, drives, network may be async)
+                    const lines = [].concat(bootBase, memoryLines(), driveLines());
+                    const net = await networkLines();
+                    lines.push(...net);
+
+                    // Type lines
+                    for (let i = 0; i < lines.length; i++) {
+                        if (aborted) break;
+                        const speed = 12 - Math.min(8, Math.floor(i / 6));
+                        await typeLine(text, lines[i], speed);
+                        const pct = Math.round(((i + 1) / (lines.length + 3)) * 100);
+                        progressBar.style.width = pct + '%';
+                    }
+
+                    // Simulate loading final steps with progress to 100%
+                    let pct = parseInt(progressBar.style.width) || 0;
+                    while (pct < 100 && !aborted) {
+                        pct = Math.min(100, pct + Math.ceil(Math.random() * 6));
+                        progressBar.style.width = pct + '%';
+                        text.textContent += (pct % 10 === 0) ? '.' : '';
+                        await new Promise(r => setTimeout(r, 120 + Math.random() * 200));
+                    }
+
+                    // Final messages
+                    if (!aborted) {
+                        text.textContent += '\nSystem initialized successfully.\n';
+                        text.textContent += 'Welcome to Eden Economy.\n';
+                    } else {
+                        text.textContent += '\nBoot sequence aborted by user.\n';
+                    }
+
+                    // Small pause then fade out
+                    await new Promise(r => setTimeout(r, 700));
+                    container.style.transition = 'opacity 450ms ease';
+                    container.style.opacity = '0';
+                    setTimeout(() => {
+                        document.removeEventListener('keydown', escHandler);
+                        container.remove();
+                        if (typeof onComplete === 'function') onComplete(!aborted);
+                    }, 500);
+                }
+
+                function attachToStartButton() {
+                    const btn = document.getElementById(START_ID);
+                    if (!btn) {
+                        // Try common ID case used in document
+                        const alt = document.getElementById('Start_Using_Phone_System');
+                        if (alt) alt.addEventListener('click', () => runBootSequence(), { once: true });
+                        return;
+                    }
+                    btn.addEventListener('click', () => {
+                        runBootSequence();
+                    }, { once: true });
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', attachToStartButton);
+                } else {
+                    attachToStartButton();
+                }
+            })();
+
             </script>
         </div>
     </div>
