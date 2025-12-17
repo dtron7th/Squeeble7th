@@ -16,7 +16,6 @@
 
 :root {
     --Background: rgb(0, 0, 0);
-    --Main_Text: 10px;
     --Main_Text_1: 10px;
     --Main_Text_2: 14px;
     --Main_Text_3: 16px;
@@ -34,18 +33,18 @@
     --Main_Text_Color_2: rgb(255, 255, 255);
     --Main_Text_Color_3: rgb(255, 255, 255);
     --Header_Text_Color: rgb(255, 255, 255);
-    --Main_Window_Color-1: rgb(4, 0, 255);
-    --Main_Window_Color-2: rgba(0, 0, 0, 0.5);
+    --Main_Window_Color-1: rgb(37, 37, 37);
+    --Main_Window_Color-2: rgb(0, 0, 0);
     --Main_Window_Header_Color-1: rgb(34, 34, 34);
     --Login_Window_Color-1: rgb(0, 0, 0);
     --Login_Window_Color-2: rgb(255, 255, 255);
     --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
-    --Main_Border: rgb(255, 255, 255);
+    --Main_Border: rgba(255, 255, 255, 0.2);
     --Text_Input_Field: rgb(228, 228, 228);
     --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
     --Drop_Down_Window_Color: rgb(226, 226, 226);
 
-    --UI-Buttons-Fields-Color-1: rgb(60, 60, 60);
+    --UI-Buttons-Fields-Color-1: rgb(255, 53, 53);
     --UI-Buttons-Fields-Color-2: rgb(44, 44, 44);
     --UI-Buttons-Fields-Color-3: rgb(44, 44, 44);
     --UI-Buttons-Fields-Color-4: rgb(0, 0, 0);
@@ -87,6 +86,8 @@
     --VirtualKeyboard_Keys: rgb(46, 46, 46);
 
     --Close_Button_Active: rgb(255, 0, 0);
+
+    --Dot_Grid: rgba(255, 255, 255, 0.03);
 }
 
 .Window {
@@ -94,13 +95,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--Main_Window_Color-1);
+    background-color: none;
     backdrop-filter: var(--Back_drop);
     overflow: hidden;
     border-radius: var(--Border-Radius);
     box-shadow: var(--Box_Shadow);
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--Main_Border);
 }
 
 .Window > .Window_Header {
@@ -115,7 +117,7 @@
 
 .Window > .Window_Header > .Title {
     color: var(--Main_Text_Color_1);
-    font-size: var(--Main_Text);
+    font-size: var(--Main_Text_1);
 }
 
 .Window > .Window_Header > .Max_Size_Button {
@@ -151,8 +153,8 @@
     position: absolute;
     top: 30px;
     width: calc(100% - 20px);
-    height: calc( 100% - 40px);
-    border-right:    1px solid var(--Main_Border);
+    height: calc( 100% - 30px);
+ 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -225,17 +227,16 @@ label {
 button {
     border: none;
     outline: none;
-    background: none;
+    background-color: var(--UI-Buttons-Fields-Color-1);
     color: var(--Main_Text_Color_1);
     font-size: var(--Main_Text);
     cursor: pointer;
     text-align: left;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-button:active {
-    background-color: var(--Text_Input_Field-Active);
 }
-    
 
 .Floating_Button {
     position: absolute;

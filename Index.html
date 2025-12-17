@@ -14,9 +14,432 @@
             background-color: rgb(0, 0, 0);
             width: 100dvw;
             height: 100dvh;
+            
         }
     </style>
-    <div class="Login">
+    <div class="Dot_Grid">
+        <style aria-label="Dot_Grid_Style">
+        /* 10px x 10px dot grid background */
+        .Dot_Grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+
+            --dot-color: var(--Dot_Grid);
+            --dot-size: 1px;
+            --grid-spacing: 20px;
+
+            background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 0.5px));
+            background-size: var(--grid-spacing) var(--grid-spacing);
+        }
+        </style>
+    </div>
+    <div class="Start">
+        <div class="Window Start_Window" style="width:280px; height:220px;">
+            <div class="Window_Header">
+                <p class="Title">Start</p>
+                <button class="Close_Button"></button>
+            </div>
+            <div class="Content">
+                <div class="Paragraph">
+                    <p>Welcome to Eden Economy! Please select your platform to continue.</p>
+                </div>
+                <div class="Start_Navigator">
+                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System" style="width: 100%; height: 20px;">[Desktop]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System" style="width: 100%; height: 20px;">[Phone]</button>
+                </div>
+            </div>
+        </div>
+        <style aria-label="Start_Window_Style">
+            .Start {
+                width: 100dvw;
+                height: 100dvh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .Start_Window {
+                position: absolute;
+                
+            }
+
+            .Start_Window > .Content > .Paragraph {
+                position: absolute;
+                top: 40px;
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_2);
+                text-align: center;
+                width: 240px;
+            }
+
+            .Start_Window > .Content > .Start_Navigator {
+                position: absolute;
+                bottom: 10px;
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
+                font-size: var(--Main_Text_1);
+            }
+        </style>
+    </div>
+
+    <div class="Get_Data">
+        <style>
+            .Get_Data {
+                display: none;
+                width: 100dvw;
+                height: 100dvh;
+            }
+        </style>
+        <div class="Using_Phone_System">
+            <script aria-label="Phone_Start_Handler">
+                (() => {
+                    function clearStartAndDots() {
+                        const start = document.querySelector('.Start');
+                        const dots = document.querySelector('.Dot_Grid');
+                        if (start) start.remove();
+                        if (dots) dots.remove();
+                    }
+
+                    function init() {
+                        const btn = document.getElementById('Start_Using_Phone_System');
+                        if (!btn) return;
+                        btn.addEventListener('click', clearStartAndDots, { once: true });
+                    }
+
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', init);
+                    } else {
+                        init();
+                    }
+                })();
+
+                (function () {
+                    function enterFullscreen() {
+                        const docEl = document.documentElement;
+                        const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+                        if (!req) return;
+                        try {
+                            const p = req.call(docEl);
+                            if (p && typeof p.catch === 'function') p.catch(() => { /* ignore */ });
+                        } catch (e) { /* ignore */ }
+                    }
+
+                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                    if (phoneBtn) phoneBtn.addEventListener('click', enterFullscreen, { once: true });
+                })();
+
+                (function () {
+                    function openGetData() {
+                        const gd = document.querySelector('.Get_Data');
+                        if (!gd) return;
+                        gd.style.display = 'block';
+                        const focusable = gd.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
+                        if (focusable) focusable.focus();
+                    }
+
+                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                    if (phoneBtn) phoneBtn.addEventListener('click', openGetData, { once: true });
+                })();
+            </script>
+            <script aria-label="Get_Phone_Data">
+                
+                /* ============================================================================ */
+                /* GET PHONE NETWORK INFORMATION
+                /* ============================================================================ */
+
+                (function () {
+                    function getConnection() {
+                        return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+                    }
+
+                    function collectNetworkInfo() {
+                        const conn = getConnection();
+                        return {
+                            online: navigator.onLine,
+                            effectiveType: conn ? (conn.effectiveType || 'unknown') : 'unsupported',
+                            downlink: conn ? (typeof conn.downlink === 'number' ? conn.downlink + ' Mbps' : 'unknown') : 'unsupported',
+                            rtt: conn ? (typeof conn.rtt === 'number' ? conn.rtt + ' ms' : 'unknown') : 'unsupported',
+                            saveData: conn ? Boolean(conn.saveData) : 'unsupported',
+                            type: conn ? (conn.type || 'unknown') : 'unsupported',
+                            userAgent: navigator.userAgent || '',
+                            userAgentData: navigator.userAgentData ? { mobile: navigator.userAgentData.mobile, brands: navigator.userAgentData.brands } : null,
+                            hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+                            deviceMemory: navigator.deviceMemory || 'unknown'
+                        };
+                    }
+
+                    function renderNetworkInfo(info, container) {
+                        // keep the place where we typed the status then append the info
+                        const existingTyped = container.querySelector('.Type_Area');
+                        if (existingTyped) existingTyped.remove();
+
+                        const header = document.createElement('div');
+                        header.textContent = 'Network information';
+                        header.style.fontWeight = '700';
+                        header.style.marginBottom = '8px';
+                        header.style.fontSize = '10px';
+                        container.appendChild(header);
+
+                        const list = document.createElement('div');
+                        list.style.display = 'grid';
+                        list.style.gridTemplateColumns = 'max-content 1fr';
+                        list.style.gap = '6px 12px';
+                        list.style.alignItems = 'start';
+
+                        Object.entries(info).forEach(([key, val]) => {
+                            const k = document.createElement('div');
+                            k.textContent = key;
+                            k.style.opacity = '0.85';
+                            k.style.fontSize = '10px';
+
+                            const v = document.createElement('div');
+                            v.textContent = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                            v.style.wordBreak = 'break-word';
+                            v.style.fontSize = '10px';
+
+                            list.appendChild(k);
+                            list.appendChild(v);
+                        });
+
+                        container.appendChild(list);
+                    }
+
+                    // Simple typewriter animation that returns a Promise when done
+                    function typeText(target, text, speed = 30) {
+                        return new Promise((resolve) => {
+                            target.innerHTML = '';
+                            const span = document.createElement('span');
+                            span.className = 'typed-text';
+                            const caret = document.createElement('span');
+                            caret.className = 'typed-caret';
+                            caret.textContent = '▌';
+                            // Inline caret animation (blink)
+                            caret.style.marginLeft = '4px';
+                            caret.style.opacity = '1';
+                            caret.style.transition = 'opacity 0.4s';
+                            let blink = setInterval(() => {
+                                caret.style.opacity = caret.style.opacity === '0' ? '1' : '0';
+                            }, 500);
+
+                            target.appendChild(span);
+                            target.appendChild(caret);
+
+                            let i = 0;
+                            function step() {
+                                if (i <= text.length) {
+                                    span.textContent = text.slice(0, i);
+                                    i++;
+                                    setTimeout(step, speed);
+                                } else {
+                                    clearInterval(blink);
+                                    caret.remove();
+                                    resolve();
+                                }
+                            }
+                            step();
+                        });
+                    }
+
+                    function init() {
+                        const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                        const gd = document.querySelector('.Get_Data');
+                        if (!gd) return;
+
+                        // Create a small panel to show network info
+                        const panel = document.createElement('div');
+                        panel.className = 'Network_Info_Panel';
+                        panel.style.padding = '12px';
+                        panel.style.borderRadius = '8px';
+                        panel.style.maxWidth = '320px';
+                        panel.style.color = 'var(--Main_Text_Color_1, #fff)';
+                        panel.style.fontSize = '10px';
+                        panel.style.position = 'absolute';
+                        panel.style.top = '10px';
+                        panel.style.left = '10px';
+                        panel.style.zIndex = '9999';
+
+                        // Type area (status messages)
+                        const typeArea = document.createElement('div');
+                        typeArea.className = 'Type_Area';
+                        typeArea.style.marginBottom = '8px';
+                        typeArea.style.fontSize = '10px';
+                        panel.appendChild(typeArea);
+
+                        gd.appendChild(panel);
+
+                        async function update() {
+                            // play type animation first
+                            await typeText(typeArea, 'Collecting network information...', 28);
+
+                            const info = collectNetworkInfo();
+                            renderNetworkInfo(info, panel);
+                        }
+
+                        if (phoneBtn) phoneBtn.addEventListener('click', () => { update(); }, { once: true });
+
+                        // Live updates when connection properties change
+                        const conn = getConnection();
+                        if (conn && typeof conn.addEventListener === 'function') {
+                            conn.addEventListener('change', () => {
+                                if (gd.style.display !== 'none') {
+                                    // show quick typing status and refresh
+                                    const ta = panel.querySelector('.Type_Area') || typeArea;
+                                    typeText(ta, 'Updating network information...', 20).then(() => {
+                                        renderNetworkInfo(collectNetworkInfo(), panel);
+                                    });
+                                }
+                            });
+                        }
+
+                        window.addEventListener('online', () => {
+                            const ta = panel.querySelector('.Type_Area') || typeArea;
+                            typeText(ta, 'Back online — refreshing...', 20).then(() => renderNetworkInfo(collectNetworkInfo(), panel));
+                        });
+                        window.addEventListener('offline', () => {
+                            const ta = panel.querySelector('.Type_Area') || typeArea;
+                            typeText(ta, 'Offline — some data may be unavailable', 20).then(() => renderNetworkInfo(collectNetworkInfo(), panel));
+                        });
+                    }
+
+                    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+                    else init();
+                })();
+
+                /* ============================================================================ */
+                /* GET PHONE PROCESSOR INFORMAITON
+                /* ============================================================================ */
+
+                
+                (async function () {
+                    function getUADataHighEntropy() {
+                        if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
+                            return navigator.userAgentData.getHighEntropyValues(['architecture', 'model', 'platform', 'platformVersion', 'uaFullVersion'])
+                                .catch(() => ({}));
+                        }
+                        return Promise.resolve({});
+                    }
+
+                    function parseProcessorFromUA(ua) {
+                        if (!ua) return null;
+                        const patterns = [
+                            /(Intel\(R\)[^;()]+)/i,
+                            /(Intel[^;()]*CPU[^;()]*)/i,
+                            /(AMD[^;()]*CPU[^;()]*)/i,
+                            /(AMD Ryzen[^;()]*)/i,
+                            /(Apple\s(?:M\d+|A\d+)[^;()]*)/i,
+                            /(Apple CPU[^;()]*)/i,
+                            /(Snapdragon[^;()]*)/i,
+                            /(Exynos[^;()]*)/i,
+                            /(ARM[^;()]*(?:v\d+)?)/i,
+                            /(Qualcomm[^;()]*)/i
+                        ];
+                        for (const re of patterns) {
+                            const m = ua.match(re);
+                            if (m) return m[0].trim();
+                        }
+                        return null;
+                    }
+
+                    function buildProcessorInfoObject(uaData, uaString) {
+                        const parsedName = uaData.model || parseProcessorFromUA(uaString) || uaData.architecture || 'unknown';
+                        return {
+                            processorName: parsedName,
+                            architecture: uaData.architecture || (/\b(ARM|ARM64|AArch64|x86_64|x64|i[3-9]86|i[3-9]-\d{3,})\b/i.test(uaString) ? uaString.match(/\b(ARM|ARM64|AArch64|x86_64|x64|i[3-9]86|i[3-9]-\d{3,})\b/i)[0] : 'unknown'),
+                            model: uaData.model || 'unknown',
+                            platform: uaData.platform || navigator.platform || 'unknown',
+                            cores: typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : 'unknown',
+                            uaString: uaString || '',
+                            vendorHint: (uaString.match(/Intel|AMD|Apple|Qualcomm|Samsung|MediaTek/i) || ['unknown'])[0]
+                        };
+                    }
+
+                    function renderProcessorInfo(info, container) {
+                        const existing = container.querySelector('.Processor_Info');
+                        if (existing) existing.remove();
+
+                        const section = document.createElement('div');
+                        section.className = 'Processor_Info';
+                        section.style.marginTop = '10px';
+
+                        const header = document.createElement('div');
+                        header.textContent = 'Processor information';
+                        header.style.fontWeight = '700';
+                        header.style.marginBottom = '6px';
+                        header.style.fontSize = '10px';
+                        section.appendChild(header);
+
+                        const grid = document.createElement('div');
+                        grid.style.display = 'grid';
+                        grid.style.gridTemplateColumns = 'max-content 1fr';
+                        grid.style.gap = '6px 12px';
+                        grid.style.fontSize = '10px';
+
+                        Object.entries(info).forEach(([k, v]) => {
+                            const key = document.createElement('div');
+                            key.textContent = k;
+                            key.style.opacity = '0.85';
+                            const val = document.createElement('div');
+                            val.textContent = typeof v === 'object' ? JSON.stringify(v) : String(v);
+                            val.style.wordBreak = 'break-word';
+                            grid.appendChild(key);
+                            grid.appendChild(val);
+                        });
+
+                        section.appendChild(grid);
+                        container.appendChild(section);
+                    }
+
+                    async function showProcessor() {
+                        const gd = document.querySelector('.Get_Data');
+                        if (!gd) return;
+
+                        // find existing network panel or create a local panel if missing
+                        let panel = document.querySelector('.Network_Info_Panel');
+                        if (!panel) {
+                            panel = document.createElement('div');
+                            panel.className = 'Network_Info_Panel';
+                            panel.style.padding = '12px';
+                            panel.style.borderRadius = '8px';
+                            panel.style.maxWidth = '320px';
+                            panel.style.color = 'var(--Main_Text_Color_1, #fff)';
+                            panel.style.fontSize = '10px';
+                            panel.style.position = 'absolute';
+                            panel.style.top = '10px';
+                            panel.style.left = '10px';
+                            panel.style.zIndex = '9999';
+                            gd.appendChild(panel);
+                        }
+
+                        const uaString = navigator.userAgent || '';
+                        const uaData = await getUADataHighEntropy();
+
+                        const info = buildProcessorInfoObject(uaData, uaString);
+                        renderProcessorInfo(info, panel);
+                    }
+
+                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                    if (phoneBtn) phoneBtn.addEventListener('click', showProcessor, { once: true });
+
+                    // update on visibility change (optional): refresh when coming back online/visible
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') {
+                            const panel = document.querySelector('.Network_Info_Panel');
+                            if (panel) showProcessor();
+                        }
+                    });
+                })();
+            </script>
+        </div>
+    </div>
+
+    <div class="Login" style="display: none;">
         <div class="Window Menu_Window" style="width:160px; height:140px;">
             <div class="Window_Header">
                 <p class="Title">Menu </p>

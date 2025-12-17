@@ -50,3 +50,9 @@
 
     size Menu_Window accordingly to font
 
+
+
+
+
+
+if #Start_Using_Phone_System is pressed, then close .Start
