@@ -121,132 +121,64 @@
             /* GET DEVICE LOCATION */
             /* ============================================================================ */
 
-            (() => {
+            (async () => {
                 const el = document.querySelector('.Device_Location_Point');
-                if (!el) return;
+                if (!el || !navigator.geolocation) return;
+                el.textContent = '[Locating...]';
 
-                if (!navigator.geolocation) {
-                    el.textContent = '[Geolocation Not Supported]';
-                    return;
+                const US_STATES = {
+                    "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
+                    "connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID",
+                    "illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA",
+                    "maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS",
+                    "missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ",
+                    "new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK",
+                    "oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD",
+                    "tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA",
+                    "west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"
+                };
+
+                function formatLocation(city, region, country) {
+                    // final format: (City Name, AA, Country)
+                    if (!city) city = '';
+                    if (!region) region = '';
+                    if (!country) country = '';
+                    return `(${city.trim() || 'Unknown'}, ${region.trim() || '??'}, ${country.trim() || 'Unknown'})`;
                 }
 
-                let watchId = null;
-                const showPosition = (pos) => {
-                    const lat = pos.coords.latitude.toFixed(4);
-                    const lon = pos.coords.longitude.toFixed(4);
-                    const acc = pos.coords.accuracy ? `${Math.round(pos.coords.accuracy)}m` : 'n/a';
-                    el.textContent = `[${lat}, ${lon}] (±${acc})`;
-                };
-                const showError = (err) => {
-                    switch (err.code) {
-                        case err.PERMISSION_DENIED: el.textContent = '[Permission denied]'; break;
-                        case err.POSITION_UNAVAILABLE: el.textContent = '[Position unavailable]'; break;
-                        case err.TIMEOUT: el.textContent = '[Timeout]'; break;
-                        default: el.textContent = '[Location error]'; break;
+                navigator.geolocation.getCurrentPosition(async pos => {
+                    try {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1`;
+                        const resp = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                        if (!resp.ok) throw new Error('geocode failed');
+                        const data = await resp.json();
+                        const a = data.address || {};
+
+                        const city = a.city || a.town || a.village || a.municipality || a.hamlet || a.county || '';
+                        const country = a.country || '';
+                        const cc = (a.country_code || '').toUpperCase();
+
+                        let region = '';
+                        if (a.state_code) region = a.state_code.toUpperCase();
+                        else if (a.state) {
+                            const s = a.state.toLowerCase();
+                            if (cc === 'US' && US_STATES[s]) region = US_STATES[s];
+                            else region = a.state; // fallback to full state name
+                        } else if (a.region) region = a.region;
+                        else if (a.county) region = a.county;
+
+                        el.textContent = formatLocation(city, region, country);
+                    } catch (e) {
+                        el.textContent = '[Location unavailable]';
+                        console.error(e);
                     }
-                };
-
-                const startWatch = () => {
-                    if (watchId !== null) return;
-                    watchId = navigator.geolocation.watchPosition(showPosition, showError, {
-                        enableHighAccuracy: true,
-                        maximumAge: 5000,
-                        timeout: 10000
-                    });
-                };
-
-                // Prefer Permissions API to react to permission changes
-                if (navigator.permissions && navigator.permissions.query) {
-                    navigator.permissions.query({ name: 'geolocation' }).then((status) => {
-                        if (status.state === 'denied') {
-                            el.textContent = '[Permission denied]';
-                            return;
-                        }
-                        // request immediately and then watch for updates
-                        navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
-                        startWatch();
-                        status.onchange = () => {
-                            if (status.state === 'denied') {
-                                if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-                                el.textContent = '[Permission denied]';
-                            } else {
-                                startWatch();
-                            }
-                        };
-                    }).catch(() => {
-                        // fallback if Permissions API unavailable/unexpected error
-                        navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
-                        startWatch();
-                    });
-                } else {
-                    // no Permissions API — request once and start watching
-                    navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
-                    startWatch();
-                }
-
-                // cleanup when page is unloaded/hidden
-                window.addEventListener('pagehide', () => {
-                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-                });
+                }, err => {
+                    el.textContent = '[Permission denied or unavailable]';
+                    console.warn(err);
+                }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
             })();
-        (() => {
-            const el = document.querySelector('.Device_Location_Point');
-            if (!el || !navigator.geolocation) return;
-
-            let lastLat = null;
-            let lastLon = null;
-            const THRESHOLD = 0.0001; // avoid excessive reverse-geocoding for tiny movements
-            let controller = null;
-
-            async function reverseGeocode(lat, lon) {
-                // skip if position hasn't meaningfully changed
-                if (lastLat !== null && Math.abs(lat - lastLat) < THRESHOLD && Math.abs(lon - lastLon) < THRESHOLD) return;
-                lastLat = lat; lastLon = lon;
-
-                if (controller) controller.abort();
-                controller = new AbortController();
-
-                try {
-                    el.textContent = 'Resolving...';
-                    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&addressdetails=1`;
-                    const resp = await fetch(url, { signal: controller.signal });
-                    if (!resp.ok) throw new Error('Reverse geocode failed');
-                    const json = await resp.json();
-                    const addr = json.address || {};
-                    const city = addr.city || addr.town || addr.village || addr.hamlet || addr.county || '';
-                    const state = addr.state || addr.region || '';
-                    const country = addr.country || '';
-
-                    const parts = [city, state, country].filter(Boolean);
-                    if (parts.length === 0) {
-                        el.textContent = `(${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-                    } else {
-                        el.textContent = `(${parts.join(', ')})`;
-                    }
-                } catch (err) {
-                    if (err.name === 'AbortError') return;
-                    el.textContent = `(${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-                }
-            }
-
-            // seed with a one-shot and then watch for updates
-            navigator.geolocation.getCurrentPosition(
-                p => reverseGeocode(p.coords.latitude, p.coords.longitude),
-                () => {},
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-
-            const watchId = navigator.geolocation.watchPosition(
-                p => reverseGeocode(p.coords.latitude, p.coords.longitude),
-                () => {},
-                { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
-            );
-
-            window.addEventListener('pagehide', () => {
-                if (watchId != null) navigator.geolocation.clearWatch(watchId);
-                if (controller) controller.abort();
-            });
-        })();
         </script>
 
         <div class="Window Start_Window" style="width:280px; height:220px;">
