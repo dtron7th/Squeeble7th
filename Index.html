@@ -170,12 +170,15 @@
                         } else if (a.region) region = a.region;
                         else if (a.county) region = a.county;
 
+                        el.style.fontSize = '10px';
                         el.textContent = formatLocation(city, region, country);
                     } catch (e) {
+                        el.style.fontSize = '10px';
                         el.textContent = '[Location unavailable]';
                         console.error(e);
                     }
                 }, err => {
+                    el.style.fontSize = '10px';
                     el.textContent = '[Permission denied or unavailable]';
                     console.warn(err);
                 }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
