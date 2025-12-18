@@ -36,6 +36,161 @@
         </style>
     </div>
     <div class="Start">
+        <div class="Top_UI">
+            <div class="Clock">
+                <p class="Clock_HMSM">12:00:00 PM</p>
+                <p class="Clock_DMY">DD/MM/YYYY</p>
+            </div>
+            <div class="Device_Location">
+                <p class="Device_Location_Point">[Location]</p>
+            </div>
+        </div>
+        <style>
+            .Top_UI {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+
+            .Top_UI > .Clock > .Clock_HMSM {
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_4);
+            }
+
+            .Top_UI > .Clock > .Clock_DMY {
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_2);
+            }
+
+            .Top_UI > .Device_Location > .Device_Location_Point {
+                position: absolute;
+                top: 60px;
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_2);
+            }
+        </style>
+
+        <script aria-label="Top_UI_Script">
+
+            /* ============================================================================ */
+            /* SET CLOCK */
+            /* ============================================================================ */
+            (() => {
+                const el = document.querySelector('.Clock_HMSM');
+                if (!el) return;
+
+                const pad = (n, d = 2) => String(n).padStart(d, '0');
+
+                function update() {
+                    const now = new Date();
+                    let h = now.getHours();
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    h = h % 12 || 12;
+                    const m = pad(now.getMinutes());
+                    const s = pad(now.getSeconds());
+                    const ms = String(now.getMilliseconds()).padStart(3, '0');
+                    el.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
+                    requestAnimationFrame(update);
+                }
+
+                requestAnimationFrame(update);
+            })();
+
+            /* ============================================================================ */
+            /* SET DATE */
+            /* ============================================================================ */
+
+            (() => {
+                const el = document.querySelector('.Clock_DMY');
+                if (!el) return;
+
+                const pad = (n, d = 2) => String(n).padStart(d, '0');
+
+                function update() {
+                    const now = new Date();
+                    const d = pad(now.getDate());
+                    const m = pad(now.getMonth() + 1);
+                    const y = now.getFullYear();
+                    el.textContent = `${d}/${m}/${y}`;
+                }
+
+                update();
+            })();
+
+            /* ============================================================================ */
+            /* GET DEVICE LOCATION */
+            /* ============================================================================ */
+
+            (() => {
+                const el = document.querySelector('.Device_Location_Point');
+                if (!el) return;
+
+                if (!navigator.geolocation) {
+                    el.textContent = '[Geolocation Not Supported]';
+                    return;
+                }
+
+                let watchId = null;
+                const showPosition = (pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lon = pos.coords.longitude.toFixed(4);
+                    const acc = pos.coords.accuracy ? `${Math.round(pos.coords.accuracy)}m` : 'n/a';
+                    el.textContent = `[${lat}, ${lon}] (±${acc})`;
+                };
+                const showError = (err) => {
+                    switch (err.code) {
+                        case err.PERMISSION_DENIED: el.textContent = '[Permission denied]'; break;
+                        case err.POSITION_UNAVAILABLE: el.textContent = '[Position unavailable]'; break;
+                        case err.TIMEOUT: el.textContent = '[Timeout]'; break;
+                        default: el.textContent = '[Location error]'; break;
+                    }
+                };
+
+                const startWatch = () => {
+                    if (watchId !== null) return;
+                    watchId = navigator.geolocation.watchPosition(showPosition, showError, {
+                        enableHighAccuracy: true,
+                        maximumAge: 5000,
+                        timeout: 10000
+                    });
+                };
+
+                // Prefer Permissions API to react to permission changes
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+                        if (status.state === 'denied') {
+                            el.textContent = '[Permission denied]';
+                            return;
+                        }
+                        // request immediately and then watch for updates
+                        navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
+                        startWatch();
+                        status.onchange = () => {
+                            if (status.state === 'denied') {
+                                if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                                el.textContent = '[Permission denied]';
+                            } else {
+                                startWatch();
+                            }
+                        };
+                    }).catch(() => {
+                        // fallback if Permissions API unavailable/unexpected error
+                        navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
+                        startWatch();
+                    });
+                } else {
+                    // no Permissions API — request once and start watching
+                    navigator.geolocation.getCurrentPosition(showPosition, showError, { enableHighAccuracy: true, timeout: 10000 });
+                    startWatch();
+                }
+
+                // cleanup when page is unloaded/hidden
+                window.addEventListener('pagehide', () => {
+                    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                });
+            })();
+        </script>
+
         <div class="Window Start_Window" style="width:280px; height:220px;">
             <div class="Window_Header">
                 <p class="Title">Start</p>
@@ -46,8 +201,8 @@
                     <p>Welcome to Eden Economy! Please select your platform to continue.</p>
                 </div>
                 <div class="Start_Navigator">
-                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System">[Desktop]</button>
-                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System">[Phone]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_IOS_System">[IOS Device]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_APK_System">[APK Device]</button>
                 </div>
             </div>
         </div>
@@ -80,7 +235,7 @@
                 width: 100%;
                 display: flex;
                 flex-direction: row;
-                gap: 50px;
+                gap: 20px;
                 justify-content: center;
             }
 
@@ -129,7 +284,7 @@
 
                 .Download_APK_Window > .Content > .Download_Button {
                     position: absolute;
-                    bottom: 10px;
+                    bottom: 20px;
                     width: 100%;
                     display: flex;
                     justify-content: center;
@@ -140,9 +295,9 @@
                 }
             </style>
 
-            <script>
+            <script aria-label="Open_Close_Funtions">
                 (() => {
-                    const btn = document.getElementById('Start_Using_Phone_System');
+                    const btn = document.getElementById('Start_Using_APK_System');
                     const win = document.getElementById('Download_APK_Window');
                     if (!btn || !win) return;
 
@@ -165,64 +320,6 @@
                 })();
             </script>
         </div>
-    </div>
-
-    
-    <div class="Login" style="display: none;">
-        <div class="Window Menu_Window" style="width:160px; height:140px;">
-            <div class="Window_Header">
-                <p class="Title">Menu </p>
-            </div>
-            <div class="Content">
-                <div class="Menu_List">
-                    <button class="Menu_Item">[Login]</button>
-                    <button class="Menu_Item">[Sign Up]</button>
-                    <button class="Menu_Item">[Character Sheet]</button>
-                    <button class="Menu_Item">[Theme]</button>
-                </div>
-                <style aria-label="Menu_List_Style">
-                    .Menu_List {
-                        position: absolute;
-                        top: 10px;
-                        left: 0px;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                    }
-
-                    .Menu_List > .Menu_Item {
-                        text-align: left;
-                    }
-
-                    .Menu_List > .Menu_Item > .Menu_Item:hover {
-                        background-color: var(--UI-Buttons-Fields-Color-2);
-                    }
-                </Style>
-            </div>
-            
-            <Script aria-label="Menu_Window_Script">
-                (() => {
-                    const win = document.querySelector('.Menu_Window');
-                    if (!win) return;
-                    const computed = getComputedStyle(win);
-                    if (computed.position === 'static') win.style.position = 'absolute';
-                    // Only set defaults if not already positioned
-                    if (!win.style.left) win.style.left = '10px';
-                    if (!win.style.top) win.style.top = '10px';
-                })();
-            </Script>
-        </div>
-    </div>
-        </div>
-    </div>
-    <div class="Home_Main_1">
-
-    </div>
-    <div class="Home_Main_2">
-
-    </div>
-    <div class="Home_Main_3">
-
     </div>
     
     <script aria-label="Essentials_Script">
