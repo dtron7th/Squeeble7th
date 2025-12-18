@@ -104,6 +104,8 @@
                 const el = document.querySelector('.Clock_DMY');
                 if (!el) return;
 
+                el.style.fontSize = '10px';
+
                 const pad = (n, d = 2) => String(n).padStart(d, '0');
 
                 function update() {
