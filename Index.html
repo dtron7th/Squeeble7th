@@ -124,6 +124,7 @@
             (async () => {
                 const el = document.querySelector('.Device_Location_Point');
                 if (!el || !navigator.geolocation) return;
+                el.style.fontSize = '10px';
                 el.textContent = '[Locating...]';
 
                 const US_STATES = {
