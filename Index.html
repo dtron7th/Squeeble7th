@@ -738,6 +738,38 @@
             window.addEventListener('resize', clampAllWindows);
             window.addEventListener('load', clampAllWindows);
         })();
+
+        /* ============================================================================ */
+        /* BRING ACTIVE WINDOW TO FRONT */
+        /* ============================================================================ */
+
+        (() => {
+            let topZ = 10;
+            // initialize topZ from existing windows
+            document.querySelectorAll('.Window').forEach(w => {
+                const z = parseInt(getComputedStyle(w).zIndex, 10);
+                if (Number.isFinite(z) && z >= topZ) topZ = z + 1;
+                // make windows focusable so keyboard focus can also bring to front
+                if (!w.hasAttribute('tabindex')) w.setAttribute('tabindex', '0');
+                // bring to front when header or window gets pointerdown
+                w.addEventListener('pointerdown', () => bringToFront(w));
+                const hdr = w.querySelector('.Window_Header');
+                if (hdr) hdr.addEventListener('pointerdown', (e) => { e.stopPropagation(); bringToFront(w); });
+                // bring to front on focus (keyboard)
+                w.addEventListener('focus', () => bringToFront(w));
+            });
+
+            function bringToFront(win) {
+                if (!win) return;
+                topZ += 1;
+                win.style.zIndex = String(topZ);
+                // optional active class for styling
+                document.querySelectorAll('.Window').forEach(w => w.classList.toggle('active', w === win));
+            }
+
+            // expose for debugging if needed
+            window.__bringWindowToFront = bringToFront;
+        })();
     </script>
 </body>
 </html>
