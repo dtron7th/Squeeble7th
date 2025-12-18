@@ -79,6 +79,8 @@
                 const el = document.querySelector('.Clock_HMSM');
                 if (!el) return;
 
+                el.style.fontSize = '14px';
+
                 const pad = (n, d = 2) => String(n).padStart(d, '0');
 
                 function update() {
