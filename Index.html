@@ -42,36 +42,188 @@
             <div class="Glass">
 
             </div>
+
+            <style aria-label="Wallpaper_Style">
+                .Wallpaper {
+                    width: 100dvw;
+                    height: 100dvh;
+                    z-index: -1;
+                }
+
+                .Wallpaper_List {
+                    width: 100dvw;
+                    height: 100dvh;
+                    
+                }
+
+                .Wallpaper_Image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .Glass {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    backdrop-filter: blur(10px);
+                }
+            </style>
+            
+            <script aria-label="Wallpaper_Slideshow">
+                (() => {
+                    const FADE_IN_MS = 800;
+                    const BLEND_MODE = 'screen'; // try 'overlay', 'lighten', 'multiply', etc.
+
+                    // inject fade-in keyframes/style
+                    (function() {
+                        const s = document.createElement('style');
+                        s.textContent = `
+                        @keyframes wallpaperFadeIn {
+                            from { opacity: 0; }
+                            to   { opacity: 1; }
+                        }
+                        .wallpaper-fade {
+                            animation: wallpaperFadeIn ${FADE_IN_MS}ms ease both;
+                        }`;
+                        document.head.appendChild(s);
+                    })();
+
+                    // observe inline style opacity changes and apply fade class when an image becomes visible
+                    (function() {
+                        const observer = new MutationObserver(mutations => {
+                            for (const m of mutations) {
+                                const t = m.target;
+                                if (!(t instanceof HTMLElement)) continue;
+                                if (!t.classList.contains('Wallpaper_Image')) continue;
+                                if (t.style && (t.style.opacity === '1' || t.style.opacity === '1.0')) {
+                                    t.classList.add('wallpaper-fade');
+                                    clearTimeout(t.___fadeRemoveTimer);
+                                    t.___fadeRemoveTimer = setTimeout(() => {
+                                        t.classList.remove('wallpaper-fade');
+                                        delete t.___fadeRemoveTimer;
+                                    }, FADE_IN_MS + 50);
+                                }
+                            }
+                        });
+
+                        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+                        window.addEventListener('beforeunload', () => observer.disconnect());
+                    })();
+
+                    const container = document.querySelector('.Wallpaper_List');
+                    if (!container) return;
+
+                    const imgs = Array.from(container.querySelectorAll('img.Wallpaper_Image'));
+                    if (!imgs.length) return;
+
+                    // config (ms)
+                    const displayDuration = 5000;      // time each image is fully visible
+                    const transitionDuration = 1000;   // crossfade duration
+
+                    // set container and image base styles
+                    Object.assign(container.style, {
+                        position: 'relative',
+                        zIndex: '-1',
+                        overflow: 'hidden',
+                        isolation: 'isolate' // ensure blend modes compose within the container
+                    });
+
+                    imgs.forEach((img, i) => {
+                        Object.assign(img.style, {
+                            position: 'absolute',
+                            inset: '0',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: `opacity ${transitionDuration}ms ease`,
+                            opacity: '0',
+                            pointerEvents: 'none',
+                            willChange: 'opacity, transform',
+                            mixBlendMode: BLEND_MODE,
+                            transform: 'translateZ(0)' // promote to its own layer for smoother compositing
+                        });
+                        img.dataset.wallIndex = i;
+                    });
+
+                    // Fisher-Yates shuffle
+                    function shuffle(array) {
+                        for (let i = array.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [array[i], array[j]] = [array[j], array[i]];
+                        }
+                        return array;
+                    }
+
+                    // build playback order (array of image elements)
+                    let order = shuffle(imgs.slice());
+                    let current = 0;
+                    let timer = null;
+
+                    // show a specific image element (crossfade from current to next)
+                    function showIndex(nextIndex) {
+                        const nextImg = order[nextIndex];
+                        const curImg = order[current];
+
+                        if (nextImg === curImg) {
+                            nextImg.style.opacity = '1';
+                            return;
+                        }
+
+                        // ensure next is on top visually by DOM order; move it to end if necessary
+                        if (nextImg && nextImg.parentElement) nextImg.parentElement.appendChild(nextImg);
+
+                        // bring next to visible (both visible for blend)
+                        nextImg.style.opacity = '1';
+
+                        // fade out previous after a tiny overlap to let blending occur
+                        if (curImg) {
+                            setTimeout(() => {
+                                curImg.style.opacity = '0';
+                            }, 10);
+                        }
+
+                        current = nextIndex;
+                    }
+
+                    // advance to next, reshuffle after a full loop
+                    function advance() {
+                        const next = (current + 1) % order.length;
+                        showIndex(next);
+
+                        // if we've completed a loop, reshuffle order but keep the currently visible image first
+                        if (next === 0) {
+                            const visible = order[current];
+                            const remaining = imgs.filter(i => i !== visible);
+                            shuffle(remaining);
+                            order = [visible, ...remaining];
+                            current = 0;
+                        }
+                    }
+
+                    // preload images and start slideshow
+                    Promise.all(order.map(img => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise(res => { img.onload = img.onerror = res; });
+                    })).then(() => {
+                        // ensure all start hidden, then reveal first without flash
+                        order.forEach(img => img.style.opacity = '0');
+                        order[0].style.opacity = '1';
+                        current = 0;
+
+                        // start interval
+                        timer = setInterval(advance, displayDuration);
+                    });
+
+                    // cleanup
+                    window.addEventListener('beforeunload', () => {
+                        if (timer) clearInterval(timer);
+                    });
+                })();
+            </script>
         </div>
-
-        <style aria-label="Wallpaper_Style">
-            .Wallpaper {
-                width: 100dvw;
-                height: 100dvh;
-                z-index: -1;
-            }
-
-            .Wallpaper_List {
-                width: 100dvw;
-                height: 100dvh;
-                
-            }
-
-            .Wallpaper_Image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .Glass {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100dvw;
-                height: 100dvh;
-                backdrop-filter: blur(10px);
-            }
-        </style>
 
         <div class="Top_UI">
             <div class="Details">
@@ -92,205 +244,206 @@
                 <button id="About">[Character Sheet]</button>
                 <button id="About">[Version]</button>
             </div>
-        </div>
-        <style aria-label="Top_UI_Style">
-            .Top_UI {
-                position: absolute;
-                top: 10px;
-                width: 100%;
-            }
 
-            .Top_UI > .Details {
-                position: absolute;
-                right: 10px;
+            <style aria-label="Top_UI_Style">
+                .Top_UI {
+                    position: absolute;
+                    top: 10px;
+                    width: 100%;
+                }
 
-            }
+                .Top_UI > .Details {
+                    position: absolute;
+                    right: 10px;
 
-            .Top_UI > .Details > .Clock > .Clock_HMSM {
-                color: var(--Main_Text_Color_1);
+                }
 
-            }
+                .Top_UI > .Details > .Clock > .Clock_HMSM {
+                    color: var(--Main_Text_Color_1);
 
-            .Top_UI > .Details > .Clock > .Clock_DMY {
-                color: var(--Main_Text_Color_1);
-            }
+                }
 
-            .Top_UI > .Details > .Device_Location {
-                position: absolute;
-                top: 60px;
-                color: var(--Main_Text_Color_1);
+                .Top_UI > .Details > .Clock > .Clock_DMY {
+                    color: var(--Main_Text_Color_1);
+                }
 
-            }
+                .Top_UI > .Details > .Device_Location {
+                    position: absolute;
+                    top: 60px;
+                    color: var(--Main_Text_Color_1);
 
-            .Top_UI > .Details > .Network_Name {
-                position: absolute;
-                top: 110px;
-                color: var(--Main_Text_Color_1);
-            }
+                }
 
-            .Top_UI > .User_Information {
-                position: absolute;
-                left: 10px;
-                color: var(--Main_Text_Color_1);
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-        </style>
+                .Top_UI > .Details > .Network_Name {
+                    position: absolute;
+                    top: 110px;
+                    color: var(--Main_Text_Color_1);
+                }
 
-        <script aria-label="Top_UI_Script">
+                .Top_UI > .User_Information {
+                    position: absolute;
+                    left: 10px;
+                    color: var(--Main_Text_Color_1);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+                
+            </style>
 
-            /* ============================================================================ */
-            /* SET CLOCK */
-            /* ============================================================================ */
-            (() => {
-                const el = document.querySelector('.Clock_HMSM');
-                if (!el) return;
+            <script aria-label="Top_UI_Script">
 
-                el.style.fontSize = '14px';
+                /* ============================================================================ */
+                /* SET CLOCK */
+                /* ============================================================================ */
+                (() => {
+                    const el = document.querySelector('.Clock_HMSM');
+                    if (!el) return;
 
-                const pad = (n, d = 2) => String(n).padStart(d, '0');
+                    el.style.fontSize = '14px';
 
-                function update() {
-                    const now = new Date();
-                    let h = now.getHours();
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    h = h % 12 || 12;
-                    const m = pad(now.getMinutes());
-                    const s = pad(now.getSeconds());
-                    const ms = String(now.getMilliseconds()).padStart(3, '0');
-                    el.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
+                    const pad = (n, d = 2) => String(n).padStart(d, '0');
+
+                    function update() {
+                        const now = new Date();
+                        let h = now.getHours();
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        h = h % 12 || 12;
+                        const m = pad(now.getMinutes());
+                        const s = pad(now.getSeconds());
+                        const ms = String(now.getMilliseconds()).padStart(3, '0');
+                        el.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
+                        requestAnimationFrame(update);
+                    }
+
                     requestAnimationFrame(update);
-                }
+                })();
 
-                requestAnimationFrame(update);
-            })();
+                /* ============================================================================ */
+                /* SET DATE */
+                /* ============================================================================ */
 
-            /* ============================================================================ */
-            /* SET DATE */
-            /* ============================================================================ */
-
-            (() => {
-                const el = document.querySelector('.Clock_DMY');
-                if (!el) return;
-
-                el.style.fontSize = '10px';
-
-                const pad = (n, d = 2) => String(n).padStart(d, '0');
-
-                function update() {
-                    const now = new Date();
-                    const d = pad(now.getDate());
-                    const m = pad(now.getMonth() + 1);
-                    const y = now.getFullYear();
-                    el.textContent = `${d}/${m}/${y}`;
-                }
-
-                update();
-            })();
-
-            /* ============================================================================ */
-            /* GET DEVICE LOCATION */
-            /* ============================================================================ */
-
-            (async () => {
-                const el = document.querySelector('.Device_Location_Point');
-                if (!el || !navigator.geolocation) return;
-                el.style.fontSize = '10px';
-                el.textContent = '[Locating...]';
-
-                const US_STATES = {
-                    "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
-                    "connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID",
-                    "illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA",
-                    "maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS",
-                    "missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ",
-                    "new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK",
-                    "oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD",
-                    "tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA",
-                    "west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"
-                };
-
-                function formatLocation(city, region, country) {
-                    // final format: (City Name, AA, Country)
-                    if (!city) city = '';
-                    if (!region) region = '';
-                    if (!country) country = '';
-                    return `(${city.trim() || 'Unknown'}, ${region.trim() || '??'}, ${country.trim() || 'Unknown'})`;
-                }
-
-                navigator.geolocation.getCurrentPosition(async pos => {
-                    try {
-                        const lat = pos.coords.latitude;
-                        const lon = pos.coords.longitude;
-                        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1`;
-                        const resp = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-                        if (!resp.ok) throw new Error('geocode failed');
-                        const data = await resp.json();
-                        const a = data.address || {};
-
-                        const city = a.city || a.town || a.village || a.municipality || a.hamlet || a.county || '';
-                        const country = a.country || '';
-                        const cc = (a.country_code || '').toUpperCase();
-
-                        let region = '';
-                        if (a.state_code) region = a.state_code.toUpperCase();
-                        else if (a.state) {
-                            const s = a.state.toLowerCase();
-                            if (cc === 'US' && US_STATES[s]) region = US_STATES[s];
-                            else region = a.state; // fallback to full state name
-                        } else if (a.region) region = a.region;
-                        else if (a.county) region = a.county;
-
-                        el.style.fontSize = '10px';
-                        el.textContent = formatLocation(city, region, country);
-                    } catch (e) {
-                        el.style.fontSize = '10px';
-                        el.textContent = 'Location unavailable';
-                        console.error(e);
-                    }
-                }, err => {
-                    el.style.fontSize = '10px';
-                    el.textContent = 'Permission denied or unavailable';
-                    console.warn(err);
-                }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
-            })();
-
-            /* ============================================================================ */
-            /* GET NETWORK NAME */
-            /* ============================================================================ */
-
-            (async () => {
-                const el = document.querySelector('.Current_Network_Name');
-                if (!el) return;
-                el.style.fontSize = '10px';
-                el.textContent = '[Network Unavailable]';
-
-                try {
-                    const resp = await fetch('https://api.ipify.org?format=json');
-                    if (!resp.ok) throw new Error('network fetch failed');
-                    const data = await resp.json();
-                    const ip = data.ip || '';
-
-                    // Simple hash to generate a pseudo network name from IP
-                    let hash = 0;
-                    for (let i = 0; i < ip.length; i++) {
-                        hash = ((hash << 5) - hash) + ip.charCodeAt(i);
-                        hash |= 0; // Convert to 32bit integer
-                    }
-                    const networkName = 'Net-' + Math.abs(hash).toString(36).toUpperCase().slice(0, 6);
+                (() => {
+                    const el = document.querySelector('.Clock_DMY');
+                    if (!el) return;
 
                     el.style.fontSize = '10px';
-                    el.textContent = networkName;
-                } catch (e) {
+
+                    const pad = (n, d = 2) => String(n).padStart(d, '0');
+
+                    function update() {
+                        const now = new Date();
+                        const d = pad(now.getDate());
+                        const m = pad(now.getMonth() + 1);
+                        const y = now.getFullYear();
+                        el.textContent = `${d}/${m}/${y}`;
+                    }
+
+                    update();
+                })();
+
+                /* ============================================================================ */
+                /* GET DEVICE LOCATION */
+                /* ============================================================================ */
+
+                (async () => {
+                    const el = document.querySelector('.Device_Location_Point');
+                    if (!el || !navigator.geolocation) return;
+                    el.style.fontSize = '10px';
+                    el.textContent = '[Locating...]';
+
+                    const US_STATES = {
+                        "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
+                        "connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID",
+                        "illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA",
+                        "maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS",
+                        "missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ",
+                        "new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK",
+                        "oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD",
+                        "tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA",
+                        "west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"
+                    };
+
+                    function formatLocation(city, region, country) {
+                        // final format: (City Name, AA, Country)
+                        if (!city) city = '';
+                        if (!region) region = '';
+                        if (!country) country = '';
+                        return `(${city.trim() || 'Unknown'}, ${region.trim() || '??'}, ${country.trim() || 'Unknown'})`;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(async pos => {
+                        try {
+                            const lat = pos.coords.latitude;
+                            const lon = pos.coords.longitude;
+                            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1`;
+                            const resp = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                            if (!resp.ok) throw new Error('geocode failed');
+                            const data = await resp.json();
+                            const a = data.address || {};
+
+                            const city = a.city || a.town || a.village || a.municipality || a.hamlet || a.county || '';
+                            const country = a.country || '';
+                            const cc = (a.country_code || '').toUpperCase();
+
+                            let region = '';
+                            if (a.state_code) region = a.state_code.toUpperCase();
+                            else if (a.state) {
+                                const s = a.state.toLowerCase();
+                                if (cc === 'US' && US_STATES[s]) region = US_STATES[s];
+                                else region = a.state; // fallback to full state name
+                            } else if (a.region) region = a.region;
+                            else if (a.county) region = a.county;
+
+                            el.style.fontSize = '10px';
+                            el.textContent = formatLocation(city, region, country);
+                        } catch (e) {
+                            el.style.fontSize = '10px';
+                            el.textContent = 'Location unavailable';
+                            console.error(e);
+                        }
+                    }, err => {
+                        el.style.fontSize = '10px';
+                        el.textContent = 'Permission denied or unavailable';
+                        console.warn(err);
+                    }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
+                })();
+
+                /* ============================================================================ */
+                /* GET NETWORK NAME */
+                /* ============================================================================ */
+
+                (async () => {
+                    const el = document.querySelector('.Current_Network_Name');
+                    if (!el) return;
                     el.style.fontSize = '10px';
                     el.textContent = '[Network Unavailable]';
-                    console.error(e);
-                }
-            })();
-        </script>
+
+                    try {
+                        const resp = await fetch('https://api.ipify.org?format=json');
+                        if (!resp.ok) throw new Error('network fetch failed');
+                        const data = await resp.json();
+                        const ip = data.ip || '';
+
+                        // Simple hash to generate a pseudo network name from IP
+                        let hash = 0;
+                        for (let i = 0; i < ip.length; i++) {
+                            hash = ((hash << 5) - hash) + ip.charCodeAt(i);
+                            hash |= 0; // Convert to 32bit integer
+                        }
+                        const networkName = 'Net-' + Math.abs(hash).toString(36).toUpperCase().slice(0, 6);
+
+                        el.style.fontSize = '10px';
+                        el.textContent = networkName;
+                    } catch (e) {
+                        el.style.fontSize = '10px';
+                        el.textContent = '[Network Unavailable]';
+                        console.error(e);
+                    }
+                })();
+            </script>
+        </div>
 
         <div class="Window Start_Window" style="width:280px; height:220px;">
             <div class="Window_Header">
@@ -306,44 +459,46 @@
                     <button class="Start_Navigator_Button" id="Start_Using_APK_System">[APK Device]</button>
                 </div>
             </div>
+
+            <style aria-label="Start_Window_Style">
+                .Start {
+                    width: 100dvw;
+                    height: 100dvh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .Start_Window {
+                    position: absolute;
+                    
+                }
+
+                .Start_Window > .Content > .Paragraph {
+                    position: absolute;
+                    top: 40px;
+                    color: var(--Main_Text_Color_1);
+                    font-size: var(--Main_Text_2);
+                    text-align: center;
+                    width: 240px;
+                }
+
+                .Start_Window > .Content > .Start_Navigator {
+                    position: absolute;
+                    bottom: 20px;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: row;
+                    gap: 20px;
+                    justify-content: center;
+                }
+
+                .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
+                    font-size: var(--Main_Text_2);
+                }
+            </style>
         </div>
-        <style aria-label="Start_Window_Style">
-            .Start {
-                width: 100dvw;
-                height: 100dvh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .Start_Window {
-                position: absolute;
-                
-            }
-
-            .Start_Window > .Content > .Paragraph {
-                position: absolute;
-                top: 40px;
-                color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_2);
-                text-align: center;
-                width: 240px;
-            }
-
-            .Start_Window > .Content > .Start_Navigator {
-                position: absolute;
-                bottom: 20px;
-                width: 100%;
-                display: flex;
-                flex-direction: row;
-                gap: 20px;
-                justify-content: center;
-            }
-
-            .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
-                font-size: var(--Main_Text_2);
-            }
-        </style>
+      
 
         <div class="Sub_Windows">
             <div class="Window Download_APK_Window" id="Download_APK_Window" style="width:180px; height:140px; display: none;">
@@ -583,9 +738,7 @@
             window.addEventListener('resize', clampAllWindows);
             window.addEventListener('load', clampAllWindows);
         })();
-
     </script>
-
 </body>
 </html>
 
