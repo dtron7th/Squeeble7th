@@ -9,12 +9,11 @@
 
 </head>
 <body>
-    <style>
+    <style aria-label="Body_Style">
         body {
             background-color: rgb(0, 0, 0);
             width: 100dvw;
             height: 100dvh;
-            
         }
     </style>
     <div class="Dot_Grid">
@@ -36,48 +35,109 @@
         </style>
     </div>
     <div class="Start">
-        <div class="Top_UI">
-            <div class="Clock">
-                <p class="Clock_HMSM">12:00:00 PM</p>
-                <p class="Clock_DMY">DD/MM/YYYY</p>
+        <div class="Wallpaper">
+            <div class="Wallpaper_List">
+                <img class="Wallpaper_Image" src="Images/Wallpaper/b500e55b3217276247faa66a028a432b.jpg" alt="Wallpaper 1">
             </div>
-            <div class="Device_Location">
-                <p class="Device_Location_Point">Location</p>
-            </div>
-            <div class="Network_Name">
-                <p class="Current_Network_Name">Network Name</p>
+            <div class="Glass">
+
             </div>
         </div>
-        <style>
+
+        <style aria-label="Wallpaper_Style">
+            .Wallpaper {
+                width: 100dvw;
+                height: 100dvh;
+                z-index: -1;
+            }
+
+            .Wallpaper_List {
+                width: 100dvw;
+                height: 100dvh;
+                
+            }
+
+            .Wallpaper_Image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .Glass {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100dvw;
+                height: 100dvh;
+                backdrop-filter: blur(10px);
+            }
+        </style>
+
+        <div class="Top_UI">
+            <div class="Details">
+                <div class="Clock">
+                    <p class="Clock_HMSM">12:00:00 PM</p>
+                    <p class="Clock_DMY">DD/MM/YYYY</p>
+                </div>
+                <div class="Device_Location">
+                    <p class="Device_Location_Point">Location</p>
+                </div>
+                <div class="Network_Name">
+                    <p class="Current_Network_Name">Network Name</p>
+                </div>
+            </div>
+            <div class="User_Information">
+                <button id="About">[About]</button>
+                <button id="About">[Road Map]</button>
+                <button id="About">[Character Sheet]</button>
+                <button id="About">[Version]</button>
+            </div>
+        </div>
+        <style aria-label="Top_UI_Style">
             .Top_UI {
                 position: absolute;
                 top: 10px;
+                width: 100%;
+            }
+
+            .Top_UI > .Details {
+                position: absolute;
                 right: 10px;
+
             }
 
-            .Top_UI > .Clock > .Clock_HMSM {
+            .Top_UI > .Details > .Clock > .Clock_HMSM {
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_2);
+
             }
 
-            .Top_UI > .Clock > .Clock_DMY {
+            .Top_UI > .Details > .Clock > .Clock_DMY {
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_1);
             }
 
-            .Top_UI > .Device_Location {
+            .Top_UI > .Details > .Device_Location {
                 position: absolute;
                 top: 60px;
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_1);
+
             }
 
-            .Top_UI > .Network_Name {
+            .Top_UI > .Details > .Network_Name {
                 position: absolute;
                 top: 110px;
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_1);
             }
+
+            .Top_UI > .User_Information {
+                position: absolute;
+                left: 10px;
+                color: var(--Main_Text_Color_1);
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
         </style>
 
         <script aria-label="Top_UI_Script">
@@ -301,7 +361,7 @@
                 </div>
             </div>
             
-            <style>
+            <style aria-label="Download_APK_Window_Style">
                 .Download_APK_Window > .Content {
                     width: 100%;
                     display: flex;
