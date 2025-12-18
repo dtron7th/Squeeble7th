@@ -42,7 +42,10 @@
                 <p class="Clock_DMY">DD/MM/YYYY</p>
             </div>
             <div class="Device_Location">
-                <p class="Device_Location_Point">[Location]</p>
+                <p class="Device_Location_Point">Location</p>
+            </div>
+            <div class="Network_Name">
+                <p class="Current_Network_Name">Network Name</p>
             </div>
         </div>
         <style>
@@ -54,19 +57,26 @@
 
             .Top_UI > .Clock > .Clock_HMSM {
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_4);
+                font-size: var(--Main_Text_2);
             }
 
             .Top_UI > .Clock > .Clock_DMY {
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_2);
+                font-size: var(--Main_Text_1);
             }
 
-            .Top_UI > .Device_Location > .Device_Location_Point {
+            .Top_UI > .Device_Location {
                 position: absolute;
                 top: 60px;
                 color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_2);
+                font-size: var(--Main_Text_1);
+            }
+
+            .Top_UI > .Network_Name {
+                position: absolute;
+                top: 110px;
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_1);
             }
         </style>
 
@@ -186,6 +196,39 @@
                     el.textContent = '[Permission denied or unavailable]';
                     console.warn(err);
                 }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
+            })();
+
+            /* ============================================================================ */
+            /* GET NETWORK NAME */
+            /* ============================================================================ */
+
+            (async () => {
+                const el = document.querySelector('.Current_Network_Name');
+                if (!el) return;
+                el.style.fontSize = '10px';
+                el.textContent = '[Network Unavailable]';
+
+                try {
+                    const resp = await fetch('https://api.ipify.org?format=json');
+                    if (!resp.ok) throw new Error('network fetch failed');
+                    const data = await resp.json();
+                    const ip = data.ip || '';
+
+                    // Simple hash to generate a pseudo network name from IP
+                    let hash = 0;
+                    for (let i = 0; i < ip.length; i++) {
+                        hash = ((hash << 5) - hash) + ip.charCodeAt(i);
+                        hash |= 0; // Convert to 32bit integer
+                    }
+                    const networkName = 'Net-' + Math.abs(hash).toString(36).toUpperCase().slice(0, 6);
+
+                    el.style.fontSize = '10px';
+                    el.textContent = networkName;
+                } catch (e) {
+                    el.style.fontSize = '10px';
+                    el.textContent = '[Network Unavailable]';
+                    console.error(e);
+                }
             })();
         </script>
 
