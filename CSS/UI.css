@@ -41,7 +41,7 @@
     --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
     --Main_Border: rgba(255, 255, 255, 0.2);
     --Text_Input_Field: rgb(228, 228, 228);
-    --Text_Input_Field-Actove: rgba(16, 137, 146, 0.3);
+    --Text_Input_Field-Actove: rgb(145, 15, 15);
     --Drop_Down_Window_Color: rgb(226, 226, 226);
 
     --UI-Buttons-Fields-Color-1: rgb(255, 53, 53);
@@ -81,6 +81,7 @@
     --Normal_Button: rgba(31, 31, 31, 0.5);
 
     --Active_Brackets_Span: rgb(255, 153, 0);
+    --Active_Button: rgb(255, 54, 54);
 
     --VirtualKeyboard_Background: rgb(46, 46, 46);
     --VirtualKeyboard_Keys: rgb(46, 46, 46);
@@ -227,16 +228,22 @@ label {
 button {
     border: none;
     outline: none;
-    background-color: var(--UI-Buttons-Fields-Color-1);
+    background: none;
     color: var(--Main_Text_Color_1);
-    font-size: var(--Main_Text);
+    font-size: var(--Main_Text_1);
     cursor: pointer;
     text-align: left;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    -webkit-tap-highlight-color: transparent;
 }
+
+button:active {
+    color: var(--Active_Button);
+}
+
+
 
 .Floating_Button {
     position: absolute;
