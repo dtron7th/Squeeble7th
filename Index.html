@@ -187,6 +187,77 @@
                     console.warn(err);
                 }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
             })();
+        (() => {
+            // inject styles
+            const css = `
+            .Loading_Bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 6px;
+                background: rgba(255,255,255,0.04);
+                z-index: 99999;
+                pointer-events: none;
+                overflow: hidden;
+                transition: opacity .35s ease;
+            }
+            .Loading_Fill {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg,#60a5fa,#34d399);
+                box-shadow: 0 0 8px rgba(52,211,153,.6);
+                transition: width .2s ease;
+            }
+            `;
+            const s = document.createElement('style');
+            s.textContent = css;
+            document.head.appendChild(s);
+
+            // create bar
+            const bar = document.createElement('div');
+            bar.className = 'Loading_Bar';
+            const fill = document.createElement('div');
+            fill.className = 'Loading_Fill';
+            bar.appendChild(fill);
+            document.body.appendChild(bar);
+
+            // simulate progress until page load, then finish and fade
+            let progress = 0;
+            let running = true;
+            const step = () => {
+                if (!running) return;
+                // slow approach to 90%
+                progress += (100 - progress) * 0.02 + (Math.random() * 0.5);
+                if (progress > 90) progress = 90;
+                fill.style.width = progress.toFixed(2) + '%';
+                requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+
+            function finish() {
+                running = false;
+                fill.style.width = '100%';
+                // keep full for a short moment then fade out & remove
+                setTimeout(() => {
+                    bar.style.opacity = '0';
+                    setTimeout(() => { bar.remove(); s.remove(); }, 400);
+                }, 250);
+            }
+
+            // finish when window fires load
+            if (document.readyState === 'complete') {
+                finish();
+            } else {
+                window.addEventListener('load', finish, { once: true });
+            }
+
+            // expose optional API for other scripts
+            window.__LoadingBar = {
+                set(n) { progress = Math.max(0, Math.min(100, n)); fill.style.width = progress + '%'; },
+                finish() { finish(); }
+            };
+        })();
         </script>
 
         <div class="Window Start_Window" style="width:280px; height:220px;">
