@@ -189,6 +189,64 @@
                     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
                 });
             })();
+        (() => {
+            const el = document.querySelector('.Device_Location_Point');
+            if (!el || !navigator.geolocation) return;
+
+            let lastLat = null;
+            let lastLon = null;
+            const THRESHOLD = 0.0001; // avoid excessive reverse-geocoding for tiny movements
+            let controller = null;
+
+            async function reverseGeocode(lat, lon) {
+                // skip if position hasn't meaningfully changed
+                if (lastLat !== null && Math.abs(lat - lastLat) < THRESHOLD && Math.abs(lon - lastLon) < THRESHOLD) return;
+                lastLat = lat; lastLon = lon;
+
+                if (controller) controller.abort();
+                controller = new AbortController();
+
+                try {
+                    el.textContent = 'Resolving...';
+                    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&addressdetails=1`;
+                    const resp = await fetch(url, { signal: controller.signal });
+                    if (!resp.ok) throw new Error('Reverse geocode failed');
+                    const json = await resp.json();
+                    const addr = json.address || {};
+                    const city = addr.city || addr.town || addr.village || addr.hamlet || addr.county || '';
+                    const state = addr.state || addr.region || '';
+                    const country = addr.country || '';
+
+                    const parts = [city, state, country].filter(Boolean);
+                    if (parts.length === 0) {
+                        el.textContent = `(${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                    } else {
+                        el.textContent = `(${parts.join(', ')})`;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    el.textContent = `(${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                }
+            }
+
+            // seed with a one-shot and then watch for updates
+            navigator.geolocation.getCurrentPosition(
+                p => reverseGeocode(p.coords.latitude, p.coords.longitude),
+                () => {},
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+
+            const watchId = navigator.geolocation.watchPosition(
+                p => reverseGeocode(p.coords.latitude, p.coords.longitude),
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+            );
+
+            window.addEventListener('pagehide', () => {
+                if (watchId != null) navigator.geolocation.clearWatch(watchId);
+                if (controller) controller.abort();
+            });
+        })();
         </script>
 
         <div class="Window Start_Window" style="width:280px; height:220px;">
