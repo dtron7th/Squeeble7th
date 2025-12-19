@@ -46,29 +46,35 @@
 
     <!--PROGRESS BAR-->
 
-    <div class="Progress_Bar" style="display: none;">
-        <div class="Progress_Bar_Fill">
-
-        </div>
-
-        <style aria-label="Progress_Bar_Style">
-            .Progress_Bar {
-                position: absolute;
-                bottom: 10px;
-                width: calc(100% - 20px);
-                height: 20px;
-                border: 1px solid var(--Main_Border);
-            }
-
-            .Progress_Bar > .Progress_Bar_Fill {
-                width: 100%;
-                height: 100%;
-                background-color: var(--Progress_Bar_Background);
-                
-            }
-        </style>
-    </div>
+    
     <div class="Start" style="display: flex;">
+
+        <!-- ============================================================================ //
+        // START PROGRESS BAR //
+        // ============================================================================ -->
+
+        <div class="Start_Progress_Bar" style="display: none;">
+            <div class="Start_Progress_Bar_Fill">
+
+            </div>
+
+            <style aria-label="Progress_Bar_Style">
+                .Progress_Bar {
+                    position: absolute;
+                    bottom: 10px;
+                    width: calc(100% - 20px);
+                    height: 20px;
+                    border: 1px solid var(--Main_Border);
+                }
+
+                .Progress_Bar > .Progress_Bar_Fill {
+                    width: 100%;
+                    height: 100%;
+                    background-color: var(--Progress_Bar_Background);
+                    
+                }
+            </style>
+        </div>
 
         <!-- ============================================================================ //
         // WALLPAPER //
@@ -563,6 +569,33 @@
 
     <div class="Boot_Sequense" style="display: none;">
 
+         <!-- ============================================================================ //
+        // BOOT SEQUENSE PROGRESS BAR //
+        // ============================================================================ -->
+
+        <div class="Boot_Sequense_Progress_Bar">
+            <div class="Boot_Sequense_Progress_Bar_Fill">
+
+            </div>
+
+            <style aria-label="Progress_Bar_Style">
+                .Progress_Bar {
+                    position: absolute;
+                    bottom: 10px;
+                    width: calc(100% - 20px);
+                    height: 20px;
+                    border: 1px solid var(--Main_Border);
+                }
+
+                .Progress_Bar > .Progress_Bar_Fill {
+                    width: 100%;
+                    height: 100%;
+                    background-color: var(--Progress_Bar_Background);
+                    
+                }
+            </style>
+        </div>
+
         <div class="Boot_Wallpaper">
             <img class="Boot_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
             <div class="Boot_Glass">
@@ -600,12 +633,1466 @@
                 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
                 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
                 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                SOFTWARE.</p>
+                SOFTWARE.
+            </p>
+            <br>
+            <br>
+            <p class="Site_Language" style="display: none;">Site Language = [HTML 5, CSS 3, JAVASCRIPT, PHP, MYSQL]</p>
+            <br>
+            <p class="Main_IDE_Editor" style="display: none;">Use Visual Studio Code V: 1.96.2 or higher</p>
+            <br>
+            <br>
+            <p class="Seperator_1" style="display: none;">
+            //###################################################
+            <br>
+            //###################################################
+            </p>
+            <br>
+            <br>
+            <p class="Detect_Device_Information" style="display: none; width: 400px;"></p>
+            <br>
+            <br>
+            <p class="Get_Network_Information" style="display: none; width: 400px;"></p>
+            <br>
+            <br>
+            <p class="Is_Connected" style="display: none; width: 400px"></p>
+            <br>
+            <br>
+            <p class="Check_Database" style="display: none; width: 400px"></p>
+            <br>
+            <br>
+            <p class="Continue_To_Login" style="display: none; width: 400px">Finish</p>
+                
+            <style aria-label="Boot_Sequense_Style">
+                .Boot_Sequense {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    display: flex;
+                }
 
+                .Boot_Wallpaper {
+                    position: fixed;
+                    width: 100dvw;
+                    height: 100dvh;
+                    z-index: -1;
+                }
+
+                .Boot_Wallpaper_Image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .Boot_Glass {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    backdrop-filter: blur(10px);
+                }
+
+                .Boot_Sequense > .Boot_Sequense_Space {
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    text-align: left;
+                    color: var(--Main_Text_Color_1);
+                    font-size: var(--Main_Text_1);
+                }
+
+                .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_Copy_Right {
+                    color: var(--Main_Text_Color_1);
+                    font-size: var(--Main_Text_3);
+                }
+
+                .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_MIT_License {
+                    width: 300px;
+                }
+
+                .Boot_Sequense > .Boot_Sequense_Space > .Continue_To_Login {
+                    padding-bottom: 200px;
+                }
+
+            </style>
+            
+            <script aria-label="Boot_Sequense_Script">
+
+                /* ============================================================================ */
+                /* OPEN BOOT SEQUENCE */
+                /* ============================================================================ */
+
+    
+
+                (() => {
+                    const btn = document.getElementById('Start_Using_Phone_System');
+                    const progress = document.querySelector('.Start_Progress_Bar');
+                    const fill = progress ? progress.querySelector('.Start_Progress_Bar_Fill') : null;
+                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
+                    const start = document.querySelector('.Start');
+
+                    if (!btn) return;
+
+                    btn.addEventListener('click', () => {
+                        btn.disabled = true;
+                        if (progress) progress.style.display = 'block';
+
+                        const DURATION = 1000;
+                        const PCTS = [20, 70, 100];
+                        // times: spread events over the duration (you can tweak factors if desired)
+                        const TIMES = PCTS.map((_, i, a) => Math.round(((i + 1) / a.length) * DURATION));
+
+                        if (fill) {
+                            fill.style.transition = 'none';
+                            fill.style.width = '0%';
+                            void fill.offsetWidth;
+
+                            PCTS.forEach((pct, i) => {
+                                setTimeout(() => {
+                                    fill.style.width = pct + '%';
+                                }, TIMES[i]);
+                            });
+
+                            // Ensure final state at DURATION
+                            setTimeout(() => {
+                                fill.style.width = '100%';
+                            }, DURATION);
+                        }
+
+                        setTimeout(() => {
+                            document.querySelectorAll('.Dot_Grid').forEach(el => el.remove());
+                            if (progress) progress.style.display = 'none';
+                            if (start) start.style.display = 'none';
+                            if (boot) boot.style.display = 'flex';
+                        }, DURATION);
+                    });
+                })();
+
+                (() => {
+                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
+                    if (!boot) return;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    async function enterFullscreen() {
+                        const el = document.documentElement; // use whole page
+                        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) return;
+                        try {
+                            if (el.requestFullscreen) await el.requestFullscreen();
+                            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+                        } catch (e) {
+                            console.warn('Fullscreen request failed:', e);
+                        }
+                    }
+
+                    async function exitFullscreen() {
+                        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) return;
+                        try {
+                            if (document.exitFullscreen) await document.exitFullscreen();
+                            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                            else if (document.msExitFullscreen) document.msExitFullscreen();
+                        } catch (e) {
+                            console.warn('Exit fullscreen failed:', e);
+                        }
+                    }
+
+                    // Observe style/class changes to detect when boot becomes visible/hidden
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(boot)) enterFullscreen();
+                        else exitFullscreen();
+                    });
+                    mo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    // initial check
+                    if (isDisplayed(boot)) enterFullscreen();
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                
+
+                /* ============================================================================ */
+                /* RUN BOOT SEQUENCE */
+                /* ============================================================================ */
+
+                //STARTING EDEN ECONOMY BOOT SEQUENCE
+
+                (() => {
+                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
+                    const el = document.querySelector('.Boot_Sequense_Start_String');
+                    if (!boot || !el) return;
+
+                    let triggered = false;
+                    function triggerShow() {
+                        if (triggered) return;
+                        triggered = true;
+                        setTimeout(() => el.style.display = 'block', 3000);
+                    }
+
+                    // If boot is already visible, start timer immediately
+                    if (getComputedStyle(boot).display !== 'none') {
+                        triggerShow();
+                    }
+
+                    // Observe style/display changes on the boot container
+                    const mo = new MutationObserver(() => {
+                        if (getComputedStyle(boot).display !== 'none') triggerShow();
+                    });
+                    mo.observe(boot, { attributes: true, attributeFilter: ['style'] });
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                (() => {
+                    const el = document.querySelector('.Boot_Sequense_Start_String');
+                    if (!el) return;
+                    const base = 'Starting Eden Economy';
+                    el.style.whiteSpace = 'pre';
+                    el.innerHTML = base + ' <span class="boot-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+
+                    const dots = Array.from(el.querySelectorAll('.boot-dots .dot'));
+                    dots.forEach(d => {
+                        d.style.opacity = '0';
+                        d.style.transition = 'none';
+                        d.style.display = 'inline-block';
+                        d.style.margin = '0 2px';
+                    });
+
+                    const seq = [
+                        [1, 0, 0],
+                        [1, 1, 0],
+                        [1, 1, 1],
+                        [0, 0, 0]
+                    ];
+
+                    let s = 0;
+                    const interval = 400;
+                    let id = null;
+                    const INITIAL_HIDE_MS = 4000;
+                    let startTimeoutId = null;
+
+                    function step() {
+                        const state = seq[s];
+                        dots.forEach((d, i) => d.style.opacity = state[i] ? '1' : '0');
+                        s = (s + 1) % seq.length;
+                    }
+
+                    function startBlinking() {
+                        if (id) return;
+                        // ensure starting state
+                        s = 0;
+                        step();
+                        id = setInterval(step, interval);
+                    }
+
+                    function stopBlinking() {
+                        if (!id) return;
+                        clearInterval(id);
+                        id = null;
+                        dots.forEach(d => d.style.opacity = '0');
+                    }
+
+                    function cancelPendingStart() {
+                        if (startTimeoutId) {
+                            clearTimeout(startTimeoutId);
+                            startTimeoutId = null;
+                        }
+                    }
+
+                    function startWithInitialHide() {
+                        // hide dots immediately, then start animation after short delay
+                        dots.forEach(d => d.style.opacity = '0');
+                        cancelPendingStart();
+                        startTimeoutId = setTimeout(() => {
+                            startBlinking();
+                            startTimeoutId = null;
+                        }, INITIAL_HIDE_MS);
+                    }
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    // start with initial hide if already visible
+                    if (isDisplayed(el)) startWithInitialHide();
+
+                    // observe display/style changes on the element and start/stop accordingly
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) startWithInitialHide();
+                        else {
+                            cancelPendingStart();
+                            stopBlinking();
+                        }
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => {
+                        cancelPendingStart();
+                        stopBlinking();
+                        mo.disconnect();
+                    });
+                })();
+
+                // RUN EDEN ECONOMY CORPORATION OPEN SOURCE LEICENSE
+
+                (() => {
+                    const startEl = document.querySelector('.Boot_Sequense_Start_String');
+                    const licEl = document.querySelector('.Boot_Sequense_MIT_License');
+                    if (!startEl || !licEl) return;
+
+                    // inject rule to forcibly hide dots when license is shown
+                    const STYLE_ID = 'boot-seq-stop-blink-style';
+                    if (!document.getElementById(STYLE_ID)) {
+                        const s = document.createElement('style');
+                        s.id = STYLE_ID;
+                        s.textContent = `
+                            .Boot_Sequense_Start_String.stop-blink .boot-dots .dot {
+                                opacity: 0 !important;
+                                transition: none !important;
+                            }`;
+                        document.head.appendChild(s);
+                    }
+
+                    let showTimerId = null;        // delays showing the license block
+                    let revealTimerId = null;      // interval between revealing sections
+                    let currentSection = 0;
+                    let mo = null;
+                    let shownOnce = false;         // prevent repeating the cycle
+                    const DELAY_MS = 12000;        // original delay before license appears
+                    const SECTION_DELAY_MS = 1000; // 1s between sections
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    // Prepare sections: split original HTML into chunks by two-or-more <br> or blank lines.
+                    const rawHtml = licEl.innerHTML.trim();
+                    // Split on two or more <br> (with optional whitespace) or double newlines
+                    const parts = rawHtml.split(/(?:<(?:br|BR)\s*\/?>\s*){2,}|\n{2,}/).map(s => s.trim()).filter(Boolean);
+
+                    // Build section elements (hidden by default)
+                    licEl.innerHTML = '';
+                    const sectionEls = parts.map((part, i) => {
+                        const d = document.createElement('div');
+                        d.className = 'mit-section';
+                        d.style.display = 'none';
+                        d.style.marginBottom = '0.5rem';
+                        d.innerHTML = part;
+                        licEl.appendChild(d);
+                        return d;
+                    });
+
+                    function resetSections() {
+                        if (revealTimerId) {
+                            clearInterval(revealTimerId);
+                            revealTimerId = null;
+                        }
+                        currentSection = 0;
+                        sectionEls.forEach(s => s.style.display = 'none');
+                    }
+
+                    function revealSectionsOnce() {
+                        if (!sectionEls.length) return;
+                        resetSections();
+                        // show first immediately
+                        sectionEls[0].style.display = 'block';
+                        currentSection = 1;
+                        if (sectionEls.length > 1) {
+                            revealTimerId = setInterval(() => {
+                                if (currentSection >= sectionEls.length) {
+                                    clearInterval(revealTimerId);
+                                    revealTimerId = null;
+                                    return;
+                                }
+                                sectionEls[currentSection].style.display = 'block';
+                                currentSection++;
+                            }, SECTION_DELAY_MS);
+                        }
+                    }
+
+                    function scheduleShow() {
+                        if (showTimerId || shownOnce) return;
+                        showTimerId = setTimeout(() => {
+                            licEl.style.display = 'block';
+                            // stop the visible blinking by adding class that forces dots hidden
+                            startEl.classList.add('stop-blink');
+                            // reveal license text one section at a time
+                            revealSectionsOnce();
+                            showTimerId = null;
+                            shownOnce = true;
+                            // once shown, stop observing/handling further visibility changes
+                            if (mo) {
+                                mo.disconnect();
+                                mo = null;
+                            }
+                        }, DELAY_MS);
+                    }
+
+                    function cancelAndHide() {
+                        // if we've already shown once, never hide or reschedule
+                        if (shownOnce) return;
+                        if (showTimerId) {
+                            clearTimeout(showTimerId);
+                            showTimerId = null;
+                        }
+                        if (revealTimerId) {
+                            clearInterval(revealTimerId);
+                            revealTimerId = null;
+                        }
+                        licEl.style.display = 'none';
+                        startEl.classList.remove('stop-blink');
+                        resetSections();
+                    }
+
+                    // Ensure license is hidden initially
+                    licEl.style.display = 'none';
+                    startEl.classList.remove('stop-blink');
+                    resetSections();
+
+                    // If start is already visible, schedule immediately
+                    if (isDisplayed(startEl)) scheduleShow();
+
+                    // Observe visibility changes on the start element
+                    mo = new MutationObserver(() => {
+                        if (shownOnce) {
+                            if (mo) { mo.disconnect(); mo = null; }
+                            return;
+                        }
+                        if (isDisplayed(startEl)) scheduleShow();
+                        else cancelAndHide();
+                    });
+                    mo.observe(startEl, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => {
+                        if (showTimerId) clearTimeout(showTimerId);
+                        if (revealTimerId) clearInterval(revealTimerId);
+                        if (mo) mo.disconnect();
+                    });
+                })();
+
+                //RUN SITE LANGUAGE
+
+                (() => {
+                    const lic = document.querySelector('.Boot_Sequense_MIT_License');
+                    const lang = document.querySelector('.Site_Language');
+                    if (!lic || !lang) return;
+
+                    lang.style.display = 'none';
+                    let timer = null;
+                    let shown = false;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (shown || timer) return;
+                        timer = setTimeout(() => {
+                            lang.style.display = 'block';
+                            shown = true;
+                            timer = null;
+                        }, 6000);
+                    }
+
+                    function cancelShow() {
+                        if (timer) {
+                            clearTimeout(timer);
+                            timer = null;
+                        }
+                        if (!shown) lang.style.display = 'none';
+                    }
+
+                    if (isDisplayed(lic)) scheduleShow();
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(lic)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(lic, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timer) clearTimeout(timer);
+                        mo.disconnect();
+                    });
+                })();
+
+                //RUN MAIN_IDE_EDITOR
+
+                (() => {
+                    const lang = document.querySelector('.Site_Language');
+                    const ide = document.querySelector('.Main_IDE_Editor');
+                    if (!lang || !ide) return;
+
+                    ide.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            ide.style.display = 'block';
+                            timerId = null;
+                        }, 1000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(lang)) ide.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(lang)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(lang, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(lang)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                //RUN SEPERATOR_1
+
+                (() => {
+                    const lang = document.querySelector('.Main_IDE_Editor');
+                    const sep = document.querySelector('.Seperator_1');
+                    if (!lang || !sep) return;
+
+                    sep.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            sep.style.display = 'block';
+                            timerId = null;
+                        }, 0.001);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(lang)) sep.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(lang)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(lang, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(lang)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                //DETECT_DEVICE_INFORMATION
+
+                (() => {
+                    const sep = document.querySelector('.Seperator_1');
+                    const det = document.querySelector('.Detect_Device_Information');
+                    if (!sep || !det) return;
+
+                    det.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            det.style.display = 'block';
+                            timerId = null;
+                        }, 6000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(sep)) det.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(sep)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(sep, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(sep)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                (() => {
+                    const el = document.querySelector('.Detect_Device_Information');
+                    if (!el) return;
+
+                    function detectDevice() {
+                        const ua = navigator.userAgent || '';
+                        const uaData = navigator.userAgentData || null;
+                        const platform = navigator.platform || (uaData && uaData.platform) || 'Unknown';
+                        const maxTouch = navigator.maxTouchPoints || 0;
+                        const hasTouch = maxTouch > 0 || 'ontouchstart' in window;
+                        const cores = navigator.hardwareConcurrency || 'unknown';
+                        const memory = navigator.deviceMemory || 'unknown';
+                        const resolution = `${screen.width}×${screen.height} @${window.devicePixelRatio || 1}x`;
+
+                        // Determine broad device class
+                        let deviceClass = 'Unknown';
+                        if (/SmartTV|SMART-TV|TV|HbbTV|AppleTV|GoogleTV|BRAVIA|Roku|NetCast/i.test(ua)) deviceClass = 'TV';
+                        else if (/Xbox|PlayStation|Nintendo/i.test(ua)) deviceClass = 'Console';
+                        else {
+                            const isMobileUA = uaData?.mobile ?? /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(ua);
+                            const isTabletUA = /Tablet|iPad|Nexus 7|Kindle|SM-T|Tab/i.test(ua);
+                            // heuristics: explicit tablet UA OR touch + large shortest-side
+                            const shortestSide = Math.min(screen.width, screen.height);
+                            if (isTabletUA || (hasTouch && shortestSide >= 600 && !/Mobi/i.test(ua))) deviceClass = 'Tablet';
+                            else if (isMobileUA || hasTouch) deviceClass = 'Phone';
+                            else deviceClass = 'Desktop/Laptop';
+                        }
+
+                        const brands = uaData?.brands ? uaData.brands.map(b => b.brand).join(', ') : null;
+                        const agentInfo = brands || ua;
+
+                        el.textContent = [
+                            `Device: ${deviceClass}`,
+                            `Platform: ${platform}`,
+                            `Cores: ${cores}`,
+                            `Memory(GB): ${memory}`,
+                            `Touch Support: ${hasTouch ? 'Yes (' + maxTouch + ')' : 'No'}`,
+                            `Resolution: ${resolution}`,
+                            `UserAgent: ${agentInfo}`
+                        ].join(' | ');
+                    }
+
+                    // run immediately and whenever element becomes visible
+                    detectDevice();
+                    const mo = new MutationObserver(() => {
+                        if (getComputedStyle(el).display !== 'none') detectDevice();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                //GET_NETWORK_INFORMATION
+
+                (() => {
+                    const det = document.querySelector('.Detect_Device_Information');
+                    const net = document.querySelector('.Get_Network_Information');
+                    if (!det || !net) return;
+
+                    net.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            net.style.display = 'block';
+                            timerId = null;
+                        }, 2000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(det)) net.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(det)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(det, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(det)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                (() => {
+                    const el = document.querySelector('.Get_Network_Information');
+                    if (!el) return;
+                    el.textContent = 'Detecting network...';
+
+                    const timeoutFetch = (url, ms = 5000) => {
+                        const ac = new AbortController();
+                        const id = setTimeout(() => ac.abort(), ms);
+                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
+                    };
+
+                    async function getPublicIP() {
+                        try {
+                            const res = await timeoutFetch('https://api.ipify.org?format=json', 5000);
+                            if (!res.ok) return null;
+                            const j = await res.json();
+                            return j.ip || null;
+                        } catch {
+                            return null;
+                        }
+                    }
+
+                    async function getIPDetails(ip) {
+                        if (!ip) return null;
+                        try {
+                            const res = await timeoutFetch(`https://ipapi.co/${ip}/json/`, 5000);
+                            if (!res.ok) return null;
+                            return await res.json();
+                        } catch {
+                            return null;
+                        }
+                    }
+
+                    function getConnectionInfo() {
+                        const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+                        if (!c) return null;
+                        return {
+                            effectiveType: c.effectiveType,
+                            downlink: c.downlink,
+                            rtt: c.rtt,
+                            saveData: !!c.saveData
+                        };
+                    }
+
+                    async function measureLatency(url = 'https://api.ipify.org?format=json') {
+                        try {
+                            const t0 = performance.now();
+                            const res = await timeoutFetch(url, 5000);
+                            if (!res) return null;
+                            // consume body to ensure request completes (some endpoints respond empty with no-cors)
+                            await res.text().catch(() => {});
+                            const t1 = performance.now();
+                            return Math.round(t1 - t0);
+                        } catch {
+                            return null;
+                        }
+                    }
+
+                    function getLocalIPs() {
+                        return new Promise((resolve) => {
+                            const ips = new Set();
+                            try {
+                                const pc = new RTCPeerConnection({ iceServers: [] });
+                                // create dummy data channel to trigger ICE
+                                try { pc.createDataChannel('d'); } catch (e) {}
+                                pc.onicecandidate = (evt) => {
+                                    if (!evt.candidate) {
+                                        try { pc.close(); } catch {}
+                                        resolve(Array.from(ips));
+                                        return;
+                                    }
+                                    const cand = evt.candidate.candidate || '';
+                                    const re = /([0-9]{1,3}(?:\.[0-9]{1,3}){3})/g;
+                                    let m;
+                                    while ((m = re.exec(cand))) ips.add(m[1]);
+                                };
+                                pc.createOffer()
+                                .then(offer => pc.setLocalDescription(offer))
+                                .catch(() => {
+                                    try { pc.close(); } catch {}
+                                    resolve([]);
+                                });
+                                // safety timeout
+                                setTimeout(() => {
+                                    try { pc.close(); } catch {}
+                                    resolve(Array.from(ips));
+                                }, 3000);
+                            } catch {
+                                resolve([]);
+                            }
+                        });
+                    }
+
+                    (async () => {
+                        const [pubIP, latency, localIPs] = await Promise.all([
+                            getPublicIP(),
+                            measureLatency(),
+                            getLocalIPs()
+                        ]);
+
+                        const details = await getIPDetails(pubIP);
+                        const conn = getConnectionInfo();
+
+                        const parts = [];
+                        if (pubIP) parts.push(`Public IP: ${pubIP}`);
+                        if (details) {
+                            if (details.org) parts.push(`ISP: ${details.org}`);
+                            if (details.city || details.region || details.country_name) {
+                                const city = details.city || '';
+                                const region = details.region || '';
+                                const country = details.country_name || '';
+                                parts.push(`Location: ${[city, region, country].filter(Boolean).join(', ')}`);
+                            }
+                        }
+                        if (latency != null) parts.push(`Latency: ${latency} ms`);
+                        if (conn) parts.push(`Conn: ${conn.effectiveType || 'unknown'} (${conn.downlink ? conn.downlink + 'Mb/s' : 'n/a'}, rtt ${conn.rtt || 'n/a'}ms)`);
+                        if (localIPs && localIPs.length) parts.push(`Local IPs: ${localIPs.join(', ')}`);
+                        if (!parts.length) el.textContent = 'Network information unavailable';
+                        else el.textContent = parts.join(' | ');
+                    })();
+                })();
+
+                //IS_CONNECTED
+
+                (() => {
+                    const net = document.querySelector('.Get_Network_Information');
+                    const con = document.querySelector('.Is_Connected');
+                    if (!net || !con) return;
+
+                    con.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            con.style.display = 'block';
+                            timerId = null;
+                        }, 4000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(net)) con.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(net)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(net, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(net)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                (() => {
+                    const el = document.querySelector('.Is_Connected');
+                    if (!el) return;
+
+                    const timeoutFetch = (url, ms = 3000) => {
+                        const ac = new AbortController();
+                        const id = setTimeout(() => ac.abort(), ms);
+                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
+                    };
+
+                    let last = '';
+
+                    async function checkNetwork() {
+                        // quick offline hint
+                        if (!navigator.onLine) {
+                            update('Offline');
+                            return;
+                        }
+
+                        try {
+                            const t0 = performance.now();
+                            const res = await timeoutFetch('https://api.ipify.org?format=json', 3000);
+                            const t1 = performance.now();
+                            if (!res || !res.ok) throw new Error('no-response');
+
+                            const json = await res.json().catch(() => null);
+                            const ip = json && json.ip ? json.ip : 'unknown';
+                            const latency = Math.max(0, Math.round(t1 - t0));
+                            update(`Online | Public IP: ${ip} | Latency: ${latency} ms`);
+                        } catch (e) {
+                            // fallback to navigator.onLine if fetch fails
+                            update(navigator.onLine ? 'Online (limited)' : 'Offline');
+                        }
+                    }
+
+                    function update(text) {
+                        if (text === last) return;
+                        last = text;
+                        el.textContent = text;
+                    }
+
+                    // respond to browser events
+                    window.addEventListener('online', checkNetwork);
+                    window.addEventListener('offline', checkNetwork);
+
+                    // periodic checks while visible
+                    const intervalId = setInterval(checkNetwork, 15000);
+
+                    // initial check
+                    checkNetwork();
+
+                    // cleanup
+                    window.addEventListener('beforeunload', () => {
+                        clearInterval(intervalId);
+                        window.removeEventListener('online', checkNetwork);
+                        window.removeEventListener('offline', checkNetwork);
+                    });
+                })();
+
+                //CHECK_DATABASE
+
+                (() => {
+                    const con = document.querySelector('.Is_Connected');
+                    const db = document.querySelector('.Check_Database');
+                    if (!con || !db) return;
+
+                    db.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            db.style.display = 'block';
+                            timerId = null;
+                        }, 4000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(con)) db.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(con)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(con, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(con)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                (() => {
+                    const el = document.querySelector('.Check_Database');
+                    if (!el) return;
+                    el.style.color = 'inherit';
+
+                    const endpoints = [
+                        '/api/check_database',
+                        '/check_database.php',
+                        '/db/ping',
+                        '/api/ping'
+                    ];
+
+                    const timeoutFetch = (url, ms = 4000) => {
+                        const ac = new AbortController();
+                        const id = setTimeout(() => ac.abort(), ms);
+                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
+                    };
+
+                    async function probeEndpoints() {
+                        for (const url of endpoints) {
+                            try {
+                                el.textContent = `Checking ${url} ...`;
+                                const res = await timeoutFetch(url, 4000);
+                                if (!res) throw new Error('no response');
+                                if (res.ok) {
+                                    // try to read json or text for quick status message
+                                    let info = '';
+                                    try {
+                                        const j = await res.clone().json();
+                                        info = j && (j.status || j.ok || j.message) ? JSON.stringify(j) : JSON.stringify(j);
+                                    } catch {
+                                        info = (await res.text().catch(() => '')).slice(0, 200);
+                                    }
+                                    el.textContent = `Database OK (endpoint: ${url})${info ? ' — ' + info : ''}`;
+                                    el.style.color = 'lime';
+                                    return true;
+                                } else {
+                                    el.textContent = `Endpoint ${url} returned ${res.status}`;
+                                }
+                            } catch (err) {
+                                el.textContent = `${url} failed: ${err && err.name ? err.name : err}`;
+                            }
+                            // small pause between tries
+                            await new Promise(r => setTimeout(r, 300));
+                        }
+                        return false;
+                    }
+
+                    async function tryWebSocketFallback() {
+                        try {
+                            el.textContent = 'Trying WebSocket fallback...';
+                            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                            const wsUrl = `${proto}//${location.host}/ws/db`;
+                            return await new Promise((resolve) => {
+                                let settled = false;
+                                const ws = new WebSocket(wsUrl);
+                                const to = setTimeout(() => {
+                                    if (!settled) {
+                                        settled = true;
+                                        try { ws.close(); } catch {}
+                                        resolve(false);
+                                    }
+                                }, 5000);
+                                ws.addEventListener('open', () => {
+                                    if (settled) return;
+                                    settled = true;
+                                    clearTimeout(to);
+                                    el.textContent = `Database OK (websocket: ${wsUrl})`;
+                                    el.style.color = 'lime';
+                                    try { ws.close(); } catch {}
+                                    resolve(true);
+                                });
+                                ws.addEventListener('error', () => {
+                                    if (settled) return;
+                                    settled = true;
+                                    clearTimeout(to);
+                                    try { ws.close(); } catch {}
+                                    resolve(false);
+                                });
+                            });
+                        } catch {
+                            return false;
+                        }
+                    }
+
+                    async function runCheck() {
+                        el.textContent = 'Checking database...';
+                        el.style.color = 'inherit';
+                        const ok = await probeEndpoints();
+                        if (ok) return;
+                        const wsOk = await tryWebSocketFallback();
+                        if (!wsOk) {
+                            el.textContent = 'Database appears unavailable';
+                            el.style.color = 'red';
+                        }
+                    }
+
+                    // initial check and periodic re-check while visible
+                    runCheck();
+                    const intervalId = setInterval(() => {
+                        if (getComputedStyle(el).display !== 'none') runCheck();
+                    }, 30000);
+
+                    // stop interval when element hidden
+                    const mo = new MutationObserver(() => {
+                        if (getComputedStyle(el).display === 'none') {
+                            clearInterval(intervalId);
+                            mo.disconnect();
+                        }
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => {
+                        clearInterval(intervalId);
+                        mo.disconnect();
+                    });
+                })();
+
+                //Continue_To_Login
+
+                (() => {
+                    const db = document.querySelector('.Check_Database');
+                    const login = document.querySelector('.Continue_To_Login');
+                    if (!db || !login) return;
+
+                    login.style.display = 'none';
+                    let timerId = null;
+
+                    function isDisplayed(el) {
+                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function scheduleShow() {
+                        if (timerId) return;
+                        timerId = setTimeout(() => {
+                            login.style.display = 'block';
+                            timerId = null;
+                        }, 2000);
+                    }
+
+                    function cancelShow() {
+                        if (timerId) {
+                            clearTimeout(timerId);
+                            timerId = null;
+                        }
+                        if (!isDisplayed(db)) login.style.display = 'none';
+                    }
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(db)) scheduleShow();
+                        else cancelShow();
+                    });
+                    mo.observe(db, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    if (isDisplayed(db)) scheduleShow();
+
+                    window.addEventListener('beforeunload', () => {
+                        if (timerId) clearTimeout(timerId);
+                        mo.disconnect();
+                    });
+                })();
+
+                (()=>{
+                    const btn = document.querySelector('.Continue_To_Login');
+                    const boot = document.querySelector('.Boot_Sequense');
+                    if (!btn || !boot) return;
+                    btn.addEventListener('click', () => {
+                        // hide/close boot sequence but DO NOT exit fullscreen
+                        boot.style.display = 'none';
+                    });
+                })();
+
+                /* ============================================================================ */
+                /* TEXT JUMP */
+                /* ============================================================================ */
+
+                // jump to Detect_Device_Information when it becomes visible
+
+                (() => {
+                    const el = document.querySelector('.Detect_Device_Information');
+                    if (!el) return;
+
+                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                    let lastJump = 0;
+
+                    function jumpToEl() {
+                        if (!isDisplayed(el)) return;
+                        const now = Date.now();
+                        if (now - lastJump < 800) return; // debounce repeated jumps
+                        lastJump = now;
+                        // allow layout to settle
+                        setTimeout(() => {
+                            try {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+                            } catch (e) { /* ignore */ }
+                        }, 60);
+                    }
+
+                    // initial check
+                    if (isDisplayed(el)) jumpToEl();
+
+                    // observe visibility changes
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) jumpToEl();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                // jump to Get_Network_Information when it becomes visible
+                
+                (() => {
+                    const el = document.querySelector('.Get_Network_Information');
+                    if (!el) return;
+                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                    let lastJump = 0;
+
+                    function jumpToEl() {
+                        if (!isDisplayed(el)) return;
+                        const now = Date.now();
+                        if (now - lastJump < 800) return;
+                        lastJump = now;
+                        setTimeout(() => {
+                            try {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+                            } catch (e) { /* ignore */ }
+                        }, 60);
+                    }
+
+                    if (isDisplayed(el)) jumpToEl();
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) jumpToEl();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                // jump to Is_Connected when it becomes visible
+
+                (() => {
+                    const el = document.querySelector('.Is_Connected');
+                    if (!el) return;
+                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                    let lastJump = 0;
+
+                    function jumpToEl() {
+                        if (!isDisplayed(el)) return;
+                        const now = Date.now();
+                        if (now - lastJump < 800) return;
+                        lastJump = now;
+                        setTimeout(() => {
+                            try {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+                            } catch (e) { /* ignore */ }
+                        }, 60);
+                    }
+
+                    if (isDisplayed(el)) jumpToEl();
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) jumpToEl();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                // jump to Check_Database when it becomes visible
+
+                (() => {
+                    const el = document.querySelector('.Check_Database');
+                    if (!el) return;
+                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                    let lastJump = 0;
+
+                    function jumpToEl() {
+                        if (!isDisplayed(el)) return;
+                        const now = Date.now();
+                        if (now - lastJump < 800) return;
+                        lastJump = now;
+                        setTimeout(() => {
+                            try {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+                            } catch (e) { /* ignore */ }
+                        }, 60);
+                    }
+
+                    if (isDisplayed(el)) jumpToEl();
+
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) jumpToEl();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                // jump to Continue_To_Login when it becomes visible
+
+                (() => {
+                    const el = document.querySelector('.Continue_To_Login');
+                    if (!el) return;
+                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                    let lastJump = 0;
+                    function jumpToEl() {
+                        if (!isDisplayed(el)) return;
+                        const now = Date.now();
+                        if (now - lastJump < 800) return;
+                        lastJump = now;
+                        setTimeout(() => {
+                            try {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
+                            } catch (e) { /* ignore */ }
+                        }, 60);
+                    }
+                    if (isDisplayed(el)) jumpToEl();
+                    const mo = new MutationObserver(() => {
+                        if (isDisplayed(el)) jumpToEl();
+                    });
+                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+                    window.addEventListener('beforeunload', () => mo.disconnect());
+                })();
+
+                
+                /* Replace smooth, eased scrolling with intentionally choppy stepped scrolling.
+                   - cancels on user interaction
+                */
+                (function(){
+                    const nativeElScroll = Element.prototype.scrollIntoView;
+                    const nativeWinScroll = window.scrollTo;
+                    let intervalId = null;
+
+                    function cancel() { if (intervalId) { clearInterval(intervalId); intervalId = null; } }
+                    ['wheel','touchstart','pointerdown','keydown'].forEach(e =>
+                        window.addEventListener(e, cancel, { passive: true, capture: true })
+                    );
+
+                    function computeTargetY(el, block){
+                        const rect = el.getBoundingClientRect();
+                        const scrollTop = window.scrollY || window.pageYOffset || 0;
+                        const elTop = rect.top + scrollTop;
+                        const elBottom = rect.bottom + scrollTop;
+                        switch(block){
+                            case 'center': return Math.round(elTop - (window.innerHeight - rect.height) / 2);
+                            case 'end':    return Math.round(elBottom - window.innerHeight);
+                            case 'nearest':
+                                if (elTop < scrollTop) return elTop;
+                                if (elBottom > scrollTop + window.innerHeight) return elBottom - window.innerHeight;
+                                return scrollTop;
+                            case 'start':
+                            default: return Math.round(elTop);
+                        }
+                    }
+
+                    function choppyScrollTo(targetY){
+                        cancel();
+                        const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                        const dest = Math.max(0, Math.min(targetY, maxY));
+                        const start = window.scrollY || window.pageYOffset || 0;
+                        if (Math.abs(dest - start) < 1) return;
+                        const direction = dest > start ? 1 : -1;
+                        const STEP_PX = 120;   // large jump per tick -> "choppy"
+                        const TICK_MS  = 80;   // tick interval
+                        intervalId = setInterval(() => {
+                            const cur = window.scrollY || window.pageYOffset || 0;
+                            const next = cur + direction * STEP_PX;
+                            if ((direction > 0 && next >= dest) || (direction < 0 && next <= dest)) {
+                                window.scrollTo(0, dest);
+                                cancel();
+                            } else {
+                                window.scrollTo(0, Math.round(next));
+                            }
+                        }, TICK_MS);
+                    }
+
+                    Element.prototype.scrollIntoView = function(arg){
+                        try {
+                            let behavior = 'auto', block = 'start';
+                            if (arg == null) {}
+                            else if (typeof arg === 'object') { behavior = arg.behavior || 'auto'; block = arg.block || 'start'; }
+                            else if (typeof arg === 'boolean') { block = arg ? 'start' : 'end'; }
+                            else if (typeof arg === 'string') { behavior = arg; }
+
+                            if (behavior === 'smooth') {
+                                const targetY = computeTargetY(this, block);
+                                choppyScrollTo(targetY);
+                                return;
+                            }
+                            return nativeElScroll.call(this, arg);
+                        } catch (e) {
+                            return nativeElScroll.call(this, arg);
+                        }
+                    };
+
+                    window.scrollTo = function(...args){
+                        if (args.length === 1 && typeof args[0] === 'object' && args[0].behavior === 'smooth') {
+                            const top = args[0].top != null ? args[0].top : (window.scrollY || 0);
+                            choppyScrollTo(top);
+                            return;
+                        }
+                        return nativeWinScroll.apply(window, args);
+                    };
+                })();
+
+                /* ============================================================================ */
+                /* DISPLAY PROGRESS BAR */
+                /* ============================================================================ */
+
+                (() => {
+                    const progress = document.querySelector('.Progress_Bar');
+                    if (!progress) return;
+
+                    function isDisplayed(el) {
+                        return el && getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                    }
+
+                    function attachToBoot(boot) {
+                        if (!boot) return;
+
+                        // ensure initial state
+                        progress.style.display = isDisplayed(boot) ? 'block' : 'none';
+
+                        const mo = new MutationObserver(() => {
+                            progress.style.display = isDisplayed(boot) ? 'block' : 'none';
+                        });
+                        mo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                        window.addEventListener('beforeunload', () => mo.disconnect(), { once: true });
+                    }
+
+                    const boot = document.querySelector('.Boot_Sequense');
+                    if (boot) {
+                        attachToBoot(boot);
+                        return;
+                    }
+
+                    // If boot element may be added later, watch for it
+                    const bodyObserver = new MutationObserver((mutations, obs) => {
+                        const b = document.querySelector('.Boot_Sequense');
+                        if (b) {
+                            attachToBoot(b);
+                            obs.disconnect();
+                        }
+                    });
+                    bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+                    window.addEventListener('beforeunload', () => bodyObserver.disconnect(), { once: true });
+                })();
+
+                
+
+
+
+            </script>
+        </div>
+    </div>
+
+    <div class="Login" style="display: none;">
+        <div class="Login_Wallpaper">
+            <img class="Login_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
+            <div class="Login_Glass">
+
+            </div>
         </div>
 
-        <style aria-label="Boot_Sequense_Style">
-            .Boot_Sequense {
+        <style aria-label="Login_Style">
+            .Login {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -614,19 +2101,18 @@
                 display: flex;
             }
 
-            .Boot_Wallpaper {
+            .Login_Wallpaper {
                 width: 100dvw;
                 height: 100dvh;
-                z-index: -1;
             }
 
-            .Boot_Wallpaper_Image {
+            .Login_Wallpaper_Image {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
             }
 
-            .Boot_Glass {
+            .Login_Glass {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -634,218 +2120,7 @@
                 height: 100dvh;
                 backdrop-filter: blur(10px);
             }
-
-            .Boot_Sequense > .Boot_Sequense_Space {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                text-align: left;
-                color: var(--Main_Text_Color_1);
-                font-size: var(--Main_Text_1);
-            }
-
-            .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_Copy_Right {
-                font-size: var(--Main_Text_3);
-                
-            }
-
-            .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_MIT_License {
-                font-size: var(--Main_Text_1);
-                width: 350px;
-                text-align: left;
-            }
-
-
         </style>
-        
-        <script aria-label="Boot_Sequense_Script">
-
-            /* ============================================================================ */
-            /* OPEN BOOT SEQUENCE */
-            /* ============================================================================ */
-
-            (() => {
-                const btn = document.getElementById('Start_Using_Phone_System');
-                const progress = document.querySelector('.Progress_Bar');
-                const fill = progress ? progress.querySelector('.Progress_Bar_Fill') : null;
-                const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
-                const start = document.querySelector('.Start');
-
-                if (!btn) return;
-
-                btn.addEventListener('click', () => {
-                    btn.disabled = true;
-                    if (progress) progress.style.display = 'block';
-
-                    const DURATION = 1000;
-                    const PCTS = [20, 70, 100];
-                    // times: spread events over the duration (you can tweak factors if desired)
-                    const TIMES = PCTS.map((_, i, a) => Math.round(((i + 1) / a.length) * DURATION));
-
-                    if (fill) {
-                        fill.style.transition = 'none';
-                        fill.style.width = '0%';
-                        void fill.offsetWidth;
-
-                        PCTS.forEach((pct, i) => {
-                            setTimeout(() => {
-                                fill.style.width = pct + '%';
-                            }, TIMES[i]);
-                        });
-
-                        // Ensure final state at DURATION
-                        setTimeout(() => {
-                            fill.style.width = '100%';
-                        }, DURATION);
-                    }
-
-                    setTimeout(() => {
-                        document.querySelectorAll('.Dot_Grid').forEach(el => el.remove());
-                        if (progress) progress.style.display = 'none';
-                        if (start) start.style.display = 'none';
-                        if (boot) boot.style.display = 'flex';
-                    }, DURATION);
-                });
-            })();
-
-            /* ============================================================================ */
-            /* RUN BOOT SEQUENCE */
-            /* ============================================================================ */
-
-            //STARTING EDEN ECONOMY BOOT SEQUENCE
-
-            (() => {
-                const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
-                const el = document.querySelector('.Boot_Sequense_Start_String');
-                if (!boot || !el) return;
-
-                let triggered = false;
-                function triggerShow() {
-                    if (triggered) return;
-                    triggered = true;
-                    setTimeout(() => el.style.display = 'block', 3000);
-                }
-
-                // If boot is already visible, start timer immediately
-                if (getComputedStyle(boot).display !== 'none') {
-                    triggerShow();
-                }
-
-                // Observe style/display changes on the boot container
-                const mo = new MutationObserver(() => {
-                    if (getComputedStyle(boot).display !== 'none') triggerShow();
-                });
-                mo.observe(boot, { attributes: true, attributeFilter: ['style'] });
-
-                window.addEventListener('beforeunload', () => mo.disconnect());
-            })();
-
-            (() => {
-                const el = document.querySelector('.Boot_Sequense_Start_String');
-                if (!el) return;
-                const base = 'Starting Eden Economy';
-                el.style.whiteSpace = 'pre';
-                el.innerHTML = base + ' <span class="boot-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
-
-                const dots = Array.from(el.querySelectorAll('.boot-dots .dot'));
-                dots.forEach(d => {
-                    d.style.opacity = '0';
-                    d.style.transition = 'none';
-                    d.style.display = 'inline-block';
-                    d.style.margin = '0 2px';
-                });
-
-                const seq = [
-                    [1, 0, 0],
-                    [1, 1, 0],
-                    [1, 1, 1],
-                    [0, 0, 0]
-                ];
-
-                let s = 0;
-                const interval = 400;
-                let id = null;
-                const INITIAL_HIDE_MS = 4000;
-                let startTimeoutId = null;
-
-                function step() {
-                    const state = seq[s];
-                    dots.forEach((d, i) => d.style.opacity = state[i] ? '1' : '0');
-                    s = (s + 1) % seq.length;
-                }
-
-                function startBlinking() {
-                    if (id) return;
-                    // ensure starting state
-                    s = 0;
-                    step();
-                    id = setInterval(step, interval);
-                }
-
-                function stopBlinking() {
-                    if (!id) return;
-                    clearInterval(id);
-                    id = null;
-                    dots.forEach(d => d.style.opacity = '0');
-                }
-
-                function cancelPendingStart() {
-                    if (startTimeoutId) {
-                        clearTimeout(startTimeoutId);
-                        startTimeoutId = null;
-                    }
-                }
-
-                function startWithInitialHide() {
-                    // hide dots immediately, then start animation after short delay
-                    dots.forEach(d => d.style.opacity = '0');
-                    cancelPendingStart();
-                    startTimeoutId = setTimeout(() => {
-                        startBlinking();
-                        startTimeoutId = null;
-                    }, INITIAL_HIDE_MS);
-                }
-
-                function isDisplayed(el) {
-                    return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                }
-
-                // start with initial hide if already visible
-                if (isDisplayed(el)) startWithInitialHide();
-
-                // observe display/style changes on the element and start/stop accordingly
-                const mo = new MutationObserver(() => {
-                    if (isDisplayed(el)) startWithInitialHide();
-                    else {
-                        cancelPendingStart();
-                        stopBlinking();
-                    }
-                });
-                mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                window.addEventListener('beforeunload', () => {
-                    cancelPendingStart();
-                    stopBlinking();
-                    mo.disconnect();
-                });
-            })();
-
-            // RUN EDEN ECONOMY CORPORATION OPEN SOURCE LEICENSE
-
-            
-
-            
-
-
-
-            
-
-            
-        </script>
-    </div>
-
-    <div class="Login">
-
     </div>
 
     <div class="EEC_Main_1">
