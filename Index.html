@@ -743,63 +743,6 @@
             (() => {
                 const el = document.querySelector('.Boot_Sequense_Start_String');
                 if (!el) return;
-                let played = false;
-
-                function isDisplayed(e) {
-                    return getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                }
-
-                function playDosBeep() {
-                    try {
-                        const Ctx = window.AudioContext || window.webkitAudioContext;
-                        if (!Ctx) return;
-                        const ctx = new Ctx();
-                        const now = ctx.currentTime;
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-
-                        osc.type = 'square';
-                        osc.frequency.value = 800; // DOS-like pitch
-                        gain.gain.setValueAtTime(0.0001, now);
-                        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-
-                        osc.start(now);
-                        osc.stop(now + 0.2);
-
-                        // close context after sound finishes (best-effort)
-                        setTimeout(() => { if (ctx.close) ctx.close(); }, 400);
-                    } catch (e) {
-                        console.warn('Beep failed', e);
-                    }
-                }
-
-                if (isDisplayed(el) && !played) {
-                    playDosBeep();
-                    played = true;
-                }
-
-                const mo = new MutationObserver(() => {
-                    if (isDisplayed(el)) {
-                        if (!played) {
-                            playDosBeep();
-                            played = true;
-                        }
-                    } else {
-                        played = false;
-                    }
-                });
-
-                mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-                window.addEventListener('beforeunload', () => mo.disconnect());
-            })();
-
-            (() => {
-                const el = document.querySelector('.Boot_Sequense_Start_String');
-                if (!el) return;
                 const base = 'Starting Eden Economy';
                 el.style.whiteSpace = 'pre';
                 el.innerHTML = base + ' <span class="boot-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
