@@ -44,10 +44,19 @@
         </style>
     </div>
 
-    <!--PROGRESS BAR-->
-
     
     <div class="Start" style="display: flex;">
+
+        <style aria-label="Start_Body_Style">
+            .Start {
+                width: 100dvw;
+                height: 100dvh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+        </style>
 
         <!-- ============================================================================ //
         // START PROGRESS BAR //
@@ -59,7 +68,7 @@
             </div>
 
             <style aria-label="Progress_Bar_Style">
-                .Progress_Bar {
+                .Start_Progress_Bar {
                     position: absolute;
                     bottom: 10px;
                     width: calc(100% - 20px);
@@ -67,7 +76,7 @@
                     border: 1px solid var(--Main_Border);
                 }
 
-                .Progress_Bar > .Progress_Bar_Fill {
+                .Start_Progress_Bar > .Start_Progress_Bar_Fill {
                     width: 100%;
                     height: 100%;
                     background-color: var(--Progress_Bar_Background);
@@ -88,7 +97,7 @@
 
             </div>
 
-            <style aria-label="Wallpaper_Style">
+            <style aria-label="Start_Wallpaper_Style">
                 .Wallpaper {
                     width: 100dvw;
                     height: 100dvh;
@@ -515,17 +524,9 @@
             </div>
 
             <style aria-label="Start_Window_Style">
-                .Start {
-                    width: 100dvw;
-                    height: 100dvh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
                 .Start_Window {
                     position: absolute;
-                    
+
                 }
 
                 .Start_Window > .Content > .Paragraph {
@@ -569,6 +570,18 @@
 
     <div class="Boot_Sequense" style="display: none;">
 
+        <style aria-label="Boot_Sequense_Body_Style">
+            .Boot_Sequense {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100dvw;
+                height: 100dvh;
+                display: flex;
+                justify-content: center;
+            }
+        </style>
+
          <!-- ============================================================================ //
         // BOOT SEQUENSE PROGRESS BAR //
         // ============================================================================ -->
@@ -578,8 +591,8 @@
 
             </div>
 
-            <style aria-label="Progress_Bar_Style">
-                .Progress_Bar {
+            <style aria-label="Boot_Sequense_Progress_Bar_Style">
+                .Boot_Sequense_Progress_Bar {
                     position: absolute;
                     bottom: 10px;
                     width: calc(100% - 20px);
@@ -587,7 +600,7 @@
                     border: 1px solid var(--Main_Border);
                 }
 
-                .Progress_Bar > .Progress_Bar_Fill {
+                .Boot_Sequense_Progress_Bar > .Boot_Sequense_Progress_Bar_Fill {
                     width: 100%;
                     height: 100%;
                     background-color: var(--Progress_Bar_Background);
@@ -601,6 +614,31 @@
             <div class="Boot_Glass">
 
             </div>
+
+            <style aria-label="Boot_Wallpaper_Style">
+                .Boot_Wallpaper {
+                    position: fixed;
+                    width: 100dvw;
+                    height: 100dvh;
+                    z-index: -1;
+                }
+
+                .Boot_Wallpaper_Image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .Boot_Glass {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    backdrop-filter: blur(10px);
+                }
+
+            </style>
         </div>
 
         <div class="Boot_Sequense_Space">
@@ -664,36 +702,6 @@
             <p class="Continue_To_Login" style="display: none; width: 400px">Finish</p>
                 
             <style aria-label="Boot_Sequense_Style">
-                .Boot_Sequense {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100dvw;
-                    height: 100dvh;
-                    display: flex;
-                }
-
-                .Boot_Wallpaper {
-                    position: fixed;
-                    width: 100dvw;
-                    height: 100dvh;
-                    z-index: -1;
-                }
-
-                .Boot_Wallpaper_Image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .Boot_Glass {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100dvw;
-                    height: 100dvh;
-                    backdrop-filter: blur(10px);
-                }
 
                 .Boot_Sequense > .Boot_Sequense_Space {
                     position: absolute;
@@ -1185,7 +1193,7 @@
                         timerId = setTimeout(() => {
                             sep.style.display = 'block';
                             timerId = null;
-                        }, 0.001);
+                        }, 100);
                     }
 
                     function cancelShow() {
@@ -2031,55 +2039,254 @@
                 })();
 
                 /* ============================================================================ */
-                /* DISPLAY PROGRESS BAR */
+                /* RUN BOOT SEQUENSE PROGRESS BAR */
                 /* ============================================================================ */
 
                 (() => {
-                    const progress = document.querySelector('.Progress_Bar');
-                    if (!progress) return;
-
-                    function isDisplayed(el) {
-                        return el && getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function attachToBoot(boot) {
-                        if (!boot) return;
-
-                        // ensure initial state
-                        progress.style.display = isDisplayed(boot) ? 'block' : 'none';
-
-                        const mo = new MutationObserver(() => {
-                            progress.style.display = isDisplayed(boot) ? 'block' : 'none';
-                        });
-                        mo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                        window.addEventListener('beforeunload', () => mo.disconnect(), { once: true });
-                    }
-
+                    const fill = document.querySelector('.Boot_Sequense_Progress_Bar_Fill');
                     const boot = document.querySelector('.Boot_Sequense');
-                    if (boot) {
-                        attachToBoot(boot);
-                        return;
+                    const progressBar = document.querySelector('.Boot_Sequense_Progress_Bar');
+                    if (!fill || !boot || !progressBar) return;
+
+                    // ensure progress bar is pinned to bottom:10px regardless of layout
+                    function pinProgressBar() {
+                        progressBar.style.position = 'fixed';
+                        progressBar.style.left = '10px';
+                        progressBar.style.right = '10px';
+                        progressBar.style.bottom = '10px';
+                        progressBar.style.width = 'calc(100% - 20px)';
+                        progressBar.style.zIndex = '9999';
+                    }
+                    pinProgressBar();
+                    window.addEventListener('resize', pinProgressBar);
+                    // also ensure it's pinned whenever boot visibility toggles (handled later)
+
+                    // Steps mapped to approximate progress percentages
+                    const steps = [
+                        { sel: '.Boot_Sequense_Start_String', pct: 6 },
+                        { sel: '.Boot_Sequense_MIT_License',    pct: 28 },
+                        { sel: '.Site_Language',               pct: 40 },
+                        { sel: '.Main_IDE_Editor',             pct: 48 },
+                        { sel: '.Seperator_1',                 pct: 52 },
+                        { sel: '.Detect_Device_Information',   pct: 68 },
+                        { sel: '.Get_Network_Information',     pct: 76 },
+                        { sel: '.Is_Connected',                pct: 86 },
+                        { sel: '.Check_Database',              pct: 96 },
+                        { sel: '.Continue_To_Login',           pct: 100 }
+                    ];
+
+                    // helper
+                    const isDisplayed = el => el && getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+
+                    // initial reset
+                    fill.style.transition = 'none';
+                    fill.style.width = '0%';
+                    fill.setAttribute('role','progressbar');
+                    fill.setAttribute('aria-valuemin','0');
+                    fill.setAttribute('aria-valuemax','100');
+
+                    // track which steps we've already advanced for
+                    const done = new Set();
+
+                    // choppy stepping state
+                    let choppyInterval = null;
+
+                    function getCurrentPct() {
+                        const w = (fill.style.width || '').trim();
+                        return w.endsWith('%') ? parseFloat(w) || 0 : 0;
                     }
 
-                    // If boot element may be added later, watch for it
-                    const bodyObserver = new MutationObserver((mutations, obs) => {
-                        const b = document.querySelector('.Boot_Sequense');
-                        if (b) {
-                            attachToBoot(b);
-                            obs.disconnect();
+                    function stopChoppy() {
+                        if (choppyInterval) {
+                            clearInterval(choppyInterval);
+                            choppyInterval = null;
+                        }
+                        // ensure no CSS transition smoothness
+                        fill.style.transition = 'none';
+                    }
+
+                    // updateFill uses stepped jumps (choppy) instead of smooth tween
+                    function updateFill(targetPct) {
+                        stopChoppy();
+                        const start = getCurrentPct();
+                        const dest = Math.max(0, Math.min(100, targetPct));
+                        if (Math.abs(dest - start) < 0.5) {
+                            fill.style.width = dest + '%';
+                            fill.setAttribute('aria-valuenow', String(Math.round(dest)));
+                            return;
+                        }
+
+                        // determine step size (larger jumps => choppier)
+                        const diff = Math.abs(dest - start);
+                        const STEP_PCT = Math.max(6, Math.round(diff / 3)); // coarse steps
+                        const TICK_MS = 120; // interval between jumps (choppy feel)
+                        const dir = dest > start ? 1 : -1;
+                        let cur = start;
+
+                        // perform immediate first jump to avoid long pauses
+                        cur = Math.round((cur + dir * STEP_PCT) * 100) / 100;
+                        if ((dir > 0 && cur > dest) || (dir < 0 && cur < dest)) cur = dest;
+                        fill.style.width = cur + '%';
+                        fill.setAttribute('aria-valuenow', String(Math.round(cur)));
+
+                        choppyInterval = setInterval(() => {
+                            cur = Math.round((cur + dir * STEP_PCT) * 100) / 100;
+                            if ((dir > 0 && cur >= dest) || (dir < 0 && cur <= dest)) {
+                                fill.style.width = dest + '%';
+                                fill.setAttribute('aria-valuenow', String(Math.round(dest)));
+                                stopChoppy();
+                                return;
+                            }
+                            fill.style.width = cur + '%';
+                            fill.setAttribute('aria-valuenow', String(Math.round(cur)));
+                        }, TICK_MS);
+                    }
+
+                    // scan and advance to highest matching step
+                    function scanAndAdvance() {
+                        for (let i = 0; i < steps.length; i++) {
+                            const s = steps[i];
+                            const el = document.querySelector(s.sel);
+                            if (el && isDisplayed(el) && !done.has(s.sel)) {
+                                done.add(s.sel);
+                                updateFill(s.pct);
+                            }
+                        }
+                    }
+
+                    // observe visibility/style/class changes globally while boot is visible
+                    const mo = new MutationObserver(() => {
+                        if (getComputedStyle(boot).display === 'none') return;
+                        pinProgressBar();
+                        scanAndAdvance();
+                    });
+                    mo.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style', 'class'] });
+
+                    // also poll periodically to catch programmatic changes that don't trigger attribute mutations
+                    const pollId = setInterval(() => {
+                        if (getComputedStyle(boot).display === 'none') return;
+                        pinProgressBar();
+                        scanAndAdvance();
+                    }, 700);
+
+                    // reset when boot sequence hides so the bar can be reused later
+                    const bootMo = new MutationObserver(() => {
+                        if (getComputedStyle(boot).display === 'none') {
+                            done.clear();
+                            stopChoppy();
+                            fill.style.width = '0%';
+                            fill.setAttribute('aria-valuenow','0');
+                        } else {
+                            // when shown, ensure at least initial step is scanned and bar pinned
+                            pinProgressBar();
+                            setTimeout(scanAndAdvance, 80);
                         }
                     });
-                    bodyObserver.observe(document.body, { childList: true, subtree: true });
+                    bootMo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
 
-                    window.addEventListener('beforeunload', () => bodyObserver.disconnect(), { once: true });
+                    // initial scan in case some items are already visible
+                    setTimeout(scanAndAdvance, 60);
+
+                    window.addEventListener('beforeunload', () => {
+                        mo.disconnect();
+                        bootMo.disconnect();
+                        clearInterval(pollId);
+                        stopChoppy();
+                    });
                 })();
 
-                
+                /* ============================================================================ */
+                /* LOAD SPLASH SCREEN */
+                /* ============================================================================ */
 
+                (() => {
+                    const fill = document.querySelector('.Boot_Sequense_Progress_Bar_Fill');
+                    const boot = document.querySelector('.Boot_Sequense');
+                    const splash = document.querySelector('.Slpash_Screen'); // note: element name in document
 
+                    if (!fill || !boot || !splash) return;
+
+                    let fired = false;
+
+                    function getPct() {
+                        const aria = fill.getAttribute('aria-valuenow');
+                        if (aria != null) {
+                            const n = parseFloat(aria);
+                            if (!Number.isNaN(n)) return n;
+                        }
+                        const w = (fill.style.width || getComputedStyle(fill).width || '').toString().trim();
+                        if (w.endsWith('%')) return parseFloat(w);
+                        return null;
+                    }
+
+                    function onFull() {
+                        if (fired) return;
+                        fired = true;
+                        // small delay to allow final visuals to settle
+                        setTimeout(() => {
+                            try {
+                                boot.style.display = 'none';
+                                splash.style.display = 'flex';
+                                // remove dot grid if present
+                                document.querySelectorAll('.Dot_Grid').forEach(e => e.remove());
+                            } catch (e) { /* ignore */ }
+                        }, 150);
+                    }
+
+                    // observe style/aria changes on the fill element
+                    const mo = new MutationObserver(() => {
+                        const pct = getPct();
+                        if (pct != null && pct >= 100) onFull();
+                    });
+                    mo.observe(fill, { attributes: true, attributeFilter: ['style', 'aria-valuenow'] });
+
+                    // fallback poll to catch other updates
+                    const poll = setInterval(() => {
+                        const pct = getPct();
+                        if (pct != null && pct >= 100) {
+                            clearInterval(poll);
+                            mo.disconnect();
+                            onFull();
+                        }
+                        if (fired) {
+                            clearInterval(poll);
+                            mo.disconnect();
+                        }
+                    }, 200);
+
+                    window.addEventListener('beforeunload', () => {
+                        clearInterval(poll);
+                        mo.disconnect();
+                    });
+                })();
 
             </script>
+        </div>
+    </div>
+
+    <div class="Slpash_Screen" style="display: none;">
+        <style aria-label="Start_Body_Style">
+            .St {
+                background-color: var(--Background);
+                width: 100dvw;
+                height: 100dvh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+        </style>
+        <div class="Logo">
+            <p class="Logo_Text">Welcome to Eden Economy</p>
+
+            <style aria-label="Logo_Style">
+                .Logo {
+                    font-size: var(--Main_Text_4);
+                    font-weight: bold;
+                    color: var(--Highlight_Color_1);
+                    text-shadow: 0 0 8px var(--Highlight_Color_1);
+                }
+            </style>
         </div>
     </div>
 
