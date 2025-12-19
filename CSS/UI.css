@@ -89,6 +89,8 @@
     --Close_Button_Active: rgb(255, 0, 0);
 
     --Dot_Grid: rgba(255, 255, 255, 0.05);
+
+    --Progress_Bar_Background: rgb(255, 255, 255);
 }
 
 .Window {

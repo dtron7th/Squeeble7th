@@ -62,3 +62,5 @@ create boot sequense showing phone data, show this information (check network co
 if #Start_Using_Phone_System is pressed, then open #Download_APK_Window
 
 create a slideshow using .Wallpaper_List, set the z-index to -1, cycle through all the images smoothly, shuffle the images randomly 
+
+if .Boot_Sequense_Start_String is displayed, hide the 3 dots in the begining, then continue the animation

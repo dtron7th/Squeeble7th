@@ -14,8 +14,17 @@
             background-color: rgb(0, 0, 0);
             width: 100dvw;
             height: 100dvh;
+            display: flex;
+            justify-content: center;
         }
     </style>
+
+    <!-- ============================================================================ //
+    // UNIVERSAL UI //
+    // ============================================================================ -->
+
+    <!--DOT GRID-->
+
     <div class="Dot_Grid">
         <style aria-label="Dot_Grid_Style">
         /* 10px x 10px dot grid background */
@@ -34,7 +43,37 @@
         }
         </style>
     </div>
-    <div class="Start">
+
+    <!--PROGRESS BAR-->
+
+    <div class="Progress_Bar" style="display: none;">
+        <div class="Progress_Bar_Fill">
+
+        </div>
+
+        <style aria-label="Progress_Bar_Style">
+            .Progress_Bar {
+                position: absolute;
+                bottom: 10px;
+                width: calc(100% - 20px);
+                height: 20px;
+                border: 1px solid var(--Main_Border);
+            }
+
+            .Progress_Bar > .Progress_Bar_Fill {
+                width: 100%;
+                height: 100%;
+                background-color: var(--Progress_Bar_Background);
+                
+            }
+        </style>
+    </div>
+    <div class="Start" style="display: flex;">
+
+        <!-- ============================================================================ //
+        // WALLPAPER //
+        // ============================================================================ -->
+
         <div class="Wallpaper">
             <div class="Wallpaper_List">
                 <img class="Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
@@ -225,6 +264,10 @@
             </script>
         </div>
 
+        <!-- ============================================================================ //
+        // TOP UI //
+        // ============================================================================ -->
+
         <div class="Top_UI">
             <div class="Details">
                 <div class="Clock">
@@ -243,6 +286,7 @@
                 <button id="About">[Road Map]</button>
                 <button id="About">[Character Sheet]</button>
                 <button id="About">[Version]</button>
+                <button id="About">[Share]</button>
             </div>
 
             <style aria-label="Top_UI_Style">
@@ -445,6 +489,10 @@
             </script>
         </div>
 
+        <!-- ============================================================================ //
+        // START WINDOW //
+        // ============================================================================ -->
+
         <div class="Window Start_Window" style="width:280px; height:220px;">
             <div class="Window_Header">
                 <p class="Title">Start</p>
@@ -455,8 +503,8 @@
                     <p>Welcome to Eden Economy! Please select your platform to continue.</p>
                 </div>
                 <div class="Start_Navigator">
-                    <button class="Start_Navigator_Button" id="Start_Using_IOS_System">[IOS Device]</button>
-                    <button class="Start_Navigator_Button" id="Start_Using_APK_System">[APK Device]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System">[Desktop]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System">[Phone]</button>
                 </div>
             </div>
 
@@ -496,86 +544,377 @@
                 .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
                     font-size: var(--Main_Text_2);
                 }
-            </style>
-        </div>
-      
 
-        <div class="Sub_Windows">
-            <div class="Window Download_APK_Window" id="Download_APK_Window" style="width:180px; height:140px; display: none;">
-                <div class="Window_Header">
-                    <p class="Title">Download APK</p>
-                    <button class="Close_Button">[Close]</button>
-                </div>
-                <div class="Content">
-                    <div class="Title">
-                        <p>Download the APK file.</p>
-                    </div>
-                    <div class="Download_Button">
-                        <button class="Download_APK_Button">[Download]</button>
-                    </div>
-                </div>
-            </div>
-            
-            <style aria-label="Download_APK_Window_Style">
-                .Download_APK_Window > .Content {
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                }
-
-                .Download_APK_Window > .Content > .Title {
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                }
-
-                .Download_APK_Window > .Content > .Title > p {
-                    position: absolute;
-                    top: 20px;
-                    color: var(--Main_Text_Color_1);
-                    font-size: var(--Main_Text_1);
-                    text-align: center;
-                    width: 120px;
-                }
-
-                .Download_APK_Window > .Content > .Download_Button {
-                    position: absolute;
-                    bottom: 20px;
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                }
-
-                .Download_APK_Window > .Content > .Download_Button > button {
-                    font-size: var(--Main_Text_2);
-                }
             </style>
 
-            <script aria-label="Open_Close_Funtions">
-                (() => {
-                    const btn = document.getElementById('Start_Using_APK_System');
-                    const win = document.getElementById('Download_APK_Window');
-                    if (!btn || !win) return;
-
-                    btn.addEventListener('click', () => {
-                        win.style.display = 'flex';
-                        const computed = getComputedStyle(win);
-                        if (computed.position === 'static') win.style.position = 'absolute';
-
-                        // Position the window at top:10px left:10px (account for page scroll)
-                        requestAnimationFrame(() => {
-                            win.style.left = (window.scrollX + 10) + 'px';
-                            win.style.top = (window.scrollY + 10) + 'px';
-                        });
-                    });
-
-                    const close = win.querySelector('.Close_Button');
-                    if (close) close.addEventListener('click', () => {
-                        win.style.display = 'none';
-                    });
-                })();
+            <script aria-label="Start_Window_Script">
+                
             </script>
         </div>
+
+        <!-- ============================================================================ //
+        // SUB WINDOWS //
+        // ============================================================================ -->
+
+        <div class="Sub_Windows">
+           
+        </div>
+    </div>
+
+    <div class="Boot_Sequense" style="display: none;">
+
+        <div class="Boot_Wallpaper">
+            <img class="Boot_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
+            <div class="Boot_Glass">
+
+            </div>
+        </div>
+
+        <div class="Boot_Sequense_Space">
+            <p class="Boot_Sequense_Copy_Right">Eden Economy Web-World Market 2026 &#169</p>
+            <br>
+            <p class="Boot_Sequense_Start_String" style="display: none;">Starting Eden Economy...</p>
+            <br>
+            <br>
+            <p class="Boot_Sequense_MIT_License" style="display: none;">MIT License
+
+                Copyright (c) 2026 dtron7th Corporation
+                <br>
+                <br>
+
+                Permission is hereby granted, free of charge, to any person obtaining a copy
+                of this software and associated documentation files (the "Software"), to deal
+                in the Software without restriction, including without limitation the rights
+                to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+                copies of the Software, and to permit persons to whom the Software is
+                furnished to do so, subject to the following conditions:
+                <br>
+                <br>
+                The above copyright notice and this permission notice shall be included in all
+                copies or substantial portions of the Software.
+                <br>
+                <br>
+                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+                IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+                FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+                AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+                LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+                OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+                SOFTWARE.</p>
+
+        </div>
+
+        <style aria-label="Boot_Sequense_Style">
+            .Boot_Sequense {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100dvw;
+                height: 100dvh;
+                display: flex;
+            }
+
+            .Boot_Wallpaper {
+                width: 100dvw;
+                height: 100dvh;
+                z-index: -1;
+            }
+
+            .Boot_Wallpaper_Image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .Boot_Glass {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100dvw;
+                height: 100dvh;
+                backdrop-filter: blur(10px);
+            }
+
+            .Boot_Sequense > .Boot_Sequense_Space {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                text-align: left;
+                color: var(--Main_Text_Color_1);
+                font-size: var(--Main_Text_1);
+            }
+
+            .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_Copy_Right {
+                font-size: var(--Main_Text_3);
+                
+            }
+
+            .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_MIT_License {
+                font-size: var(--Main_Text_1);
+                width: 350px;
+                text-align: left;
+            }
+
+
+        </style>
+        
+        <script aria-label="Boot_Sequense_Script">
+
+            /* ============================================================================ */
+            /* OPEN BOOT SEQUENCE */
+            /* ============================================================================ */
+
+            (() => {
+                const btn = document.getElementById('Start_Using_Phone_System');
+                const progress = document.querySelector('.Progress_Bar');
+                const fill = progress ? progress.querySelector('.Progress_Bar_Fill') : null;
+                const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
+                const start = document.querySelector('.Start');
+
+                if (!btn) return;
+
+                btn.addEventListener('click', () => {
+                    btn.disabled = true;
+                    if (progress) progress.style.display = 'block';
+
+                    const DURATION = 1000;
+                    const PCTS = [20, 70, 100];
+                    // times: spread events over the duration (you can tweak factors if desired)
+                    const TIMES = PCTS.map((_, i, a) => Math.round(((i + 1) / a.length) * DURATION));
+
+                    if (fill) {
+                        fill.style.transition = 'none';
+                        fill.style.width = '0%';
+                        void fill.offsetWidth;
+
+                        PCTS.forEach((pct, i) => {
+                            setTimeout(() => {
+                                fill.style.width = pct + '%';
+                            }, TIMES[i]);
+                        });
+
+                        // Ensure final state at DURATION
+                        setTimeout(() => {
+                            fill.style.width = '100%';
+                        }, DURATION);
+                    }
+
+                    setTimeout(() => {
+                        document.querySelectorAll('.Dot_Grid').forEach(el => el.remove());
+                        if (progress) progress.style.display = 'none';
+                        if (start) start.style.display = 'none';
+                        if (boot) boot.style.display = 'flex';
+                    }, DURATION);
+                });
+            })();
+
+            /* ============================================================================ */
+            /* RUN BOOT SEQUENCE */
+            /* ============================================================================ */
+
+            //STARTING EDEN ECONOMY BOOT SEQUENCE
+
+            (() => {
+                const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
+                const el = document.querySelector('.Boot_Sequense_Start_String');
+                if (!boot || !el) return;
+
+                let triggered = false;
+                function triggerShow() {
+                    if (triggered) return;
+                    triggered = true;
+                    setTimeout(() => el.style.display = 'block', 3000);
+                }
+
+                // If boot is already visible, start timer immediately
+                if (getComputedStyle(boot).display !== 'none') {
+                    triggerShow();
+                }
+
+                // Observe style/display changes on the boot container
+                const mo = new MutationObserver(() => {
+                    if (getComputedStyle(boot).display !== 'none') triggerShow();
+                });
+                mo.observe(boot, { attributes: true, attributeFilter: ['style'] });
+
+                window.addEventListener('beforeunload', () => mo.disconnect());
+            })();
+
+            (() => {
+                const el = document.querySelector('.Boot_Sequense_Start_String');
+                if (!el) return;
+                let played = false;
+
+                function isDisplayed(e) {
+                    return getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
+                }
+
+                function playDosBeep() {
+                    try {
+                        const Ctx = window.AudioContext || window.webkitAudioContext;
+                        if (!Ctx) return;
+                        const ctx = new Ctx();
+                        const now = ctx.currentTime;
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.type = 'square';
+                        osc.frequency.value = 800; // DOS-like pitch
+                        gain.gain.setValueAtTime(0.0001, now);
+                        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+
+                        // close context after sound finishes (best-effort)
+                        setTimeout(() => { if (ctx.close) ctx.close(); }, 400);
+                    } catch (e) {
+                        console.warn('Beep failed', e);
+                    }
+                }
+
+                if (isDisplayed(el) && !played) {
+                    playDosBeep();
+                    played = true;
+                }
+
+                const mo = new MutationObserver(() => {
+                    if (isDisplayed(el)) {
+                        if (!played) {
+                            playDosBeep();
+                            played = true;
+                        }
+                    } else {
+                        played = false;
+                    }
+                });
+
+                mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+                window.addEventListener('beforeunload', () => mo.disconnect());
+            })();
+
+            (() => {
+                const el = document.querySelector('.Boot_Sequense_Start_String');
+                if (!el) return;
+                const base = 'Starting Eden Economy';
+                el.style.whiteSpace = 'pre';
+                el.innerHTML = base + ' <span class="boot-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
+
+                const dots = Array.from(el.querySelectorAll('.boot-dots .dot'));
+                dots.forEach(d => {
+                    d.style.opacity = '0';
+                    d.style.transition = 'none';
+                    d.style.display = 'inline-block';
+                    d.style.margin = '0 2px';
+                });
+
+                const seq = [
+                    [1, 0, 0],
+                    [1, 1, 0],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ];
+
+                let s = 0;
+                const interval = 400;
+                let id = null;
+                const INITIAL_HIDE_MS = 4000;
+                let startTimeoutId = null;
+
+                function step() {
+                    const state = seq[s];
+                    dots.forEach((d, i) => d.style.opacity = state[i] ? '1' : '0');
+                    s = (s + 1) % seq.length;
+                }
+
+                function startBlinking() {
+                    if (id) return;
+                    // ensure starting state
+                    s = 0;
+                    step();
+                    id = setInterval(step, interval);
+                }
+
+                function stopBlinking() {
+                    if (!id) return;
+                    clearInterval(id);
+                    id = null;
+                    dots.forEach(d => d.style.opacity = '0');
+                }
+
+                function cancelPendingStart() {
+                    if (startTimeoutId) {
+                        clearTimeout(startTimeoutId);
+                        startTimeoutId = null;
+                    }
+                }
+
+                function startWithInitialHide() {
+                    // hide dots immediately, then start animation after short delay
+                    dots.forEach(d => d.style.opacity = '0');
+                    cancelPendingStart();
+                    startTimeoutId = setTimeout(() => {
+                        startBlinking();
+                        startTimeoutId = null;
+                    }, INITIAL_HIDE_MS);
+                }
+
+                function isDisplayed(el) {
+                    return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
+                }
+
+                // start with initial hide if already visible
+                if (isDisplayed(el)) startWithInitialHide();
+
+                // observe display/style changes on the element and start/stop accordingly
+                const mo = new MutationObserver(() => {
+                    if (isDisplayed(el)) startWithInitialHide();
+                    else {
+                        cancelPendingStart();
+                        stopBlinking();
+                    }
+                });
+                mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+
+                window.addEventListener('beforeunload', () => {
+                    cancelPendingStart();
+                    stopBlinking();
+                    mo.disconnect();
+                });
+            })();
+
+            // RUN EDEN ECONOMY CORPORATION OPEN SOURCE LEICENSE
+
+            
+
+            
+
+
+
+            
+
+            
+        </script>
+    </div>
+
+    <div class="Login">
+
+    </div>
+
+    <div class="EEC_Main_1">
+
+    </div>
+
+    <div class="EEC_Main_2">
+
+    </div>
+
+    <div class="EEC_Main_3">
+
     </div>
     
     <script aria-label="Essentials_Script">
