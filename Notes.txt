@@ -66,3 +66,257 @@ create a slideshow using .Wallpaper_List, set the z-index to -1, cycle through a
 if .Boot_Sequense_Start_String is displayed, hide the 3 dots in the begining, then continue the animation
 
 //Load indivisual progress bar steps
+
+
+  <!--<div class="Boot_Wallpaper">
+    <img class="Boot_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
+    <div class="Boot_Glass">
+
+    </div>
+
+    <style aria-label="Boot_Wallpaper_Style">
+        .Boot_Wallpaper {
+            position: fixed;
+            width: 100dvw;
+            height: 100dvh;
+            z-index: -1;
+        }
+
+        .Boot_Wallpaper_Image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .Boot_Glass {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100dvw;
+            height: 100dvh;
+            backdrop-filter: blur(10px);
+        }
+
+    </style>
+</div>-->
+
+
+
+
+
+
+
+<div class="Wallpaper">
+            <div class="Wallpaper_List">
+                <img class="Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
+            </div>
+            <div class="Glass">
+
+            </div>
+
+            <style aria-label="Start_Wallpaper_Style">
+                .Wallpaper {
+                    width: 100dvw;
+                    height: 100dvh;
+                    z-index: -1;
+                }
+
+                .Wallpaper_List {
+                    width: 100dvw;
+                    height: 100dvh;
+                    
+                }
+
+                .Wallpaper_Image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .Glass {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    backdrop-filter: blur(10px);
+                }
+            </style>
+            
+            <script aria-label="Wallpaper_Slideshow">
+                (() => {
+                    const FADE_IN_MS = 800;
+                    const BLEND_MODE = 'screen'; // try 'overlay', 'lighten', 'multiply', etc.
+
+                    // inject fade-in keyframes/style
+                    (function() {
+                        const s = document.createElement('style');
+                        s.textContent = `
+                        @keyframes wallpaperFadeIn {
+                            from { opacity: 0; }
+                            to   { opacity: 1; }
+                        }
+                        .wallpaper-fade {
+                            animation: wallpaperFadeIn ${FADE_IN_MS}ms ease both;
+                        }`;
+                        document.head.appendChild(s);
+                    })();
+
+                    // observe inline style opacity changes and apply fade class when an image becomes visible
+                    (function() {
+                        const observer = new MutationObserver(mutations => {
+                            for (const m of mutations) {
+                                const t = m.target;
+                                if (!(t instanceof HTMLElement)) continue;
+                                if (!t.classList.contains('Wallpaper_Image')) continue;
+                                if (t.style && (t.style.opacity === '1' || t.style.opacity === '1.0')) {
+                                    t.classList.add('wallpaper-fade');
+                                    clearTimeout(t.___fadeRemoveTimer);
+                                    t.___fadeRemoveTimer = setTimeout(() => {
+                                        t.classList.remove('wallpaper-fade');
+                                        delete t.___fadeRemoveTimer;
+                                    }, FADE_IN_MS + 50);
+                                }
+                            }
+                        });
+
+                        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
+                        window.addEventListener('beforeunload', () => observer.disconnect());
+                    })();
+
+                    const container = document.querySelector('.Wallpaper_List');
+                    if (!container) return;
+
+                    const imgs = Array.from(container.querySelectorAll('img.Wallpaper_Image'));
+                    if (!imgs.length) return;
+
+                    // config (ms)
+                    const displayDuration = 5000;      // time each image is fully visible
+                    const transitionDuration = 1000;   // crossfade duration
+
+                    // set container and image base styles
+                    Object.assign(container.style, {
+                        position: 'relative',
+                        zIndex: '-1',
+                        overflow: 'hidden',
+                        isolation: 'isolate' // ensure blend modes compose within the container
+                    });
+
+                    imgs.forEach((img, i) => {
+                        Object.assign(img.style, {
+                            position: 'absolute',
+                            inset: '0',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: `opacity ${transitionDuration}ms ease`,
+                            opacity: '0',
+                            pointerEvents: 'none',
+                            willChange: 'opacity, transform',
+                            mixBlendMode: BLEND_MODE,
+                            transform: 'translateZ(0)' // promote to its own layer for smoother compositing
+                        });
+                        img.dataset.wallIndex = i;
+                    });
+
+                    // Fisher-Yates shuffle
+                    function shuffle(array) {
+                        for (let i = array.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [array[i], array[j]] = [array[j], array[i]];
+                        }
+                        return array;
+                    }
+
+                    // build playback order (array of image elements)
+                    let order = shuffle(imgs.slice());
+                    let current = 0;
+                    let timer = null;
+
+                    // show a specific image element (crossfade from current to next)
+                    function showIndex(nextIndex) {
+                        const nextImg = order[nextIndex];
+                        const curImg = order[current];
+
+                        if (nextImg === curImg) {
+                            nextImg.style.opacity = '1';
+                            return;
+                        }
+
+                        // ensure next is on top visually by DOM order; move it to end if necessary
+                        if (nextImg && nextImg.parentElement) nextImg.parentElement.appendChild(nextImg);
+
+                        // bring next to visible (both visible for blend)
+                        nextImg.style.opacity = '1';
+
+                        // fade out previous after a tiny overlap to let blending occur
+                        if (curImg) {
+                            setTimeout(() => {
+                                curImg.style.opacity = '0';
+                            }, 10);
+                        }
+
+                        current = nextIndex;
+                    }
+
+                    // advance to next, reshuffle after a full loop
+                    function advance() {
+                        const next = (current + 1) % order.length;
+                        showIndex(next);
+
+                        // if we've completed a loop, reshuffle order but keep the currently visible image first
+                        if (next === 0) {
+                            const visible = order[current];
+                            const remaining = imgs.filter(i => i !== visible);
+                            shuffle(remaining);
+                            order = [visible, ...remaining];
+                            current = 0;
+                        }
+                    }
+
+                    // preload images and start slideshow
+                    Promise.all(order.map(img => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise(res => { img.onload = img.onerror = res; });
+                    })).then(() => {
+                        // ensure all start hidden, then reveal first without flash
+                        order.forEach(img => img.style.opacity = '0');
+                        order[0].style.opacity = '1';
+                        current = 0;
+
+                        // start interval
+                        timer = setInterval(advance, displayDuration);
+                    });
+
+                    // cleanup
+                    window.addEventListener('beforeunload', () => {
+                        if (timer) clearInterval(timer);
+                    });
+                })();
+            </script>
+        </div>
+
+
+
+
+
+
+         <div class="Start_Dot_Grid">
+            <style aria-label="Start_Dot_Grid_Style">
+                /* 10px x 10px dot grid background */
+                .Start_Dot_Grid {
+                    position: fixed;
+                    inset: 0;
+                    pointer-events: none;
+                    z-index: 1;
+
+                    --dot-color: var(--Dot_Grid);
+                    --dot-size: 1px;
+                    --grid-spacing: 20px;
+
+                    background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 0.5px));
+                    background-size: var(--grid-spacing) var(--grid-spacing);
+                }
+            </style>
+
+        </div>

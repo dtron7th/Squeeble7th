@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eden Economy</title>
+    <title>Squeeble Economy</title>
 
     <link rel="stylesheet" href="CSS/UI.css">
 
@@ -19,33 +19,16 @@
         }
     </style>
 
-    <!-- ============================================================================ //
-    // UNIVERSAL UI //
-    // ============================================================================ -->
 
-    <!--DOT GRID-->
 
-    <div class="Dot_Grid">
-        <style aria-label="Dot_Grid_Style">
-        /* 10px x 10px dot grid background */
-        .Dot_Grid {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
+    <!--Skeleton-->
 
-            --dot-color: var(--Dot_Grid);
-            --dot-size: 1px;
-            --grid-spacing: 20px;
 
-            background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 0.5px));
-            background-size: var(--grid-spacing) var(--grid-spacing);
-        }
-        </style>
-    </div>
 
     
     <div class="Start" style="display: flex;">
+
+       
 
         <style aria-label="Start_Body_Style">
             .Start {
@@ -54,13 +37,12 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-color: var(--Background);
             }
 
         </style>
 
-        <!-- ============================================================================ //
-        // START PROGRESS BAR //
-        // ============================================================================ -->
+
 
         <div class="Start_Progress_Bar" style="display: none;">
             <div class="Start_Progress_Bar_Fill">
@@ -72,8 +54,7 @@
                     position: absolute;
                     bottom: 10px;
                     width: calc(100% - 20px);
-                    height: 20px;
-                    border: 1px solid var(--Main_Border);
+                    height: 10px;
                 }
 
                 .Start_Progress_Bar > .Start_Progress_Bar_Fill {
@@ -85,209 +66,15 @@
             </style>
         </div>
 
-        <!-- ============================================================================ //
-        // WALLPAPER //
-        // ============================================================================ -->
 
-        <div class="Wallpaper">
-            <div class="Wallpaper_List">
-                <img class="Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
-            </div>
-            <div class="Glass">
 
-            </div>
 
-            <style aria-label="Start_Wallpaper_Style">
-                .Wallpaper {
-                    width: 100dvw;
-                    height: 100dvh;
-                    z-index: -1;
-                }
 
-                .Wallpaper_List {
-                    width: 100dvw;
-                    height: 100dvh;
-                    
-                }
-
-                .Wallpaper_Image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .Glass {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100dvw;
-                    height: 100dvh;
-                    backdrop-filter: blur(10px);
-                }
-            </style>
-            
-            <script aria-label="Wallpaper_Slideshow">
-                (() => {
-                    const FADE_IN_MS = 800;
-                    const BLEND_MODE = 'screen'; // try 'overlay', 'lighten', 'multiply', etc.
-
-                    // inject fade-in keyframes/style
-                    (function() {
-                        const s = document.createElement('style');
-                        s.textContent = `
-                        @keyframes wallpaperFadeIn {
-                            from { opacity: 0; }
-                            to   { opacity: 1; }
-                        }
-                        .wallpaper-fade {
-                            animation: wallpaperFadeIn ${FADE_IN_MS}ms ease both;
-                        }`;
-                        document.head.appendChild(s);
-                    })();
-
-                    // observe inline style opacity changes and apply fade class when an image becomes visible
-                    (function() {
-                        const observer = new MutationObserver(mutations => {
-                            for (const m of mutations) {
-                                const t = m.target;
-                                if (!(t instanceof HTMLElement)) continue;
-                                if (!t.classList.contains('Wallpaper_Image')) continue;
-                                if (t.style && (t.style.opacity === '1' || t.style.opacity === '1.0')) {
-                                    t.classList.add('wallpaper-fade');
-                                    clearTimeout(t.___fadeRemoveTimer);
-                                    t.___fadeRemoveTimer = setTimeout(() => {
-                                        t.classList.remove('wallpaper-fade');
-                                        delete t.___fadeRemoveTimer;
-                                    }, FADE_IN_MS + 50);
-                                }
-                            }
-                        });
-
-                        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style'] });
-                        window.addEventListener('beforeunload', () => observer.disconnect());
-                    })();
-
-                    const container = document.querySelector('.Wallpaper_List');
-                    if (!container) return;
-
-                    const imgs = Array.from(container.querySelectorAll('img.Wallpaper_Image'));
-                    if (!imgs.length) return;
-
-                    // config (ms)
-                    const displayDuration = 5000;      // time each image is fully visible
-                    const transitionDuration = 1000;   // crossfade duration
-
-                    // set container and image base styles
-                    Object.assign(container.style, {
-                        position: 'relative',
-                        zIndex: '-1',
-                        overflow: 'hidden',
-                        isolation: 'isolate' // ensure blend modes compose within the container
-                    });
-
-                    imgs.forEach((img, i) => {
-                        Object.assign(img.style, {
-                            position: 'absolute',
-                            inset: '0',
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            transition: `opacity ${transitionDuration}ms ease`,
-                            opacity: '0',
-                            pointerEvents: 'none',
-                            willChange: 'opacity, transform',
-                            mixBlendMode: BLEND_MODE,
-                            transform: 'translateZ(0)' // promote to its own layer for smoother compositing
-                        });
-                        img.dataset.wallIndex = i;
-                    });
-
-                    // Fisher-Yates shuffle
-                    function shuffle(array) {
-                        for (let i = array.length - 1; i > 0; i--) {
-                            const j = Math.floor(Math.random() * (i + 1));
-                            [array[i], array[j]] = [array[j], array[i]];
-                        }
-                        return array;
-                    }
-
-                    // build playback order (array of image elements)
-                    let order = shuffle(imgs.slice());
-                    let current = 0;
-                    let timer = null;
-
-                    // show a specific image element (crossfade from current to next)
-                    function showIndex(nextIndex) {
-                        const nextImg = order[nextIndex];
-                        const curImg = order[current];
-
-                        if (nextImg === curImg) {
-                            nextImg.style.opacity = '1';
-                            return;
-                        }
-
-                        // ensure next is on top visually by DOM order; move it to end if necessary
-                        if (nextImg && nextImg.parentElement) nextImg.parentElement.appendChild(nextImg);
-
-                        // bring next to visible (both visible for blend)
-                        nextImg.style.opacity = '1';
-
-                        // fade out previous after a tiny overlap to let blending occur
-                        if (curImg) {
-                            setTimeout(() => {
-                                curImg.style.opacity = '0';
-                            }, 10);
-                        }
-
-                        current = nextIndex;
-                    }
-
-                    // advance to next, reshuffle after a full loop
-                    function advance() {
-                        const next = (current + 1) % order.length;
-                        showIndex(next);
-
-                        // if we've completed a loop, reshuffle order but keep the currently visible image first
-                        if (next === 0) {
-                            const visible = order[current];
-                            const remaining = imgs.filter(i => i !== visible);
-                            shuffle(remaining);
-                            order = [visible, ...remaining];
-                            current = 0;
-                        }
-                    }
-
-                    // preload images and start slideshow
-                    Promise.all(order.map(img => {
-                        if (img.complete) return Promise.resolve();
-                        return new Promise(res => { img.onload = img.onerror = res; });
-                    })).then(() => {
-                        // ensure all start hidden, then reveal first without flash
-                        order.forEach(img => img.style.opacity = '0');
-                        order[0].style.opacity = '1';
-                        current = 0;
-
-                        // start interval
-                        timer = setInterval(advance, displayDuration);
-                    });
-
-                    // cleanup
-                    window.addEventListener('beforeunload', () => {
-                        if (timer) clearInterval(timer);
-                    });
-                })();
-            </script>
-        </div>
-
-        <!-- ============================================================================ //
-        // TOP UI //
-        // ============================================================================ -->
-
-        <div class="Top_UI">
+        <div class="Start_Floating_UI">
             <div class="Details">
-                <div class="Clock">
-                    <p class="Clock_HMSM">12:00:00 PM</p>
-                    <p class="Clock_DMY">DD/MM/YYYY</p>
+                <div class="Start_Clock">
+                    <p class="Start_Clock_HMSM">12:00:00 PM</p>
+                    <p class="Start_Clock_DMY">DD/MM/YYYY</p>
                 </div>
                 <div class="Device_Location">
                     <p class="Device_Location_Point">Location</p>
@@ -295,51 +82,61 @@
                 <div class="Network_Name">
                     <p class="Current_Network_Name">Network Name</p>
                 </div>
+                <div class="Database">
+                    <p class="Is_Connected_To_Database">Disabled</p>
+                </div>
             </div>
             <div class="User_Information">
-                <button id="About">[About]</button>
-                <button id="About">[Road Map]</button>
-                <button id="About">[Character Sheet]</button>
-                <button id="About">[Version]</button>
-                <button id="About">[Share]</button>
+                <button class="Floating_Button" id="About">About</button>
+                <button class="Floating_Button" id="Road_Map">Road Map</button>
+                <button class="Floating_Button" id="Character_Sheet">Character Sheet</button>
+                <button class="Floating_Button" id="Version">Version</button>
+                <button class="Floating_Button" id="Share">Share</button>
             </div>
-
-            <style aria-label="Top_UI_Style">
-                .Top_UI {
+            
+            <style aria-label="Start_Floating_UI_Style">
+                .Start_Floating_UI {
                     position: absolute;
                     top: 10px;
                     width: 100%;
                 }
 
-                .Top_UI > .Details {
+                .Start_Floating_UI > .Details {
                     position: absolute;
                     right: 10px;
 
                 }
+                
 
-                .Top_UI > .Details > .Clock > .Clock_HMSM {
+                .Start_Floating_UI > .Details > .Start_Clock > .Start_Clock_HMSM {
                     color: var(--Main_Text_Color_1);
 
                 }
 
-                .Top_UI > .Details > .Clock > .Clock_DMY {
+                .Start_Floating_UI > .Details > .Start_Clock > .Start_Clock_DMY {
                     color: var(--Main_Text_Color_1);
                 }
 
-                .Top_UI > .Details > .Device_Location {
+                .Start_Floating_UI > .Details > .Device_Location {
                     position: absolute;
                     top: 60px;
                     color: var(--Main_Text_Color_1);
 
                 }
 
-                .Top_UI > .Details > .Network_Name {
+                .Start_Floating_UI > .Details > .Network_Name {
                     position: absolute;
                     top: 110px;
                     color: var(--Main_Text_Color_1);
                 }
 
-                .Top_UI > .User_Information {
+                .Start_Floating_UI > .Details > .Database {
+                    position: absolute;
+                    top: 150px;
+                    color: var(--Main_Text_Color_1);
+                }
+
+                .Start_Floating_UI > .User_Information {
                     position: absolute;
                     left: 10px;
                     color: var(--Main_Text_Color_1);
@@ -348,16 +145,26 @@
                     align-items: flex-start;
                     gap: 10px;
                 }
+
+                .Start_Floating_UI > .User_Information > button {
+                    width: 150px;
+                    height: 20px;
+                    justify-content: flex-start;
+                    background: none;
+                }
+
+                .Start_Floating_UI > .User_Information > button:active {
+                    color: var(--UI-Buttons-Fields-Color_Active-1);
+                    -webkit-tap-highlight-color: transparent;
+                }
                 
             </style>
 
-            <script aria-label="Top_UI_Script">
+            <script aria-label="Start_Floating_UI_Script">
 
-                /* ============================================================================ */
-                /* SET CLOCK */
-                /* ============================================================================ */
+
                 (() => {
-                    const el = document.querySelector('.Clock_HMSM');
+                    const el = document.querySelector('.Start_Clock_HMSM');
                     if (!el) return;
 
                     el.style.fontSize = '14px';
@@ -379,12 +186,10 @@
                     requestAnimationFrame(update);
                 })();
 
-                /* ============================================================================ */
-                /* SET DATE */
-                /* ============================================================================ */
+
 
                 (() => {
-                    const el = document.querySelector('.Clock_DMY');
+                    const el = document.querySelector('.Start_Clock_DMY');
                     if (!el) return;
 
                     el.style.fontSize = '10px';
@@ -402,12 +207,10 @@
                     update();
                 })();
 
-                /* ============================================================================ */
-                /* GET DEVICE LOCATION */
-                /* ============================================================================ */
+
 
                 (async () => {
-                    const el = document.querySelector('.Device_Location_Point');
+                    const el = document.querySelector('.Start_Floating_UI > .Details > .Device_Location > .Device_Location_Point');
                     if (!el || !navigator.geolocation) return;
                     el.style.fontSize = '10px';
                     el.textContent = '[Locating...]';
@@ -469,9 +272,7 @@
                     }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
                 })();
 
-                /* ============================================================================ */
-                /* GET NETWORK NAME */
-                /* ============================================================================ */
+
 
                 (async () => {
                     const el = document.querySelector('.Current_Network_Name');
@@ -501,13 +302,73 @@
                         console.error(e);
                     }
                 })();
+
+                (async () => {
+                    const el = document.querySelector('.Is_Connected_To_Database');
+                    if (!el) return;
+                    el.style.fontSize = '10px';
+                    el.textContent = 'Checking...';
+                    el.style.color = 'var(--Main_Text_Color_1)';
+
+                    const setStatus = (connected, source = '') => {
+                        el.textContent = connected ? 'Database Connected' : 'Database Disconnected';
+                        el.style.color = connected ? '#22c55e' : '#ef4444';
+                        el.title = source ? `Checked via: ${source}` : '';
+                    };
+
+                    // 1) Try pinging a relative server endpoint (fast; configurable)
+                    try {
+                        const controller = new AbortController();
+                        const timeout = setTimeout(() => controller.abort(), 3000);
+                        const res = await fetch('/db/ping', { method: 'GET', cache: 'no-cache', signal: controller.signal });
+                        clearTimeout(timeout);
+                        if (res.ok) {
+                            try {
+                                const j = await res.json();
+                                if (typeof j.connected === 'boolean') { setStatus(j.connected, 'server'); return; }
+                            } catch (_) {
+                                // no json - assume OK response means connected
+                                setStatus(true, 'server'); return;
+                            }
+                        }
+                    } catch (_) {
+                        // fetch failed; fall through to local checks
+                    }
+
+                    // 2) Fallback: check browser DB availability (IndexedDB)
+                    try {
+                        const dbName = 'SqueebleLocalDB_Check';
+                        await new Promise((resolve, reject) => {
+                            const rq = indexedDB.open(dbName);
+                            rq.onsuccess = () => {
+                                try { rq.result.close(); indexedDB.deleteDatabase(dbName); } catch (_) {}
+                                resolve();
+                            };
+                            rq.onerror = () => reject();
+                            // onupgradeneeded can create the DB but that's acceptable for a local availability check
+                            rq.onupgradeneeded = () => {
+                                // create temporary store so open completes consistently
+                                try { rq.result.createObjectStore('tmp'); } catch (_) {}
+                            };
+                        });
+                        setStatus(true, 'indexeddb');
+                        return;
+                    } catch (_) {}
+
+                    // 3) Final fallback: use navigator.onLine (informational only)
+                    if (navigator.onLine === false) {
+                        setStatus(false, 'navigator.onLine');
+                    } else {
+                        // unknown but treat as disconnected to database
+                        setStatus(false, 'unknown');
+                    }
+                })();
             </script>
         </div>
+        
 
-        <!-- ============================================================================ //
-        // START WINDOW //
-        // ============================================================================ -->
 
+        
         <div class="Window Start_Window" style="width:280px; height:220px;">
             <div class="Window_Header">
                 <p class="Title">Start</p>
@@ -515,18 +376,17 @@
             </div>
             <div class="Content">
                 <div class="Paragraph">
-                    <p>Welcome to Eden Economy! Please select your platform to continue.</p>
+                    <p>Welcome to Squeeble Economy! Please select your platform to continue.</p>
                 </div>
                 <div class="Start_Navigator">
-                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System">[Desktop]</button>
-                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System">[Phone]</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System">Desktop</button>
+                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System">Phone</button>
                 </div>
             </div>
 
             <style aria-label="Start_Window_Style">
                 .Start_Window {
                     position: absolute;
-
                 }
 
                 .Start_Window > .Content > .Paragraph {
@@ -540,7 +400,7 @@
 
                 .Start_Window > .Content > .Start_Navigator {
                     position: absolute;
-                    bottom: 20px;
+                    bottom: 10px;
                     width: 100%;
                     display: flex;
                     flex-direction: row;
@@ -549,1725 +409,550 @@
                 }
 
                 .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
-                    font-size: var(--Main_Text_2);
+                    width: 100%;
+                    height: 20px;
                 }
 
             </style>
 
             <script aria-label="Start_Window_Script">
-                
+
+                (() => {
+                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                    const progressBar = document.querySelector('.Start_Progress_Bar');
+                    const progressFill = progressBar && progressBar.querySelector('.Start_Progress_Bar_Fill');
+                    if (!phoneBtn || !progressBar || !progressFill) return;
+
+                    // Step-based loading plan (pct = target percent, duration = ms to animate to that step)
+                    const STEPS = [
+                        { name: 'Initializing', pct: 8, duration: 350 },
+                        { name: 'Loading assets', pct: 28, duration: 700 },
+                        { name: 'Starting services', pct: 55, duration: 900 },
+                        { name: 'Applying configuration', pct: 82, duration: 600 },
+                        { name: 'Finalizing', pct: 97, duration: 400 },
+                        { name: 'Completing', pct: 100, duration: 200 }
+                    ];
+
+                    let running = false;
+                    let currentTimeout = null;
+
+                    function resetProgress() {
+                        if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
+                        progressFill.style.width = '0%';
+                        progressBar.style.display = 'none';
+                    }
+
+                    // Choppy animate: jump in a few discrete steps instead of smooth easing
+                    function animateTo(targetPct, duration) {
+                        return new Promise(resolve => {
+                            if (!running) { resolve(); return; }
+                            const from = Math.max(0, parseFloat(progressFill.style.width) || 0);
+                            const to = targetPct;
+                            if (duration <= 0 || Math.abs(to - from) < 0.01) { progressFill.style.width = to + '%'; resolve(); return; }
+
+                            // Determine a small number of jumps to feel "choppy"
+                            const stepCount = Math.max(2, Math.min(6, Math.round(duration / 200))); // 2..6 jumps
+                            const stepDuration = Math.max(40, Math.floor(duration / stepCount));
+
+                            let i = 0;
+                            function nextJump() {
+                                if (!running) { resolve(); return; }
+                                i++;
+                                // compute discrete position (no easing)
+                                const frac = i / stepCount;
+                                const val = from + (to - from) * frac;
+                                // round to 2 decimal places for clarity
+                                progressFill.style.width = (Math.round(val * 100) / 100).toFixed(2) + '%';
+
+                                if (i >= stepCount) {
+                                    currentTimeout = setTimeout(() => { currentTimeout = null; resolve(); }, 0);
+                                } else {
+                                    currentTimeout = setTimeout(nextJump, stepDuration + (Math.random() * 80 - 40)); // slight random jitter
+                                }
+                            }
+
+                            // Start first jump after a tiny delay to make jumps perceptible
+                            currentTimeout = setTimeout(nextJump, 40 + (Math.random() * 60));
+                        });
+                    }
+
+                    async function runSequence() {
+                        running = true;
+                        progressBar.style.display = 'block';
+                        progressFill.style.transition = 'none';
+                        progressFill.style.width = '0%';
+
+                        for (const s of STEPS) {
+                            if (!running) break;
+                            progressBar.dataset.stage = s.name;
+                            await animateTo(s.pct, s.duration);
+                            if (!running) break;
+                            // short perceptible pause
+                            await new Promise(r => { currentTimeout = setTimeout(() => { currentTimeout = null; r(); }, 120 + Math.random() * 180); });
+                        }
+
+                        if (running) {
+                            progressFill.style.width = '100%';
+                            setTimeout(() => {
+                                progressBar.style.display = 'none';
+                                progressFill.style.width = '0%';
+                                running = false;
+                                progressBar.dispatchEvent(new CustomEvent('phoneProgressComplete', { bubbles: true }));
+                            }, 350);
+                        } else {
+                            progressBar.style.display = 'none';
+                            progressFill.style.width = '0%';
+                        }
+                    }
+
+                    phoneBtn.addEventListener('click', () => {
+                        if (running) {
+                            running = false;
+                            if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
+                            setTimeout(() => runSequence(), 80);
+                        } else {
+                            runSequence();
+                        }
+                    });
+
+                    const desktopBtn = document.getElementById('Start_Using_Desktop_System');
+                    if (desktopBtn) {
+                        desktopBtn.addEventListener('click', () => {
+                            if (running) {
+                                running = false;
+                                if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
+                                setTimeout(resetProgress, 50);
+                            } else {
+                                resetProgress();
+                            }
+                        });
+                    }
+                })();
             </script>
         </div>
 
-        <!-- ============================================================================ //
-        // SUB WINDOWS //
-        // ============================================================================ -->
+        <div class="Window Phone_Data_Window" style="width:180px; height:200px;">
+            <div class="Window_Header">
+                <p class="Title">Phone Data</p>
+                <button class="Close_Button"></button>
+            </div>
+            <div class="Content">
+                <div class="Phone_Data_Boot">
+                    <p class="Phone_Data_Text">10.242.0.56</p>
+                </div>
 
-        <div class="Sub_Windows">
-           
-        </div>
-    </div>
+                <div class="Phone_Data_Progress_Bar" style="display: flex;">
+                    <div class="Phone_Data_Progress_Bar_Fill">
 
-    <div class="Boot_Sequense" style="display: none;">
-
-        <style aria-label="Boot_Sequense_Body_Style">
-            .Boot_Sequense {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100dvw;
-                height: 100dvh;
-                display: flex;
-                justify-content: center;
-            }
-        </style>
-
-         <!-- ============================================================================ //
-        // BOOT SEQUENSE PROGRESS BAR //
-        // ============================================================================ -->
-
-        <div class="Boot_Sequense_Progress_Bar">
-            <div class="Boot_Sequense_Progress_Bar_Fill">
-
+                    </div>
+                </div>
             </div>
 
-            <style aria-label="Boot_Sequense_Progress_Bar_Style">
-                .Boot_Sequense_Progress_Bar {
+            <style aria-label="Phone_Data_Window_Style">
+                .Phone_Data_Window {
                     position: absolute;
-                    bottom: 10px;
-                    width: calc(100% - 20px);
-                    height: 20px;
-                    border: 1px solid var(--Main_Border);
+                    
                 }
 
-                .Boot_Sequense_Progress_Bar > .Boot_Sequense_Progress_Bar_Fill {
+                .Phone_Data_Boot {
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    width: 100%;
+                    height: 120px;
+                    overflow: hidden;
+                    
+                }
+
+                .Phone_Data_Boot > .Phone_Data_Text {
+                    font-size: var(--Main_Text_1);
+                    color: var(--Main_Text_Color_1);
+                }
+
+                .Phone_Data_Progress_Bar {
+                    position: absolute;
+                    bottom: 10px;
+                    width: calc(100% - 0px);
+                    height: 10px;
+                }
+
+                .Phone_Data_Progress_Bar > .Phone_Data_Progress_Bar_Fill {
                     width: 100%;
                     height: 100%;
                     background-color: var(--Progress_Bar_Background);
                     
                 }
             </style>
-        </div>
 
-        <div class="Boot_Wallpaper">
-            <img class="Boot_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
-            <div class="Boot_Glass">
-
-            </div>
-
-            <style aria-label="Boot_Wallpaper_Style">
-                .Boot_Wallpaper {
-                    position: fixed;
-                    width: 100dvw;
-                    height: 100dvh;
-                    z-index: -1;
-                }
-
-                .Boot_Wallpaper_Image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .Boot_Glass {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100dvw;
-                    height: 100dvh;
-                    backdrop-filter: blur(10px);
-                }
-
-            </style>
-        </div>
-
-        <div class="Boot_Sequense_Space">
-            <p class="Boot_Sequense_Copy_Right">Eden Economy Web-World Market 2026 &#169</p>
-            <br>
-            <p class="Boot_Sequense_Start_String" style="display: none;">Starting Eden Economy...</p>
-            <br>
-            <br>
-            <p class="Boot_Sequense_MIT_License" style="display: none;">MIT License
-
-                Copyright (c) 2026 dtron7th Corporation
-                <br>
-                <br>
-
-                Permission is hereby granted, free of charge, to any person obtaining a copy
-                of this software and associated documentation files (the "Software"), to deal
-                in the Software without restriction, including without limitation the rights
-                to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                copies of the Software, and to permit persons to whom the Software is
-                furnished to do so, subject to the following conditions:
-                <br>
-                <br>
-                The above copyright notice and this permission notice shall be included in all
-                copies or substantial portions of the Software.
-                <br>
-                <br>
-                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                SOFTWARE.
-            </p>
-            <br>
-            <br>
-            <p class="Site_Language" style="display: none;">Site Language = [HTML 5, CSS 3, JAVASCRIPT, PHP, MYSQL]</p>
-            <br>
-            <p class="Main_IDE_Editor" style="display: none;">Use Visual Studio Code V: 1.96.2 or higher</p>
-            <br>
-            <br>
-            <p class="Seperator_1" style="display: none;">
-            //###################################################
-            <br>
-            //###################################################
-            </p>
-            <br>
-            <br>
-            <p class="Detect_Device_Information" style="display: none; width: 400px;"></p>
-            <br>
-            <br>
-            <p class="Get_Network_Information" style="display: none; width: 400px;"></p>
-            <br>
-            <br>
-            <p class="Is_Connected" style="display: none; width: 400px"></p>
-            <br>
-            <br>
-            <p class="Check_Database" style="display: none; width: 400px"></p>
-            <br>
-            <br>
-            <p class="Continue_To_Login" style="display: none; width: 400px">Finish</p>
-                
-            <style aria-label="Boot_Sequense_Style">
-
-                .Boot_Sequense > .Boot_Sequense_Space {
-                    position: absolute;
-                    top: 10px;
-                    left: 10px;
-                    text-align: left;
-                    color: var(--Main_Text_Color_1);
-                    font-size: var(--Main_Text_1);
-                }
-
-                .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_Copy_Right {
-                    color: var(--Main_Text_Color_1);
-                    font-size: var(--Main_Text_3);
-                }
-
-                .Boot_Sequense > .Boot_Sequense_Space > .Boot_Sequense_MIT_License {
-                    width: 300px;
-                }
-
-                .Boot_Sequense > .Boot_Sequense_Space > .Continue_To_Login {
-                    padding-bottom: 200px;
-                }
-
-            </style>
-            
-            <script aria-label="Boot_Sequense_Script">
-
-                /* ============================================================================ */
-                /* OPEN BOOT SEQUENCE */
-                /* ============================================================================ */
-
-    
+            <script aria-label="Phone_Data_Window_Script">
 
                 (() => {
-                    const btn = document.getElementById('Start_Using_Phone_System');
-                    const progress = document.querySelector('.Start_Progress_Bar');
-                    const fill = progress ? progress.querySelector('.Start_Progress_Bar_Fill') : null;
-                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
-                    const start = document.querySelector('.Start');
+                    const win = document.querySelector('.Phone_Data_Window');
+                    if (!win) return;
 
-                    if (!btn) return;
-
-                    btn.addEventListener('click', () => {
-                        btn.disabled = true;
-                        if (progress) progress.style.display = 'block';
-
-                        const DURATION = 1000;
-                        const PCTS = [20, 70, 100];
-                        // times: spread events over the duration (you can tweak factors if desired)
-                        const TIMES = PCTS.map((_, i, a) => Math.round(((i + 1) / a.length) * DURATION));
-
-                        if (fill) {
-                            fill.style.transition = 'none';
-                            fill.style.width = '0%';
-                            void fill.offsetWidth;
-
-                            PCTS.forEach((pct, i) => {
-                                setTimeout(() => {
-                                    fill.style.width = pct + '%';
-                                }, TIMES[i]);
-                            });
-
-                            // Ensure final state at DURATION
-                            setTimeout(() => {
-                                fill.style.width = '100%';
-                            }, DURATION);
-                        }
-
-                        setTimeout(() => {
-                            document.querySelectorAll('.Dot_Grid').forEach(el => el.remove());
-                            if (progress) progress.style.display = 'none';
-                            if (start) start.style.display = 'none';
-                            if (boot) boot.style.display = 'flex';
-                        }, DURATION);
-                    });
+                    win.style.position = 'absolute';
+                    win.style.top = '240px';
+                    win.style.left = '120px';
                 })();
 
                 (() => {
-                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
-                    if (!boot) return;
+                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
+                    const desktopBtn = document.getElementById('Start_Using_Desktop_System');
 
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
+                    const win = document.querySelector('.Phone_Data_Window');
+                    const bar = document.querySelector('.Phone_Data_Progress_Bar');
+                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
+                    const bootText = document.querySelector('.Phone_Data_Text');
 
-                    async function enterFullscreen() {
-                        const el = document.documentElement; // use whole page
-                        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) return;
-                        try {
-                            if (el.requestFullscreen) await el.requestFullscreen();
-                            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                            else if (el.msRequestFullscreen) el.msRequestFullscreen();
-                        } catch (e) {
-                            console.warn('Fullscreen request failed:', e);
-                        }
-                    }
+                    if (!phoneBtn || !win || !bar || !fill) return;
 
-                    async function exitFullscreen() {
-                        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) return;
-                        try {
-                            if (document.exitFullscreen) await document.exitFullscreen();
-                            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                            else if (document.msExitFullscreen) document.msExitFullscreen();
-                        } catch (e) {
-                            console.warn('Exit fullscreen failed:', e);
-                        }
-                    }
+                    // Only show/run when Phone is selected
+                    win.style.display = 'none';
 
-                    // Observe style/class changes to detect when boot becomes visible/hidden
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(boot)) enterFullscreen();
-                        else exitFullscreen();
-                    });
-                    mo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    // initial check
-                    if (isDisplayed(boot)) enterFullscreen();
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                
-
-                /* ============================================================================ */
-                /* RUN BOOT SEQUENCE */
-                /* ============================================================================ */
-
-                //STARTING EDEN ECONOMY BOOT SEQUENCE
-
-                (() => {
-                    const boot = document.getElementById('Boot_Sequense') || document.querySelector('.Boot_Sequense');
-                    const el = document.querySelector('.Boot_Sequense_Start_String');
-                    if (!boot || !el) return;
-
-                    let triggered = false;
-                    function triggerShow() {
-                        if (triggered) return;
-                        triggered = true;
-                        setTimeout(() => el.style.display = 'block', 3000);
-                    }
-
-                    // If boot is already visible, start timer immediately
-                    if (getComputedStyle(boot).display !== 'none') {
-                        triggerShow();
-                    }
-
-                    // Observe style/display changes on the boot container
-                    const mo = new MutationObserver(() => {
-                        if (getComputedStyle(boot).display !== 'none') triggerShow();
-                    });
-                    mo.observe(boot, { attributes: true, attributeFilter: ['style'] });
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                (() => {
-                    const el = document.querySelector('.Boot_Sequense_Start_String');
-                    if (!el) return;
-                    const base = 'Starting Eden Economy';
-                    el.style.whiteSpace = 'pre';
-                    el.innerHTML = base + ' <span class="boot-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>';
-
-                    const dots = Array.from(el.querySelectorAll('.boot-dots .dot'));
-                    dots.forEach(d => {
-                        d.style.opacity = '0';
-                        d.style.transition = 'none';
-                        d.style.display = 'inline-block';
-                        d.style.margin = '0 2px';
-                    });
-
-                    const seq = [
-                        [1, 0, 0],
-                        [1, 1, 0],
-                        [1, 1, 1],
-                        [0, 0, 0]
-                    ];
-
-                    let s = 0;
-                    const interval = 400;
-                    let id = null;
-                    const INITIAL_HIDE_MS = 4000;
-                    let startTimeoutId = null;
-
-                    function step() {
-                        const state = seq[s];
-                        dots.forEach((d, i) => d.style.opacity = state[i] ? '1' : '0');
-                        s = (s + 1) % seq.length;
-                    }
-
-                    function startBlinking() {
-                        if (id) return;
-                        // ensure starting state
-                        s = 0;
-                        step();
-                        id = setInterval(step, interval);
-                    }
-
-                    function stopBlinking() {
-                        if (!id) return;
-                        clearInterval(id);
-                        id = null;
-                        dots.forEach(d => d.style.opacity = '0');
-                    }
-
-                    function cancelPendingStart() {
-                        if (startTimeoutId) {
-                            clearTimeout(startTimeoutId);
-                            startTimeoutId = null;
-                        }
-                    }
-
-                    function startWithInitialHide() {
-                        // hide dots immediately, then start animation after short delay
-                        dots.forEach(d => d.style.opacity = '0');
-                        cancelPendingStart();
-                        startTimeoutId = setTimeout(() => {
-                            startBlinking();
-                            startTimeoutId = null;
-                        }, INITIAL_HIDE_MS);
-                    }
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    // start with initial hide if already visible
-                    if (isDisplayed(el)) startWithInitialHide();
-
-                    // observe display/style changes on the element and start/stop accordingly
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) startWithInitialHide();
-                        else {
-                            cancelPendingStart();
-                            stopBlinking();
-                        }
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => {
-                        cancelPendingStart();
-                        stopBlinking();
-                        mo.disconnect();
-                    });
-                })();
-
-                // RUN EDEN ECONOMY CORPORATION OPEN SOURCE LEICENSE
-
-                (() => {
-                    const startEl = document.querySelector('.Boot_Sequense_Start_String');
-                    const licEl = document.querySelector('.Boot_Sequense_MIT_License');
-                    if (!startEl || !licEl) return;
-
-                    // inject rule to forcibly hide dots when license is shown
-                    const STYLE_ID = 'boot-seq-stop-blink-style';
-                    if (!document.getElementById(STYLE_ID)) {
-                        const s = document.createElement('style');
-                        s.id = STYLE_ID;
-                        s.textContent = `
-                            .Boot_Sequense_Start_String.stop-blink .boot-dots .dot {
-                                opacity: 0 !important;
-                                transition: none !important;
-                            }`;
-                        document.head.appendChild(s);
-                    }
-
-                    let showTimerId = null;        // delays showing the license block
-                    let revealTimerId = null;      // interval between revealing sections
-                    let currentSection = 0;
                     let mo = null;
-                    let shownOnce = false;         // prevent repeating the cycle
-                    const DELAY_MS = 12000;        // original delay before license appears
-                    const SECTION_DELAY_MS = 1000; // 1s between sections
+                    let openTimer = null;
 
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    // Prepare sections: split original HTML into chunks by two-or-more <br> or blank lines.
-                    const rawHtml = licEl.innerHTML.trim();
-                    // Split on two or more <br> (with optional whitespace) or double newlines
-                    const parts = rawHtml.split(/(?:<(?:br|BR)\s*\/?>\s*){2,}|\n{2,}/).map(s => s.trim()).filter(Boolean);
-
-                    // Build section elements (hidden by default)
-                    licEl.innerHTML = '';
-                    const sectionEls = parts.map((part, i) => {
-                        const d = document.createElement('div');
-                        d.className = 'mit-section';
-                        d.style.display = 'none';
-                        d.style.marginBottom = '0.5rem';
-                        d.innerHTML = part;
-                        licEl.appendChild(d);
-                        return d;
-                    });
-
-                    function resetSections() {
-                        if (revealTimerId) {
-                            clearInterval(revealTimerId);
-                            revealTimerId = null;
-                        }
-                        currentSection = 0;
-                        sectionEls.forEach(s => s.style.display = 'none');
-                    }
-
-                    function revealSectionsOnce() {
-                        if (!sectionEls.length) return;
-                        resetSections();
-                        // show first immediately
-                        sectionEls[0].style.display = 'block';
-                        currentSection = 1;
-                        if (sectionEls.length > 1) {
-                            revealTimerId = setInterval(() => {
-                                if (currentSection >= sectionEls.length) {
-                                    clearInterval(revealTimerId);
-                                    revealTimerId = null;
-                                    return;
-                                }
-                                sectionEls[currentSection].style.display = 'block';
-                                currentSection++;
-                            }, SECTION_DELAY_MS);
+                    function disarmAutoClose() {
+                        if (mo) {
+                            mo.disconnect();
+                            mo = null;
                         }
                     }
 
-                    function scheduleShow() {
-                        if (showTimerId || shownOnce) return;
-                        showTimerId = setTimeout(() => {
-                            licEl.style.display = 'block';
-                            // stop the visible blinking by adding class that forces dots hidden
-                            startEl.classList.add('stop-blink');
-                            // reveal license text one section at a time
-                            revealSectionsOnce();
-                            showTimerId = null;
-                            shownOnce = true;
-                            // once shown, stop observing/handling further visibility changes
-                            if (mo) {
-                                mo.disconnect();
-                                mo = null;
+                    function armAutoClose() {
+                        disarmAutoClose();
+                        mo = new MutationObserver(() => {
+                            const w = parseFloat(fill.style.width) || 0;
+                            if (w >= 100) {
+                                win.style.display = 'none';
+                                disarmAutoClose();
                             }
-                        }, DELAY_MS);
+                        });
+                        mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
                     }
 
-                    function cancelAndHide() {
-                        // if we've already shown once, never hide or reschedule
-                        if (shownOnce) return;
-                        if (showTimerId) {
-                            clearTimeout(showTimerId);
-                            showTimerId = null;
+                    function openPhoneDataWindow() {
+                        // Cancel any pending open
+                        if (openTimer) {
+                            clearTimeout(openTimer);
+                            openTimer = null;
                         }
-                        if (revealTimerId) {
-                            clearInterval(revealTimerId);
-                            revealTimerId = null;
-                        }
-                        licEl.style.display = 'none';
-                        startEl.classList.remove('stop-blink');
-                        resetSections();
-                    }
 
-                    // Ensure license is hidden initially
-                    licEl.style.display = 'none';
-                    startEl.classList.remove('stop-blink');
-                    resetSections();
+                        // Delay showing window by 1 second
+                        openTimer = setTimeout(() => {
+                            openTimer = null;
 
-                    // If start is already visible, schedule immediately
-                    if (isDisplayed(startEl)) scheduleShow();
+                            win.style.display = 'block';
 
-                    // Observe visibility changes on the start element
-                    mo = new MutationObserver(() => {
-                        if (shownOnce) {
-                            if (mo) { mo.disconnect(); mo = null; }
-                            return;
-                        }
-                        if (isDisplayed(startEl)) scheduleShow();
-                        else cancelAndHide();
-                    });
-                    mo.observe(startEl, { attributes: true, attributeFilter: ['style', 'class'] });
+                            if (typeof window.__bringWindowToFront === 'function') {
+                                window.__bringWindowToFront(win);
+                            }
 
-                    window.addEventListener('beforeunload', () => {
-                        if (showTimerId) clearTimeout(showTimerId);
-                        if (revealTimerId) clearInterval(revealTimerId);
-                        if (mo) mo.disconnect();
-                    });
-                })();
+                            // Reset visible state before re-running the boot animation
+                            fill.style.width = '0%';
+                            if (bootText) bootText.textContent = '';
 
-                //RUN SITE LANGUAGE
+                            armAutoClose();
 
-                (() => {
-                    const lic = document.querySelector('.Boot_Sequense_MIT_License');
-                    const lang = document.querySelector('.Site_Language');
-                    if (!lic || !lang) return;
-
-                    lang.style.display = 'none';
-                    let timer = null;
-                    let shown = false;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (shown || timer) return;
-                        timer = setTimeout(() => {
-                            lang.style.display = 'block';
-                            shown = true;
-                            timer = null;
-                        }, 6000);
-                    }
-
-                    function cancelShow() {
-                        if (timer) {
-                            clearTimeout(timer);
-                            timer = null;
-                        }
-                        if (!shown) lang.style.display = 'none';
-                    }
-
-                    if (isDisplayed(lic)) scheduleShow();
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(lic)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(lic, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timer) clearTimeout(timer);
-                        mo.disconnect();
-                    });
-                })();
-
-                //RUN MAIN_IDE_EDITOR
-
-                (() => {
-                    const lang = document.querySelector('.Site_Language');
-                    const ide = document.querySelector('.Main_IDE_Editor');
-                    if (!lang || !ide) return;
-
-                    ide.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            ide.style.display = 'block';
-                            timerId = null;
+                            // Re-run the existing boot/progress logic by triggering the bar's click handler
+                            requestAnimationFrame(() => {
+                                bar.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                            });
                         }, 1000);
                     }
 
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
+                    function closePhoneDataWindow() {
+                        if (openTimer) {
+                            clearTimeout(openTimer);
+                            openTimer = null;
                         }
-                        if (!isDisplayed(lang)) ide.style.display = 'none';
+                        win.style.display = 'none';
+                        disarmAutoClose();
                     }
 
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(lang)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(lang, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(lang)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
+                    phoneBtn.addEventListener('click', openPhoneDataWindow);
+                    if (desktopBtn) desktopBtn.addEventListener('click', closePhoneDataWindow);
                 })();
 
-                //RUN SEPERATOR_1
 
-                (() => {
-                    const lang = document.querySelector('.Main_IDE_Editor');
-                    const sep = document.querySelector('.Seperator_1');
-                    if (!lang || !sep) return;
+                // Gather and display device information in the Phone Data window
 
-                    sep.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            sep.style.display = 'block';
-                            timerId = null;
-                        }, 100);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(lang)) sep.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(lang)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(lang, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(lang)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                //DETECT_DEVICE_INFORMATION
-
-                (() => {
-                    const sep = document.querySelector('.Seperator_1');
-                    const det = document.querySelector('.Detect_Device_Information');
-                    if (!sep || !det) return;
-
-                    det.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            det.style.display = 'block';
-                            timerId = null;
-                        }, 6000);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(sep)) det.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(sep)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(sep, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(sep)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                (() => {
-                    const el = document.querySelector('.Detect_Device_Information');
+                (function(){
+                    const el = document.querySelector('.Phone_Data_Text');
                     if (!el) return;
+                    el.style.whiteSpace = 'pre-wrap';
+                    el.textContent = 'Detecting device...';
 
-                    function detectDevice() {
-                        const ua = navigator.userAgent || '';
-                        const uaData = navigator.userAgentData || null;
-                        const platform = navigator.platform || (uaData && uaData.platform) || 'Unknown';
-                        const maxTouch = navigator.maxTouchPoints || 0;
-                        const hasTouch = maxTouch > 0 || 'ontouchstart' in window;
-                        const cores = navigator.hardwareConcurrency || 'unknown';
-                        const memory = navigator.deviceMemory || 'unknown';
-                        const resolution = `${screen.width}×${screen.height} @${window.devicePixelRatio || 1}x`;
+                    const timeout = (ms) => new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms));
 
-                        // Determine broad device class
-                        let deviceClass = 'Unknown';
-                        if (/SmartTV|SMART-TV|TV|HbbTV|AppleTV|GoogleTV|BRAVIA|Roku|NetCast/i.test(ua)) deviceClass = 'TV';
-                        else if (/Xbox|PlayStation|Nintendo/i.test(ua)) deviceClass = 'Console';
-                        else {
-                            const isMobileUA = uaData?.mobile ?? /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(ua);
-                            const isTabletUA = /Tablet|iPad|Nexus 7|Kindle|SM-T|Tab/i.test(ua);
-                            // heuristics: explicit tablet UA OR touch + large shortest-side
-                            const shortestSide = Math.min(screen.width, screen.height);
-                            if (isTabletUA || (hasTouch && shortestSide >= 600 && !/Mobi/i.test(ua))) deviceClass = 'Tablet';
-                            else if (isMobileUA || hasTouch) deviceClass = 'Phone';
-                            else deviceClass = 'Desktop/Laptop';
-                        }
-
-                        const brands = uaData?.brands ? uaData.brands.map(b => b.brand).join(', ') : null;
-                        const agentInfo = brands || ua;
-
-                        el.textContent = [
-                            `Device: ${deviceClass}`,
-                            `Platform: ${platform}`,
-                            `Cores: ${cores}`,
-                            `Memory(GB): ${memory}`,
-                            `Touch Support: ${hasTouch ? 'Yes (' + maxTouch + ')' : 'No'}`,
-                            `Resolution: ${resolution}`,
-                            `UserAgent: ${agentInfo}`
-                        ].join(' | ');
-                    }
-
-                    // run immediately and whenever element becomes visible
-                    detectDevice();
-                    const mo = new MutationObserver(() => {
-                        if (getComputedStyle(el).display !== 'none') detectDevice();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                //GET_NETWORK_INFORMATION
-
-                (() => {
-                    const det = document.querySelector('.Detect_Device_Information');
-                    const net = document.querySelector('.Get_Network_Information');
-                    if (!det || !net) return;
-
-                    net.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            net.style.display = 'block';
-                            timerId = null;
-                        }, 2000);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(det)) net.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(det)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(det, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(det)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                (() => {
-                    const el = document.querySelector('.Get_Network_Information');
-                    if (!el) return;
-                    el.textContent = 'Detecting network...';
-
-                    const timeoutFetch = (url, ms = 5000) => {
-                        const ac = new AbortController();
-                        const id = setTimeout(() => ac.abort(), ms);
-                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
-                    };
-
-                    async function getPublicIP() {
+                    async function fetchIP() {
                         try {
-                            const res = await timeoutFetch('https://api.ipify.org?format=json', 5000);
-                            if (!res.ok) return null;
+                            const res = await Promise.race([fetch('https://api.ipify.org?format=json'), timeout(2500)]);
+                            if (!res.ok) throw new Error('no-ip');
                             const j = await res.json();
                             return j.ip || null;
-                        } catch {
-                            return null;
-                        }
-                    }
-
-                    async function getIPDetails(ip) {
-                        if (!ip) return null;
-                        try {
-                            const res = await timeoutFetch(`https://ipapi.co/${ip}/json/`, 5000);
-                            if (!res.ok) return null;
-                            return await res.json();
-                        } catch {
-                            return null;
-                        }
-                    }
-
-                    function getConnectionInfo() {
-                        const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-                        if (!c) return null;
-                        return {
-                            effectiveType: c.effectiveType,
-                            downlink: c.downlink,
-                            rtt: c.rtt,
-                            saveData: !!c.saveData
-                        };
-                    }
-
-                    async function measureLatency(url = 'https://api.ipify.org?format=json') {
-                        try {
-                            const t0 = performance.now();
-                            const res = await timeoutFetch(url, 5000);
-                            if (!res) return null;
-                            // consume body to ensure request completes (some endpoints respond empty with no-cors)
-                            await res.text().catch(() => {});
-                            const t1 = performance.now();
-                            return Math.round(t1 - t0);
-                        } catch {
-                            return null;
-                        }
-                    }
-
-                    function getLocalIPs() {
-                        return new Promise((resolve) => {
-                            const ips = new Set();
-                            try {
-                                const pc = new RTCPeerConnection({ iceServers: [] });
-                                // create dummy data channel to trigger ICE
-                                try { pc.createDataChannel('d'); } catch (e) {}
-                                pc.onicecandidate = (evt) => {
-                                    if (!evt.candidate) {
-                                        try { pc.close(); } catch {}
-                                        resolve(Array.from(ips));
-                                        return;
-                                    }
-                                    const cand = evt.candidate.candidate || '';
-                                    const re = /([0-9]{1,3}(?:\.[0-9]{1,3}){3})/g;
-                                    let m;
-                                    while ((m = re.exec(cand))) ips.add(m[1]);
-                                };
-                                pc.createOffer()
-                                .then(offer => pc.setLocalDescription(offer))
-                                .catch(() => {
-                                    try { pc.close(); } catch {}
-                                    resolve([]);
-                                });
-                                // safety timeout
-                                setTimeout(() => {
-                                    try { pc.close(); } catch {}
-                                    resolve(Array.from(ips));
-                                }, 3000);
-                            } catch {
-                                resolve([]);
-                            }
-                        });
+                        } catch { return null; }
                     }
 
                     (async () => {
-                        const [pubIP, latency, localIPs] = await Promise.all([
-                            getPublicIP(),
-                            measureLatency(),
-                            getLocalIPs()
-                        ]);
-
-                        const details = await getIPDetails(pubIP);
-                        const conn = getConnectionInfo();
-
-                        const parts = [];
-                        if (pubIP) parts.push(`Public IP: ${pubIP}`);
-                        if (details) {
-                            if (details.org) parts.push(`ISP: ${details.org}`);
-                            if (details.city || details.region || details.country_name) {
-                                const city = details.city || '';
-                                const region = details.region || '';
-                                const country = details.country_name || '';
-                                parts.push(`Location: ${[city, region, country].filter(Boolean).join(', ')}`);
-                            }
-                        }
-                        if (latency != null) parts.push(`Latency: ${latency} ms`);
-                        if (conn) parts.push(`Conn: ${conn.effectiveType || 'unknown'} (${conn.downlink ? conn.downlink + 'Mb/s' : 'n/a'}, rtt ${conn.rtt || 'n/a'}ms)`);
-                        if (localIPs && localIPs.length) parts.push(`Local IPs: ${localIPs.join(', ')}`);
-                        if (!parts.length) el.textContent = 'Network information unavailable';
-                        else el.textContent = parts.join(' | ');
+                        const ip = await fetchIP();
+                        const uaData = navigator.userAgentData;
+                        const browser = uaData?.brands ? uaData.brands.map(b=>b.brand+' '+b.version).join(', ') : navigator.userAgent;
+                        const platform = uaData?.platform || navigator.platform || 'Unknown';
+                        const type = uaData?.mobile ? 'Mobile' : (navigator.maxTouchPoints>0 ? 'Touch device' : 'Desktop');
+                        const cores = navigator.hardwareConcurrency || 'n/a';
+                        const ram = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'n/a';
+                        const touches = navigator.maxTouchPoints || 0;
+                        const screenInfo = `${screen.width}×${screen.height} @${(window.devicePixelRatio||1).toFixed(2)}x`;
+                        let battery = 'n/a';
+                        try { const b = await navigator.getBattery(); battery = Math.round(b.level*100) + '%' + (b.charging ? ' (charging)' : ''); } catch {}
+                        const lines = [
+                            `IP: ${ip || 'n/a'}`,
+                            `Browser: ${browser}`,
+                            `Platform: ${platform}`,
+                            `Device: ${type}`,
+                            `Cores: ${cores}`,
+                            `RAM: ${ram}`,
+                            `Touch points: ${touches}`,
+                            `Screen: ${screenInfo}`,
+                            `Battery: ${battery}`,
+                            `Language: ${navigator.language || 'n/a'}`,
+                            `Online: ${navigator.onLine ? 'yes' : 'no'}`
+                        ];
+                        el.textContent = lines.join('\n');
                     })();
                 })();
 
-                //IS_CONNECTED
+                // Animate the Phone Data window "boot" sequence and progress bar fill
 
                 (() => {
-                    const net = document.querySelector('.Get_Network_Information');
-                    const con = document.querySelector('.Is_Connected');
-                    if (!net || !con) return;
-
-                    con.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            con.style.display = 'block';
-                            timerId = null;
-                        }, 4000);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(net)) con.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(net)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(net, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(net)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                (() => {
-                    const el = document.querySelector('.Is_Connected');
-                    if (!el) return;
-
-                    const timeoutFetch = (url, ms = 3000) => {
-                        const ac = new AbortController();
-                        const id = setTimeout(() => ac.abort(), ms);
-                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
-                    };
-
-                    let last = '';
-
-                    async function checkNetwork() {
-                        // quick offline hint
-                        if (!navigator.onLine) {
-                            update('Offline');
-                            return;
-                        }
-
-                        try {
-                            const t0 = performance.now();
-                            const res = await timeoutFetch('https://api.ipify.org?format=json', 3000);
-                            const t1 = performance.now();
-                            if (!res || !res.ok) throw new Error('no-response');
-
-                            const json = await res.json().catch(() => null);
-                            const ip = json && json.ip ? json.ip : 'unknown';
-                            const latency = Math.max(0, Math.round(t1 - t0));
-                            update(`Online | Public IP: ${ip} | Latency: ${latency} ms`);
-                        } catch (e) {
-                            // fallback to navigator.onLine if fetch fails
-                            update(navigator.onLine ? 'Online (limited)' : 'Offline');
-                        }
-                    }
-
-                    function update(text) {
-                        if (text === last) return;
-                        last = text;
-                        el.textContent = text;
-                    }
-
-                    // respond to browser events
-                    window.addEventListener('online', checkNetwork);
-                    window.addEventListener('offline', checkNetwork);
-
-                    // periodic checks while visible
-                    const intervalId = setInterval(checkNetwork, 15000);
-
-                    // initial check
-                    checkNetwork();
-
-                    // cleanup
-                    window.addEventListener('beforeunload', () => {
-                        clearInterval(intervalId);
-                        window.removeEventListener('online', checkNetwork);
-                        window.removeEventListener('offline', checkNetwork);
-                    });
-                })();
-
-                //CHECK_DATABASE
-
-                (() => {
-                    const con = document.querySelector('.Is_Connected');
-                    const db = document.querySelector('.Check_Database');
-                    if (!con || !db) return;
-
-                    db.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            db.style.display = 'block';
-                            timerId = null;
-                        }, 4000);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(con)) db.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(con)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(con, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(con)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                (() => {
-                    const el = document.querySelector('.Check_Database');
-                    if (!el) return;
-                    el.style.color = 'inherit';
-
-                    const endpoints = [
-                        '/api/check_database',
-                        '/check_database.php',
-                        '/db/ping',
-                        '/api/ping'
-                    ];
-
-                    const timeoutFetch = (url, ms = 4000) => {
-                        const ac = new AbortController();
-                        const id = setTimeout(() => ac.abort(), ms);
-                        return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(id));
-                    };
-
-                    async function probeEndpoints() {
-                        for (const url of endpoints) {
-                            try {
-                                el.textContent = `Checking ${url} ...`;
-                                const res = await timeoutFetch(url, 4000);
-                                if (!res) throw new Error('no response');
-                                if (res.ok) {
-                                    // try to read json or text for quick status message
-                                    let info = '';
-                                    try {
-                                        const j = await res.clone().json();
-                                        info = j && (j.status || j.ok || j.message) ? JSON.stringify(j) : JSON.stringify(j);
-                                    } catch {
-                                        info = (await res.text().catch(() => '')).slice(0, 200);
-                                    }
-                                    el.textContent = `Database OK (endpoint: ${url})${info ? ' — ' + info : ''}`;
-                                    el.style.color = 'lime';
-                                    return true;
-                                } else {
-                                    el.textContent = `Endpoint ${url} returned ${res.status}`;
-                                }
-                            } catch (err) {
-                                el.textContent = `${url} failed: ${err && err.name ? err.name : err}`;
-                            }
-                            // small pause between tries
-                            await new Promise(r => setTimeout(r, 300));
-                        }
-                        return false;
-                    }
-
-                    async function tryWebSocketFallback() {
-                        try {
-                            el.textContent = 'Trying WebSocket fallback...';
-                            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-                            const wsUrl = `${proto}//${location.host}/ws/db`;
-                            return await new Promise((resolve) => {
-                                let settled = false;
-                                const ws = new WebSocket(wsUrl);
-                                const to = setTimeout(() => {
-                                    if (!settled) {
-                                        settled = true;
-                                        try { ws.close(); } catch {}
-                                        resolve(false);
-                                    }
-                                }, 5000);
-                                ws.addEventListener('open', () => {
-                                    if (settled) return;
-                                    settled = true;
-                                    clearTimeout(to);
-                                    el.textContent = `Database OK (websocket: ${wsUrl})`;
-                                    el.style.color = 'lime';
-                                    try { ws.close(); } catch {}
-                                    resolve(true);
-                                });
-                                ws.addEventListener('error', () => {
-                                    if (settled) return;
-                                    settled = true;
-                                    clearTimeout(to);
-                                    try { ws.close(); } catch {}
-                                    resolve(false);
-                                });
-                            });
-                        } catch {
-                            return false;
-                        }
-                    }
-
-                    async function runCheck() {
-                        el.textContent = 'Checking database...';
-                        el.style.color = 'inherit';
-                        const ok = await probeEndpoints();
-                        if (ok) return;
-                        const wsOk = await tryWebSocketFallback();
-                        if (!wsOk) {
-                            el.textContent = 'Database appears unavailable';
-                            el.style.color = 'red';
-                        }
-                    }
-
-                    // initial check and periodic re-check while visible
-                    runCheck();
-                    const intervalId = setInterval(() => {
-                        if (getComputedStyle(el).display !== 'none') runCheck();
-                    }, 30000);
-
-                    // stop interval when element hidden
-                    const mo = new MutationObserver(() => {
-                        if (getComputedStyle(el).display === 'none') {
-                            clearInterval(intervalId);
-                            mo.disconnect();
-                        }
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => {
-                        clearInterval(intervalId);
-                        mo.disconnect();
-                    });
-                })();
-
-                //Continue_To_Login
-
-                (() => {
-                    const db = document.querySelector('.Check_Database');
-                    const login = document.querySelector('.Continue_To_Login');
-                    if (!db || !login) return;
-
-                    login.style.display = 'none';
-                    let timerId = null;
-
-                    function isDisplayed(el) {
-                        return getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-                    }
-
-                    function scheduleShow() {
-                        if (timerId) return;
-                        timerId = setTimeout(() => {
-                            login.style.display = 'block';
-                            timerId = null;
-                        }, 2000);
-                    }
-
-                    function cancelShow() {
-                        if (timerId) {
-                            clearTimeout(timerId);
-                            timerId = null;
-                        }
-                        if (!isDisplayed(db)) login.style.display = 'none';
-                    }
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(db)) scheduleShow();
-                        else cancelShow();
-                    });
-                    mo.observe(db, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    if (isDisplayed(db)) scheduleShow();
-
-                    window.addEventListener('beforeunload', () => {
-                        if (timerId) clearTimeout(timerId);
-                        mo.disconnect();
-                    });
-                })();
-
-                (()=>{
-                    const btn = document.querySelector('.Continue_To_Login');
-                    const boot = document.querySelector('.Boot_Sequense');
-                    if (!btn || !boot) return;
-                    btn.addEventListener('click', () => {
-                        // hide/close boot sequence but DO NOT exit fullscreen
-                        boot.style.display = 'none';
-                    });
-                })();
-
-                /* ============================================================================ */
-                /* TEXT JUMP */
-                /* ============================================================================ */
-
-                // jump to Detect_Device_Information when it becomes visible
-
-                (() => {
-                    const el = document.querySelector('.Detect_Device_Information');
-                    if (!el) return;
-
-                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                    let lastJump = 0;
-
-                    function jumpToEl() {
-                        if (!isDisplayed(el)) return;
-                        const now = Date.now();
-                        if (now - lastJump < 800) return; // debounce repeated jumps
-                        lastJump = now;
-                        // allow layout to settle
-                        setTimeout(() => {
-                            try {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
-                            } catch (e) { /* ignore */ }
-                        }, 60);
-                    }
-
-                    // initial check
-                    if (isDisplayed(el)) jumpToEl();
-
-                    // observe visibility changes
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) jumpToEl();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                // jump to Get_Network_Information when it becomes visible
-                
-                (() => {
-                    const el = document.querySelector('.Get_Network_Information');
-                    if (!el) return;
-                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                    let lastJump = 0;
-
-                    function jumpToEl() {
-                        if (!isDisplayed(el)) return;
-                        const now = Date.now();
-                        if (now - lastJump < 800) return;
-                        lastJump = now;
-                        setTimeout(() => {
-                            try {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
-                            } catch (e) { /* ignore */ }
-                        }, 60);
-                    }
-
-                    if (isDisplayed(el)) jumpToEl();
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) jumpToEl();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                // jump to Is_Connected when it becomes visible
-
-                (() => {
-                    const el = document.querySelector('.Is_Connected');
-                    if (!el) return;
-                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                    let lastJump = 0;
-
-                    function jumpToEl() {
-                        if (!isDisplayed(el)) return;
-                        const now = Date.now();
-                        if (now - lastJump < 800) return;
-                        lastJump = now;
-                        setTimeout(() => {
-                            try {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
-                            } catch (e) { /* ignore */ }
-                        }, 60);
-                    }
-
-                    if (isDisplayed(el)) jumpToEl();
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) jumpToEl();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                // jump to Check_Database when it becomes visible
-
-                (() => {
-                    const el = document.querySelector('.Check_Database');
-                    if (!el) return;
-                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                    let lastJump = 0;
-
-                    function jumpToEl() {
-                        if (!isDisplayed(el)) return;
-                        const now = Date.now();
-                        if (now - lastJump < 800) return;
-                        lastJump = now;
-                        setTimeout(() => {
-                            try {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
-                            } catch (e) { /* ignore */ }
-                        }, 60);
-                    }
-
-                    if (isDisplayed(el)) jumpToEl();
-
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) jumpToEl();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                // jump to Continue_To_Login when it becomes visible
-
-                (() => {
-                    const el = document.querySelector('.Continue_To_Login');
-                    if (!el) return;
-                    const isDisplayed = e => getComputedStyle(e).display !== 'none' && e.offsetParent !== null;
-                    let lastJump = 0;
-                    function jumpToEl() {
-                        if (!isDisplayed(el)) return;
-                        const now = Date.now();
-                        if (now - lastJump < 800) return;
-                        lastJump = now;
-                        setTimeout(() => {
-                            try {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                                if (typeof el.focus === 'function') el.focus({ preventScroll: true });
-                            } catch (e) { /* ignore */ }
-                        }, 60);
-                    }
-                    if (isDisplayed(el)) jumpToEl();
-                    const mo = new MutationObserver(() => {
-                        if (isDisplayed(el)) jumpToEl();
-                    });
-                    mo.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
-                    window.addEventListener('beforeunload', () => mo.disconnect());
-                })();
-
-                
-                /* Replace smooth, eased scrolling with intentionally choppy stepped scrolling.
-                   - cancels on user interaction
-                */
-                (function(){
-                    const nativeElScroll = Element.prototype.scrollIntoView;
-                    const nativeWinScroll = window.scrollTo;
-                    let intervalId = null;
-
-                    function cancel() { if (intervalId) { clearInterval(intervalId); intervalId = null; } }
-                    ['wheel','touchstart','pointerdown','keydown'].forEach(e =>
-                        window.addEventListener(e, cancel, { passive: true, capture: true })
-                    );
-
-                    function computeTargetY(el, block){
-                        const rect = el.getBoundingClientRect();
-                        const scrollTop = window.scrollY || window.pageYOffset || 0;
-                        const elTop = rect.top + scrollTop;
-                        const elBottom = rect.bottom + scrollTop;
-                        switch(block){
-                            case 'center': return Math.round(elTop - (window.innerHeight - rect.height) / 2);
-                            case 'end':    return Math.round(elBottom - window.innerHeight);
-                            case 'nearest':
-                                if (elTop < scrollTop) return elTop;
-                                if (elBottom > scrollTop + window.innerHeight) return elBottom - window.innerHeight;
-                                return scrollTop;
-                            case 'start':
-                            default: return Math.round(elTop);
-                        }
-                    }
-
-                    function choppyScrollTo(targetY){
-                        cancel();
-                        const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-                        const dest = Math.max(0, Math.min(targetY, maxY));
-                        const start = window.scrollY || window.pageYOffset || 0;
-                        if (Math.abs(dest - start) < 1) return;
-                        const direction = dest > start ? 1 : -1;
-                        const STEP_PX = 120;   // large jump per tick -> "choppy"
-                        const TICK_MS  = 80;   // tick interval
-                        intervalId = setInterval(() => {
-                            const cur = window.scrollY || window.pageYOffset || 0;
-                            const next = cur + direction * STEP_PX;
-                            if ((direction > 0 && next >= dest) || (direction < 0 && next <= dest)) {
-                                window.scrollTo(0, dest);
-                                cancel();
-                            } else {
-                                window.scrollTo(0, Math.round(next));
-                            }
-                        }, TICK_MS);
-                    }
-
-                    Element.prototype.scrollIntoView = function(arg){
-                        try {
-                            let behavior = 'auto', block = 'start';
-                            if (arg == null) {}
-                            else if (typeof arg === 'object') { behavior = arg.behavior || 'auto'; block = arg.block || 'start'; }
-                            else if (typeof arg === 'boolean') { block = arg ? 'start' : 'end'; }
-                            else if (typeof arg === 'string') { behavior = arg; }
-
-                            if (behavior === 'smooth') {
-                                const targetY = computeTargetY(this, block);
-                                choppyScrollTo(targetY);
-                                return;
-                            }
-                            return nativeElScroll.call(this, arg);
-                        } catch (e) {
-                            return nativeElScroll.call(this, arg);
-                        }
-                    };
-
-                    window.scrollTo = function(...args){
-                        if (args.length === 1 && typeof args[0] === 'object' && args[0].behavior === 'smooth') {
-                            const top = args[0].top != null ? args[0].top : (window.scrollY || 0);
-                            choppyScrollTo(top);
-                            return;
-                        }
-                        return nativeWinScroll.apply(window, args);
-                    };
-                })();
-
-                /* ============================================================================ */
-                /* RUN BOOT SEQUENSE PROGRESS BAR */
-                /* ============================================================================ */
-
-                (() => {
-                    const fill = document.querySelector('.Boot_Sequense_Progress_Bar_Fill');
-                    const boot = document.querySelector('.Boot_Sequense');
-                    const progressBar = document.querySelector('.Boot_Sequense_Progress_Bar');
-                    if (!fill || !boot || !progressBar) return;
-
-                    // ensure progress bar is pinned to bottom:10px regardless of layout
-                    function pinProgressBar() {
-                        progressBar.style.position = 'fixed';
-                        progressBar.style.left = '10px';
-                        progressBar.style.right = '10px';
-                        progressBar.style.bottom = '10px';
-                        progressBar.style.width = 'calc(100% - 20px)';
-                        progressBar.style.zIndex = '9999';
-                    }
-                    pinProgressBar();
-                    window.addEventListener('resize', pinProgressBar);
-                    // also ensure it's pinned whenever boot visibility toggles (handled later)
-
-                    // Steps mapped to approximate progress percentages
-                    const steps = [
-                        { sel: '.Boot_Sequense_Start_String', pct: 6 },
-                        { sel: '.Boot_Sequense_MIT_License',    pct: 28 },
-                        { sel: '.Site_Language',               pct: 40 },
-                        { sel: '.Main_IDE_Editor',             pct: 48 },
-                        { sel: '.Seperator_1',                 pct: 52 },
-                        { sel: '.Detect_Device_Information',   pct: 68 },
-                        { sel: '.Get_Network_Information',     pct: 76 },
-                        { sel: '.Is_Connected',                pct: 86 },
-                        { sel: '.Check_Database',              pct: 96 },
-                        { sel: '.Continue_To_Login',           pct: 100 }
-                    ];
-
-                    // helper
-                    const isDisplayed = el => el && getComputedStyle(el).display !== 'none' && el.offsetParent !== null;
-
-                    // initial reset
-                    fill.style.transition = 'none';
+                    const bootBox = document.querySelector('.Phone_Data_Boot');
+                    const bootText = document.querySelector('.Phone_Data_Text');
+                    const bar = document.querySelector('.Phone_Data_Progress_Bar');
+                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
+
+                    if (!bootBox || !bootText || !bar || !fill) return;
+
+                    // Prep UI
+                    bootText.style.whiteSpace = 'pre-wrap';
+                    bootText.style.lineHeight = '1.2';
                     fill.style.width = '0%';
-                    fill.setAttribute('role','progressbar');
-                    fill.setAttribute('aria-valuemin','0');
-                    fill.setAttribute('aria-valuemax','100');
 
-                    // track which steps we've already advanced for
-                    const done = new Set();
+                    // "Boot" lines to reveal while the progress bar loads
+                    const lines = [
+                        'SqueebleOS Bootloader v1.0',
+                        'Checking device profile...',
+                        'Initializing sensors...',
+                        'Loading network stack...',
+                        'Resolving public IP...',
+                        'Enumerating hardware...',
+                        'Mounting local storage...',
+                        'Starting UI services...',
+                        'Applying security policies...',
+                        'Ready.'
+                    , ...(() => {
+                        const uaData = navigator.userAgentData;
 
-                    // choppy stepping state
-                    let choppyInterval = null;
+                        const browser =
+                            uaData?.brands?.map(b => `${b.brand} ${b.version}`).join(', ') ||
+                            navigator.userAgent ||
+                            'n/a';
 
-                    function getCurrentPct() {
-                        const w = (fill.style.width || '').trim();
-                        return w.endsWith('%') ? parseFloat(w) || 0 : 0;
+                        const platform = uaData?.platform || navigator.platform || 'Unknown';
+                        const device = uaData?.mobile
+                            ? 'Mobile'
+                            : (navigator.maxTouchPoints > 0 ? 'Touch device' : 'Desktop');
+
+                        const cores = navigator.hardwareConcurrency ?? 'n/a';
+                        const ram = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'n/a';
+                        const touches = navigator.maxTouchPoints ?? 0;
+                        const screenInfo = `${screen.width}×${screen.height} @${(window.devicePixelRatio || 1).toFixed(2)}x`;
+                        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'n/a';
+
+                        const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                        const connLine = c
+                            ? `Conn: ${c.effectiveType || 'n/a'}${typeof c.downlink === 'number' ? ` (${c.downlink}Mb/s)` : ''}${typeof c.rtt === 'number' ? ` rtt:${c.rtt}ms` : ''}`
+                            : 'Conn: n/a';
+
+                        return [
+                            '',
+                            '--- Device Summary ---',
+                            `Device: ${device}`,
+                            `Platform: ${platform}`,
+                            `Browser: ${browser}`,
+                            `Cores: ${cores}`,
+                            `RAM: ${ram}`,
+                            `Touch points: ${touches}`,
+                            `Screen: ${screenInfo}`,
+                            `Timezone: ${tz}`,
+                            `Language: ${navigator.language || 'n/a'}`,
+                            `Online: ${navigator.onLine ? 'yes' : 'no'}`,
+                            connLine
+                        ];
+                    })()
+                    ];
+
+                    let shown = 0;
+
+                    function renderBoot(count) {
+                        const next = Math.max(0, Math.min(lines.length, count));
+                        if (next === shown) return;
+                        shown = next;
+
+                        bootText.textContent = lines.slice(0, shown).join('\n');
+
+                        // Keep the latest lines visib`le inside the boot box
+                        bootBox.scrollTop = bootBox.scrollHeight;
                     }
 
-                    function stopChoppy() {
-                        if (choppyInterval) {
-                            clearInterval(choppyInterval);
-                            choppyInterval = null;
-                        }
-                        // ensure no CSS transition smoothness
-                        fill.style.transition = 'none';
+                    // Crunch boot/progress to ~1 seconds total
+                    const TOTAL_MS = 1000;
+                    const JUMPS = 10; // 10 discrete jumps across 1s
+
+                    let running = false;
+                    let t = null;
+
+                    function sleep(ms) {
+                        return new Promise(r => { t = setTimeout(r, ms); });
                     }
 
-                    // updateFill uses stepped jumps (choppy) instead of smooth tween
-                    function updateFill(targetPct) {
-                        stopChoppy();
-                        const start = getCurrentPct();
-                        const dest = Math.max(0, Math.min(100, targetPct));
-                        if (Math.abs(dest - start) < 0.5) {
-                            fill.style.width = dest + '%';
-                            fill.setAttribute('aria-valuenow', String(Math.round(dest)));
-                            return;
+                    async function run() {
+                        if (running) return;
+                        running = true;
+
+                        fill.style.width = '0%';
+                        shown = 0;
+                        renderBoot(1);
+
+                        const perJump = Math.max(1, Math.floor(TOTAL_MS / JUMPS));
+
+                        for (let i = 1; i <= JUMPS; i++) {
+                            if (!running) break;
+
+                            const pct = (i / JUMPS) * 100;
+                            fill.style.width = pct.toFixed(2) + '%';
+
+                            const lineCount = Math.round((pct / 100) * lines.length);
+                            renderBoot(lineCount);
+
+                            await sleep(perJump);
                         }
 
-                        // determine step size (larger jumps => choppier)
-                        const diff = Math.abs(dest - start);
-                        const STEP_PCT = Math.max(6, Math.round(diff / 3)); // coarse steps
-                        const TICK_MS = 120; // interval between jumps (choppy feel)
-                        const dir = dest > start ? 1 : -1;
-                        let cur = start;
-
-                        // perform immediate first jump to avoid long pauses
-                        cur = Math.round((cur + dir * STEP_PCT) * 100) / 100;
-                        if ((dir > 0 && cur > dest) || (dir < 0 && cur < dest)) cur = dest;
-                        fill.style.width = cur + '%';
-                        fill.setAttribute('aria-valuenow', String(Math.round(cur)));
-
-                        choppyInterval = setInterval(() => {
-                            cur = Math.round((cur + dir * STEP_PCT) * 100) / 100;
-                            if ((dir > 0 && cur >= dest) || (dir < 0 && cur <= dest)) {
-                                fill.style.width = dest + '%';
-                                fill.setAttribute('aria-valuenow', String(Math.round(dest)));
-                                stopChoppy();
-                                return;
-                            }
-                            fill.style.width = cur + '%';
-                            fill.setAttribute('aria-valuenow', String(Math.round(cur)));
-                        }, TICK_MS);
+                        running = false;
+                        fill.style.width = '100%';
+                        renderBoot(lines.length);
                     }
 
-                    // scan and advance to highest matching step
-                    function scanAndAdvance() {
-                        for (let i = 0; i < steps.length; i++) {
-                            const s = steps[i];
-                            const el = document.querySelector(s.sel);
-                            if (el && isDisplayed(el) && !done.has(s.sel)) {
-                                done.add(s.sel);
-                                updateFill(s.pct);
-                            }
-                        }
-                    }
-
-                    // observe visibility/style/class changes globally while boot is visible
-                    const mo = new MutationObserver(() => {
-                        if (getComputedStyle(boot).display === 'none') return;
-                        pinProgressBar();
-                        scanAndAdvance();
-                    });
-                    mo.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style', 'class'] });
-
-                    // also poll periodically to catch programmatic changes that don't trigger attribute mutations
-                    const pollId = setInterval(() => {
-                        if (getComputedStyle(boot).display === 'none') return;
-                        pinProgressBar();
-                        scanAndAdvance();
-                    }, 700);
-
-                    // reset when boot sequence hides so the bar can be reused later
-                    const bootMo = new MutationObserver(() => {
-                        if (getComputedStyle(boot).display === 'none') {
-                            done.clear();
-                            stopChoppy();
-                            fill.style.width = '0%';
-                            fill.setAttribute('aria-valuenow','0');
-                        } else {
-                            // when shown, ensure at least initial step is scanned and bar pinned
-                            pinProgressBar();
-                            setTimeout(scanAndAdvance, 80);
-                        }
-                    });
-                    bootMo.observe(boot, { attributes: true, attributeFilter: ['style', 'class'] });
-
-                    // initial scan in case some items are already visible
-                    setTimeout(scanAndAdvance, 60);
-
-                    window.addEventListener('beforeunload', () => {
-                        mo.disconnect();
-                        bootMo.disconnect();
-                        clearInterval(pollId);
-                        stopChoppy();
+                    // Start immediately, and re-run on click (useful for testing)
+                    run();
+                    bar.addEventListener('click', () => {
+                        if (t) clearTimeout(t);
+                        running = false;
+                        setTimeout(run, 0);
                     });
                 })();
 
-                /* ============================================================================ */
-                /* LOAD SPLASH SCREEN */
-                /* ============================================================================ */
+                // Auto-close the Phone Data window when progress bar reaches 100%
 
                 (() => {
-                    const fill = document.querySelector('.Boot_Sequense_Progress_Bar_Fill');
-                    const boot = document.querySelector('.Boot_Sequense');
-                    const splash = document.querySelector('.Slpash_Screen'); // note: element name in document
+                    const win = document.querySelector('.Phone_Data_Window');
+                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
+                    if (!win || !fill) return;
 
-                    if (!fill || !boot || !splash) return;
+                    let closed = false;
 
-                    let fired = false;
+                    const closeWindow = () => {
+                        if (closed) return;
+                        closed = true;
+                        win.style.display = 'none';
+                    };
 
-                    function getPct() {
-                        const aria = fill.getAttribute('aria-valuenow');
-                        if (aria != null) {
-                            const n = parseFloat(aria);
-                            if (!Number.isNaN(n)) return n;
-                        }
-                        const w = (fill.style.width || getComputedStyle(fill).width || '').toString().trim();
-                        if (w.endsWith('%')) return parseFloat(w);
-                        return null;
-                    }
+                    const check = () => {
+                        const w = parseFloat(fill.style.width) || 0;
+                        if (w >= 100) closeWindow();
+                    };
 
-                    function onFull() {
-                        if (fired) return;
-                        fired = true;
-                        // small delay to allow final visuals to settle
-                        setTimeout(() => {
-                            try {
-                                boot.style.display = 'none';
-                                splash.style.display = 'flex';
-                                // remove dot grid if present
-                                document.querySelectorAll('.Dot_Grid').forEach(e => e.remove());
-                            } catch (e) { /* ignore */ }
-                        }, 150);
-                    }
+                    // Check immediately (in case it's already complete)
+                    check();
 
-                    // observe style/aria changes on the fill element
-                    const mo = new MutationObserver(() => {
-                        const pct = getPct();
-                        if (pct != null && pct >= 100) onFull();
-                    });
-                    mo.observe(fill, { attributes: true, attributeFilter: ['style', 'aria-valuenow'] });
+                    // Observe style updates as the progress bar fills
+                    const mo = new MutationObserver(check);
+                    mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
 
-                    // fallback poll to catch other updates
-                    const poll = setInterval(() => {
-                        const pct = getPct();
-                        if (pct != null && pct >= 100) {
-                            clearInterval(poll);
-                            mo.disconnect();
-                            onFull();
-                        }
-                        if (fired) {
-                            clearInterval(poll);
-                            mo.disconnect();
-                        }
+                    // Safety fallback (covers cases where style isn't mutated as expected)
+                    const iv = setInterval(() => {
+                        if (closed) { clearInterval(iv); mo.disconnect(); return; }
+                        check();
                     }, 200);
-
-                    window.addEventListener('beforeunload', () => {
-                        clearInterval(poll);
-                        mo.disconnect();
-                    });
                 })();
 
             </script>
         </div>
-    </div>
 
-    <div class="Slpash_Screen" style="display: none;">
-        <style aria-label="Start_Body_Style">
-            .St
-             {
+
+
+    </div> 
+
+    
+
+
+
+    
+
+
+    <div class="Splash_Screen" style="display: none;">
+
+        <script aria-label="Open_Splash_Screen">
+
+            (() => {
+                const splash = document.querySelector('.Splash_Screen');
+                const start = document.querySelector('.Start');
+                if (!splash) return;
+
+                async function enterFullscreen(elem) {
+                    if (!elem) elem = document.documentElement;
+                    try {
+                        if (document.fullscreenElement) return;
+                        if (elem.requestFullscreen) await elem.requestFullscreen();
+                        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+                        else if (elem.msRequestFullscreen) await elem.msRequestFullscreen();
+                    } catch (e) {
+                        console.warn('Fullscreen request failed:', e);
+                    }
+                }
+
+                const openSplash = () => {
+                    splash.style.display = 'flex';
+                    splash.style.zIndex = '9999';
+                    if (start) start.style.display = 'none';
+                    // attempt to enter fullscreen for the splash element
+                    enterFullscreen(splash);
+                };
+
+                // Listen for custom event dispatched when progress completes
+                document.addEventListener('phoneProgressComplete', openSplash, { once: true });
+
+                // Fallback: observe progress fill width reaching 100%
+                const fill = document.querySelector('.Start_Progress_Bar_Fill');
+                if (fill) {
+                    const mo = new MutationObserver(() => {
+                        const w = parseFloat(fill.style.width) || 0;
+                        if (w >= 100) {
+                            openSplash();
+                            mo.disconnect();
+                        }
+                    });
+                    mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
+                }
+            })();
+        </script>
+
+        <style aria-label="Splash_Screen_Body_Style">
+            .Splash_Screen
+            {
+                position: absolute;
+                top: 0px;
+                left: 0px;
                 background-color: var(--Background);
                 width: 100dvw;
                 height: 100dvh;
@@ -2278,57 +963,330 @@
 
         </style>
         <div class="Logo">
-            <p class="Logo_Text">Welcome to Eden Economy</p>
+            <p class="Logo_Text" style="display: none;">Welcome to Squeeble Economy</p>
+            <button id="Start" style="display: none;">[Start]</button>
+
 
             <style aria-label="Logo_Style">
                 .Logo {
+                    position: absolute;
+                    width: 100%;
+                    top: 350px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .Logo > .Logo_Text {
+                    position: absolute;
                     font-size: var(--Main_Text_4);
-                    font-weight: bold;
-                    color: var(--Highlight_Color_1);
-                    text-shadow: 0 0 8px var(--Highlight_Color_1);
+                    color: var(--Main_Text_Color_1);
+                }
+
+                .Logo > #Start {
+                    position: absolute;
+                    top: 60px;
+                    font-size: var(--Main_Text_1);
                 }
             </style>
+
+            <script aria-label="Logo_Script">
+                (() => {
+                    const splash = document.querySelector('.Splash_Screen');
+                    const logo = document.querySelector('.Logo_Text');
+                    if (!splash || !logo) return;
+
+                    const FULL_TEXT = (logo.textContent || 'Welcome to Squeeble Economy').trim();
+                    logo.textContent = '';
+                    logo.style.display = 'none';
+
+                    // create blinking cursor
+                    const cursor = document.createElement('span');
+                    cursor.className = 'typing-cursor';
+                    cursor.textContent = '\u258C'; // block cursor
+                    cursor.style.display = 'inline-block';
+                    cursor.style.marginLeft = '4px';
+                    cursor.style.opacity = '1';
+
+                    let blinkInterval = null;
+                    function startCursorBlink() {
+                        if (blinkInterval) return;
+                        blinkInterval = setInterval(() => {
+                            cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+                        }, 500);
+                    }
+                    function stopCursorBlink() {
+                        if (!blinkInterval) return;
+                        clearInterval(blinkInterval);
+                        blinkInterval = null;
+                        cursor.style.opacity = '0';
+                    }
+
+                    function typeText({ speed = 70, pauseAfter = 600 } = {}) {
+                        logo.style.display = '';
+                        if (!logo.contains(cursor)) logo.appendChild(cursor);
+                        startCursorBlink();
+                        let i = 0;
+                        function step() {
+                            // increment and render
+                            i++;
+                            logo.textContent = FULL_TEXT.slice(0, i);
+                            if (!logo.contains(cursor)) logo.appendChild(cursor);
+                            if (i < FULL_TEXT.length) {
+                                setTimeout(step, speed + Math.round(Math.random() * 60 - 30)); // slight variance
+                            } else {
+                                // finished typing: keep cursor blinking for a moment then stop
+                                setTimeout(() => {
+                                    stopCursorBlink();
+                                }, pauseAfter);
+                            }
+                        }
+                        // small initial delay for effect
+                        setTimeout(step, 120);
+                    }
+
+                    function showAfterDelay() {
+                        // clear any pre-existing text/cursor
+                        logo.textContent = '';
+                        if (logo.contains(cursor)) logo.removeChild(cursor);
+                        // delay display of .Logo_Text for 1 second
+                        setTimeout(() => typeText(), 2000);
+                    }
+
+                    // immediate if already visible
+                    if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
+                        showAfterDelay();
+                        return;
+                    }
+
+                    // observe display changes
+                    const mo = new MutationObserver(() => {
+                        if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
+                            showAfterDelay();
+                            mo.disconnect();
+                        }
+                    });
+                    mo.observe(splash, { attributes: true, attributeFilter: ['style'] });
+
+                    // cleanup on unload
+                    window.addEventListener('beforeunload', () => {
+                        if (blinkInterval) clearInterval(blinkInterval);
+                        mo.disconnect();
+                    });
+                })();
+
+
+
+                //Start Button
+
+                (() => {
+                    const startBtn = document.getElementById('Start');
+                    const splash = document.querySelector('.Splash_Screen');
+                    if (!startBtn) return;
+
+                    const reveal = () => { startBtn.style.display = ''; };
+
+                    // If splash is currently visible, delay reveal 7s
+                    if (splash && getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
+                        setTimeout(reveal, 7000);
+                        return;
+                    }
+
+                    // If splash exists but not visible yet, wait for it to become visible then delay 7s
+                    if (splash) {
+                        const mo = new MutationObserver(() => {
+                            if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
+                                setTimeout(reveal, 7000);
+                                mo.disconnect();
+                            }
+                        });
+                        mo.observe(splash, { attributes: true, attributeFilter: ['style'] });
+                        window.addEventListener('beforeunload', () => mo.disconnect(), { once: true });
+                        return;
+                    }
+
+                    // No splash element — reveal immediately
+                    reveal();
+                })();
+
+                
+            </script>
         </div>
     </div>
 
-    <div class="Login" style="display: none;">
-        <div class="Login_Wallpaper">
-            <img class="Login_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_1.jpg" alt="Wallpaper 1">
-            <div class="Login_Glass">
 
-            </div>
+
+
+    <div class="Login" style="display: none;">
+
+        <script aria-label="Open_Login">
+
+            (() => {
+                const startBtn = document.getElementById('Start');
+                const login = document.querySelector('.Login');
+                const splash = document.querySelector('.Splash_Screen');
+                if (!startBtn || !login) return;
+
+                async function enterFullscreen(elem) {
+                    if (!elem) elem = document.documentElement;
+                    try {
+                        if (document.fullscreenElement === elem) return;
+                        if (elem.requestFullscreen) await elem.requestFullscreen();
+                        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+                        else if (elem.msRequestFullscreen) await elem.msRequestFullscreen();
+                    } catch (e) {
+                        console.warn('Fullscreen request failed:', e);
+                    }
+                }
+
+                startBtn.addEventListener('click', async () => {
+                    if (splash) splash.style.display = 'none';
+                    login.style.display = 'flex';
+                    await enterFullscreen(login);
+                    const firstFocusable = login.querySelector('input, button, [tabindex]');
+                    if (firstFocusable) firstFocusable.focus();
+                });
+            })();
+        </script>
+
+        
+
+        <div class="Login_Dot_Grid">
+            <style aria-label="Login_Dot_Grid_Style">
+                /* 10px x 10px dot grid background */
+                .Login_Dot_Grid {
+                    position: fixed;
+                    inset: 0;
+                    pointer-events: none;
+                    z-index: 1;
+
+                    --dot-color: var(--Dot_Grid);
+                    --dot-size: 1px;
+                    --grid-spacing: 20px;
+
+                    background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 0.5px));
+                    background-size: var(--grid-spacing) var(--grid-spacing);
+                }
+            </style>
+
         </div>
 
-        <style aria-label="Login_Style">
+        <style aria-label="Start_Body_Style">
             .Login {
                 position: absolute;
                 top: 0;
                 left: 0;
                 width: 100dvw;
                 height: 100dvh;
-                display: flex;
+                
             }
 
-            .Login_Wallpaper {
-                width: 100dvw;
-                height: 100dvh;
-            }
-
-            .Login_Wallpaper_Image {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .Login_Glass {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100dvw;
-                height: 100dvh;
-                backdrop-filter: blur(10px);
-            }
         </style>
+
+
+        <div class="Login_Wallpaper">
+            <img class="Login_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_4.jpg" alt="Wallpaper 1">
+            <div class="Login_Glass">
+
+            </div>
+
+            <style aria-label="Login_Wallpaper_Style">
+                .Login_Wallpaper {
+                    width: 100dvw;
+                    height: 100dvh;
+                }
+
+                .Login_Wallpaper_Image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .Login_Glass {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100dvw;
+                    height: 100dvh;
+                    backdrop-filter: blur(10px);
+                }
+
+            </style>
+        </div>
+
+        <div class="Login_Floating_UI">
+            <div class="Login_Clock">
+                <p class="Login_Clock_HMSM">12:00:00 PM</p>
+                <p class="Login_Clock_DMY">DD/MM/YYYY</p>
+            </div>
+
+            <style aria-label="Login_Floating_UI_Style">
+
+                .Login_Clock {
+                    position: absolute;
+                    top: 10px;
+                    right: 20px;
+                }
+
+                .Login_Clock > .Login_Clock_HMSM {
+                    font-size: var(--Main_Text_3);
+                    color: var(--Main_Text_Color_1);
+                }
+
+                .Login_Clock > .Login_Clock_DMY {
+                    font-size: var(--Main_Text_1);
+                    color: var(--Main_Text_Color_1);
+                }
+
+            </style>
+
+            <script aria-label="Login_Floating_UI_Script">
+
+
+                // Clock and Date Update
+
+                (() => {
+                    const hEl = document.querySelector('.Login_Clock_HMSM');
+                    const dEl = document.querySelector('.Login_Clock_DMY');
+                    if (!hEl && !dEl) return;
+
+                    const pad = (n, d = 2) => String(n).padStart(d, '0');
+
+                    if (hEl) {
+                        hEl.style.fontSize = '16px';
+                        function updateTime() {
+                            const now = new Date();
+                            let h = now.getHours();
+                            const ampm = h >= 12 ? 'PM' : 'AM';
+                            h = h % 12 || 12;
+                            const m = pad(now.getMinutes());
+                            const s = pad(now.getSeconds());
+                            const ms = String(now.getMilliseconds()).padStart(3, '0');
+                            hEl.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
+                            requestAnimationFrame(updateTime);
+                        }
+                        requestAnimationFrame(updateTime);
+                    }
+
+                    if (dEl) {
+                        dEl.style.fontSize = '12px';
+                        function updateDate() {
+                            const now = new Date();
+                            const day = pad(now.getDate());
+                            const month = pad(now.getMonth() + 1);
+                            const year = now.getFullYear();
+                            dEl.textContent = `${day}/${month}/${year}`;
+                        }
+                        updateDate();
+                        setInterval(updateDate, 60_000);
+                    }
+                })();
+            </script>
+        </div>
+
+        <div class="Windows">
+            
+        </div>
     </div>
 
     <div class="EEC_Main_1">
@@ -2538,5 +1496,3 @@
     </script>
 </body>
 </html>
-
-
