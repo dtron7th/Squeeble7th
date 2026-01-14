@@ -52,9 +52,9 @@
 
     --UI-Silder-1: rgb(255, 255, 255);
 
-    --UI-Buttons-Fields-Color_Active-1: rgb(255, 191, 0);
+    --UI-Buttons-Fields-Color_Active-1: rgb(255, 34, 34);
     --UI-Buttons-Fields-Color_Active-2: rgb(0, 0, 0);
-    --UI-Buttons-Fields-Color_Active-3: rgb(0, 0, 0);
+    --UI-Buttons-Fields-Color_Active-3: rgb(255, 27, 27);
     --UI-Buttons-Fields-Color_Active-4: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color_Active-5: rgb(0, 0, 0);
     
@@ -70,12 +70,7 @@
     --Border-Radius-1: 0px;
     --Border-Radius-2: 5px;
     --Border-Radius-3: 10px;
-    
-    --Border-Radius_Button-1: 0px;
-    --Border-Radius_Button-2: 0px;
-    --Border-Radius_Button-3: 0px;
-    --Border-Radius_Button-4: 0px;
-    --Border-Radius_Button-5: 0px;
+
 
     --Round_Button: rgba(46, 46, 46, 0.5);
     --Normal_Button: rgba(31, 31, 31, 0.5);
@@ -90,6 +85,7 @@
     --Dot_Grid: rgba(255, 255, 255, 0.03);
 
     --Progress_Bar_Background: rgb(255, 255, 255);
+    --Progress_Bar_Fill: rgb(0, 105, 97);
 }
 
 .Window {
@@ -135,20 +131,17 @@
 
 .Window > .Window_Header > .Close_Button {
     position: absolute;
-    right: 0px;
+    right: 10px;
     width: auto;
     background: none;
     border: none;
     outline: none;
+    color: var(--Main_Text_Color_2);
 }
 
 .Window > .Window_Header > .Close_Button:active {
-    position: absolute;
-    right: 0px;
-    width: auto;
-    color: var(--Close_Button_Active);
-    border: none;
-    outline: none;
+    color: var(--UI-Buttons-Fields-Color_Active-1);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .Window > .Content {
@@ -235,6 +228,8 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    border: 1px solid var(--Main_Border);
+    border-radius: var(--Border-Radius-2);
 }
 
 button:active {
@@ -253,7 +248,7 @@ button:active {
 }
 
 .Floating_Button:active {
-    -color: var(--UI-Buttons-Fields-Color_Active-1);
+    color: var(--UI-Buttons-Fields-Color_Active-1);
     -webkit-tap-highlight-color: transparent;
 }
 

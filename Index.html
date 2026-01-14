@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squeeble Economy</title>
+    <title>Blaack Battles</title>
 
     <link rel="stylesheet" href="CSS/UI.css">
 
@@ -15,1484 +15,200 @@
             width: 100dvw;
             height: 100dvh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
+            
         }
     </style>
 
+    <div class="Main">
 
-
-    <!--Skeleton-->
-
-
-
-    
-    <div class="Start" style="display: flex;">
-
-       
-
-        <style aria-label="Start_Body_Style">
-            .Start {
+        <style aria-label="Main_Style">
+            .Main {
                 width: 100dvw;
                 height: 100dvh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: var(--Background);
+                scroll-snap-type: y mandatory;
+                overflow-y: scroll;
+                scroll-behavior: smooth;
             }
 
+            
+            
         </style>
 
-
-
-        <div class="Start_Progress_Bar" style="display: none;">
-            <div class="Start_Progress_Bar_Fill">
-
+        <div class="Top_Menu">
+            <div class="Menu_Options">
+                <a href="/Index.html" class="Menu_Link">Black Battles</a>
+                <a href="/Html/Chat.html" class="Menu_Link">Chat</a>
+                <a href="/Html/Armies.html" class="Menu_Link">Armies</a>
+                <a href="/Html/News.html" class="Menu_Link">News</a>
+                <a href="/Html/OpenWarfare.html" class="Menu_Link">Open Warfare</a>
             </div>
-
-            <style aria-label="Progress_Bar_Style">
-                .Start_Progress_Bar {
-                    position: absolute;
-                    bottom: 10px;
-                    width: calc(100% - 20px);
-                    height: 10px;
-                }
-
-                .Start_Progress_Bar > .Start_Progress_Bar_Fill {
-                    width: 100%;
-                    height: 100%;
-                    background-color: var(--Progress_Bar_Background);
-                    
-                }
-            </style>
-        </div>
-
-
-
-
-
-        <div class="Start_Floating_UI">
-            <div class="Details">
-                <div class="Start_Clock">
-                    <p class="Start_Clock_HMSM">12:00:00 PM</p>
-                    <p class="Start_Clock_DMY">DD/MM/YYYY</p>
-                </div>
-                <div class="Device_Location">
-                    <p class="Device_Location_Point">Location</p>
-                </div>
-                <div class="Network_Name">
-                    <p class="Current_Network_Name">Network Name</p>
-                </div>
-                <div class="Database">
-                    <p class="Is_Connected_To_Database">Disabled</p>
-                </div>
-            </div>
-            <div class="User_Information">
-                <button class="Floating_Button" id="About">About</button>
-                <button class="Floating_Button" id="Road_Map">Road Map</button>
-                <button class="Floating_Button" id="Character_Sheet">Character Sheet</button>
-                <button class="Floating_Button" id="Version">Version</button>
-                <button class="Floating_Button" id="Share">Share</button>
-            </div>
-            
-            <style aria-label="Start_Floating_UI_Style">
-                .Start_Floating_UI {
-                    position: absolute;
-                    top: 10px;
-                    width: 100%;
-                }
-
-                .Start_Floating_UI > .Details {
-                    position: absolute;
-                    right: 10px;
-
-                }
-                
-
-                .Start_Floating_UI > .Details > .Start_Clock > .Start_Clock_HMSM {
-                    color: var(--Main_Text_Color_1);
-
-                }
-
-                .Start_Floating_UI > .Details > .Start_Clock > .Start_Clock_DMY {
-                    color: var(--Main_Text_Color_1);
-                }
-
-                .Start_Floating_UI > .Details > .Device_Location {
-                    position: absolute;
-                    top: 60px;
-                    color: var(--Main_Text_Color_1);
-
-                }
-
-                .Start_Floating_UI > .Details > .Network_Name {
-                    position: absolute;
-                    top: 110px;
-                    color: var(--Main_Text_Color_1);
-                }
-
-                .Start_Floating_UI > .Details > .Database {
-                    position: absolute;
-                    top: 150px;
-                    color: var(--Main_Text_Color_1);
-                }
-
-                .Start_Floating_UI > .User_Information {
-                    position: absolute;
-                    left: 10px;
-                    color: var(--Main_Text_Color_1);
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 10px;
-                }
-
-                .Start_Floating_UI > .User_Information > button {
-                    width: 150px;
-                    height: 20px;
-                    justify-content: flex-start;
-                    background: none;
-                }
-
-                .Start_Floating_UI > .User_Information > button:active {
-                    color: var(--UI-Buttons-Fields-Color_Active-1);
-                    -webkit-tap-highlight-color: transparent;
-                }
-                
-            </style>
-
-            <script aria-label="Start_Floating_UI_Script">
-
-
-                (() => {
-                    const el = document.querySelector('.Start_Clock_HMSM');
-                    if (!el) return;
-
-                    el.style.fontSize = '14px';
-
-                    const pad = (n, d = 2) => String(n).padStart(d, '0');
-
-                    function update() {
-                        const now = new Date();
-                        let h = now.getHours();
-                        const ampm = h >= 12 ? 'PM' : 'AM';
-                        h = h % 12 || 12;
-                        const m = pad(now.getMinutes());
-                        const s = pad(now.getSeconds());
-                        const ms = String(now.getMilliseconds()).padStart(3, '0');
-                        el.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
-                        requestAnimationFrame(update);
-                    }
-
-                    requestAnimationFrame(update);
-                })();
-
-
-
-                (() => {
-                    const el = document.querySelector('.Start_Clock_DMY');
-                    if (!el) return;
-
-                    el.style.fontSize = '10px';
-
-                    const pad = (n, d = 2) => String(n).padStart(d, '0');
-
-                    function update() {
-                        const now = new Date();
-                        const d = pad(now.getDate());
-                        const m = pad(now.getMonth() + 1);
-                        const y = now.getFullYear();
-                        el.textContent = `${d}/${m}/${y}`;
-                    }
-
-                    update();
-                })();
-
-
-
-                (async () => {
-                    const el = document.querySelector('.Start_Floating_UI > .Details > .Device_Location > .Device_Location_Point');
-                    if (!el || !navigator.geolocation) return;
-                    el.style.fontSize = '10px';
-                    el.textContent = '[Locating...]';
-
-                    const US_STATES = {
-                        "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
-                        "connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID",
-                        "illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA",
-                        "maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS",
-                        "missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ",
-                        "new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK",
-                        "oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD",
-                        "tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA",
-                        "west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"
-                    };
-
-                    function formatLocation(city, region, country) {
-                        // final format: (City Name, AA, Country)
-                        if (!city) city = '';
-                        if (!region) region = '';
-                        if (!country) country = '';
-                        return `(${city.trim() || 'Unknown'}, ${region.trim() || '??'}, ${country.trim() || 'Unknown'})`;
-                    }
-
-                    navigator.geolocation.getCurrentPosition(async pos => {
-                        try {
-                            const lat = pos.coords.latitude;
-                            const lon = pos.coords.longitude;
-                            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1`;
-                            const resp = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-                            if (!resp.ok) throw new Error('geocode failed');
-                            const data = await resp.json();
-                            const a = data.address || {};
-
-                            const city = a.city || a.town || a.village || a.municipality || a.hamlet || a.county || '';
-                            const country = a.country || '';
-                            const cc = (a.country_code || '').toUpperCase();
-
-                            let region = '';
-                            if (a.state_code) region = a.state_code.toUpperCase();
-                            else if (a.state) {
-                                const s = a.state.toLowerCase();
-                                if (cc === 'US' && US_STATES[s]) region = US_STATES[s];
-                                else region = a.state; // fallback to full state name
-                            } else if (a.region) region = a.region;
-                            else if (a.county) region = a.county;
-
-                            el.style.fontSize = '10px';
-                            el.textContent = formatLocation(city, region, country);
-                        } catch (e) {
-                            el.style.fontSize = '10px';
-                            el.textContent = 'Location unavailable';
-                            console.error(e);
-                        }
-                    }, err => {
-                        el.style.fontSize = '10px';
-                        el.textContent = 'Permission denied or unavailable';
-                        console.warn(err);
-                    }, { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 });
-                })();
-
-
-
-                (async () => {
-                    const el = document.querySelector('.Current_Network_Name');
-                    if (!el) return;
-                    el.style.fontSize = '10px';
-                    el.textContent = '[Network Unavailable]';
-
-                    try {
-                        const resp = await fetch('https://api.ipify.org?format=json');
-                        if (!resp.ok) throw new Error('network fetch failed');
-                        const data = await resp.json();
-                        const ip = data.ip || '';
-
-                        // Simple hash to generate a pseudo network name from IP
-                        let hash = 0;
-                        for (let i = 0; i < ip.length; i++) {
-                            hash = ((hash << 5) - hash) + ip.charCodeAt(i);
-                            hash |= 0; // Convert to 32bit integer
-                        }
-                        const networkName = 'Net-' + Math.abs(hash).toString(36).toUpperCase().slice(0, 6);
-
-                        el.style.fontSize = '10px';
-                        el.textContent = networkName;
-                    } catch (e) {
-                        el.style.fontSize = '10px';
-                        el.textContent = '[Network Unavailable]';
-                        console.error(e);
-                    }
-                })();
-
-                (async () => {
-                    const el = document.querySelector('.Is_Connected_To_Database');
-                    if (!el) return;
-                    el.style.fontSize = '10px';
-                    el.textContent = 'Checking...';
-                    el.style.color = 'var(--Main_Text_Color_1)';
-
-                    const setStatus = (connected, source = '') => {
-                        el.textContent = connected ? 'Database Connected' : 'Database Disconnected';
-                        el.style.color = connected ? '#22c55e' : '#ef4444';
-                        el.title = source ? `Checked via: ${source}` : '';
-                    };
-
-                    // 1) Try pinging a relative server endpoint (fast; configurable)
-                    try {
-                        const controller = new AbortController();
-                        const timeout = setTimeout(() => controller.abort(), 3000);
-                        const res = await fetch('/db/ping', { method: 'GET', cache: 'no-cache', signal: controller.signal });
-                        clearTimeout(timeout);
-                        if (res.ok) {
-                            try {
-                                const j = await res.json();
-                                if (typeof j.connected === 'boolean') { setStatus(j.connected, 'server'); return; }
-                            } catch (_) {
-                                // no json - assume OK response means connected
-                                setStatus(true, 'server'); return;
-                            }
-                        }
-                    } catch (_) {
-                        // fetch failed; fall through to local checks
-                    }
-
-                    // 2) Fallback: check browser DB availability (IndexedDB)
-                    try {
-                        const dbName = 'SqueebleLocalDB_Check';
-                        await new Promise((resolve, reject) => {
-                            const rq = indexedDB.open(dbName);
-                            rq.onsuccess = () => {
-                                try { rq.result.close(); indexedDB.deleteDatabase(dbName); } catch (_) {}
-                                resolve();
-                            };
-                            rq.onerror = () => reject();
-                            // onupgradeneeded can create the DB but that's acceptable for a local availability check
-                            rq.onupgradeneeded = () => {
-                                // create temporary store so open completes consistently
-                                try { rq.result.createObjectStore('tmp'); } catch (_) {}
-                            };
-                        });
-                        setStatus(true, 'indexeddb');
-                        return;
-                    } catch (_) {}
-
-                    // 3) Final fallback: use navigator.onLine (informational only)
-                    if (navigator.onLine === false) {
-                        setStatus(false, 'navigator.onLine');
-                    } else {
-                        // unknown but treat as disconnected to database
-                        setStatus(false, 'unknown');
-                    }
-                })();
-            </script>
-        </div>
-        
-
-
-        
-        <div class="Window Start_Window" style="width:280px; height:220px;">
-            <div class="Window_Header">
-                <p class="Title">Start</p>
-                <button class="Close_Button"></button>
-            </div>
-            <div class="Content">
-                <div class="Paragraph">
-                    <p>Welcome to Squeeble Economy! Please select your platform to continue.</p>
-                </div>
-                <div class="Start_Navigator">
-                    <button class="Start_Navigator_Button" id="Start_Using_Desktop_System">Desktop</button>
-                    <button class="Start_Navigator_Button" id="Start_Using_Phone_System">Phone</button>
-                </div>
-            </div>
-
-            <style aria-label="Start_Window_Style">
-                .Start_Window {
-                    position: absolute;
-                }
-
-                .Start_Window > .Content > .Paragraph {
-                    position: absolute;
-                    top: 40px;
-                    color: var(--Main_Text_Color_1);
-                    font-size: var(--Main_Text_2);
-                    text-align: center;
-                    width: 240px;
-                }
-
-                .Start_Window > .Content > .Start_Navigator {
-                    position: absolute;
-                    bottom: 10px;
-                    width: 100%;
+            <style>
+                .Top_Menu {
+                    position: fixed;
+                    width: 100dvw;
+                    height: 40px;
+                    border-bottom: 1px solid var(--Main_Border);
                     display: flex;
                     flex-direction: row;
-                    gap: 20px;
                     justify-content: center;
-                }
-
-                .Start_Window > .Content > .Start_Navigator > .Start_Navigator_Button {
-                    width: 100%;
-                    height: 20px;
-                }
-
-            </style>
-
-            <script aria-label="Start_Window_Script">
-
-                (() => {
-                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
-                    const progressBar = document.querySelector('.Start_Progress_Bar');
-                    const progressFill = progressBar && progressBar.querySelector('.Start_Progress_Bar_Fill');
-                    if (!phoneBtn || !progressBar || !progressFill) return;
-
-                    // Step-based loading plan (pct = target percent, duration = ms to animate to that step)
-                    const STEPS = [
-                        { name: 'Initializing', pct: 8, duration: 350 },
-                        { name: 'Loading assets', pct: 28, duration: 700 },
-                        { name: 'Starting services', pct: 55, duration: 900 },
-                        { name: 'Applying configuration', pct: 82, duration: 600 },
-                        { name: 'Finalizing', pct: 97, duration: 400 },
-                        { name: 'Completing', pct: 100, duration: 200 }
-                    ];
-
-                    let running = false;
-                    let currentTimeout = null;
-
-                    function resetProgress() {
-                        if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
-                        progressFill.style.width = '0%';
-                        progressBar.style.display = 'none';
-                    }
-
-                    // Choppy animate: jump in a few discrete steps instead of smooth easing
-                    function animateTo(targetPct, duration) {
-                        return new Promise(resolve => {
-                            if (!running) { resolve(); return; }
-                            const from = Math.max(0, parseFloat(progressFill.style.width) || 0);
-                            const to = targetPct;
-                            if (duration <= 0 || Math.abs(to - from) < 0.01) { progressFill.style.width = to + '%'; resolve(); return; }
-
-                            // Determine a small number of jumps to feel "choppy"
-                            const stepCount = Math.max(2, Math.min(6, Math.round(duration / 200))); // 2..6 jumps
-                            const stepDuration = Math.max(40, Math.floor(duration / stepCount));
-
-                            let i = 0;
-                            function nextJump() {
-                                if (!running) { resolve(); return; }
-                                i++;
-                                // compute discrete position (no easing)
-                                const frac = i / stepCount;
-                                const val = from + (to - from) * frac;
-                                // round to 2 decimal places for clarity
-                                progressFill.style.width = (Math.round(val * 100) / 100).toFixed(2) + '%';
-
-                                if (i >= stepCount) {
-                                    currentTimeout = setTimeout(() => { currentTimeout = null; resolve(); }, 0);
-                                } else {
-                                    currentTimeout = setTimeout(nextJump, stepDuration + (Math.random() * 80 - 40)); // slight random jitter
-                                }
-                            }
-
-                            // Start first jump after a tiny delay to make jumps perceptible
-                            currentTimeout = setTimeout(nextJump, 40 + (Math.random() * 60));
-                        });
-                    }
-
-                    async function runSequence() {
-                        running = true;
-                        progressBar.style.display = 'block';
-                        progressFill.style.transition = 'none';
-                        progressFill.style.width = '0%';
-
-                        for (const s of STEPS) {
-                            if (!running) break;
-                            progressBar.dataset.stage = s.name;
-                            await animateTo(s.pct, s.duration);
-                            if (!running) break;
-                            // short perceptible pause
-                            await new Promise(r => { currentTimeout = setTimeout(() => { currentTimeout = null; r(); }, 120 + Math.random() * 180); });
-                        }
-
-                        if (running) {
-                            progressFill.style.width = '100%';
-                            setTimeout(() => {
-                                progressBar.style.display = 'none';
-                                progressFill.style.width = '0%';
-                                running = false;
-                                progressBar.dispatchEvent(new CustomEvent('phoneProgressComplete', { bubbles: true }));
-                            }, 350);
-                        } else {
-                            progressBar.style.display = 'none';
-                            progressFill.style.width = '0%';
-                        }
-                    }
-
-                    phoneBtn.addEventListener('click', () => {
-                        if (running) {
-                            running = false;
-                            if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
-                            setTimeout(() => runSequence(), 80);
-                        } else {
-                            runSequence();
-                        }
-                    });
-
-                    const desktopBtn = document.getElementById('Start_Using_Desktop_System');
-                    if (desktopBtn) {
-                        desktopBtn.addEventListener('click', () => {
-                            if (running) {
-                                running = false;
-                                if (currentTimeout) { clearTimeout(currentTimeout); currentTimeout = null; }
-                                setTimeout(resetProgress, 50);
-                            } else {
-                                resetProgress();
-                            }
-                        });
-                    }
-                })();
-            </script>
-        </div>
-
-        <div class="Window Phone_Data_Window" style="width:180px; height:200px;">
-            <div class="Window_Header">
-                <p class="Title">Phone Data</p>
-                <button class="Close_Button"></button>
-            </div>
-            <div class="Content">
-                <div class="Phone_Data_Boot">
-                    <p class="Phone_Data_Text">10.242.0.56</p>
-                </div>
-
-                <div class="Phone_Data_Progress_Bar" style="display: flex;">
-                    <div class="Phone_Data_Progress_Bar_Fill">
-
-                    </div>
-                </div>
-            </div>
-
-            <style aria-label="Phone_Data_Window_Style">
-                .Phone_Data_Window {
-                    position: absolute;
-                    
-                }
-
-                .Phone_Data_Boot {
-                    position: absolute;
-                    top: 10px;
-                    left: 10px;
-                    width: 100%;
-                    height: 120px;
-                    overflow: hidden;
-                    
-                }
-
-                .Phone_Data_Boot > .Phone_Data_Text {
-                    font-size: var(--Main_Text_1);
-                    color: var(--Main_Text_Color_1);
-                }
-
-                .Phone_Data_Progress_Bar {
-                    position: absolute;
-                    bottom: 10px;
-                    width: calc(100% - 0px);
-                    height: 10px;
-                }
-
-                .Phone_Data_Progress_Bar > .Phone_Data_Progress_Bar_Fill {
-                    width: 100%;
-                    height: 100%;
-                    background-color: var(--Progress_Bar_Background);
-                    
-                }
-            </style>
-
-            <script aria-label="Phone_Data_Window_Script">
-
-                (() => {
-                    const win = document.querySelector('.Phone_Data_Window');
-                    if (!win) return;
-
-                    win.style.position = 'absolute';
-                    win.style.top = '240px';
-                    win.style.left = '120px';
-                })();
-
-                (() => {
-                    const phoneBtn = document.getElementById('Start_Using_Phone_System');
-                    const desktopBtn = document.getElementById('Start_Using_Desktop_System');
-
-                    const win = document.querySelector('.Phone_Data_Window');
-                    const bar = document.querySelector('.Phone_Data_Progress_Bar');
-                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
-                    const bootText = document.querySelector('.Phone_Data_Text');
-
-                    if (!phoneBtn || !win || !bar || !fill) return;
-
-                    // Only show/run when Phone is selected
-                    win.style.display = 'none';
-
-                    let mo = null;
-                    let openTimer = null;
-
-                    function disarmAutoClose() {
-                        if (mo) {
-                            mo.disconnect();
-                            mo = null;
-                        }
-                    }
-
-                    function armAutoClose() {
-                        disarmAutoClose();
-                        mo = new MutationObserver(() => {
-                            const w = parseFloat(fill.style.width) || 0;
-                            if (w >= 100) {
-                                win.style.display = 'none';
-                                disarmAutoClose();
-                            }
-                        });
-                        mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
-                    }
-
-                    function openPhoneDataWindow() {
-                        // Cancel any pending open
-                        if (openTimer) {
-                            clearTimeout(openTimer);
-                            openTimer = null;
-                        }
-
-                        // Delay showing window by 1 second
-                        openTimer = setTimeout(() => {
-                            openTimer = null;
-
-                            win.style.display = 'block';
-
-                            if (typeof window.__bringWindowToFront === 'function') {
-                                window.__bringWindowToFront(win);
-                            }
-
-                            // Reset visible state before re-running the boot animation
-                            fill.style.width = '0%';
-                            if (bootText) bootText.textContent = '';
-
-                            armAutoClose();
-
-                            // Re-run the existing boot/progress logic by triggering the bar's click handler
-                            requestAnimationFrame(() => {
-                                bar.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                            });
-                        }, 1000);
-                    }
-
-                    function closePhoneDataWindow() {
-                        if (openTimer) {
-                            clearTimeout(openTimer);
-                            openTimer = null;
-                        }
-                        win.style.display = 'none';
-                        disarmAutoClose();
-                    }
-
-                    phoneBtn.addEventListener('click', openPhoneDataWindow);
-                    if (desktopBtn) desktopBtn.addEventListener('click', closePhoneDataWindow);
-                })();
-
-
-                // Gather and display device information in the Phone Data window
-
-                (function(){
-                    const el = document.querySelector('.Phone_Data_Text');
-                    if (!el) return;
-                    el.style.whiteSpace = 'pre-wrap';
-                    el.textContent = 'Detecting device...';
-
-                    const timeout = (ms) => new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms));
-
-                    async function fetchIP() {
-                        try {
-                            const res = await Promise.race([fetch('https://api.ipify.org?format=json'), timeout(2500)]);
-                            if (!res.ok) throw new Error('no-ip');
-                            const j = await res.json();
-                            return j.ip || null;
-                        } catch { return null; }
-                    }
-
-                    (async () => {
-                        const ip = await fetchIP();
-                        const uaData = navigator.userAgentData;
-                        const browser = uaData?.brands ? uaData.brands.map(b=>b.brand+' '+b.version).join(', ') : navigator.userAgent;
-                        const platform = uaData?.platform || navigator.platform || 'Unknown';
-                        const type = uaData?.mobile ? 'Mobile' : (navigator.maxTouchPoints>0 ? 'Touch device' : 'Desktop');
-                        const cores = navigator.hardwareConcurrency || 'n/a';
-                        const ram = navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'n/a';
-                        const touches = navigator.maxTouchPoints || 0;
-                        const screenInfo = `${screen.width}×${screen.height} @${(window.devicePixelRatio||1).toFixed(2)}x`;
-                        let battery = 'n/a';
-                        try { const b = await navigator.getBattery(); battery = Math.round(b.level*100) + '%' + (b.charging ? ' (charging)' : ''); } catch {}
-                        const lines = [
-                            `IP: ${ip || 'n/a'}`,
-                            `Browser: ${browser}`,
-                            `Platform: ${platform}`,
-                            `Device: ${type}`,
-                            `Cores: ${cores}`,
-                            `RAM: ${ram}`,
-                            `Touch points: ${touches}`,
-                            `Screen: ${screenInfo}`,
-                            `Battery: ${battery}`,
-                            `Language: ${navigator.language || 'n/a'}`,
-                            `Online: ${navigator.onLine ? 'yes' : 'no'}`
-                        ];
-                        el.textContent = lines.join('\n');
-                    })();
-                })();
-
-                // Animate the Phone Data window "boot" sequence and progress bar fill
-
-                (() => {
-                    const bootBox = document.querySelector('.Phone_Data_Boot');
-                    const bootText = document.querySelector('.Phone_Data_Text');
-                    const bar = document.querySelector('.Phone_Data_Progress_Bar');
-                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
-
-                    if (!bootBox || !bootText || !bar || !fill) return;
-
-                    // Prep UI
-                    bootText.style.whiteSpace = 'pre-wrap';
-                    bootText.style.lineHeight = '1.2';
-                    fill.style.width = '0%';
-
-                    // "Boot" lines to reveal while the progress bar loads
-                    const lines = [
-                        'SqueebleOS Bootloader v1.0',
-                        'Checking device profile...',
-                        'Initializing sensors...',
-                        'Loading network stack...',
-                        'Resolving public IP...',
-                        'Enumerating hardware...',
-                        'Mounting local storage...',
-                        'Starting UI services...',
-                        'Applying security policies...',
-                        'Ready.'
-                    , ...(() => {
-                        const uaData = navigator.userAgentData;
-
-                        const browser =
-                            uaData?.brands?.map(b => `${b.brand} ${b.version}`).join(', ') ||
-                            navigator.userAgent ||
-                            'n/a';
-
-                        const platform = uaData?.platform || navigator.platform || 'Unknown';
-                        const device = uaData?.mobile
-                            ? 'Mobile'
-                            : (navigator.maxTouchPoints > 0 ? 'Touch device' : 'Desktop');
-
-                        const cores = navigator.hardwareConcurrency ?? 'n/a';
-                        const ram = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'n/a';
-                        const touches = navigator.maxTouchPoints ?? 0;
-                        const screenInfo = `${screen.width}×${screen.height} @${(window.devicePixelRatio || 1).toFixed(2)}x`;
-                        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'n/a';
-
-                        const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                        const connLine = c
-                            ? `Conn: ${c.effectiveType || 'n/a'}${typeof c.downlink === 'number' ? ` (${c.downlink}Mb/s)` : ''}${typeof c.rtt === 'number' ? ` rtt:${c.rtt}ms` : ''}`
-                            : 'Conn: n/a';
-
-                        return [
-                            '',
-                            '--- Device Summary ---',
-                            `Device: ${device}`,
-                            `Platform: ${platform}`,
-                            `Browser: ${browser}`,
-                            `Cores: ${cores}`,
-                            `RAM: ${ram}`,
-                            `Touch points: ${touches}`,
-                            `Screen: ${screenInfo}`,
-                            `Timezone: ${tz}`,
-                            `Language: ${navigator.language || 'n/a'}`,
-                            `Online: ${navigator.onLine ? 'yes' : 'no'}`,
-                            connLine
-                        ];
-                    })()
-                    ];
-
-                    let shown = 0;
-
-                    function renderBoot(count) {
-                        const next = Math.max(0, Math.min(lines.length, count));
-                        if (next === shown) return;
-                        shown = next;
-
-                        bootText.textContent = lines.slice(0, shown).join('\n');
-
-                        // Keep the latest lines visib`le inside the boot box
-                        bootBox.scrollTop = bootBox.scrollHeight;
-                    }
-
-                    // Crunch boot/progress to ~1 seconds total
-                    const TOTAL_MS = 1000;
-                    const JUMPS = 10; // 10 discrete jumps across 1s
-
-                    let running = false;
-                    let t = null;
-
-                    function sleep(ms) {
-                        return new Promise(r => { t = setTimeout(r, ms); });
-                    }
-
-                    async function run() {
-                        if (running) return;
-                        running = true;
-
-                        fill.style.width = '0%';
-                        shown = 0;
-                        renderBoot(1);
-
-                        const perJump = Math.max(1, Math.floor(TOTAL_MS / JUMPS));
-
-                        for (let i = 1; i <= JUMPS; i++) {
-                            if (!running) break;
-
-                            const pct = (i / JUMPS) * 100;
-                            fill.style.width = pct.toFixed(2) + '%';
-
-                            const lineCount = Math.round((pct / 100) * lines.length);
-                            renderBoot(lineCount);
-
-                            await sleep(perJump);
-                        }
-
-                        running = false;
-                        fill.style.width = '100%';
-                        renderBoot(lines.length);
-                    }
-
-                    // Start immediately, and re-run on click (useful for testing)
-                    run();
-                    bar.addEventListener('click', () => {
-                        if (t) clearTimeout(t);
-                        running = false;
-                        setTimeout(run, 0);
-                    });
-                })();
-
-                // Auto-close the Phone Data window when progress bar reaches 100%
-
-                (() => {
-                    const win = document.querySelector('.Phone_Data_Window');
-                    const fill = document.querySelector('.Phone_Data_Progress_Bar_Fill');
-                    if (!win || !fill) return;
-
-                    let closed = false;
-
-                    const closeWindow = () => {
-                        if (closed) return;
-                        closed = true;
-                        win.style.display = 'none';
-                    };
-
-                    const check = () => {
-                        const w = parseFloat(fill.style.width) || 0;
-                        if (w >= 100) closeWindow();
-                    };
-
-                    // Check immediately (in case it's already complete)
-                    check();
-
-                    // Observe style updates as the progress bar fills
-                    const mo = new MutationObserver(check);
-                    mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
-
-                    // Safety fallback (covers cases where style isn't mutated as expected)
-                    const iv = setInterval(() => {
-                        if (closed) { clearInterval(iv); mo.disconnect(); return; }
-                        check();
-                    }, 200);
-                })();
-
-            </script>
-        </div>
-
-
-
-    </div> 
-
-    
-
-
-
-    
-
-
-    <div class="Splash_Screen" style="display: none;">
-
-        <script aria-label="Open_Splash_Screen">
-
-            (() => {
-                const splash = document.querySelector('.Splash_Screen');
-                const start = document.querySelector('.Start');
-                if (!splash) return;
-
-                async function enterFullscreen(elem) {
-                    if (!elem) elem = document.documentElement;
-                    try {
-                        if (document.fullscreenElement) return;
-                        if (elem.requestFullscreen) await elem.requestFullscreen();
-                        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
-                        else if (elem.msRequestFullscreen) await elem.msRequestFullscreen();
-                    } catch (e) {
-                        console.warn('Fullscreen request failed:', e);
-                    }
-                }
-
-                const openSplash = () => {
-                    splash.style.display = 'flex';
-                    splash.style.zIndex = '9999';
-                    if (start) start.style.display = 'none';
-                    // attempt to enter fullscreen for the splash element
-                    enterFullscreen(splash);
-                };
-
-                // Listen for custom event dispatched when progress completes
-                document.addEventListener('phoneProgressComplete', openSplash, { once: true });
-
-                // Fallback: observe progress fill width reaching 100%
-                const fill = document.querySelector('.Start_Progress_Bar_Fill');
-                if (fill) {
-                    const mo = new MutationObserver(() => {
-                        const w = parseFloat(fill.style.width) || 0;
-                        if (w >= 100) {
-                            openSplash();
-                            mo.disconnect();
-                        }
-                    });
-                    mo.observe(fill, { attributes: true, attributeFilter: ['style'] });
-                }
-            })();
-        </script>
-
-        <style aria-label="Splash_Screen_Body_Style">
-            .Splash_Screen
-            {
-                position: absolute;
-                top: 0px;
-                left: 0px;
-                background-color: var(--Background);
-                width: 100dvw;
-                height: 100dvh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-        </style>
-        <div class="Logo">
-            <p class="Logo_Text" style="display: none;">Welcome to Squeeble Economy</p>
-            <button id="Start" style="display: none;">[Start]</button>
-
-
-            <style aria-label="Logo_Style">
-                .Logo {
-                    position: absolute;
-                    width: 100%;
-                    top: 350px;
-                    display: flex;
-                    flex-direction: column;
                     align-items: center;
+                    z-index: 5;
                 }
 
-                .Logo > .Logo_Text {
-                    position: absolute;
-                    font-size: var(--Main_Text_4);
-                    color: var(--Main_Text_Color_1);
+                .Menu_Options {
+                    display: flex;
+                    gap: 50px;
                 }
 
-                .Logo > #Start {
-                    position: absolute;
-                    top: 60px;
+                .Top_Menu > .Menu_Options> a {
                     font-size: var(--Main_Text_1);
                 }
+
             </style>
-
-            <script aria-label="Logo_Script">
-                (() => {
-                    const splash = document.querySelector('.Splash_Screen');
-                    const logo = document.querySelector('.Logo_Text');
-                    if (!splash || !logo) return;
-
-                    const FULL_TEXT = (logo.textContent || 'Welcome to Squeeble Economy').trim();
-                    logo.textContent = '';
-                    logo.style.display = 'none';
-
-                    // create blinking cursor
-                    const cursor = document.createElement('span');
-                    cursor.className = 'typing-cursor';
-                    cursor.textContent = '\u258C'; // block cursor
-                    cursor.style.display = 'inline-block';
-                    cursor.style.marginLeft = '4px';
-                    cursor.style.opacity = '1';
-
-                    let blinkInterval = null;
-                    function startCursorBlink() {
-                        if (blinkInterval) return;
-                        blinkInterval = setInterval(() => {
-                            cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
-                        }, 500);
-                    }
-                    function stopCursorBlink() {
-                        if (!blinkInterval) return;
-                        clearInterval(blinkInterval);
-                        blinkInterval = null;
-                        cursor.style.opacity = '0';
-                    }
-
-                    function typeText({ speed = 70, pauseAfter = 600 } = {}) {
-                        logo.style.display = '';
-                        if (!logo.contains(cursor)) logo.appendChild(cursor);
-                        startCursorBlink();
-                        let i = 0;
-                        function step() {
-                            // increment and render
-                            i++;
-                            logo.textContent = FULL_TEXT.slice(0, i);
-                            if (!logo.contains(cursor)) logo.appendChild(cursor);
-                            if (i < FULL_TEXT.length) {
-                                setTimeout(step, speed + Math.round(Math.random() * 60 - 30)); // slight variance
-                            } else {
-                                // finished typing: keep cursor blinking for a moment then stop
-                                setTimeout(() => {
-                                    stopCursorBlink();
-                                }, pauseAfter);
-                            }
-                        }
-                        // small initial delay for effect
-                        setTimeout(step, 120);
-                    }
-
-                    function showAfterDelay() {
-                        // clear any pre-existing text/cursor
-                        logo.textContent = '';
-                        if (logo.contains(cursor)) logo.removeChild(cursor);
-                        // delay display of .Logo_Text for 1 second
-                        setTimeout(() => typeText(), 2000);
-                    }
-
-                    // immediate if already visible
-                    if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
-                        showAfterDelay();
-                        return;
-                    }
-
-                    // observe display changes
-                    const mo = new MutationObserver(() => {
-                        if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
-                            showAfterDelay();
-                            mo.disconnect();
-                        }
-                    });
-                    mo.observe(splash, { attributes: true, attributeFilter: ['style'] });
-
-                    // cleanup on unload
-                    window.addEventListener('beforeunload', () => {
-                        if (blinkInterval) clearInterval(blinkInterval);
-                        mo.disconnect();
-                    });
-                })();
-
-
-
-                //Start Button
-
-                (() => {
-                    const startBtn = document.getElementById('Start');
-                    const splash = document.querySelector('.Splash_Screen');
-                    if (!startBtn) return;
-
-                    const reveal = () => { startBtn.style.display = ''; };
-
-                    // If splash is currently visible, delay reveal 7s
-                    if (splash && getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
-                        setTimeout(reveal, 7000);
-                        return;
-                    }
-
-                    // If splash exists but not visible yet, wait for it to become visible then delay 7s
-                    if (splash) {
-                        const mo = new MutationObserver(() => {
-                            if (getComputedStyle(splash).display !== 'none' && splash.style.display !== 'none') {
-                                setTimeout(reveal, 7000);
-                                mo.disconnect();
-                            }
-                        });
-                        mo.observe(splash, { attributes: true, attributeFilter: ['style'] });
-                        window.addEventListener('beforeunload', () => mo.disconnect(), { once: true });
-                        return;
-                    }
-
-                    // No splash element — reveal immediately
-                    reveal();
-                })();
-
-                
-            </script>
         </div>
-    </div>
+        <section class="Index_Page_1">
 
-
-
-
-    <div class="Login" style="display: none;">
-
-        <script aria-label="Open_Login">
-
-            (() => {
-                const startBtn = document.getElementById('Start');
-                const login = document.querySelector('.Login');
-                const splash = document.querySelector('.Splash_Screen');
-                if (!startBtn || !login) return;
-
-                async function enterFullscreen(elem) {
-                    if (!elem) elem = document.documentElement;
-                    try {
-                        if (document.fullscreenElement === elem) return;
-                        if (elem.requestFullscreen) await elem.requestFullscreen();
-                        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
-                        else if (elem.msRequestFullscreen) await elem.msRequestFullscreen();
-                    } catch (e) {
-                        console.warn('Fullscreen request failed:', e);
-                    }
+            <style aria-label="Page_1_Style">
+                .Index_Page_1 {
+                    width: 100dvw;
+                    height: 100dvh;
+                    scroll-snap-align: start;
                 }
+            
+            </style>
+            <div class="Play_Game_Content">
+                <img class="Wallpaper" src="/Images/Wallpaper/wp13023157.png" alt="Wallpaper">
+                <img class="Main_Logo" src="/Images/Icons/Logo/Black+Battles+Logo+Transparent.png" alt="">
+                
+                <div class="Top_Information">
+                    <span>140 Players</span>
+                    <span>56 Online</span>
+                    <span>$20K at Stake</span>
+                </div>
+                
+                <button class="Play_Game">Play Game</button>
 
-                startBtn.addEventListener('click', async () => {
-                    if (splash) splash.style.display = 'none';
-                    login.style.display = 'flex';
-                    await enterFullscreen(login);
-                    const firstFocusable = login.querySelector('input, button, [tabindex]');
-                    if (firstFocusable) firstFocusable.focus();
-                });
-            })();
-        </script>
+                <style aria-label="Play_Game_Style">
+                    .Play_Game_Content {
+                        position: relative;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        overflow: hidden;
+                    }
+
+                    .Play_Game_Content > .Wallpaper {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        
+                    }
+
+                    .Play_Game_Content > .Top_Information {
+                        position: absolute;
+                        top: 100px;
+                        display: flex;
+                        gap: 50px;
+                        font-size: var(--Main_Text_2);
+                        color: var(--Main_Text_Color_3);
+                    }
+
+                    .Play_Game_Content > .Play_Game {
+                        position: absolute;
+                        bottom: 20px;
+                        width: 200px;
+                        height: 30px;
+                        font-size: var(--Main_Text_1);
+                        color: var(--Main_Text_Color_3);
+                        background-color: var(--UI-Buttons-Fields-Color_Active-3);
+                    }
+
+                    .Play_Game_Content > .Main_Logo {
+                        position: absolute;
+                        top: 160px;
+                        width: 300px;
+                        height: auto;
+                    }
+                </style>
+            </div>
+        </section>
 
         
+        <section class="Index_Page_2">
 
-        <div class="Login_Dot_Grid">
-            <style aria-label="Login_Dot_Grid_Style">
-                /* 10px x 10px dot grid background */
-                .Login_Dot_Grid {
-                    position: fixed;
-                    inset: 0;
-                    pointer-events: none;
-                    z-index: 1;
-
-                    --dot-color: var(--Dot_Grid);
-                    --dot-size: 1px;
-                    --grid-spacing: 20px;
-
-                    background-image: radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 0.5px));
-                    background-size: var(--grid-spacing) var(--grid-spacing);
-                }
-            </style>
-
-        </div>
-
-        <style aria-label="Start_Body_Style">
-            .Login {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100dvw;
-                height: 100dvh;
-                
-            }
-
-        </style>
-
-
-        <div class="Login_Wallpaper">
-            <img class="Login_Wallpaper_Image" src="Images/Wallpaper/Wallpaper_4.jpg" alt="Wallpaper 1">
-            <div class="Login_Glass">
-
-            </div>
-
-            <style aria-label="Login_Wallpaper_Style">
-                .Login_Wallpaper {
+            <style aria-label="Page_2_Style">
+                .Index_Page_2 {
+                    position: relative;
                     width: 100dvw;
                     height: 100dvh;
+                    scroll-snap-align: start;
                 }
-
-                .Login_Wallpaper_Image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .Login_Glass {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100dvw;
-                    height: 100dvh;
-                    backdrop-filter: blur(10px);
-                }
-
             </style>
-        </div>
 
-        <div class="Login_Floating_UI">
-            <div class="Login_Clock">
-                <p class="Login_Clock_HMSM">12:00:00 PM</p>
-                <p class="Login_Clock_DMY">DD/MM/YYYY</p>
+            <div class="Profile_Button">
+                <button class="Profile"><img src="/Images/Profile Pics/Profile_1.png" alt=""></button>
+                <style aria-label="Profile_Style">
+                    .Profile_Button {
+                        position: absolute;
+                        top: 60px;
+                        right: 10px;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    .Profile_Button > .Profile {
+                        width: 30px;
+                        height: 30px;
+                        border: none;
+                        background-color: transparent;
+                        cursor: pointer;
+                        overflow: hidden;
+                        border-radius: 50%;
+                    }
+
+                    .Profile_Button > .Profile > img {
+                        width: 30px;
+                        height: 30px;
+                    }
+                    
+                </style>
             </div>
-
-            <style aria-label="Login_Floating_UI_Style">
-
-                .Login_Clock {
-                    position: absolute;
-                    top: 10px;
-                    right: 20px;
-                }
-
-                .Login_Clock > .Login_Clock_HMSM {
-                    font-size: var(--Main_Text_3);
-                    color: var(--Main_Text_Color_1);
-                }
-
-                .Login_Clock > .Login_Clock_DMY {
-                    font-size: var(--Main_Text_1);
-                    color: var(--Main_Text_Color_1);
-                }
-
-            </style>
-
-            <script aria-label="Login_Floating_UI_Script">
-
-
-                // Clock and Date Update
-
-                (() => {
-                    const hEl = document.querySelector('.Login_Clock_HMSM');
-                    const dEl = document.querySelector('.Login_Clock_DMY');
-                    if (!hEl && !dEl) return;
-
-                    const pad = (n, d = 2) => String(n).padStart(d, '0');
-
-                    if (hEl) {
-                        hEl.style.fontSize = '16px';
-                        function updateTime() {
-                            const now = new Date();
-                            let h = now.getHours();
-                            const ampm = h >= 12 ? 'PM' : 'AM';
-                            h = h % 12 || 12;
-                            const m = pad(now.getMinutes());
-                            const s = pad(now.getSeconds());
-                            const ms = String(now.getMilliseconds()).padStart(3, '0');
-                            hEl.textContent = `${pad(h)}:${m}:${s}.${ms} ${ampm}`;
-                            requestAnimationFrame(updateTime);
-                        }
-                        requestAnimationFrame(updateTime);
+            <div class="User_Information">
+                <div class="Points">
+                    <span class="Chips"><img src="/Images/Icons/Points Icon/Chip.svg" alt=""> 10K</span>
+                    <span class="Gold_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt=""> 1500</span>
+                </div>
+                <style aria-label="User_Information_Style">
+                    .User_Information {
+                        position: absolute;
+                        top: 60px;
+                        right: 80px;
+                        font-size: var(--Main_Text_1);
+                        color: var(--Main_Text_Color_3);
                     }
 
-                    if (dEl) {
-                        dEl.style.fontSize = '12px';
-                        function updateDate() {
-                            const now = new Date();
-                            const day = pad(now.getDate());
-                            const month = pad(now.getMonth() + 1);
-                            const year = now.getFullYear();
-                            dEl.textContent = `${day}/${month}/${year}`;
-                        }
-                        updateDate();
-                        setInterval(updateDate, 60_000);
+                    .User_Information > .Points {
+                        display: flex;
+                        gap: 30px;
                     }
-                })();
-            </script>
-        </div>
 
-        <div class="Windows">
-            
-        </div>
+                    .User_Information > .Points > span {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+
+                    .User_Information > .Points > span > img {
+                        width: 10px;
+                        height: 10px;
+                    }
+                </style>
+            </div>
+        </section>
     </div>
-
-    <div class="EEC_Main_1">
-
-    </div>
-
-    <div class="EEC_Main_2">
-
-    </div>
-
-    <div class="EEC_Main_3">
-
-    </div>
-    
-    <script aria-label="Essentials_Script">
-
-        /* ============================================================================ */
-        /* DRAGGING ALL WINDOWS AND PANELS */
-        /* ============================================================================ */
-
-        // Enable dragging of any element with class "Window" by its child ".Window_Header"
-
-        (() => {
-            const headers = document.querySelectorAll('.Window_Header');
-            headers.forEach(header => {
-                // visual affordance
-                header.style.cursor = 'grab';
-                header.style.touchAction = 'none'; // allow pointer events without scrolling
-
-                header.addEventListener('pointerdown', (ev) => {
-                    const win = header.closest('.Window');
-                    if (!win) return;
-
-                    // ensure the window can be moved by absolute positioning
-                    const rect = win.getBoundingClientRect();
-                    const docLeft = rect.left + window.scrollX;
-                    const docTop = rect.top + window.scrollY;
-                    const computed = getComputedStyle(win);
-                    if (computed.position === 'static') {
-                        win.style.position = 'absolute';
-                        win.style.left = `${docLeft}px`;
-                        win.style.top = `${docTop}px`;
-                    } else {
-                        // make sure left/top are numbers we can use
-                        if (!win.style.left) win.style.left = `${docLeft}px`;
-                        if (!win.style.top) win.style.top = `${docTop}px`;
-                    }
-
-                    header.setPointerCapture(ev.pointerId);
-                    header.style.cursor = 'grabbing';
-
-                    const startX = ev.clientX;
-                    const startY = ev.clientY;
-                    const startLeft = parseFloat(win.style.left || docLeft);
-                    const startTop = parseFloat(win.style.top || docTop);
-
-                    function onPointerMove(e) {
-                        const dx = e.clientX - startX;
-                        const dy = e.clientY - startY;
-                        win.style.left = `${Math.round(startLeft + dx)}px`;
-                        win.style.top = `${Math.round(startTop + dy)}px`;
-                    }
-
-                    function onPointerUp(e) {
-                        header.releasePointerCapture(e.pointerId);
-                        header.style.cursor = 'grab';
-                        document.removeEventListener('pointermove', onPointerMove);
-                        document.removeEventListener('pointerup', onPointerUp);
-                    }
-
-                    document.addEventListener('pointermove', onPointerMove);
-                    document.addEventListener('pointerup', onPointerUp);
-                });
-            });
-        })();
-
-        (() => {
-            const GRID_X = 10;
-            const GRID_Y = 10;
-
-            function snapElementToGrid(el, gx = GRID_X, gy = GRID_Y) {
-                if (!el) return;
-                const rect = el.getBoundingClientRect();
-                const docLeft = rect.left + window.scrollX;
-                const docTop = rect.top + window.scrollY;
-
-                let left = parseFloat(el.style.left);
-                let top = parseFloat(el.style.top);
-                if (!Number.isFinite(left)) left = docLeft;
-                if (!Number.isFinite(top)) top = docTop;
-
-                const snappedLeft = Math.round(left / gx) * gx;
-                const snappedTop = Math.round(top / gy) * gy;
-
-                el.style.left = snappedLeft + 'px';
-                el.style.top = snappedTop + 'px';
-            }
-
-            // Track which window is being dragged
-            let draggingWindow = null;
-            document.querySelectorAll('.Window_Header').forEach(header => {
-                header.addEventListener('pointerdown', () => {
-                    draggingWindow = header.closest('.Window');
-                });
-            });
-
-            // Snap when pointer is released — snap the dragged window and ensure all windows align
-            document.addEventListener('pointerup', () => {
-                if (draggingWindow) {
-                    snapElementToGrid(draggingWindow);
-                    draggingWindow = null;
-                }
-                document.querySelectorAll('.Window').forEach(w => snapElementToGrid(w));
-            });
-
-            // Optional: live snapping while dragging (throttled with requestAnimationFrame)
-            let rafId = null;
-            document.addEventListener('pointermove', () => {
-                if (!draggingWindow) return;
-                if (rafId) return;
-                rafId = requestAnimationFrame(() => {
-                    snapElementToGrid(draggingWindow);
-                    rafId = null;
-                });
-            });
-        })();
-
-        (() => {
-            // Clamp windows so they remain fully visible inside the viewport
-            function clampWindowToViewport(win) {
-                if (!win) return;
-                const rect = win.getBoundingClientRect();
-                const docLeft = rect.left + window.scrollX;
-                const docTop = rect.top + window.scrollY;
-                const width = rect.width;
-                const height = rect.height;
-
-                const vw = document.documentElement.clientWidth;
-                const vh = document.documentElement.clientHeight;
-
-                // document-scoped min/max (account for page scroll)
-                const minLeft = window.scrollX;
-                const minTop = window.scrollY;
-                const maxLeft = Math.max(minLeft, window.scrollX + vw - width);
-                const maxTop = Math.max(minTop, window.scrollY + vh - height);
-
-                let left = parseFloat(win.style.left);
-                let top = parseFloat(win.style.top);
-                if (!Number.isFinite(left)) left = docLeft;
-                if (!Number.isFinite(top)) top = docTop;
-
-                const clampedLeft = Math.min(Math.max(left, minLeft), maxLeft);
-                const clampedTop = Math.min(Math.max(top, minTop), maxTop);
-
-                if (clampedLeft !== left) win.style.left = Math.round(clampedLeft) + 'px';
-                if (clampedTop !== top) win.style.top = Math.round(clampedTop) + 'px';
-            }
-
-            // Throttle with rAF for smoothness
-            let raf = null;
-            function clampAllWindows() {
-                if (raf) return;
-                raf = requestAnimationFrame(() => {
-                    document.querySelectorAll('.Window').forEach(clampWindowToViewport);
-                    raf = null;
-                });
-            }
-
-            // Keep windows inside viewport while dragging and when releasing/resizing/loading
-            document.addEventListener('pointermove', clampAllWindows, { passive: true });
-            document.addEventListener('pointerup', clampAllWindows);
-            window.addEventListener('resize', clampAllWindows);
-            window.addEventListener('load', clampAllWindows);
-        })();
-
-        /* ============================================================================ */
-        /* BRING ACTIVE WINDOW TO FRONT */
-        /* ============================================================================ */
-
-        (() => {
-            let topZ = 10;
-            // initialize topZ from existing windows
-            document.querySelectorAll('.Window').forEach(w => {
-                const z = parseInt(getComputedStyle(w).zIndex, 10);
-                if (Number.isFinite(z) && z >= topZ) topZ = z + 1;
-                // make windows focusable so keyboard focus can also bring to front
-                if (!w.hasAttribute('tabindex')) w.setAttribute('tabindex', '0');
-                // bring to front when header or window gets pointerdown
-                w.addEventListener('pointerdown', () => bringToFront(w));
-                const hdr = w.querySelector('.Window_Header');
-                if (hdr) hdr.addEventListener('pointerdown', (e) => { e.stopPropagation(); bringToFront(w); });
-                // bring to front on focus (keyboard)
-                w.addEventListener('focus', () => bringToFront(w));
-            });
-
-            function bringToFront(win) {
-                if (!win) return;
-                topZ += 1;
-                win.style.zIndex = String(topZ);
-                // optional active class for styling
-                document.querySelectorAll('.Window').forEach(w => w.classList.toggle('active', w === win));
-            }
-
-            // expose for debugging if needed
-            window.__bringWindowToFront = bringToFront;
-        })();
-    </script>
 </body>
 </html>
