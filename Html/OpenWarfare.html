@@ -181,7 +181,8 @@
                         const createDrawingBtn = document.querySelector('.Create_Drawing');
                         const splashScreen = document.querySelector('.CAD_Splash_Screen');
                         const splashProgressFill = document.getElementById('splash_progress_fill');
-                        if (createDrawingBtn && splashScreen && splashProgressFill) {
+                        const cadProgram = document.querySelector('.CAD_Program');
+                        if (createDrawingBtn && splashScreen && splashProgressFill && cadProgram) {
                             createDrawingBtn.addEventListener('click', function() {
                                 splashScreen.style.display = '';
                                 // Reset progress bar to start from the beginning
@@ -195,6 +196,13 @@
                                     setTimeout(function() {
                                         progress = steps[i];
                                         splashProgressFill.style.width = progress + '%';
+                                        if (progress === 100) {
+                                            // Wait 1 second after progress bar is full, then show CAD program
+                                            setTimeout(function() {
+                                                splashScreen.style.display = 'none';
+                                                cadProgram.style.display = '';
+                                            }, 1000);
+                                        }
                                         animateStep(i + 1);
                                     }, delays[i]);
                                 }
@@ -202,14 +210,18 @@
                             });
                         }
                     });
+
                     
+
                 </script>
             </div>
 
-            
-
         </section>
         <div class="CAD_Program" style="display: none;">
+            <script>
+                // Landscape orientation behavior removed.
+                // CAD will no longer auto-rotate or add landscape classes.
+            </script>
             <style>
                 .CAD_Program {
                     position: absolute;
@@ -218,15 +230,44 @@
                     top: 0;
                     left: 0;
                     background-color: rgb(120, 172, 35);
+                    transition: none;
+                }
+                /* landscape-orientation rules removed */
+            </style>
+
+            <style>
+                .CAD_Tools {
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    height: 100%;
+                    z-index: 10;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .CAD_Tools > button {
+                    width: 30px;
+                    height: 30px;
+                    background-color: var(--UI-Buttons-Fields-Color-3);
+                }
+
+                .CAD_Tools > button > img {
+                    width: 20px;
+                    height: 20px;
+                    
                 }
             </style>
 
-            <div class="CAD_Tools" style="position:absolute;top:10px;left:10px;z-index:10;background:rgba(255,255,255,0.8);padding:8px;border-radius:6px;display:flex;gap:8px;">
-                <button onclick="setTool('pan')">Pan</button>
-                <button onclick="setTool('line')">Line</button>
-                <button onclick="setTool('rect')">Rectangle</button>
-                <button onclick="setTool('clear')">Clear</button>
-                <span id="cad_status" style="margin-left:10px;color:#333;font-size:14px;"></span>
+            <div class="CAD_Tools">
+                <button class="CAD_Tools_Pan" onclick="setTool('Pan')"><img src="/Images/Icons/CAD_Program/minimalist CAD pan t.png" alt=""></button>
+                <br>
+                <button class="CAD_Tools_Line" onclick="setTool('Line')"><img src="/Images/Icons/CAD_Program/minimalist line tool.png" alt=""></button>
+                <button class="CAD_Tools_Square" onclick="setTool('Square')"><img src="/Images/Icons/CAD_Program/minimalist CAD square.png" alt=""></button>
+                <button class="CAD_Tools_Circle" onclick="setTool('Circle')"><img src="/Images/Icons/CAD_Program/minimalist CAD circle.png" alt=""></button>
+
             </div>
             <canvas id="cad_canvas" class="CAD_Canvas" tabindex="0"></canvas>
             <style>
@@ -236,7 +277,7 @@
                     height: 100dvh;
                     top: 0;
                     left: 0;
-                    background-color: rgb(21, 95, 105);
+                    background-color: rgb(14, 35, 53);
                     cursor: crosshair;
                     display: block;
                 }
@@ -305,6 +346,12 @@
                                 const a = toScreen(s.a.x, s.a.y);
                                 const b = toScreen(s.b.x, s.b.y);
                                 ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+                            } else if (s.type === 'circle') {
+                                const c = toScreen(s.c.x, s.c.y);
+                                const r = s.r * zoom;
+                                ctx.beginPath();
+                                ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+                                ctx.stroke();
                             }
                             ctx.restore();
                         }
@@ -336,7 +383,7 @@
                         lastPos = {x: e.clientX, y: e.clientY};
                         if (tool === 'pan') {
                             drawing = true;
-                        } else if (tool === 'line' || tool === 'rect') {
+                        } else if (tool === 'line' || tool === 'rect' || tool === 'circle' || tool === 'square') {
                             drawing = true;
                             start = toWorld(e.clientX, e.clientY);
                             end = start;
@@ -349,7 +396,7 @@
                             offset.y += e.clientY - lastPos.y;
                             lastPos = {x: e.clientX, y: e.clientY};
                             drawAll();
-                        } else if (tool === 'line' || tool === 'rect') {
+                        } else if (tool === 'line' || tool === 'rect' || tool === 'circle' || tool === 'square') {
                             end = toWorld(e.clientX, e.clientY);
                             drawAll();
                             // Preview
@@ -367,6 +414,27 @@
                                 const a = toScreen(start.x, start.y);
                                 const b = toScreen(end.x, end.y);
                                 ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+                            } else if (tool === 'square') {
+                                // compute square b from start and end (force equal width/height)
+                                const dx = end.x - start.x;
+                                const dy = end.y - start.y;
+                                const size = Math.max(Math.abs(dx), Math.abs(dy));
+                                const signX = dx >= 0 ? 1 : -1;
+                                const signY = dy >= 0 ? 1 : -1;
+                                const bWorld = { x: start.x + signX * size, y: start.y + signY * size };
+                                const a = toScreen(start.x, start.y);
+                                const b = toScreen(bWorld.x, bWorld.y);
+                                ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+                            } else if (tool === 'circle') {
+                                // circle defined by start (center) and current end (perimeter)
+                                const center = toScreen(start.x, start.y);
+                                const edge = toScreen(end.x, end.y);
+                                const rx = edge.x - center.x;
+                                const ry = edge.y - center.y;
+                                const r = Math.sqrt(rx*rx + ry*ry);
+                                ctx.beginPath();
+                                ctx.arc(center.x, center.y, r, 0, Math.PI * 2);
+                                ctx.stroke();
                             }
                             ctx.restore();
                         }
@@ -379,6 +447,23 @@
                             drawAll();
                         } else if (tool === 'rect') {
                             shapes.push({type:'rect', a: start, b: toWorld(e.clientX, e.clientY)});
+                            drawAll();
+                        } else if (tool === 'square') {
+                            const endWorld = toWorld(e.clientX, e.clientY);
+                            const dx = endWorld.x - start.x;
+                            const dy = endWorld.y - start.y;
+                            const size = Math.max(Math.abs(dx), Math.abs(dy));
+                            const signX = dx >= 0 ? 1 : -1;
+                            const signY = dy >= 0 ? 1 : -1;
+                            const bWorld = { x: start.x + signX * size, y: start.y + signY * size };
+                            shapes.push({type:'rect', a: start, b: bWorld});
+                            drawAll();
+                        } else if (tool === 'circle') {
+                            const endWorld = toWorld(e.clientX, e.clientY);
+                            const rx = endWorld.x - start.x;
+                            const ry = endWorld.y - start.y;
+                            const r = Math.sqrt(rx*rx + ry*ry);
+                            shapes.push({type:'circle', c: start, r: r});
                             drawAll();
                         }
                     });
