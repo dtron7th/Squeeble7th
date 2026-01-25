@@ -2,7 +2,7 @@
     padding: 0px;
     margin: 0px;
     font-family: "DOS";
-    font-weight: 100; 
+    font-weight: 100;
 }
 
 @font-face {
@@ -32,7 +32,7 @@
     --Main_Text_Color_1: rgb(255, 255, 255);
     --Main_Text_Color_2: rgb(0, 0, 0);
     --Main_Text_Color_3: rgb(255, 255, 255);
-    --Header_Text_Color: rgb(255, 255, 255);
+    --Header_Text_Color: rgba(255, 255, 255, 0.151);
     --Main_Window_Color-1: rgb(0, 143, 97);
     --Main_Window_Color-2: rgb(0, 0, 0);
     --Main_Window_Header_Color-1: rgb(218, 218, 218);
@@ -46,7 +46,7 @@
 
     --UI-Buttons-Fields-Color-1: rgba(0, 0, 0, 0.486);
     --UI-Buttons-Fields-Color-2: rgb(44, 44, 44);
-    --UI-Buttons-Fields-Color-3: rgb(0, 21, 46);
+    --UI-Buttons-Fields-Color-3: rgb(120, 129, 81);
     --UI-Buttons-Fields-Color-4: rgb(0, 0, 0);
     --UI-Buttons-Fields-Color-5: rgb(0, 0, 0);
 
@@ -87,6 +87,8 @@
 
     --Progress_Bar_Background: rgb(255, 255, 255);
     --Progress_Bar_Fill: rgb(0, 105, 97);
+
+    --Detection_Window_Background: rgba(0, 0, 0, 0.336);
 }
 
 

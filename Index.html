@@ -21,10 +21,10 @@
         }
     </style>
 
-    <div class="Main">
+    <div class="Main_Phone">
 
         <style aria-label="Main_Style">
-            .Main {
+            .Main_Phone {
                 width: 100dvw;
                 height: 100dvh;
                 scroll-snap-type: y mandatory;
@@ -35,6 +35,100 @@
             
             
         </style>
+
+        <div class="Is_Phone_Detected">
+            <div class="Phone_Detection_Window">
+                <p>You're using a phone, you can download the game and play on android or IOS</p>
+
+                <div class="Phone_Icons">
+                    <img src="/Images/Icons/Corprate Icons/android.png" alt="">
+                    <img src="/Images/Icons/Corprate Icons/apple.png" alt="">
+                </div>
+                <button class="Accept_Phone">Accept</button>
+            </div>
+            <style aria-label="Phone_Detection_Style">
+                .Is_Phone_Detected {
+                    position: fixed;
+                    width: 100dvw;
+                    height: 100dvh;
+                    background-color: var(--Detection_Window_Background);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10;
+                    backdrop-filter: var(--Back_Drop);
+                    display: none;
+                }
+
+                .Is_Phone_Detected > .Phone_Detection_Window {
+                    position: relative;
+                    width: 300px;
+                    height: 200px;
+                    background-color: var(--UI-Buttons-Fields-Color-1);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .Is_Phone_Detected > .Phone_Detection_Window > p {
+                    position: absolute;
+                    top: 50px;
+                    color: var(--Main_Text_Color_1);
+                    font-size: var(--Main_Text_1);
+                    text-align: center;
+                    width: 180px;
+                }
+
+                .Is_Phone_Detected > .Phone_Detection_Window > .Phone_Icons {
+                    position: absolute;
+                    top: 100px;
+                    display: flex;
+                    flex-direction: row;
+                    gap: 20px;
+                }
+
+                .Is_Phone_Detected > .Phone_Detection_Window > .Phone_Icons > img {
+                    width: 30px;
+                    
+                }
+
+                .Is_Phone_Detected > .Phone_Detection_Window > button {
+                    position: absolute;
+                    bottom: 20px;
+                    width: 160px;
+                    height: 30px;
+                }
+
+            </style>
+        </div>
+
+        <script aria-label="Phone_Check">
+            (function(){
+                // basic mobile detection
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                    || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)
+                    || Math.min(window.screen.width, window.screen.height) <= 768;
+
+                const accepted = (() => {
+                    try { return localStorage.getItem('phoneDetectedAccepted'); } catch(e) { return null; }
+                })();
+
+                const phoneDetectedEl = document.querySelector('.Is_Phone_Detected');
+
+                if (isMobile && phoneDetectedEl && !accepted) {
+                    phoneDetectedEl.style.display = 'flex';
+                }
+
+                const acceptBtn = document.querySelector('.Accept_Phone');
+                if (acceptBtn) {
+                    acceptBtn.addEventListener('click', () => {
+                        if (phoneDetectedEl) phoneDetectedEl.style.display = 'none';
+                        try { localStorage.setItem('phoneDetectedAccepted', '1'); } catch(e) {}
+                    });
+                }
+            })();
+
+        </script>
 
         <div class="Top_Menu">
             <div class="Menu_Options">
@@ -49,7 +143,8 @@
                     position: fixed;
                     width: 100dvw;
                     height: 40px;
-                    border-bottom: 1px solid var(--Main_Border);
+                    background-color: rgba(0, 0, 0, 0.199);
+                    backdrop-filter: var(--Back_Drop);
                     display: flex;
                     flex-direction: row;
                     justify-content: center;
@@ -75,6 +170,7 @@
                     width: 100dvw;
                     height: 100dvh;
                     scroll-snap-align: start;
+                    
                 }
             
             </style>
@@ -169,7 +265,7 @@
             </div>
 
             <div class="Profile_Button">
-                <button class="Profile"><img src="/Images/Profile Pics/c3075b98-c174-4d63-8d3a-7f8ace5bc5d6.jpeg" alt=""></button>
+                <button class="Profile"><img src="/Images/Profile Pics/render.png" alt=""></button>
                 <style aria-label="Profile_Style">
                     .Profile_Button {
                         position: absolute;
@@ -249,7 +345,8 @@
                         height: 30px;
                         font-size: var(--Main_Text_1);
                         color: var(--Main_Text_Color_1);
-                        background-color: var(--UI-Buttons-Fields-Color_Active-3);
+                        background-color: var(--UI-Buttons-Fields-Color-3);
+                        border-radius: 15px;
                     }
 
                     .Search_Oponets > p {
@@ -262,13 +359,13 @@
 
             <div class="Side_Bar">
                 <div class="Side_Bar_Menu">
-                    <button></button>
-                    <button></button>
-                    <button></button>
-                    <button></button>
-                    <button></button>
-                    <button></button>
+                    <button class="Side_Bar_Friends"></button>
+                    <button class="Side_Bar_Market"></button>
+                    <button class="Side_Bar_Ranks"></button>
+                    <button class="Side_Bar_Nations"></button>
+                    <button class="Side_Bar_Cash_Out"></button>
                 </div>
+
                 <style aria-label="Side_Bar_Style">
                     .Side_Bar {
                         position: absolute;
@@ -286,9 +383,10 @@
 
                     .Side_Bar > .Side_Bar_Menu > button {
                         width: 30px;
-                        height: 40px;
+                        height: 30px;
                         background-color: var(--UI-Buttons-Fields-Color-1);
                         backdrop-filter: blur(10px);
+                        border-radius: var(--Border-Radius-4);
                     }
 
                     .Side_Bar > .Side_Bar_Menu > button > img {
@@ -298,17 +396,90 @@
                 </style>
             </div>
 
+            <div class="Side_Bar_Windows">
+                    <div class="Side_Bar_Windows_Container .Friends">
+                        <div class="Header">
+                            <span class="Close_Window">[ Close ]</span>
+                            <div class="Header_Bar">
+                                <button class="Header_Bar_Button"></button>
+                                <button class="Header_Bar_Button"></button>
+                                <button class="Header_Bar_Button"></button>
+                                <button class="Header_Bar_Button"></button>
+                            </div>
+                            <div class="Main_Content">
+                                <div class="Friends_List">
+
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <style aria-label="Side_Bar_Windows_Styles">
+
+                        .Side_Bar_Windows_Container {
+                            position: absolute;
+                            width: calc(100% - 60px);
+                            height: calc(100% - 20px);
+                            left: 50px;
+                            top: 10px;
+                            background-color: var(--UI-Buttons-Fields-Color-1);
+                            backdrop-filter: blur(20px);
+                            z-index: 6;
+                            display: none;
+                        }
+
+                        .Side_Bar_Windows_Container > .Header > .Header_Bar {
+                            position: absolute;
+                            left: 10px;
+                            display: flex;
+                            flex-direction: row;
+                            gap: 10px;
+
+                        }
+
+                        .Side_Bar_Windows_Container > .Header > .Header_Bar > .Header_Bar_Button {
+                            width: 20px;
+                            height: 20px;
+                            border-radius: var(--Border-Radius-4);
+                        }
+
+                        .Side_Bar_Windows_Container > .Header {
+                            width: 100%;
+                            height: 40px;
+                            display: flex;
+                            align-items: center;
+                            background-color: var(--Header_Text_Color);
+                        }
+
+                        .Side_Bar_Windows_Container > .Header .Close_Window {
+                            position: absolute;
+                            right: 10px;
+                            color: var(--Main_Text_Color_1);
+                            font-size: var(--Main_Text_1);
+                        }
+
+                    </style>
+                </div>
+
             <div class="User_Game_Information">
                 <style>
                     .User_Game_Information {
-                     
+                        position: absolute;
+                        top: 260px;
+                        left: 50px;
+                        width: calc(100% - 60px);
+                        height: calc(100% - 270px);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        overflow-y: scroll;
                     }
 
                     .User_Game_Information > .Game_Stats {
                         position: absolute;
-                        bottom: 10px;
-                        left: 50px;
-                        width: calc(100% - 60px);
+                        top: 0px;
+                        left: 0px;
+                        width: 100%;
                         height: auto;
                         display: flex;
                         flex-direction: column;
@@ -380,6 +551,64 @@
                         border-radius: var(--Border-Radius-4);
                     }
 
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers {
+                        position: absolute;
+                        right: 10px;
+                        top: 10px;
+                        width: calc(100% - 130px);
+                        height: 40px;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div {
+                        position: absolute;
+                        width: 100%;
+                        height: 60px;
+                        background-color: var(--UI-Buttons-Fields-Color-1);
+                        border-radius: var(--Border-Radius-3);
+                        overflow: hidden;
+                        overflow-x: scroll;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span {
+                        min-width: 50px;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.137);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span > img {
+                        margin-top: 10px;
+                        width: 30px;
+                        
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span > p {
+                        position: absolute;
+                        bottom: 5px;
+                        font-size: var(--Main_Text_1);
+                        color: var(--Main_Text_Color_1);
+                        
+                    }
+
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Infantry {
+                        display: flex;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Machine {
+                        display: none;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Air {
+                        display: none;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Sea {
+                        display: none;
+                    }
+
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stat_Bottom_Buttons {
                         position: absolute;
                         right: 10px;
@@ -395,23 +624,13 @@
                         border-radius: var(--Border-Radius-3);
                     }
 
-                    .User_Game_Information > .Window {
-                        position: absolute;
-                        width: 100%;
-                        height: 100%;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        backdrop-filter: var(--Back_Drop);
-                        border-radius: var(--Border-Radius-3);
-                        display: flex;
-                        justify-content: center;
-                        display: none;
-                    }
+                    
                 </style>
 
                 <div class="Game_Stats">
                     <div class="Player_Stat">
                         <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/09ff4c82-1598-4d5e-a986-048808d8e328.jpeg" alt="">
+                            <img class="Stats_Profile" src="/Images/Profile Pics/render (3).png" alt="">
                             <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
                         </div>
                         <div class="Stats_Military_List">
@@ -420,92 +639,85 @@
                             <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
                             <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
                         </div>
-                        
-                        <div class="Stat_Bottom_Buttons">
-                            <button class="Stats_View_Player_Military">View</button>
-                            <button class="Stats_Battle_Player">Battle</button>
-                        </div>
-                    </div>
-                    
-                    <div class="Player_Stat">
-                        <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/09ff4c82-1598-4d5e-a986-048808d8e328.jpeg" alt="">
-                            <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
-                        </div>
-                        <div class="Stats_Military_List">
-                            <button class="Stats_Military_Infantry"><img src="/Images/Icons/UI/Rifle.png" alt=""></button>
-                            <button class="Stats_Military_Machine"><img src="/Images/Icons/UI/Tank.png" alt=""></button>
-                            <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
-                            <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
-                        </div>
-                        
-                        <div class="Stat_Bottom_Buttons">
-                            <button class="Stats_View_Player_Military">View</button>
-                            <button class="Stats_Battle_Player">Battle</button>
-                        </div>
-                    </div>
 
-                    <div class="Player_Stat">
-                        <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/09ff4c82-1598-4d5e-a986-048808d8e328.jpeg" alt="">
-                            <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
-                        </div>
-                        <div class="Stats_Military_List">
-                            <button class="Stats_Military_Infantry"><img src="/Images/Icons/UI/Rifle.png" alt=""></button>
-                            <button class="Stats_Military_Machine"><img src="/Images/Icons/UI/Tank.png" alt=""></button>
-                            <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
-                            <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
+                        <div class="Stats_Military_Numbers">
+                            <div class="Stats_Military_Numbers_Infantry">
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/DW_2_cropped.webp" alt=""><p>2.4K</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/STA-1_cropped.webp" alt=""><p>4.2K</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T20_cropped.webp" alt=""><p>1.0K</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T67_cropped.webp" alt=""><p>130</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T_55A_cropped.webp" alt=""><p>20</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/DW_2_cropped.webp" alt=""><p>460</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/STA-1_cropped.webp" alt=""><p>4.2K</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T20_cropped.webp" alt=""><p>1.0K</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T67_cropped.webp" alt=""><p>130</p></span>
+                                <span><img src="/Images/Icons/Stats_Military_Numbers/T_55A_cropped.webp" alt=""><p>20</p></span>
+                            </div>
+                            <div class="Stats_Military_Numbers_Machine">
+                                
+                            </div>
+                            <div class="Stats_Military_Numbers_Air">
+                                
+                            </div>
+                            <div class="Stats_Military_Numbers_Sea">
+                                
+                            </div>
                         </div>
                         
                         <div class="Stat_Bottom_Buttons">
                             <button class="Stats_View_Player_Military">View</button>
                             <button class="Stats_Battle_Player">Battle</button>
                         </div>
+
+                        <script aria-label="Player_Stat_Script">
+                            const infantryButton = document.querySelector('.Stats_Military_Infantry');
+                            const machineButton = document.querySelector('.Stats_Military_Machine');
+                            const airButton = document.querySelector('.Stats_Military_Air');
+                            const seaButton = document.querySelector('.Stats_Military_Sea');
+
+                            const infantryNumbers = document.querySelector('.Stats_Military_Numbers_Infantry');
+                            const machineNumbers = document.querySelector('.Stats_Military_Numbers_Machine');
+                            const airNumbers = document.querySelector('.Stats_Military_Numbers_Air');
+                            const seaNumbers = document.querySelector('.Stats_Military_Numbers_Sea');
+
+                            infantryButton.addEventListener('click', () => {
+                                infantryNumbers.style.display = 'flex';
+                                machineNumbers.style.display = 'none';
+                                airNumbers.style.display = 'none';
+                                seaNumbers.style.display = 'none';
+                            });
+
+                            machineButton.addEventListener('click', () => {
+                                infantryNumbers.style.display = 'none';
+                                machineNumbers.style.display = 'flex';
+                                airNumbers.style.display = 'none';
+                                seaNumbers.style.display = 'none';
+                            });
+
+                            airButton.addEventListener('click', () => {
+                                infantryNumbers.style.display = 'none';
+                                machineNumbers.style.display = 'none';
+                                airNumbers.style.display = 'flex';
+                                seaNumbers.style.display = 'none';
+                            });
+
+                            seaButton.addEventListener('click', () => {
+                                infantryNumbers.style.display = 'none';
+                                machineNumbers.style.display = 'none';
+                                airNumbers.style.display = 'none';
+                                seaNumbers.style.display = 'flex';
+                            });
+
+                        </script>
                     </div>
-
-                    <div class="Player_Stat">
-                        <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/09ff4c82-1598-4d5e-a986-048808d8e328.jpeg" alt="">
-                            <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
-                        </div>
-                        <div class="Stats_Military_List">
-                            <button class="Stats_Military_Infantry"><img src="/Images/Icons/UI/Rifle.png" alt=""></button>
-                            <button class="Stats_Military_Machine"><img src="/Images/Icons/UI/Tank.png" alt=""></button>
-                            <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
-                            <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
-                        </div>
-                        
-                        <div class="Stat_Bottom_Buttons">
-                            <button class="Stats_View_Player_Military">View</button>
-                            <button class="Stats_Battle_Player">Battle</button>
-                        </div>
-                    </div>
-
-                    <div class="Player_Stat">
-                        <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/09ff4c82-1598-4d5e-a986-048808d8e328.jpeg" alt="">
-                            <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
-                        </div>
-                        <div class="Stats_Military_List">
-                            <button class="Stats_Military_Infantry"><img src="/Images/Icons/UI/Rifle.png" alt=""></button>
-                            <button class="Stats_Military_Machine"><img src="/Images/Icons/UI/Tank.png" alt=""></button>
-                            <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
-                            <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
-                        </div>
-                        
-                        <div class="Stat_Bottom_Buttons">
-                            <button class="Stats_View_Player_Military">View</button>
-                            <button class="Stats_Battle_Player">Battle</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="Window">
-
                 </div>
             </div>
            
         </section>
+    </div>
+
+    <div class="Main_desktop">
+
     </div>
 </body>
 </html>
