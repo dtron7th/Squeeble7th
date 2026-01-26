@@ -170,7 +170,7 @@
                     width: 100dvw;
                     height: 100dvh;
                     scroll-snap-align: start;
-                    
+                    display: none;
                 }
             
             </style>
@@ -278,11 +278,7 @@
                     .Profile_Button > .Profile {
                         width: 30px;
                         height: 30px;
-                        border: none;
                         background-color: transparent;
-                        cursor: pointer;
-                        overflow: hidden;
-                        border-radius: 50%;
                     }
 
                     .Profile_Button > .Profile > img {
@@ -344,7 +340,6 @@
                         font-size: var(--Main_Text_1);
                         color: var(--Main_Text_Color_1);
                         background-color: var(--UI-Buttons-Fields-Color-3);
-                        border-radius: 15px;
                     }
 
                     .Search_Oponets > p {
@@ -384,7 +379,6 @@
                         height: 30px;
                         background-color: var(--UI-Buttons-Fields-Color-1);
                         backdrop-filter: blur(10px);
-                        border-radius: var(--Border-Radius-4);
                     }
 
                     .Side_Bar > .Side_Bar_Menu > button > img {
@@ -395,69 +389,68 @@
             </div>
 
             <div class="Side_Bar_Windows">
-                    <div class="Side_Bar_Windows_Container .Friends">
-                        <div class="Header">
-                            <span class="Close_Window">[ Close ]</span>
-                            <div class="Header_Bar">
-                                <button class="Header_Bar_Button"></button>
-                                <button class="Header_Bar_Button"></button>
-                                <button class="Header_Bar_Button"></button>
-                                <button class="Header_Bar_Button"></button>
-                            </div>
-                            <div class="Main_Content">
-                                <div class="Friends_List">
+                <div class="Side_Bar_Windows_Container .Friends">
+                    <div class="Header">
+                        <span class="Close_Window">[ Close ]</span>
+                        <div class="Header_Bar">
+                            <button class="Header_Bar_Button"></button>
+                            <button class="Header_Bar_Button"></button>
+                            <button class="Header_Bar_Button"></button>
+                            <button class="Header_Bar_Button"></button>
+                        </div>
+                        <div class="Main_Content">
+                            <div class="Friends_List">
 
-                                </div>
                             </div>
                         </div>
-                        
                     </div>
-                    <style aria-label="Side_Bar_Windows_Styles">
-
-                        .Side_Bar_Windows_Container {
-                            position: absolute;
-                            width: calc(100% - 60px);
-                            height: calc(100% - 20px);
-                            left: 50px;
-                            top: 10px;
-                            background-color: var(--UI-Buttons-Fields-Color-1);
-                            backdrop-filter: blur(20px);
-                            z-index: 6;
-                            display: none;
-                        }
-
-                        .Side_Bar_Windows_Container > .Header > .Header_Bar {
-                            position: absolute;
-                            left: 10px;
-                            display: flex;
-                            flex-direction: row;
-                            gap: 10px;
-
-                        }
-
-                        .Side_Bar_Windows_Container > .Header > .Header_Bar > .Header_Bar_Button {
-                            width: 20px;
-                            height: 20px;
-                            border-radius: var(--Border-Radius-4);
-                        }
-
-                        .Side_Bar_Windows_Container > .Header {
-                            width: 100%;
-                            height: 40px;
-                            display: flex;
-                            align-items: center;
-                            background-color: var(--Header_Text_Color);
-                        }
-
-                        .Side_Bar_Windows_Container > .Header .Close_Window {
-                            position: absolute;
-                            right: 10px;
-                            color: var(--Main_Text_Color_1);
-                            font-size: var(--Main_Text_1);
-                        }
-
-                    </style>
+                    
                 </div>
+                <style aria-label="Side_Bar_Windows_Styles">
+
+                    .Side_Bar_Windows_Container {
+                        position: absolute;
+                        width: calc(100% - 60px);
+                        height: calc(100% - 20px);
+                        left: 50px;
+                        top: 10px;
+                        background-color: var(--UI-Buttons-Fields-Color-1);
+                        backdrop-filter: blur(20px);
+                        z-index: 6;
+                        display: none;
+                    }
+
+                    .Side_Bar_Windows_Container > .Header > .Header_Bar {
+                        position: absolute;
+                        left: 10px;
+                        display: flex;
+                        flex-direction: row;
+                        gap: 10px;
+
+                    }
+
+                    .Side_Bar_Windows_Container > .Header > .Header_Bar > .Header_Bar_Button {
+                        width: 20px;
+                        height: 20px;
+                    }
+
+                    .Side_Bar_Windows_Container > .Header {
+                        width: 100%;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        background-color: var(--Header_Text_Color);
+                    }
+
+                    .Side_Bar_Windows_Container > .Header .Close_Window {
+                        position: absolute;
+                        right: 10px;
+                        color: var(--Main_Text_Color_1);
+                        font-size: var(--Main_Text_1);
+                    }
+
+                </style>
+            </div>
 
             <div class="User_Game_Information">
                 <style>
@@ -492,7 +485,6 @@
                         height: 130px;
                         background-color: var(--UI-Buttons-Fields-Color-1);
                         backdrop-filter: var(--Back_Drop);
-                        border-radius: var(--Border-Radius-3);
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -511,7 +503,12 @@
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Profile  {
                         width: 30px;
                         height: 30px;
-                        border-radius: var(--Border-Radius-4);
+                        background-color: transparent;
+                    }
+
+                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Profile > img {
+                        width: 30px;
+                        height: 30px;
                     }
 
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Player_Points {
@@ -540,13 +537,13 @@
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_List > button {
                         width: 20px;
                         height: 20px;
-                        border-radius: var(--Border-Radius-4);
+                        
                     }
 
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_List > button > img {
                         width: 15px;
                         height: 15px;
-                        border-radius: var(--Border-Radius-4);
+                        
                     }
 
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers {
@@ -562,7 +559,6 @@
                         width: 100%;
                         height: 60px;
                         background-color: var(--UI-Buttons-Fields-Color-1);
-                        border-radius: var(--Border-Radius-3);
                         overflow: hidden;
                         overflow-x: scroll;
                     }
@@ -619,7 +615,6 @@
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stat_Bottom_Buttons > button {
                         width: 70px;
                         height: 20px;
-                        border-radius: var(--Border-Radius-3);
                     }
 
                     
@@ -628,7 +623,72 @@
                 <div class="Game_Stats">
                     <div class="Player_Stat">
                         <div class="Player_Basic_Information">
-                            <img class="Stats_Profile" src="/Images/Profile Pics/render (3).png" alt="">
+                            <button class="Stats_Profile"><img src="/Images/Profile Pics/render (3).png" alt=""></button>
+
+                            <div class="Player_Stat_PBI_Profile_Menu">
+                                <button class="View_Profile">View Profile</button>
+
+                                <style aria-label="Profile_Menu_Style">
+
+                                    .Player_Stat_PBI_Profile_Menu {
+                                        position: absolute;
+                                        top: 40px;
+                                        width: 120px;
+                                        height: auto;
+                                        flex-direction: column;
+                                        z-index: 7;
+                                        opacity: 0;
+                                        transform: scale(0.95);
+                                        pointer-events: none;
+                                        transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
+                                    }
+
+                                    .Player_Stat_PBI_Profile_Menu.menu-visible {
+                                        display: flex;
+                                        opacity: 1;
+                                        transform: scale(1);
+                                        pointer-events: auto;
+                                    }
+
+                                    .Player_Stat_PBI_Profile_Menu > button {
+                                        width: 100%;
+                                        height: 30px;
+                                        font-size: var(--Main_Text_1);
+                                        color: var(--Main_Text_Color_1);
+                                        background-color: var(--UI-Buttons-Fields-Color-2);
+                                    }
+                                </style>
+
+                                <script aria-label="Player_Stat_PBI_Profile_Menu_Script">
+                                    (function(){
+                                        const statsProfileBtn = document.querySelector('.Stats_Profile');
+                                        const profileMenu = document.querySelector('.Player_Stat_PBI_Profile_Menu');
+                                        if(statsProfileBtn && profileMenu) {
+                                            statsProfileBtn.addEventListener('click', function(e) {
+                                                e.stopPropagation();
+                                                if (profileMenu.classList.contains('menu-visible')) {
+                                                    profileMenu.classList.remove('menu-visible');
+                                                    setTimeout(() => { profileMenu.style.display = 'none'; }, 250);
+                                                } else {
+                                                    profileMenu.style.display = 'flex';
+                                                    // Force reflow for transition
+                                                    void profileMenu.offsetWidth;
+                                                    profileMenu.classList.add('menu-visible');
+                                                }
+                                            });
+                                            // Hide menu if clicking outside
+                                            document.addEventListener('click', function(e) {
+                                                if (!profileMenu.contains(e.target) && e.target !== statsProfileBtn) {
+                                                    profileMenu.classList.remove('menu-visible');
+                                                    setTimeout(() => { profileMenu.style.display = 'none'; }, 250);
+                                                }
+                                            });
+                                            // Ensure menu is hidden initially
+                                            profileMenu.style.display = 'none';
+                                        }
+                                    })();
+                                </script>
+                            </div>
                             <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
                         </div>
                         <div class="Stats_Military_List">
