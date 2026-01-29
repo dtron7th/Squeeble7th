@@ -36,6 +36,7 @@
             
         </style>
 
+        <!-- ANCHOR: MOBILE_DETECTION - Phone detection logic -->
         <div class="Is_Phone_Detected">
             <div class="Phone_Detection_Window">
                 <p>You're using a phone, you can download the game and play on android or IOS</p>
@@ -102,6 +103,8 @@
             </style>
         </div>
 
+        <!-- ANCHOR: PHONE_CHECK -->
+
         <script aria-label="Phone_Check">
             (function(){
                 // Check for server-side mobile detection first
@@ -149,6 +152,8 @@
             })();
         </script>
 
+        <!-- ANCHOR: MENU_UTILITIES -->
+
         <script aria-label="Menu_Utilities">
             // ensure only one menu is open at a time
             (function(){
@@ -195,6 +200,61 @@
             })();
         </script>
 
+        <!-- ANCHOR: WINDOWS_DRAGGING -->
+
+        <script aria-label="Windows_Dragging">
+
+            // make all windows draggable
+            (function(){
+                console.log('DRAG SCRIPT LOADED -', new Date().toLocaleTimeString());
+                const windows = document.querySelectorAll('.Test_Square');
+                console.log('Found test squares:', windows.length);
+                for (let i = 0; i < windows.length; i++) {
+                    const win = windows[i];
+                    win.addEventListener('pointerdown', startDrag);
+                    win.style.cursor = 'move';
+                }
+                function startDrag(e) {
+                    console.log('Drag started at', new Date().toLocaleTimeString());
+                    e.preventDefault();
+                    const win = e.target;
+                    const rect = win.getBoundingClientRect();
+                    const offsetX = e.clientX - rect.left;
+                    const offsetY = e.clientY - rect.top;
+                    win.setPointerCapture(e.pointerId);
+                    win.addEventListener('pointermove', moveDrag, false);
+                    win.addEventListener('pointerup', stopDrag, false);
+                    win.addEventListener('pointercancel', stopDrag, false);
+                    function moveDrag(e) {
+                        win.style.position = 'fixed';
+                        win.style.left = (e.clientX - offsetX) + 'px';
+                        win.style.top = (e.clientY - offsetY) + 'px';
+                    }
+                    function stopDrag(e) {
+                        console.log('Drag ended at', new Date().toLocaleTimeString());
+                        win.releasePointerCapture(e.pointerId);
+                        win.removeEventListener('pointermove', moveDrag, false);
+                        win.removeEventListener('pointerup', stopDrag, false);
+                        win.removeEventListener('pointercancel', stopDrag, false);
+                    }
+                }
+            })();
+            
+            
+            
+            
+        </script>
+
+        <!-- ANCHOR: WINDOW_GRID_SNAP -->
+
+        <script aria-label="Window_Grid_Snap ">
+            
+
+        </script>
+
+        
+
+        <!-- ANCHOR: TOP_MENU - Navigation menu -->
         <div class="Top_Menu">
             <div class="Menu_Options">
                 <a href="/Index.html" class="Menu_Link">Black Battles</a>
@@ -229,7 +289,6 @@
             </style>
         </div>
         <section class="Index_Page_1">
-
             <style aria-label="Page_1_Style">
                 .Index_Page_1 {
                     width: 100dvw;
@@ -237,8 +296,9 @@
                     scroll-snap-align: start;
                     display: none;
                 }
-            
             </style>
+            
+            <!-- ANCHOR: PLAY_GAME - Game play section -->
             <div class="Play_Game_Content">
                 <img class="Page_1_Wallpaper" src="/Images/Wallpaper/wp13023157.png" alt="Wallpaper">
                 <img class="Main_Logo" src="/Images/Icons/Logo/Black+Battles+Logo+Transparent.png" alt="">
@@ -327,6 +387,7 @@
                 </style>
             </div>
 
+            <!-- ANCHOR: MAIN_PROFILE - User profile system -->
             <div class="Main_Profile_Container">
                 <button class="Main_Profile"><img src="/Images/Profile Pics/render.png" alt=""></button>
 
@@ -425,7 +486,10 @@
                 </style>
             </div>
 
+            <!-- ANCHOR: MAIN_PROFILE_MENU_WINDOWS - Window_View_Profile -->
+
             <div class="Main_Profile_Menu_Windows">
+
                 <div class="Window Window_View_Profile">
                     <div class="Header">
                         <p class="Title">Profile</p>
@@ -440,8 +504,8 @@
                     
                     .Main_Profile_Menu_Windows > .Window_View_Profile {
                         position: absolute;
-                        top: 0px;
-                        left: 0px;
+                        top: 40px;
+                        left: 40px;
                         width: 260px;
                         height: 200px;
                         background-color: var(--UI-Buttons-Fields-Color-1);
@@ -633,6 +697,19 @@
                 </style>
             </div>
 
+            <div class="Test_Square">
+                <style>
+                    .Test_Square {
+                        position: absolute;
+                        top: 400px;
+                        left: 200px;
+                        width: 100px;
+                        height: 100px;
+                        background-color: red;
+                    }
+                </style>
+            </div>
+
             <div class="User_Game_Information">
                 <style>
                     .User_Game_Information {
@@ -800,12 +877,18 @@
                     
                 </style>
 
+                
+
+                <!-- ANCHOR: GAME_STATS - Player_Stat -->
+
                 <div class="Game_Stats">
                     <div class="Player_Stat">
                         <div class="Player_Basic_Information">
                             <button class="Stats_Profile"><img src="/Images/Profile Pics/render (3).png" alt=""></button>
 
                             <!--Creates the profile menu class="Player_Stat_PBI_Profile_Menu"-->
+
+                            <!-- ANCHOR: GAME_STATS - Player_Stat_PBI_Profile_Menu -->
                             <div class="Player_Stat_PBI_Profile_Menu">
                                 <button class="View_Profile">View Profile</button>
 
@@ -951,64 +1034,7 @@
             </div>
         </section>
 
-        <script aria-label="Essentials">
-            (function(){
-                // make any element with class "Window" draggable via pointer events
-                // only start dragging when the user interacts with the window's .Header
-                const windows = Array.from(document.querySelectorAll('.Window'));
-                if (!windows.length) return;
-
-                let topZ = 100;
-
-                windows.forEach(win => {
-                    // ensure absolute positioning so we can move it
-                    const rect = win.getBoundingClientRect();
-                    if (getComputedStyle(win).position === 'static') {
-                        win.style.position = 'absolute';
-                        win.style.left = rect.left + 'px';
-                        win.style.top = rect.top + 'px';
-                    }
-
-                    win.style.touchAction = 'none';
-                    win.style.cursor = 'grab';
-
-                    const header = win.querySelector('.Header') || win; // fallback to whole window
-                    // use header as handle for pointer events
-                    header.addEventListener('pointerdown', function onPointerDown(e){
-                        // only left button
-                        if (e.button && e.button !== 0) return;
-                        e.preventDefault();
-
-                        // bring to front
-                        win.style.zIndex = ++topZ;
-                        try { header.setPointerCapture(e.pointerId); } catch (err) {}
-                        win.style.cursor = 'grabbing';
-
-                        const startX = e.clientX;
-                        const startY = e.clientY;
-                        const startLeft = parseFloat(win.style.left || 0);
-                        const startTop = parseFloat(win.style.top || 0);
-
-                        function onPointerMove(ev){
-                            const dx = ev.clientX - startX;
-                            const dy = ev.clientY - startY;
-                            win.style.left = (startLeft + dx) + 'px';
-                            win.style.top = (startTop + dy) + 'px';
-                        }
-
-                        function onPointerUp(ev){
-                            try { header.releasePointerCapture(ev.pointerId); } catch(e){}
-                            win.style.cursor = 'grab';
-                            document.removeEventListener('pointermove', onPointerMove);
-                            document.removeEventListener('pointerup', onPointerUp);
-                        }
-
-                        document.addEventListener('pointermove', onPointerMove);
-                        document.addEventListener('pointerup', onPointerUp);
-                    });
-                });
-            })();
-        </script>
+        
     </div>
     
 
