@@ -1,0 +1,75 @@
+{
+  "mode": "all",
+  "bookmarks": [
+    {
+      "id": "v9EC3F0",
+      "label": "Main_Profile_Menu",
+      "path": "__root__\\Index.html",
+      "params": "0,369,47,369,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9ECbRI",
+      "label": "Player_Stat_PBI_Profile_Menu",
+      "path": "__root__\\Index.html",
+      "params": "0,844,70,844,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9ECAhw",
+      "label": "Essentials",
+      "path": "__root__\\Index.html",
+      "params": "0,1044,40,1044,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9ECElj",
+      "label": "Menu_Utilities",
+      "path": "__root__\\Index.html",
+      "params": "0,187,44,187,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9EEnq2",
+      "label": "Side_Bar",
+      "path": "__root__\\Index.html",
+      "params": "0,569,34,569,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9EJcgm",
+      "label": "Main_Profile_Menu_Windows",
+      "path": "__root__\\Index.html",
+      "params": "0,463,51,463,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9EJCZu",
+      "label": "Main_Profile_Menu_Windows_Sub",
+      "path": "__root__\\Index.html",
+      "params": "0,494,55,494,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9EJMBn",
+      "label": "Main_Profile_Menu_Windows_Dialog",
+      "path": "__root__\\Index.html",
+      "params": "0,501,58,501,0,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9F5WCB",
+      "label": "root",
+      "path": "__root__\\CSS\\UI.css",
+      "params": "0,16,1,16,5,undefined,undefined,undefined,undefined",
+      "subs": []
+    },
+    {
+      "id": "v9F6amV",
+      "label": "Window",
+      "path": "__root__\\CSS\\UI.css",
+      "params": "0,93,2,93,2,undefined,undefined,undefined,undefined",
+      "subs": []
+    }
+  ]
+}

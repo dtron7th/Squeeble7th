@@ -32,10 +32,10 @@
     --Main_Text_Color_1: rgb(255, 255, 255);
     --Main_Text_Color_2: rgb(0, 0, 0);
     --Main_Text_Color_3: rgb(255, 255, 255);
-    --Header_Text_Color: rgba(255, 255, 255, 0.151);
+    --Header_Text_Color: rgba(255, 255, 255, 0);
     --Main_Window_Color-1: rgb(0, 143, 97);
     --Main_Window_Color-2: rgb(0, 0, 0);
-    --Main_Window_Header_Color-1: rgb(218, 218, 218);
+    --Main_Window_Header_Color-1: rgba(255, 255, 255, 0.068);
     --Login_Window_Color-1: rgb(0, 0, 0);
     --Login_Window_Color-2: rgb(255, 255, 255);
     --Dropdown_Window_Color: rgba(0, 0, 0, 0.1);
@@ -91,7 +91,43 @@
     --Detection_Window_Background: rgba(0, 0, 0, 0.336);
 }
 
+.Window {
+    
+}
 
+.Window > .Header {
+    width: 100%;
+    height: 30px;
+    background-color: var(--Main_Window_Header_Color-1);
+    display: flex;
+    align-items: center;
+}
+
+.Window > .Header > .Title {
+    position: absolute;
+    left: 10px;
+    font-size: var(--Main_Text_1);
+    color: var(--Main_Text_Color);
+}
+
+.Window > .Header > .Close_Button {
+    position: absolute;
+    right: 10px;
+    font-size: var(--Main_Text_1);
+    color: var(--Main_Text_Color);
+}
+
+
+
+.Window > .Content {
+    position: absolute;
+    top: 30px; 
+    width: 100%;
+    height: calc(100% - 30px);
+    display: flex;
+    justify-content: center;
+
+}
 
 input {
     border: none;

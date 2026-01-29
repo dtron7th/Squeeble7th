@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blaack Battles</title>
+    <title>Black Battles</title>
 
     <link rel="stylesheet" href="CSS/UI.css">
 
@@ -104,10 +104,17 @@
 
         <script aria-label="Phone_Check">
             (function(){
-                // basic mobile detection
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                // Check for server-side mobile detection first
+                const serverMobile = document.querySelector('meta[name="mobile-view"]');
+                const isServerMobile = serverMobile?.content === 'true';
+                
+                // Enhanced mobile detection
+                const isMobile = isServerMobile || 
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)
-                    || Math.min(window.screen.width, window.screen.height) <= 768;
+                    || Math.min(window.screen.width, window.screen.height) <= 768
+                    || window.location.search.includes('force=mobile')
+                    || window.location.pathname.includes('/mobile');
 
                 const accepted = (() => {
                     try { return localStorage.getItem('phoneDetectedAccepted'); } catch(e) { return null; }
@@ -115,8 +122,12 @@
 
                 const phoneDetectedEl = document.querySelector('.Is_Phone_Detected');
 
+                // Always show mobile detection on mobile or when forced
                 if (isMobile && phoneDetectedEl && !accepted) {
                     phoneDetectedEl.style.display = 'flex';
+                    
+                    // Add mobile class to body for styling
+                    document.body.classList.add('mobile-device');
                 }
 
                 const acceptBtn = document.querySelector('.Accept_Phone');
@@ -126,8 +137,62 @@
                         try { localStorage.setItem('phoneDetectedAccepted', '1'); } catch(e) {}
                     });
                 }
-            })();
 
+                // Log mobile detection for debugging
+                console.log('Mobile Detection:', {
+                    isMobile,
+                    isServerMobile,
+                    userAgent: navigator.userAgent,
+                    pathname: window.location.pathname,
+                    search: window.location.search
+                });
+            })();
+        </script>
+
+        <script aria-label="Menu_Utilities">
+            // ensure only one menu is open at a time
+            (function(){
+                if (!window._menuUtils) {
+                    window._menuUtils = {
+                        currentMenu: null,
+                        openMenu(menu){
+                            if (!menu) return;
+                            // close previously opened menu
+                            if (this.currentMenu && this.currentMenu !== menu) {
+                                this.closeMenu(this.currentMenu);
+                            }
+                            // show the menu
+                            menu.style.display = 'flex';
+                            // force reflow for transition
+                            void menu.offsetWidth;
+                            menu.classList.add('menu-visible');
+                            this.currentMenu = menu;
+                        },
+                        closeMenu(menu){
+                            if (!menu) menu = this.currentMenu;
+                            if (!menu) return;
+                            menu.classList.remove('menu-visible');
+                            // hide after transition
+                            setTimeout(() => { menu.style.display = 'none'; }, 250);
+                            if (this.currentMenu === menu) this.currentMenu = null;
+                        }
+                    };
+
+                    // close current menu when clicking/tapping outside of it
+                    document.addEventListener('click', function(e){
+                        const cur = window._menuUtils.currentMenu;
+                        if (!cur) return;
+                        if (!cur.contains(e.target) && !e.target.closest('.Main_Profile') && !e.target.closest('.Stats_Profile')) {
+                            window._menuUtils.closeMenu(cur);
+                        }
+                    });
+
+                    // close on Escape
+                    document.addEventListener('keydown', function(e){
+                        if (e.key === 'Escape') window._menuUtils.closeMenu();
+                    });
+                }
+            })();
         </script>
 
         <div class="Top_Menu">
@@ -262,10 +327,81 @@
                 </style>
             </div>
 
-            <div class="Profile_Button">
-                <button class="Profile"><img src="/Images/Profile Pics/render.png" alt=""></button>
-                <style aria-label="Profile_Style">
-                    .Profile_Button {
+            <div class="Main_Profile_Container">
+                <button class="Main_Profile"><img src="/Images/Profile Pics/render.png" alt=""></button>
+
+                <!--Creates the profile menu class="Main_Profile_Menu"-->
+                <div class="Main_Profile_Menu">
+                    <button class="View_Profile">View Profile</button>
+                    <button class="View_Profile">Settings</button>
+                    <button class="View_Profile">Logout</button>
+
+                    <style aria-label="Main_Profile_Menu_Style">
+                        .Main_Profile_Menu {
+                            position: absolute;
+                            top: 40px;
+                            left: -90px;
+                            width: 120px;
+                            height: auto;
+                            flex-direction: column;
+                            z-index: 7;
+                            opacity: 0;
+                            transform: scale(0.95);
+                            pointer-events: none;
+                            transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
+                        }
+
+                        .Main_Profile_Menu.menu-visible {
+                            display: flex;
+                            opacity: 1;
+                            transform: scale(1);
+                            pointer-events: auto;
+                        }
+
+                        .Main_Profile_Menu > button {
+                            width: 100%;
+                            height: 30px;
+                            font-size: var(--Main_Text_1);
+                            color: var(--Main_Text_Color_1);
+                            background-color: var(--UI-Buttons-Fields-Color-2);
+                        }
+
+                        
+
+
+                    </style>
+
+                    <script aria-label="Main_Profile_Menu_Script">
+                        (function(){
+                            const mainProfileBtn = document.querySelector('.Main_Profile');
+                            const mainProfileMenu = document.querySelector('.Main_Profile_Menu');
+                            if(mainProfileBtn && mainProfileMenu) {
+                                mainProfileBtn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    if (mainProfileMenu.classList.contains('menu-visible')) {
+                                        if (window._menuUtils) window._menuUtils.closeMenu(mainProfileMenu);
+                                        else { mainProfileMenu.classList.remove('menu-visible'); setTimeout(() => { mainProfileMenu.style.display = 'none'; }, 250); }
+                                    } else {
+                                        if (window._menuUtils) window._menuUtils.openMenu(mainProfileMenu);
+                                        else { mainProfileMenu.style.display = 'flex'; void mainProfileMenu.offsetWidth; mainProfileMenu.classList.add('menu-visible'); }
+                                    }
+                                });
+                                // Hide menu if clicking outside
+                                document.addEventListener('click', function(e) {
+                                    if (!mainProfileMenu.contains(e.target) && e.target !== mainProfileBtn) {
+                                        if (window._menuUtils) window._menuUtils.closeMenu(mainProfileMenu);
+                                        else { mainProfileMenu.classList.remove('menu-visible'); setTimeout(() => { mainProfileMenu.style.display = 'none'; }, 250); }
+                                    }
+                                });
+                                // Ensure menu is hidden initially
+                                mainProfileMenu.style.display = 'none';
+                            }
+                        })();
+                    </script>
+                </div>
+
+                <style aria-label="Main_Profile_Style">
+                    .Main_Profile_Container {
                         position: absolute;
                         top: 60px;
                         right: 10px;
@@ -275,19 +411,64 @@
                         justify-content: center;
                         align-items: center;
                     }
-                    .Profile_Button > .Profile {
+                    .Main_Profile_Container > .Main_Profile {
                         width: 30px;
                         height: 30px;
                         background-color: transparent;
                     }
 
-                    .Profile_Button > .Profile > img {
+                    .Main_Profile_Container > .Main_Profile > img {
                         width: 30px;
                         height: 30px;
                     }
                     
                 </style>
             </div>
+
+            <div class="Main_Profile_Menu_Windows">
+                <div class="Window Window_View_Profile">
+                    <div class="Header">
+                        <p class="Title">Profile</p>
+                        <button class="Close_Button">[ Close ]</button>
+                    </div>
+                    <div class="Content">
+
+                    </div>
+                </div>
+
+                <style aria-label="Main_Profile_Menu_Windows_Style">
+                    
+                    .Main_Profile_Menu_Windows > .Window_View_Profile {
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        width: 260px;
+                        height: 200px;
+                        background-color: var(--UI-Buttons-Fields-Color-1);
+                        backdrop-filter: var(--Back_Drop);
+                        z-index: 6;
+                    }
+                </style>
+
+                <script aria-label="Main_Profile_Menu_Windows_Script">
+
+                </script>
+
+            </div>
+
+            <div class="Main_Profile_Menu_Windows_Sub">
+                <style  aria-label="Main_Profile_Menu_Windows_Sub_Style">
+                    
+
+                </style>
+            </div>
+
+            <div class="Main_Profile_Menu_Windows_Dialog">
+                <style  aria-label="Main_Profile_Menu_Windows_Dialog_Style">    
+                    
+                </style>
+            </div>
+
             <div class="User_Information">
                 <div class="Points">
                     <span class="Chips"><img src="/Images/Icons/Points Icon/Chip.svg" alt=""> 10K</span>
@@ -586,7 +767,6 @@
                         
                     }
 
-
                     .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Infantry {
                         display: flex;
                     }
@@ -625,10 +805,11 @@
                         <div class="Player_Basic_Information">
                             <button class="Stats_Profile"><img src="/Images/Profile Pics/render (3).png" alt=""></button>
 
+                            <!--Creates the profile menu class="Player_Stat_PBI_Profile_Menu"-->
                             <div class="Player_Stat_PBI_Profile_Menu">
                                 <button class="View_Profile">View Profile</button>
 
-                                <style aria-label="Profile_Menu_Style">
+                                <style aria-label="Player_Stat_PBI_Profile_Menu_Style">
 
                                     .Player_Stat_PBI_Profile_Menu {
                                         position: absolute;
@@ -667,20 +848,18 @@
                                             statsProfileBtn.addEventListener('click', function(e) {
                                                 e.stopPropagation();
                                                 if (profileMenu.classList.contains('menu-visible')) {
-                                                    profileMenu.classList.remove('menu-visible');
-                                                    setTimeout(() => { profileMenu.style.display = 'none'; }, 250);
+                                                    if (window._menuUtils) window._menuUtils.closeMenu(profileMenu);
+                                                    else { profileMenu.classList.remove('menu-visible'); setTimeout(() => { profileMenu.style.display = 'none'; }, 250); }
                                                 } else {
-                                                    profileMenu.style.display = 'flex';
-                                                    // Force reflow for transition
-                                                    void profileMenu.offsetWidth;
-                                                    profileMenu.classList.add('menu-visible');
+                                                    if (window._menuUtils) window._menuUtils.openMenu(profileMenu);
+                                                    else { profileMenu.style.display = 'flex'; void profileMenu.offsetWidth; profileMenu.classList.add('menu-visible'); }
                                                 }
                                             });
                                             // Hide menu if clicking outside
                                             document.addEventListener('click', function(e) {
                                                 if (!profileMenu.contains(e.target) && e.target !== statsProfileBtn) {
-                                                    profileMenu.classList.remove('menu-visible');
-                                                    setTimeout(() => { profileMenu.style.display = 'none'; }, 250);
+                                                    if (window._menuUtils) window._menuUtils.closeMenu(profileMenu);
+                                                    else { profileMenu.classList.remove('menu-visible'); setTimeout(() => { profileMenu.style.display = 'none'; }, 250); }
                                                 }
                                             });
                                             // Ensure menu is hidden initially
@@ -771,7 +950,67 @@
                 </div>
             </div>
         </section>
+
+        <script aria-label="Essentials">
+            (function(){
+                // make any element with class "Window" draggable via pointer events
+                // only start dragging when the user interacts with the window's .Header
+                const windows = Array.from(document.querySelectorAll('.Window'));
+                if (!windows.length) return;
+
+                let topZ = 100;
+
+                windows.forEach(win => {
+                    // ensure absolute positioning so we can move it
+                    const rect = win.getBoundingClientRect();
+                    if (getComputedStyle(win).position === 'static') {
+                        win.style.position = 'absolute';
+                        win.style.left = rect.left + 'px';
+                        win.style.top = rect.top + 'px';
+                    }
+
+                    win.style.touchAction = 'none';
+                    win.style.cursor = 'grab';
+
+                    const header = win.querySelector('.Header') || win; // fallback to whole window
+                    // use header as handle for pointer events
+                    header.addEventListener('pointerdown', function onPointerDown(e){
+                        // only left button
+                        if (e.button && e.button !== 0) return;
+                        e.preventDefault();
+
+                        // bring to front
+                        win.style.zIndex = ++topZ;
+                        try { header.setPointerCapture(e.pointerId); } catch (err) {}
+                        win.style.cursor = 'grabbing';
+
+                        const startX = e.clientX;
+                        const startY = e.clientY;
+                        const startLeft = parseFloat(win.style.left || 0);
+                        const startTop = parseFloat(win.style.top || 0);
+
+                        function onPointerMove(ev){
+                            const dx = ev.clientX - startX;
+                            const dy = ev.clientY - startY;
+                            win.style.left = (startLeft + dx) + 'px';
+                            win.style.top = (startTop + dy) + 'px';
+                        }
+
+                        function onPointerUp(ev){
+                            try { header.releasePointerCapture(ev.pointerId); } catch(e){}
+                            win.style.cursor = 'grab';
+                            document.removeEventListener('pointermove', onPointerMove);
+                            document.removeEventListener('pointerup', onPointerUp);
+                        }
+
+                        document.addEventListener('pointermove', onPointerMove);
+                        document.addEventListener('pointerup', onPointerUp);
+                    });
+                });
+            })();
+        </script>
     </div>
+    
 
     <div class="Main_desktop">
 
