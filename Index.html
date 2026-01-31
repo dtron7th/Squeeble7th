@@ -402,8 +402,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 ID Card Information Scanner</h1>
-            <p>Scan the FRONT of your ID card to extract Driver's License Number, DOB, Expiration, and Issue Date</p>
+            <h1>🆔 ID Card Barcode Scanner</h1>
+            <p>Scan PDF417 barcodes from the back of ID cards to extract information</p>
             <div id="deviceInfo" style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 12px; color: #fff;">
                 <span id="deviceStatus">📱 Checking device compatibility...</span>
             </div>
@@ -424,10 +424,13 @@
                 <video id="video" autoplay playsinline style="display: none;"></video>
                 <canvas id="canvas" style="display: none;"></canvas>
                 <div id="placeholder" class="placeholder">
-                    <div class="placeholder-icon">📸</div>
+                    <div class="placeholder-icon">�</div>
                     <div class="placeholder-text">
-                        Position the FRONT of your ID card in the camera view
+                        Position the back of your ID card with the PDF417 barcode in the camera view
                     </div>
+                </div>
+                <div id="scanOverlay" class="scan-overlay" style="display: none;">
+                    <div class="scan-line"></div>
                 </div>
             </div>
 
@@ -435,8 +438,11 @@
                 <button class="btn btn-primary" id="startCamera">
                     📹 Start Camera
                 </button>
+                <button class="btn btn-success" id="scanQR" disabled>
+                    🔍 Scan PDF417 Barcode
+                </button>
                 <button class="btn btn-warning" id="capturePhoto" disabled>
-                    📸 Capture ID Card Front
+                    📸 Capture & Scan Barcode
                 </button>
                 <button class="btn btn-secondary" id="stopCamera" disabled>
                     ⏹️ Stop Camera
@@ -444,70 +450,44 @@
             </div>
 
             <div class="camera-tips" id="cameraTips" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
-                <h4 style="margin-bottom: 10px;">📸 ID Card Scanning Tips:</h4>
+                <h4 style="margin-bottom: 10px;">📸 PDF417 Barcode Scanning Tips:</h4>
                 <ul style="margin: 0; padding-left: 20px;">
-                    <li>🆔 <strong>FRONT SIDE ONLY</strong> - Scan the front of your ID card</li>
-                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the ID card</li>
-                    <li>📏 <strong>Flat surface</strong> - Keep ID card flat and straight</li>
-                    <li>🔍 <strong>Fill the frame</strong> - Get close so text is clear and readable</li>
-                    <li>✋ <strong>Hold steady</strong> - Keep phone still when capturing</li>
-                    <li>⚡ <strong>No glare</strong> - Avoid reflections on the ID card</li>
+                    <li>📷 <strong>BACK SIDE ONLY</strong> - Scan the back of your ID card</li>
+                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the barcode</li>
+                    <li>📏 <strong>Straight angle</strong> - Keep ID card parallel to camera</li>
+                    <li>🔍 <strong>Fill the frame</strong> - Get close so barcode is large and clear</li>
+                    <li>✋ <strong>Hold steady</strong> - Keep phone still when scanning</li>
+                    <li>⚡ <strong>No glare</strong> - Avoid reflections on the barcode</li>
+                    <li>📊 <strong>PDF417 format</strong> - The 2D barcode on driver's licenses</li>
                 </ul>
-                <div style="margin-top: 10px; padding: 8px; background: rgba(255,0,0,0.2); border-radius: 5px; border: 1px solid rgba(255,0,0,0.5);">
-                    <strong style="color: #ff6b6b;">⚠️ IMPORTANT:</strong> We must extract DLN, DOB, EXP, and ISS dates. Without these, the ID is not valid.
+                <div style="margin-top: 10px; padding: 8px; background: rgba(0,255,0,0.2); border-radius: 5px; border: 1px solid rgba(0,255,0,0.5);">
+                    <strong style="color: #00ff00;">✅ FOCUSED ON PDF417:</strong> Optimized specifically for driver's license barcodes
                 </div>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">Extracting text from ID card...</p>
+                <p id="loadingText">Scanning for PDF417 barcodes...</p>
                 <div id="liveOutput" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; display: none;">
-                    <div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>
+                    <div style="color: #00ff00; font-weight: bold;">🔍 Live PDF417 Scan Output:</div>
                 </div>
             </div>
         </div>
 
         <div class="results-section">
-            <h2>📋 Extracted ID Information</h2>
+            <h2>📋 Extracted Barcode Information</h2>
             
             <div class="result-item">
-                <h3>🆔 Driver's License Number <span style="color: #ff6b6b;">*</span></h3>
-                <div class="result-content" id="dlnResult">
-                    <span class="placeholder-text">No DLN extracted yet</span>
+                <h3>📷 Back Side (PDF417 Barcode)</h3>
+                <div class="result-content" id="backResult">
+                    <span class="placeholder-text">No barcode data scanned yet. Position the back of your ID card with the PDF417 barcode in the camera view.</span>
                 </div>
             </div>
             
-            <div class="result-item">
-                <h3>🎂 Date of Birth <span style="color: #ff6b6b;">*</span></h3>
-                <div class="result-content" id="dobResult">
-                    <span class="placeholder-text">No DOB extracted yet</span>
-                </div>
-            </div>
-            
-            <div class="result-item">
-                <h3>📅 Expiration Date <span style="color: #ff6b6b;">*</span></h3>
-                <div class="result-content" id="expResult">
-                    <span class="placeholder-text">No expiration date extracted yet</span>
-                </div>
-            </div>
-            
-            <div class="result-item">
-                <h3>📋 Issue Date <span style="color: #ff6b6b;">*</span></h3>
-                <div class="result-content" id="issResult">
-                    <span class="placeholder-text">No issue date extracted yet</span>
-                </div>
-            </div>
-
-            <div class="result-item">
-                <h3>📄 Full OCR Text</h3>
-                <div class="result-content" id="fullTextResult">
-                    <span class="placeholder-text">No text extracted yet</span>
-                </div>
-            </div>
-            
-            <div class="validation-status" id="validationStatus">
-                <div class="status-invalid">
-                    ⚠️ ID Status: <strong>INVALID</strong> - Missing required information (DLN, DOB, EXP, ISS)
+            <div class="result-item" id="backParsed" style="display: none;">
+                <h3>� Parsed Information</h3>
+                <div class="result-content" id="backParsedContent">
+                    <!-- Parsed data will be inserted here -->
                 </div>
             </div>
             
@@ -595,16 +575,38 @@
             color: #666;
             font-size: 14px;
         }
+        
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
     </style>
 
     <script>
         let stream = null;
+        let currentSide = 'back';
+        let qrScanner = null;
+        let isScanningQR = false;
         let scannedData = {
-            dln: '',
-            dob: '',
-            exp: '',
-            iss: '',
-            fullText: ''
+            front: '',
+            back: ''
         };
 
         // DOM elements
@@ -613,6 +615,7 @@
         const context = canvas.getContext('2d');
         const placeholder = document.getElementById('placeholder');
         const startCameraBtn = document.getElementById('startCamera');
+        const scanQRBtn = document.getElementById('scanQR');
         const capturePhotoBtn = document.getElementById('capturePhoto');
         const stopCameraBtn = document.getElementById('stopCamera');
         const loading = document.getElementById('loading');
@@ -621,12 +624,9 @@
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
         const infoMessage = document.getElementById('infoMessage');
-        const dlnResult = document.getElementById('dlnResult');
-        const dobResult = document.getElementById('dobResult');
-        const expResult = document.getElementById('expResult');
-        const issResult = document.getElementById('issResult');
-        const fullTextResult = document.getElementById('fullTextResult');
-        const validationStatus = document.getElementById('validationStatus');
+        const backResult = document.getElementById('backResult');
+        const backParsed = document.getElementById('backParsed');
+        const backParsedContent = document.getElementById('backParsedContent');
         const deviceStatus = document.getElementById('deviceStatus');
         const cameraTips = document.getElementById('cameraTips');
 
@@ -688,8 +688,187 @@
 
         // Camera controls
         startCameraBtn.addEventListener('click', startCamera);
+        scanQRBtn.addEventListener('click', toggleQRScanning);
         capturePhotoBtn.addEventListener('click', capturePhoto);
         stopCameraBtn.addEventListener('click', stopCamera);
+
+        // Live output functions
+        function startLiveOutput() {
+            liveOutput.style.display = 'block';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live PDF417 Scan Output:</div>';
+        }
+
+        function addLiveOutput(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#00ff00' : type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffd93d' : '#ffffff';
+            const outputDiv = document.createElement('div');
+            outputDiv.style.color = color;
+            outputDiv.style.marginTop = '5px';
+            outputDiv.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+            liveOutput.appendChild(outputDiv);
+            liveOutput.scrollTop = liveOutput.scrollHeight;
+        }
+
+        function clearLiveOutput() {
+            setTimeout(() => {
+                liveOutput.style.display = 'none';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live PDF417 Scan Output:</div>';
+            }, 3000);
+        }
+
+        // PDF417 Barcode scanning using ZXing library
+        async function scanPDF417Barcode(imageData) {
+            try {
+                addLiveOutput('🔄 Scanning for PDF417 barcode...', 'info');
+                
+                // Create image element from data URL
+                const img = new Image();
+                img.src = imageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                // Create temporary canvas for ZXing
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Use higher resolution for better barcode detection
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                tempCtx.drawImage(img, 0, 0);
+                
+                // Get image data for ZXing
+                const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Try PDF417 specifically first
+                try {
+                    addLiveOutput('🎯 Trying PDF417 reader...', 'info');
+                    const pdf417Reader = new ZXing.PDF417Reader();
+                    const result = pdf417Reader.decode(imageDataObj);
+                    if (result) {
+                        const text = result.getText();
+                        addLiveOutput('✅ PDF417 barcode found!', 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (pdf417Error) {
+                    addLiveOutput('❌ PDF417 reader failed, trying multi-format...', 'warning');
+                }
+                
+                // Try multi-format reader as fallback
+                try {
+                    addLiveOutput('🔄 Trying multi-format reader...', 'info');
+                    const codeReader = new ZXing.BrowserMultiFormatReader();
+                    const result = codeReader.decode(imageDataObj);
+                    if (result) {
+                        const format = result.getBarcodeFormat() || 'Unknown';
+                        const text = result.getText();
+                        addLiveOutput(`✅ ${format} barcode found!`, 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (multiFormatError) {
+                    addLiveOutput('❌ Multi-format reader failed', 'warning');
+                }
+                
+                throw new Error('No PDF417 barcode detected');
+                
+            } catch (error) {
+                addLiveOutput(`❌ PDF417 scan failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Parse barcode data into structured information
+        function parseIDData(data) {
+            addLiveOutput('🔍 Parsing ID data from barcode...', 'info');
+            
+            const parsed = {
+                'Raw Data': data,
+                'Data Length': data.length + ' characters'
+            };
+            
+            // Try to parse common AAMVA format
+            if (data.includes('ANSI') || data.includes('DL') || data.includes('DAQ')) {
+                addLiveOutput('📋 Detected AAMVA format', 'info');
+                
+                // Extract common fields
+                const fields = {
+                    'DAA': 'Driver\'s License Number',
+                    'DAB': 'Last Name', 
+                    'DAC': 'First Name',
+                    'DAD': 'Middle Name',
+                    'DBB': 'Date of Birth',
+                    'DBA': 'Expiration Date',
+                    'DBC': 'Issue Date',
+                    'DAY': 'Eye Color',
+                    'DAU': 'Height',
+                    'DAG': 'Street Address',
+                    'DAI': 'City',
+                    'DAJ': 'State',
+                    'DAK': 'Zip Code'
+                };
+                
+                // Parse AAMVA data
+                const lines = data.split('\n');
+                for (const line of lines) {
+                    for (const [code, description] of Object.entries(fields)) {
+                        if (line.startsWith(code)) {
+                            const value = line.substring(3);
+                            parsed[description] = value;
+                            addLiveOutput(`✅ Found ${description}: ${value}`, 'success');
+                        }
+                    }
+                }
+            } else {
+                addLiveOutput('⚠️ Unknown barcode format', 'warning');
+                // Try to extract any dates or numbers
+                const dates = data.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
+                if (dates) {
+                    parsed['Dates Found'] = dates.join(', ');
+                    addLiveOutput(`📅 Found dates: ${dates.join(', ')}`, 'info');
+                }
+            }
+            
+            return parsed;
+        }
+
+        // Handle QR/Barcode result
+        function handleQRResult(result) {
+            console.log('Barcode Result received:', result);
+            const data = result.data;
+            
+            // IMMEDIATELY print the barcode information
+            addLiveOutput('🎉 BARCODE DETECTED!', 'success');
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`📋 RAW BARCODE DATA:`, 'info');
+            addLiveOutput(`${data}`, 'info');
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`📊 Data length: ${data.length} characters`, 'info');
+            addLiveOutput(`📋 Data preview: ${data.substring(0, 200)}${data.length > 200 ? '...' : ''}`, 'info');
+            
+            // Parse and show extracted fields
+            const parsedData = parseIDData(data);
+            if (Object.keys(parsedData).length > 2) {
+                addLiveOutput('🔍 Parsing structured data...', 'info');
+                Object.entries(parsedData).forEach(([key, value]) => {
+                    if (key !== 'Raw Data') {
+                        addLiveOutput(`   ${key}: ${value}`, 'success');
+                    }
+                });
+            }
+            
+            showMessage('✅ PDF417 Barcode detected and processed!', 'success');
+            
+            // Store and display the extracted data (back side only)
+            scannedData.back = data;
+            backResult.textContent = data;
+            displayParsedData(data, backParsedContent, backParsed);
+            
+            // Update print section
+            updatePrintSectionFromBarcode(parsedData);
+            
+            // Stop scanning after successful detection
+            stopQRScanning();
+        }
 
         // Live output functions
         function startLiveOutput() {
