@@ -448,12 +448,23 @@
                 <button class="btn btn-success" id="scanQR" disabled>
                     🔍 Scan Barcode/QR
                 </button>
-                <button class="btn btn-secondary" id="capturePhoto" disabled>
-                    📸 Capture Photo
+                <button class="btn btn-warning" id="capturePhoto" disabled>
+                    📸 Capture & Scan Barcode
                 </button>
                 <button class="btn btn-secondary" id="stopCamera" disabled>
                     ⏹️ Stop Camera
                 </button>
+            </div>
+
+            <div class="camera-tips" id="cameraTips" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
+                <h4 style="margin-bottom: 10px;">📸 Barcode Scanning Tips:</h4>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the barcode</li>
+                    <li>📏 <strong>Straight angle</strong> - Keep ID card parallel to camera</li>
+                    <li>🔍 <strong>Fill the frame</strong> - Get close so barcode is large and clear</li>
+                    <li>✋ <strong>Hold steady</strong> - Keep phone still when capturing</li>
+                    <li>⚡ <strong>No glare</strong> - Avoid reflections on the barcode</li>
+                </ul>
             </div>
 
             <div class="loading" id="loading">
@@ -508,6 +519,7 @@
         const backParsedContent = document.getElementById('backParsedContent');
         const fileInput = document.getElementById('fileInput');
         const deviceStatus = document.getElementById('deviceStatus');
+        const cameraTips = document.getElementById('cameraTips');
 
         // Device compatibility check for Nokia C210 and other mobile devices
         function checkDeviceCompatibility() {
@@ -814,6 +826,54 @@
             }
         }
 
+        // Image enhancement for better barcode detection
+        async function enhanceImageForBarcode(imageData) {
+            try {
+                // Create image element from data URL
+                const img = new Image();
+                img.src = imageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                // Create temporary canvas for enhancement
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                
+                // Draw original image
+                tempCtx.drawImage(img, 0, 0);
+                
+                // Get image data for enhancement
+                const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageDataObj.data;
+                
+                // Apply enhancements for better barcode detection
+                for (let i = 0; i < data.length; i += 4) {
+                    // Increase contrast
+                    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                    const enhanced = gray > 128 ? 255 : 0; // Black and white conversion
+                    
+                    data[i] = enhanced;     // Red
+                    data[i + 1] = enhanced; // Green
+                    data[i + 2] = enhanced; // Blue
+                    // Alpha channel (data[i + 3]) remains unchanged
+                }
+                
+                // Put enhanced image back
+                tempCtx.putImageData(imageDataObj, 0, 0);
+                
+                // Convert back to data URL
+                const enhancedImageData = tempCanvas.toDataURL('image/png', 1.0);
+                
+                addLiveOutput('✅ Image enhanced: increased contrast, converted to B&W', 'success');
+                return enhancedImageData;
+                
+            } catch (error) {
+                addLiveOutput(`⚠️ Image enhancement failed, using original: ${error.message}`, 'warning');
+                return imageData; // Return original if enhancement fails
+            }
+        }
+
         async function startCamera() {
             try {
                 // Nokia C210 optimized camera settings
@@ -864,6 +924,7 @@
                 
                 if (isMobile) {
                     showMessage('Camera started successfully - Mobile optimized for barcode scanning', 'success');
+                    cameraTips.style.display = 'block'; // Show tips for mobile
                 } else {
                     showMessage('Camera started successfully - Ready for barcode scanning', 'success');
                 }
@@ -997,37 +1058,61 @@
             addLiveOutput('📸 Capturing photo from ID card back side...', 'info');
             
             try {
-                // Get image data from canvas
-                const imageData = canvas.toDataURL('image/png', 1.0); // Maximum quality
+                // Get image data from canvas with maximum quality
+                const imageData = canvas.toDataURL('image/png', 1.0);
                 addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
                 // Show debug image for troubleshooting
                 showDebugImage(imageData);
                 
-                // Try multiple scanning approaches - barcode first!
+                // Create enhanced version for better barcode detection
+                addLiveOutput('🔧 Enhancing image for better barcode detection...', 'info');
+                const enhancedImage = await enhanceImageForBarcode(imageData);
+                
+                // Try multiple scanning approaches with enhanced image first
                 addLiveOutput('🔍 Attempting barcode/QR code detection...', 'info');
                 
-                // Method 1: Simple barcode detection (new approach)
+                // Method 1: Simple barcode detection with enhanced image
                 try {
-                    const result = await scanWithSimpleBarcode(imageData);
-                    addLiveOutput('✅ Barcode found with simple method!', 'success');
+                    const result = await scanWithSimpleBarcode(enhancedImage);
+                    addLiveOutput('✅ Barcode found with enhanced image!', 'success');
                     handleQRResult(result);
                     return;
                 } catch (simpleError) {
-                    addLiveOutput('❌ Simple barcode method failed, trying ZXing...', 'warning');
+                    addLiveOutput('❌ Enhanced scan failed, trying original image...', 'warning');
                 }
                 
-                // Method 2: ZXing barcode library (supports PDF417, Code 128, etc.)
+                // Method 2: Try with original image
+                try {
+                    const result = await scanWithSimpleBarcode(imageData);
+                    addLiveOutput('✅ Barcode found with original image!', 'success');
+                    handleQRResult(result);
+                    return;
+                } catch (originalError) {
+                    addLiveOutput('❌ Original image scan failed, trying ZXing...', 'warning');
+                }
+                
+                // Method 3: ZXing with enhanced image
+                try {
+                    const result = await scanWithZXing(enhancedImage);
+                    addLiveOutput('✅ Barcode found with ZXing (enhanced)!', 'success');
+                    handleQRResult(result);
+                    return;
+                } catch (zxingEnhancedError) {
+                    addLiveOutput('❌ ZXing enhanced failed, trying original...', 'warning');
+                }
+                
+                // Method 4: ZXing with original image
                 try {
                     const result = await scanWithZXing(imageData);
-                    addLiveOutput('✅ Barcode found with ZXing library!', 'success');
+                    addLiveOutput('✅ Barcode found with ZXing (original)!', 'success');
                     handleQRResult(result);
                     return;
                 } catch (zxingError) {
-                    addLiveOutput('❌ ZXing barcode library failed, trying QR scanners...', 'warning');
+                    addLiveOutput('❌ ZXing failed, trying QR scanners...', 'warning');
                 }
                 
-                // Method 3: qr-scanner library for QR codes
+                // Continue with other methods...
                 try {
                     const result = await QrScanner.scanImage(imageData, { 
                         returnDetailedScanResult: true,
@@ -1040,7 +1125,6 @@
                     addLiveOutput('❌ qr-scanner library failed, trying jsQR...', 'warning');
                 }
                 
-                // Method 4: jsQR library for QR codes
                 try {
                     const result = await scanWithJSQR(imageData);
                     addLiveOutput('✅ QR code found using jsQR library!', 'success');
@@ -1050,69 +1134,16 @@
                     addLiveOutput('❌ jsQR library failed too', 'warning');
                 }
                 
-                // Method 5: Try with blob
-                try {
-                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-                    const result = await QrScanner.scanImage(blob, { 
-                        returnDetailedScanResult: true,
-                        alsoTryWithoutScanRegion: true
-                    });
-                    addLiveOutput('✅ QR code found using blob method!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (blobError) {
-                    addLiveOutput('❌ Blob method failed', 'warning');
-                }
+                // All methods failed - provide helpful feedback
+                addLiveOutput('❌ All scanning methods failed', 'error');
+                addLiveOutput('💡 Check the debug image (top-right corner):', 'info');
+                addLiveOutput('   • Is the barcode clearly visible?', 'info');
+                addLiveOutput('   • Is there good lighting without glare?', 'info');
+                addLiveOutput('   • Is the barcode straight and in focus?', 'info');
+                addLiveOutput('   • Try moving closer or farther away', 'info');
+                addLiveOutput('   • Try a different angle to reduce glare', 'info');
                 
-                // All methods failed
-                addLiveOutput('❌ All barcode/QR scanning methods failed', 'error');
-                addLiveOutput('🔄 Trying OCR as last resort to read visible text...', 'info');
-                
-                try {
-                    // Try OCR as last resort
-                    const result = await Tesseract.recognize(
-                        imageData,
-                        'eng',
-                        {
-                            logger: m => {
-                                if (m.status === 'recognizing text') {
-                                    const progress = Math.round(m.progress * 100);
-                                    addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
-                                }
-                            }
-                        }
-                    );
-                    
-                    const extractedText = result.data.text.trim();
-                    if (extractedText && extractedText.length > 10) {
-                        addLiveOutput('✅ Text found with OCR - checking for barcode-like patterns...', 'success');
-                        addLiveOutput(`📋 Extracted text: ${extractedText.substring(0, 200)}${extractedText.length > 200 ? '...' : ''}`, 'info');
-                        
-                        // Check if the extracted text looks like barcode data
-                        if (extractedText.includes('%') || extractedText.includes('ANSI') || extractedText.length > 50) {
-                            addLiveOutput('🎯 Text appears to be barcode data!', 'success');
-                            handleQRResult({ data: extractedText });
-                            return;
-                        } else {
-                            addLiveOutput('⚠️ Text found but doesn\'t appear to be barcode data', 'warning');
-                        }
-                    } else {
-                        addLiveOutput('❌ No meaningful text found with OCR', 'error');
-                    }
-                } catch (ocrError) {
-                    addLiveOutput('❌ OCR failed too', 'error');
-                }
-                
-                addLiveOutput('💡 Troubleshooting tips for barcodes:', 'info');
-                addLiveOutput('   • Ensure barcode is clearly visible and in focus', 'info');
-                addLiveOutput('   • Good lighting without glare on barcode', 'info');
-                addLiveOutput('   • Barcode should be straight (not angled)', 'info');
-                addLiveOutput('   • Try moving closer or farther from barcode', 'info');
-                addLiveOutput('   • Ensure barcode is not damaged or partially obscured', 'info');
-                addLiveOutput('   • PDF417 barcodes need good contrast and clarity', 'info');
-                addLiveOutput('   • Try different angles and distances', 'info');
-                
-                throw new Error('No barcode or QR code detected with any method');
+                throw new Error('No barcode detected - check debug image and try again');
                 
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
@@ -1121,7 +1152,6 @@
             } finally {
                 loading.classList.remove('active');
                 capturePhotoBtn.disabled = false;
-                clearLiveOutput();
             }
         }
 
