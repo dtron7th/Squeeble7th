@@ -402,8 +402,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 ID Card Barcode Scanner</h1>
-            <p>Scan barcodes and QR codes from the back of ID cards to extract information</p>
+            <h1>🆔 ID Card Information Scanner</h1>
+            <p>Scan the FRONT of your ID card to extract Driver's License Number, DOB, Expiration, and Issue Date</p>
             <div id="deviceInfo" style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 12px; color: #fff;">
                 <span id="deviceStatus">📱 Checking device compatibility...</span>
             </div>
@@ -422,22 +422,12 @@
 
             <div class="camera-container">
                 <video id="video" autoplay playsinline style="display: none;"></video>
-                <canvas id="canvas"></canvas>
-                <div class="scan-overlay" id="scanOverlay"></div>
-                <div class="placeholder" id="placeholder">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <h3>Camera Ready</h3>
-                    <p>Click "Start Camera" to begin scanning</p>
-                </div>
-            </div>
-
-            <div class="file-upload">
-                <div class="file-input-wrapper">
-                    <input type="file" id="fileInput" accept="image/*">
-                    <span>📁 Upload ID Image</span>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <div id="placeholder" class="placeholder">
+                    <div class="placeholder-icon">📸</div>
+                    <div class="placeholder-text">
+                        Position the FRONT of your ID card in the camera view
+                    </div>
                 </div>
             </div>
 
@@ -445,11 +435,8 @@
                 <button class="btn btn-primary" id="startCamera">
                     📹 Start Camera
                 </button>
-                <button class="btn btn-success" id="scanQR" disabled>
-                    🔍 Scan Barcode/QR
-                </button>
                 <button class="btn btn-warning" id="capturePhoto" disabled>
-                    📸 Capture & Scan Barcode
+                    📸 Capture ID Card Front
                 </button>
                 <button class="btn btn-secondary" id="stopCamera" disabled>
                     ⏹️ Stop Camera
@@ -457,34 +444,70 @@
             </div>
 
             <div class="camera-tips" id="cameraTips" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
-                <h4 style="margin-bottom: 10px;">📸 Barcode Scanning Tips:</h4>
+                <h4 style="margin-bottom: 10px;">📸 ID Card Scanning Tips:</h4>
                 <ul style="margin: 0; padding-left: 20px;">
-                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the barcode</li>
-                    <li>📏 <strong>Straight angle</strong> - Keep ID card parallel to camera</li>
-                    <li>🔍 <strong>Fill the frame</strong> - Get close so barcode is large and clear</li>
+                    <li>🆔 <strong>FRONT SIDE ONLY</strong> - Scan the front of your ID card</li>
+                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the ID card</li>
+                    <li>📏 <strong>Flat surface</strong> - Keep ID card flat and straight</li>
+                    <li>🔍 <strong>Fill the frame</strong> - Get close so text is clear and readable</li>
                     <li>✋ <strong>Hold steady</strong> - Keep phone still when capturing</li>
-                    <li>⚡ <strong>No glare</strong> - Avoid reflections on the barcode</li>
+                    <li>⚡ <strong>No glare</strong> - Avoid reflections on the ID card</li>
                 </ul>
+                <div style="margin-top: 10px; padding: 8px; background: rgba(255,0,0,0.2); border-radius: 5px; border: 1px solid rgba(255,0,0,0.5);">
+                    <strong style="color: #ff6b6b;">⚠️ IMPORTANT:</strong> We must extract DLN, DOB, EXP, and ISS dates. Without these, the ID is not valid.
+                </div>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">Scanning for barcodes and QR codes...</p>
+                <p id="loadingText">Extracting text from ID card...</p>
                 <div id="liveOutput" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; display: none;">
-                    <div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>
+                    <div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>
                 </div>
             </div>
         </div>
 
         <div class="results-section">
-            <div class="result-card">
-                <h3>📋 ID Card Barcode Results</h3>
-                <div class="scanned-text" id="backResult">
-                    No barcode data scanned yet. Position the back of your ID card with the barcode/QR code in the camera view.
+            <h2>📋 Extracted ID Information</h2>
+            
+            <div class="result-item">
+                <h3>🆔 Driver's License Number <span style="color: #ff6b6b;">*</span></h3>
+                <div class="result-content" id="dlnResult">
+                    <span class="placeholder-text">No DLN extracted yet</span>
                 </div>
-                <div class="parsed-data" id="backParsed" style="display: none;">
-                    <h4 style="margin-bottom: 15px; color: #10b981;">🔍 Extracted Information</h4>
-                    <div id="backParsedContent"></div>
+            </div>
+            
+            <div class="result-item">
+                <h3>🎂 Date of Birth <span style="color: #ff6b6b;">*</span></h3>
+                <div class="result-content" id="dobResult">
+                    <span class="placeholder-text">No DOB extracted yet</span>
+                </div>
+            </div>
+            
+            <div class="result-item">
+                <h3>📅 Expiration Date <span style="color: #ff6b6b;">*</span></h3>
+                <div class="result-content" id="expResult">
+                    <span class="placeholder-text">No expiration date extracted yet</span>
+                </div>
+            </div>
+            
+            <div class="result-item">
+                <h3>📋 Issue Date <span style="color: #ff6b6b;">*</span></h3>
+                <div class="result-content" id="issResult">
+                    <span class="placeholder-text">No issue date extracted yet</span>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <h3>📄 Full OCR Text</h3>
+                <div class="result-content" id="fullTextResult">
+                    <span class="placeholder-text">No text extracted yet</span>
+                </div>
+            </div>
+            
+            <div class="validation-status" id="validationStatus">
+                <div class="status-invalid">
+                    ⚠️ ID Status: <strong>INVALID</strong> - Missing required information (DLN, DOB, EXP, ISS)
                 </div>
             </div>
         </div>
@@ -492,32 +515,34 @@
 
     <script>
         let stream = null;
-        let currentSide = 'back';
-        let qrScanner = null;
-        let isScanningQR = false;
         let scannedData = {
-            back: ''
+            dln: '',
+            dob: '',
+            exp: '',
+            iss: '',
+            fullText: ''
         };
 
+        // DOM elements
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
+        const placeholder = document.getElementById('placeholder');
         const startCameraBtn = document.getElementById('startCamera');
-        const scanQRBtn = document.getElementById('scanQR');
         const capturePhotoBtn = document.getElementById('capturePhoto');
         const stopCameraBtn = document.getElementById('stopCamera');
-        const placeholder = document.getElementById('placeholder');
-        const scanOverlay = document.getElementById('scanOverlay');
         const loading = document.getElementById('loading');
         const loadingText = document.getElementById('loadingText');
         const liveOutput = document.getElementById('liveOutput');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
         const infoMessage = document.getElementById('infoMessage');
-        const backResult = document.getElementById('backResult');
-        const backParsed = document.getElementById('backParsed');
-        const backParsedContent = document.getElementById('backParsedContent');
-        const fileInput = document.getElementById('fileInput');
+        const dlnResult = document.getElementById('dlnResult');
+        const dobResult = document.getElementById('dobResult');
+        const expResult = document.getElementById('expResult');
+        const issResult = document.getElementById('issResult');
+        const fullTextResult = document.getElementById('fullTextResult');
+        const validationStatus = document.getElementById('validationStatus');
         const deviceStatus = document.getElementById('deviceStatus');
         const cameraTips = document.getElementById('cameraTips');
 
@@ -577,17 +602,15 @@
         // Run compatibility check on page load
         const deviceInfo = checkDeviceCompatibility();
 
-        // Camera controls - QR scanning only
+        // Camera controls
         startCameraBtn.addEventListener('click', startCamera);
-        scanQRBtn.addEventListener('click', toggleQRScanning);
         capturePhotoBtn.addEventListener('click', capturePhoto);
         stopCameraBtn.addEventListener('click', stopCamera);
-        fileInput.addEventListener('change', handleFileUpload);
 
         // Live output functions
         function startLiveOutput() {
             liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>';
         }
 
         function addLiveOutput(message, type = 'info') {
@@ -604,8 +627,191 @@
         function clearLiveOutput() {
             setTimeout(() => {
                 liveOutput.style.display = 'none';
-                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>';
             }, 3000);
+        }
+
+        // OCR text extraction using Tesseract.js
+        async function extractTextFromImage(imageData) {
+            try {
+                addLiveOutput('🔄 Starting OCR text extraction...', 'info');
+                addLiveOutput('📊 This may take 10-30 seconds depending on image quality', 'info');
+                
+                const result = await Tesseract.recognize(
+                    imageData,
+                    'eng',
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const progress = Math.round(m.progress * 100);
+                                addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                            }
+                        }
+                    }
+                );
+                
+                const extractedText = result.data.text.trim();
+                addLiveOutput(`✅ OCR completed! Extracted ${extractedText.length} characters`, 'success');
+                addLiveOutput(`📋 Raw text: "${extractedText.substring(0, 200)}${extractedText.length > 200 ? '...' : ''}"`, 'info');
+                
+                return extractedText;
+                
+            } catch (error) {
+                addLiveOutput(`❌ OCR failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Parse ID information from extracted text
+        function parseIDInformation(text) {
+            addLiveOutput('🔍 Parsing ID information from extracted text...', 'info');
+            
+            const info = {
+                dln: '',
+                dob: '',
+                exp: '',
+                iss: ''
+            };
+            
+            // Driver's License Number patterns
+            const dlnPatterns = [
+                /DL\s*#?\s*([A-Z0-9]+)/i,
+                /LICENSE\s*#?\s*([A-Z0-9]+)/i,
+                /DLN\s*[:#]?\s*([A-Z0-9]+)/i,
+                /DRIVER\s*LIC\s*#?\s*([A-Z0-9]+)/i,
+                /([A-Z]{1,2}\d{6,8})/i  // Generic pattern
+            ];
+            
+            // Date of Birth patterns
+            const dobPatterns = [
+                /DOB\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /BIRTH\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /BORN\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*DOB/i
+            ];
+            
+            // Expiration Date patterns
+            const expPatterns = [
+                /EXP\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /EXPIRES\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /EXP\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /VALID\s*UNTIL\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
+            ];
+            
+            // Issue Date patterns
+            const issPatterns = [
+                /ISS\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /ISSUED\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /ISSUE\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /DATE\s*ISSUED\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
+            ];
+            
+            // Extract Driver's License Number
+            for (const pattern of dlnPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    info.dln = match[1].trim();
+                    addLiveOutput(`✅ DLN found: ${info.dln}`, 'success');
+                    break;
+                }
+            }
+            
+            // Extract Date of Birth
+            for (const pattern of dobPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    info.dob = match[1].trim();
+                    addLiveOutput(`✅ DOB found: ${info.dob}`, 'success');
+                    break;
+                }
+            }
+            
+            // Extract Expiration Date
+            for (const pattern of expPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    info.exp = match[1].trim();
+                    addLiveOutput(`✅ EXP found: ${info.exp}`, 'success');
+                    break;
+                }
+            }
+            
+            // Extract Issue Date
+            for (const pattern of issPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    info.iss = match[1].trim();
+                    addLiveOutput(`✅ ISS found: ${info.iss}`, 'success');
+                    break;
+                }
+            }
+            
+            // Check what's missing
+            const missing = [];
+            if (!info.dln) missing.push('DLN');
+            if (!info.dob) missing.push('DOB');
+            if (!info.exp) missing.push('EXP');
+            if (!info.iss) missing.push('ISS');
+            
+            if (missing.length > 0) {
+                addLiveOutput(`⚠️ Missing information: ${missing.join(', ')}`, 'warning');
+            } else {
+                addLiveOutput('🎉 All required information found!', 'success');
+            }
+            
+            return info;
+        }
+
+        // Update UI with extracted information
+        function updateIDInformation(info, fullText) {
+            // Update each field
+            if (info.dln) {
+                dlnResult.innerHTML = `<span class="extracted-text">${info.dln}</span>`;
+            } else {
+                dlnResult.innerHTML = '<span class="placeholder-text">❌ DLN not found</span>';
+            }
+            
+            if (info.dob) {
+                dobResult.innerHTML = `<span class="extracted-text">${info.dob}</span>`;
+            } else {
+                dobResult.innerHTML = '<span class="placeholder-text">❌ DOB not found</span>';
+            }
+            
+            if (info.exp) {
+                expResult.innerHTML = `<span class="extracted-text">${info.exp}</span>`;
+            } else {
+                expResult.innerHTML = '<span class="placeholder-text">❌ Expiration not found</span>';
+            }
+            
+            if (info.iss) {
+                issResult.innerHTML = `<span class="extracted-text">${info.iss}</span>`;
+            } else {
+                issResult.innerHTML = '<span class="placeholder-text">❌ Issue date not found</span>';
+            }
+            
+            // Update full text
+            fullTextResult.innerHTML = `<span class="extracted-text">${fullText}</span>`;
+            
+            // Update validation status
+            const isValid = info.dln && info.dob && info.exp && info.iss;
+            if (isValid) {
+                validationStatus.innerHTML = `
+                    <div class="status-valid">
+                        ✅ ID Status: <strong>VALID</strong> - All required information extracted
+                    </div>
+                `;
+                showMessage('✅ ID successfully validated! All required information extracted.', 'success');
+            } else {
+                validationStatus.innerHTML = `
+                    <div class="status-invalid">
+                        ⚠️ ID Status: <strong>INVALID</strong> - Missing required information
+                    </div>
+                `;
+                showError('❌ ID validation failed - missing required information (DLN, DOB, EXP, ISS)');
+            }
+            
+            // Store data
+            scannedData = { ...info, fullText };
         }
 
         // Barcode scanning using ZXing library (supports PDF417, Code 128, etc.)
@@ -882,7 +1088,7 @@
                         facingMode: 'environment',
                         width: { ideal: 1280, max: 1920 }, // Reduced for C210
                         height: { ideal: 720, max: 1080 },  // Reduced for C210
-                        focusMode: 'continuous', // Better for barcode scanning
+                        focusMode: 'continuous', // Better for text scanning
                         exposureMode: 'continuous',
                         whiteBalanceMode: 'continuous'
                     }
@@ -906,27 +1112,13 @@
                 
                 startCameraBtn.disabled = true;
                 capturePhotoBtn.disabled = false;
-                scanQRBtn.disabled = false;
                 stopCameraBtn.disabled = false;
                 
-                // Initialize QR scanner with mobile-optimized configuration
-                qrScanner = new QrScanner(
-                    video,
-                    result => handleQRResult(result),
-                    {
-                        highlightScanRegion: false,
-                        highlightCodeOutline: true,
-                        preferredCamera: 'environment',
-                        maxScansPerSecond: 5, // Reduced for mobile performance
-                        returnDetailedScanResult: true
-                    }
-                );
-                
                 if (isMobile) {
-                    showMessage('Camera started successfully - Mobile optimized for barcode scanning', 'success');
+                    showMessage('Camera started successfully - Mobile optimized for ID scanning', 'success');
                     cameraTips.style.display = 'block'; // Show tips for mobile
                 } else {
-                    showMessage('Camera started successfully - Ready for barcode scanning', 'success');
+                    showMessage('Camera started successfully - Ready for ID scanning', 'success');
                 }
             } catch (error) {
                 addLiveOutput(`❌ Camera error: ${error.message}`, 'error');
@@ -946,8 +1138,6 @@
         }
 
         function stopCamera() {
-            stopQRScanning();
-            
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 video.srcObject = null;
@@ -956,23 +1146,10 @@
                 
                 startCameraBtn.disabled = false;
                 capturePhotoBtn.disabled = true;
-                scanQRBtn.disabled = true;
                 stopCameraBtn.disabled = true;
                 
-                if (qrScanner) {
-                    qrScanner.destroy();
-                    qrScanner = null;
-                }
-                
-                showMessage('Camera stopped', 'success');
-            }
-        }
-
-        function toggleQRScanning() {
-            if (isScanningQR) {
-                stopQRScanning();
-            } else {
-                startQRScanning();
+                showMessage('Camera stopped', 'info');
+                cameraTips.style.display = 'none';
             }
         }
 
@@ -1055,7 +1232,7 @@
             loading.classList.add('active');
             capturePhotoBtn.disabled = true;
             startLiveOutput();
-            addLiveOutput('📸 Capturing photo from ID card back side...', 'info');
+            addLiveOutput('📸 Capturing photo from ID card front side...', 'info');
             
             try {
                 // Get image data from canvas with maximum quality
@@ -1065,93 +1242,45 @@
                 // Show debug image for troubleshooting
                 showDebugImage(imageData);
                 
-                // Create enhanced version for better barcode detection
-                addLiveOutput('🔧 Enhancing image for better barcode detection...', 'info');
-                const enhancedImage = await enhanceImageForBarcode(imageData);
+                // Extract text using OCR
+                addLiveOutput('� Starting OCR text extraction...', 'info');
+                const extractedText = await extractTextFromImage(imageData);
                 
-                // Try multiple scanning approaches with enhanced image first
-                addLiveOutput('🔍 Attempting barcode/QR code detection...', 'info');
-                
-                // Method 1: Simple barcode detection with enhanced image
-                try {
-                    const result = await scanWithSimpleBarcode(enhancedImage);
-                    addLiveOutput('✅ Barcode found with enhanced image!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (simpleError) {
-                    addLiveOutput('❌ Enhanced scan failed, trying original image...', 'warning');
+                if (!extractedText || extractedText.length < 10) {
+                    addLiveOutput('❌ No meaningful text extracted', 'error');
+                    throw new Error('No text could be extracted from the image');
                 }
                 
-                // Method 2: Try with original image
-                try {
-                    const result = await scanWithSimpleBarcode(imageData);
-                    addLiveOutput('✅ Barcode found with original image!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (originalError) {
-                    addLiveOutput('❌ Original image scan failed, trying ZXing...', 'warning');
+                // Parse ID information
+                addLiveOutput('🔍 Parsing ID information...', 'info');
+                const idInfo = parseIDInformation(extractedText);
+                
+                // Update UI with results
+                updateIDInformation(idInfo, extractedText);
+                
+                // Check if all required information was found
+                const isValid = idInfo.dln && idInfo.dob && idInfo.exp && idInfo.iss;
+                if (isValid) {
+                    addLiveOutput('🎉 ID successfully validated!', 'success');
+                    addLiveOutput('✅ All required information extracted (DLN, DOB, EXP, ISS)', 'success');
+                } else {
+                    addLiveOutput('⚠️ ID validation failed - missing required information', 'warning');
+                    addLiveOutput('💡 Tips for better OCR results:', 'info');
+                    addLiveOutput('   • Ensure good lighting on the ID card', 'info');
+                    addLiveOutput('   • Hold the camera steady', 'info');
+                    addLiveOutput('   • Make sure text is clear and in focus', 'info');
+                    addLiveOutput('   • Avoid glare and reflections', 'info');
+                    addLiveOutput('   • Try moving closer or farther away', 'info');
                 }
-                
-                // Method 3: ZXing with enhanced image
-                try {
-                    const result = await scanWithZXing(enhancedImage);
-                    addLiveOutput('✅ Barcode found with ZXing (enhanced)!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (zxingEnhancedError) {
-                    addLiveOutput('❌ ZXing enhanced failed, trying original...', 'warning');
-                }
-                
-                // Method 4: ZXing with original image
-                try {
-                    const result = await scanWithZXing(imageData);
-                    addLiveOutput('✅ Barcode found with ZXing (original)!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (zxingError) {
-                    addLiveOutput('❌ ZXing failed, trying QR scanners...', 'warning');
-                }
-                
-                // Continue with other methods...
-                try {
-                    const result = await QrScanner.scanImage(imageData, { 
-                        returnDetailedScanResult: true,
-                        alsoTryWithoutScanRegion: true
-                    });
-                    addLiveOutput('✅ QR code found using qr-scanner library!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (qrScannerError) {
-                    addLiveOutput('❌ qr-scanner library failed, trying jsQR...', 'warning');
-                }
-                
-                try {
-                    const result = await scanWithJSQR(imageData);
-                    addLiveOutput('✅ QR code found using jsQR library!', 'success');
-                    handleQRResult(result);
-                    return;
-                } catch (jsQRError) {
-                    addLiveOutput('❌ jsQR library failed too', 'warning');
-                }
-                
-                // All methods failed - provide helpful feedback
-                addLiveOutput('❌ All scanning methods failed', 'error');
-                addLiveOutput('💡 Check the debug image (top-right corner):', 'info');
-                addLiveOutput('   • Is the barcode clearly visible?', 'info');
-                addLiveOutput('   • Is there good lighting without glare?', 'info');
-                addLiveOutput('   • Is the barcode straight and in focus?', 'info');
-                addLiveOutput('   • Try moving closer or farther away', 'info');
-                addLiveOutput('   • Try a different angle to reduce glare', 'info');
-                
-                throw new Error('No barcode detected - check debug image and try again');
                 
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
                 console.error('Error processing image:', error);
-                showError('Failed to process image: ' + error.message);
+                showError('Failed to extract text from ID card: ' + error.message);
             } finally {
                 loading.classList.remove('active');
                 capturePhotoBtn.disabled = false;
+                clearLiveOutput();
             }
         }
 
