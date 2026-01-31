@@ -3,1043 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Black Battles</title>
+    <title>ID Card Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet" href="CSS/UI.css">
-
-</head>
-<body>
-    <style aria-label="Body_Style">
         body {
-            background-color: rgb(0, 0, 0);
-            width: 100dvw;
-            height: 100dvh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .scanner-section {
+            padding: 30px;
+        }
+
+        .camera-container {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            min-height: 400px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #6b7280;
+            padding: 40px;
+        }
+
+        .placeholder svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .side-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f3f4f6;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .side-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .side-btn.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-section {
+            padding: 0 30px 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scanned-text {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #4f46e5;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 100px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2rem;
+            }
             
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
         }
     </style>
-
-    <div class="Main_Phone">
-
-        <style aria-label="Main_Style">
-            .Main_Phone {
-                width: 100dvw;
-                height: 100dvh;
-                scroll-snap-type: y mandatory;
-                overflow-y: scroll;
-                scroll-behavior: smooth;
-            }
-
-            
-            
-        </style>
-
-        <!-- ANCHOR: MOBILE_DETECTION - Phone detection logic -->
-        <div class="Is_Phone_Detected">
-            <div class="Phone_Detection_Window">
-                <p>You're using a phone, you can download the game and play on android or IOS</p>
-
-                <div class="Phone_Icons">
-                    <img src="/Images/Icons/Corprate Icons/android.png" alt="">
-                    <img src="/Images/Icons/Corprate Icons/apple.png" alt="">
-                </div>
-                <button class="Accept_Phone">Accept</button>
-            </div>
-            <style aria-label="Phone_Detection_Style">
-                .Is_Phone_Detected {
-                    position: fixed;
-                    width: 100dvw;
-                    height: 100dvh;
-                    background-color: var(--Detection_Window_Background);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 10;
-                    backdrop-filter: var(--Back_Drop);
-                    display: none;
-                }
-
-                .Is_Phone_Detected > .Phone_Detection_Window {
-                    position: relative;
-                    width: 300px;
-                    height: 200px;
-                    background-color: var(--UI-Buttons-Fields-Color-1);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                .Is_Phone_Detected > .Phone_Detection_Window > p {
-                    position: absolute;
-                    top: 50px;
-                    color: var(--Main_Text_Color_1);
-                    font-size: var(--Main_Text_1);
-                    text-align: center;
-                    width: 180px;
-                }
-
-                .Is_Phone_Detected > .Phone_Detection_Window > .Phone_Icons {
-                    position: absolute;
-                    top: 100px;
-                    display: flex;
-                    flex-direction: row;
-                    gap: 20px;
-                }
-
-                .Is_Phone_Detected > .Phone_Detection_Window > .Phone_Icons > img {
-                    width: 30px;
-                    
-                }
-
-                .Is_Phone_Detected > .Phone_Detection_Window > button {
-                    position: absolute;
-                    bottom: 20px;
-                    width: 160px;
-                    height: 30px;
-                }
-
-            </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🆔 ID Card Scanner</h1>
+            <p>Scan and extract text from ID cards using your camera</p>
         </div>
 
-        <!-- ANCHOR: PHONE_CHECK -->
+        <div class="scanner-section">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
 
-        <script aria-label="Phone_Check">
-            (function(){
-                // Check for server-side mobile detection first
-                const serverMobile = document.querySelector('meta[name="mobile-view"]');
-                const isServerMobile = serverMobile?.content === 'true';
-                
-                // Enhanced mobile detection
-                const isMobile = isServerMobile || 
-                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-                    || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)
-                    || Math.min(window.screen.width, window.screen.height) <= 768
-                    || window.location.search.includes('force=mobile')
-                    || window.location.pathname.includes('/mobile');
+            <div class="side-selector">
+                <button class="side-btn active" data-side="front">
+                    📷 Front Side
+                </button>
+                <button class="side-btn" data-side="back">
+                    📷 Back Side
+                </button>
+            </div>
 
-                const accepted = (() => {
-                    try { return localStorage.getItem('phoneDetectedAccepted'); } catch(e) { return null; }
-                })();
+            <div class="camera-container">
+                <video id="video" autoplay playsinline style="display: none;"></video>
+                <canvas id="canvas"></canvas>
+                <div class="placeholder" id="placeholder">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <h3>Camera Ready</h3>
+                    <p>Click "Start Camera" to begin scanning</p>
+                </div>
+            </div>
 
-                const phoneDetectedEl = document.querySelector('.Is_Phone_Detected');
+            <div class="controls">
+                <button class="btn btn-primary" id="startCamera">
+                    📹 Start Camera
+                </button>
+                <button class="btn btn-secondary" id="capturePhoto" disabled>
+                    📸 Capture Photo
+                </button>
+                <button class="btn btn-secondary" id="stopCamera" disabled>
+                    ⏹️ Stop Camera
+                </button>
+            </div>
 
-                // Always show mobile detection on mobile or when forced
-                if (isMobile && phoneDetectedEl && !accepted) {
-                    phoneDetectedEl.style.display = 'flex';
-                    
-                    // Add mobile class to body for styling
-                    document.body.classList.add('mobile-device');
-                }
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing image and extracting text...</p>
+            </div>
+        </div>
 
-                const acceptBtn = document.querySelector('.Accept_Phone');
-                if (acceptBtn) {
-                    acceptBtn.addEventListener('click', () => {
-                        if (phoneDetectedEl) phoneDetectedEl.style.display = 'none';
-                        try { localStorage.setItem('phoneDetectedAccepted', '1'); } catch(e) {}
-                    });
-                }
+        <div class="results-section">
+            <div class="result-card">
+                <h3>📋 Front Side Results</h3>
+                <div class="scanned-text" id="frontResult">
+                    No front side data scanned yet. Capture a photo of the front of your ID card.
+                </div>
+            </div>
 
-                // Log mobile detection for debugging
-                console.log('Mobile Detection:', {
-                    isMobile,
-                    isServerMobile,
-                    userAgent: navigator.userAgent,
-                    pathname: window.location.pathname,
-                    search: window.location.search
+            <div class="result-card">
+                <h3>📋 Back Side Results</h3>
+                <div class="scanned-text" id="backResult">
+                    No back side data scanned yet. Capture a photo of the back of your ID card.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stream = null;
+        let currentSide = 'front';
+        let scannedData = {
+            front: '',
+            back: ''
+        };
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const startCameraBtn = document.getElementById('startCamera');
+        const capturePhotoBtn = document.getElementById('capturePhoto');
+        const stopCameraBtn = document.getElementById('stopCamera');
+        const placeholder = document.getElementById('placeholder');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const frontResult = document.getElementById('frontResult');
+        const backResult = document.getElementById('backResult');
+
+        // Side selector
+        document.querySelectorAll('.side-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentSide = this.dataset.side;
+                showMessage(`Switched to ${currentSide} side`, 'success');
+            });
+        });
+
+        // Camera controls
+        startCameraBtn.addEventListener('click', startCamera);
+        capturePhotoBtn.addEventListener('click', capturePhoto);
+        stopCameraBtn.addEventListener('click', stopCamera);
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    } 
                 });
-            })();
-        </script>
-
-        <!-- ANCHOR: MENU_UTILITIES -->
-
-        <script aria-label="Menu_Utilities">
-            // ensure only one menu is open at a time
-            (function(){
-                if (!window._menuUtils) {
-                    window._menuUtils = {
-                        currentMenu: null,
-                        openMenu(menu){
-                            if (!menu) return;
-                            // close previously opened menu
-                            if (this.currentMenu && this.currentMenu !== menu) {
-                                this.closeMenu(this.currentMenu);
-                            }
-                            // show the menu
-                            menu.style.display = 'flex';
-                            // force reflow for transition
-                            void menu.offsetWidth;
-                            menu.classList.add('menu-visible');
-                            this.currentMenu = menu;
-                        },
-                        closeMenu(menu){
-                            if (!menu) menu = this.currentMenu;
-                            if (!menu) return;
-                            menu.classList.remove('menu-visible');
-                            // hide after transition
-                            setTimeout(() => { menu.style.display = 'none'; }, 250);
-                            if (this.currentMenu === menu) this.currentMenu = null;
-                        }
-                    };
-
-                    // close current menu when clicking/tapping outside of it
-                    document.addEventListener('click', function(e){
-                        const cur = window._menuUtils.currentMenu;
-                        if (!cur) return;
-                        if (!cur.contains(e.target) && !e.target.closest('.Main_Profile') && !e.target.closest('.Stats_Profile')) {
-                            window._menuUtils.closeMenu(cur);
-                        }
-                    });
-
-                    // close on Escape
-                    document.addEventListener('keydown', function(e){
-                        if (e.key === 'Escape') window._menuUtils.closeMenu();
-                    });
-                }
-            })();
-        </script>
-
-        <!-- ANCHOR: WINDOWS_DRAGGING -->
-
-        <script aria-label="Windows_Dragging">
-
-            // make all windows draggable
-            (function(){
-                console.log('DRAG SCRIPT LOADED -', new Date().toLocaleTimeString());
-                const windows = document.querySelectorAll('.Test_Square');
-                console.log('Found test squares:', windows.length);
-                for (let i = 0; i < windows.length; i++) {
-                    const win = windows[i];
-                    win.addEventListener('pointerdown', startDrag);
-                    win.style.cursor = 'move';
-                }
-                function startDrag(e) {
-                    console.log('Drag started at', new Date().toLocaleTimeString());
-                    e.preventDefault();
-                    const win = e.target;
-                    const rect = win.getBoundingClientRect();
-                    const offsetX = e.clientX - rect.left;
-                    const offsetY = e.clientY - rect.top;
-                    win.setPointerCapture(e.pointerId);
-                    win.addEventListener('pointermove', moveDrag, false);
-                    win.addEventListener('pointerup', stopDrag, false);
-                    win.addEventListener('pointercancel', stopDrag, false);
-                    function moveDrag(e) {
-                        win.style.position = 'fixed';
-                        win.style.left = (e.clientX - offsetX) + 'px';
-                        win.style.top = (e.clientY - offsetY) + 'px';
-                    }
-                    function stopDrag(e) {
-                        console.log('Drag ended at', new Date().toLocaleTimeString());
-                        win.releasePointerCapture(e.pointerId);
-                        win.removeEventListener('pointermove', moveDrag, false);
-                        win.removeEventListener('pointerup', stopDrag, false);
-                        win.removeEventListener('pointercancel', stopDrag, false);
-                    }
-                }
-            })();
-            
-            
-            
-            
-        </script>
-
-        <!-- ANCHOR: WINDOW_GRID_SNAP -->
-
-        <script aria-label="Window_Grid_Snap ">
-            
-
-        </script>
-
-        
-
-        <!-- ANCHOR: TOP_MENU - Navigation menu -->
-        <div class="Top_Menu">
-            <div class="Menu_Options">
-                <a href="/Index.html" class="Menu_Link">Black Battles</a>
-                <a href="/Html/Chat.html" class="Menu_Link">Chat</a>
-                <a href="/Html/Armies.html" class="Menu_Link">Armies</a>
-                <a href="/Html/News.html" class="Menu_Link">News</a>
-                <a href="/Html/OpenWarfare.html" class="Menu_Link">Open Warfare</a>
-            </div>
-            <style>
-                .Top_Menu {
-                    position: fixed;
-                    width: 100dvw;
-                    height: 40px;
-                    background-color: rgba(0, 0, 0, 0.199);
-                    backdrop-filter: var(--Back_Drop);
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 5;
-                }
-
-                .Menu_Options {
-                    display: flex;
-                    gap: 50px;
-                }
-
-                .Top_Menu > .Menu_Options> a {
-                    font-size: var(--Main_Text_1);
-                }
-
-            </style>
-        </div>
-        <section class="Index_Page_1">
-            <style aria-label="Page_1_Style">
-                .Index_Page_1 {
-                    width: 100dvw;
-                    height: 100dvh;
-                    scroll-snap-align: start;
-                    display: none;
-                }
-            </style>
-            
-            <!-- ANCHOR: PLAY_GAME - Game play section -->
-            <div class="Play_Game_Content">
-                <img class="Page_1_Wallpaper" src="/Images/Wallpaper/wp13023157.png" alt="Wallpaper">
-                <img class="Main_Logo" src="/Images/Icons/Logo/Black+Battles+Logo+Transparent.png" alt="">
                 
-                <div class="Top_Information">
-                    <span>140 Players</span>
-                    <span>56 Online</span>
-                    <span>$20K at Stake</span>
-                </div>
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
                 
-                <button class="Play_Game">Play Game</button>
+                startCameraBtn.disabled = true;
+                capturePhotoBtn.disabled = false;
+                stopCameraBtn.disabled = false;
+                
+                showMessage('Camera started successfully', 'success');
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                showError('Unable to access camera. Please ensure you have granted camera permissions.');
+            }
+        }
 
-                <style aria-label="Play_Game_Style">
-                    .Play_Game_Content {
-                        position: relative;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        overflow: hidden;
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                video.style.display = 'none';
+                placeholder.style.display = 'block';
+                
+                startCameraBtn.disabled = false;
+                capturePhotoBtn.disabled = true;
+                stopCameraBtn.disabled = true;
+                
+                showMessage('Camera stopped', 'success');
+            }
+        }
+
+        async function capturePhoto() {
+            if (!stream) return;
+
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw current video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Show loading
+            loading.classList.add('active');
+            capturePhotoBtn.disabled = true;
+            
+            try {
+                // Get image data from canvas
+                const imageData = canvas.toDataURL('image/png');
+                
+                // Use Tesseract.js to extract text
+                const result = await Tesseract.recognize(
+                    imageData,
+                    'eng',
+                    {
+                        logger: m => console.log(m)
                     }
-
-                    .Play_Game_Content > .Page_1_Wallpaper {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        
-                    }
-
-                    .Play_Game_Content > .Top_Information {
-                        position: absolute;
-                        top: 100px;
-                        display: flex;
-                        gap: 50px;
-                        font-size: var(--Main_Text_2);
-                        color: var(--Main_Text_Color_3);
-                    }
-
-                    .Play_Game_Content > .Play_Game {
-                        position: absolute;
-                        bottom: 20px;
-                        width: 200px;
-                        height: 30px;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_3);
-                        background-color: var(--UI-Buttons-Fields-Color_Active-3);
-                    }
-
-                    .Play_Game_Content > .Main_Logo {
-                        position: absolute;
-                        top: 160px;
-                        width: 300px;
-                        height: auto;
-                    }
-                </style>
-            </div>
-        </section>
-
-        <section class="Index_Page_2">
-            <style aria-label="Page_2_Style">
-                .Index_Page_2 {
-                    position: relative;
-                    width: 100dvw;
-                    height: 100dvh;
-                    scroll-snap-align: start;
-                    display: flex;
-                    justify-content: center;
-                    
+                );
+                
+                // Store and display the extracted text
+                const extractedText = result.data.text.trim();
+                scannedData[currentSide] = extractedText;
+                
+                if (currentSide === 'front') {
+                    frontResult.textContent = extractedText || 'No text found on front side.';
+                } else {
+                    backResult.textContent = extractedText || 'No text found on back side.';
                 }
-            </style>
-
-            <div class="Page_2_Wallpaper">
-                <img src="/Images/Wallpaper/Firefly_Gemini Flash_3d ww2 157067.png" alt="Wallpaper">
-                <style aria-label="Wallpaper_Style">
-                    .Page_2_Wallpaper {
-                        position: absolute;
-                        width: 100%;
-                        height: 100%;
-                        overflow: hidden;
-                    }
-
-                    .Page_2_Wallpaper > img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                    }
-                </style>
-            </div>
-
-            <!-- ANCHOR: MAIN_PROFILE - User profile system -->
-            <div class="Main_Profile_Container">
-                <button class="Main_Profile"><img src="/Images/Profile Pics/render.png" alt=""></button>
-
-                <!--Creates the profile menu class="Main_Profile_Menu"-->
-                <div class="Main_Profile_Menu">
-                    <button class="View_Profile">View Profile</button>
-                    <button class="View_Profile">Settings</button>
-                    <button class="View_Profile">Logout</button>
-
-                    <style aria-label="Main_Profile_Menu_Style">
-                        .Main_Profile_Menu {
-                            position: absolute;
-                            top: 40px;
-                            left: -90px;
-                            width: 120px;
-                            height: auto;
-                            flex-direction: column;
-                            z-index: 7;
-                            opacity: 0;
-                            transform: scale(0.95);
-                            pointer-events: none;
-                            transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
-                        }
-
-                        .Main_Profile_Menu.menu-visible {
-                            display: flex;
-                            opacity: 1;
-                            transform: scale(1);
-                            pointer-events: auto;
-                        }
-
-                        .Main_Profile_Menu > button {
-                            width: 100%;
-                            height: 30px;
-                            font-size: var(--Main_Text_1);
-                            color: var(--Main_Text_Color_1);
-                            background-color: var(--UI-Buttons-Fields-Color-2);
-                        }
-
-                        
-
-
-                    </style>
-
-                    <script aria-label="Main_Profile_Menu_Script">
-                        (function(){
-                            const mainProfileBtn = document.querySelector('.Main_Profile');
-                            const mainProfileMenu = document.querySelector('.Main_Profile_Menu');
-                            if(mainProfileBtn && mainProfileMenu) {
-                                mainProfileBtn.addEventListener('click', function(e) {
-                                    e.stopPropagation();
-                                    if (mainProfileMenu.classList.contains('menu-visible')) {
-                                        if (window._menuUtils) window._menuUtils.closeMenu(mainProfileMenu);
-                                        else { mainProfileMenu.classList.remove('menu-visible'); setTimeout(() => { mainProfileMenu.style.display = 'none'; }, 250); }
-                                    } else {
-                                        if (window._menuUtils) window._menuUtils.openMenu(mainProfileMenu);
-                                        else { mainProfileMenu.style.display = 'flex'; void mainProfileMenu.offsetWidth; mainProfileMenu.classList.add('menu-visible'); }
-                                    }
-                                });
-                                // Hide menu if clicking outside
-                                document.addEventListener('click', function(e) {
-                                    if (!mainProfileMenu.contains(e.target) && e.target !== mainProfileBtn) {
-                                        if (window._menuUtils) window._menuUtils.closeMenu(mainProfileMenu);
-                                        else { mainProfileMenu.classList.remove('menu-visible'); setTimeout(() => { mainProfileMenu.style.display = 'none'; }, 250); }
-                                    }
-                                });
-                                // Ensure menu is hidden initially
-                                mainProfileMenu.style.display = 'none';
-                            }
-                        })();
-                    </script>
-                </div>
-
-                <style aria-label="Main_Profile_Style">
-                    .Main_Profile_Container {
-                        position: absolute;
-                        top: 60px;
-                        right: 10px;
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                    }
-                    .Main_Profile_Container > .Main_Profile {
-                        width: 30px;
-                        height: 30px;
-                        background-color: transparent;
-                    }
-
-                    .Main_Profile_Container > .Main_Profile > img {
-                        width: 30px;
-                        height: 30px;
-                    }
-                    
-                </style>
-            </div>
-
-            <!-- ANCHOR: MAIN_PROFILE_MENU_WINDOWS - Window_View_Profile -->
-
-            <div class="Main_Profile_Menu_Windows">
-
-                <div class="Window Window_View_Profile">
-                    <div class="Header">
-                        <p class="Title">Profile</p>
-                        <button class="Close_Button">[ Close ]</button>
-                    </div>
-                    <div class="Content">
-
-                    </div>
-                </div>
-
-                <style aria-label="Main_Profile_Menu_Windows_Style">
-                    
-                    .Main_Profile_Menu_Windows > .Window_View_Profile {
-                        position: absolute;
-                        top: 40px;
-                        left: 40px;
-                        width: 260px;
-                        height: 200px;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        backdrop-filter: var(--Back_Drop);
-                        z-index: 6;
-                    }
-                </style>
-
-                <script aria-label="Main_Profile_Menu_Windows_Script">
-
-                </script>
-
-            </div>
-
-            <div class="Main_Profile_Menu_Windows_Sub">
-                <style  aria-label="Main_Profile_Menu_Windows_Sub_Style">
-                    
-
-                </style>
-            </div>
-
-            <div class="Main_Profile_Menu_Windows_Dialog">
-                <style  aria-label="Main_Profile_Menu_Windows_Dialog_Style">    
-                    
-                </style>
-            </div>
-
-            <div class="User_Information">
-                <div class="Points">
-                    <span class="Chips"><img src="/Images/Icons/Points Icon/Chip.svg" alt=""> 10K</span>
-                    <span class="Gold_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt=""> 1500</span>
-                </div>
-                <style aria-label="User_Information_Style">
-                    .User_Information {
-                        position: absolute;
-                        top: 60px;
-                        right: 80px;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_3);
-                    }
-
-                    .User_Information > .Points {
-                        display: flex;
-                        flex-direction: row;
-                        gap: 30px;
-                    }
-
-                    .User_Information > .Points > span {
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                    }
-
-                    .User_Information > .Points > span > img {
-                        width: 10px;
-                        height: 10px;
-                    }
-                </style>
-            </div>
-
-            <div class="Search_Oponets">
-                <button class="Search_Openets_Button">Search</button>
-                <p>Search your oponets</p>
-                <style aria-label="Search_Oponets_Style">
-                    .Search_Oponets {
-                        position: absolute;
-                        width: 100%;
-                        top: 120px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                    }
-
-                    .Search_Oponets > .Search_Openets_Button {
-                        width: 200px;
-                        height: 30px;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_1);
-                        background-color: var(--UI-Buttons-Fields-Color-3);
-                    }
-
-                    .Search_Oponets > p {
-                        margin-top: 20px;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_1);
-                    }
-                </style>
-            </div>
-
-            <div class="Side_Bar">
-                <div class="Side_Bar_Menu">
-                    <button class="Side_Bar_Friends"></button>
-                    <button class="Side_Bar_Market"></button>
-                    <button class="Side_Bar_Ranks"></button>
-                    <button class="Side_Bar_Nations"></button>
-                    <button class="Side_Bar_Cash_Out"></button>
-                </div>
-
-                <style aria-label="Side_Bar_Style">
-                    .Side_Bar {
-                        position: absolute;
-                        left: 10px;
-                        height: 100%;
-                        display: flex;
-                        align-items: center;
-                    }
-
-                    .Side_Bar > .Side_Bar_Menu {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;   
-                    }
-
-                    .Side_Bar > .Side_Bar_Menu > button {
-                        width: 30px;
-                        height: 30px;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        backdrop-filter: blur(10px);
-                    }
-
-                    .Side_Bar > .Side_Bar_Menu > button > img {
-                        width: 20px;
-                        height: 20px;
-                    }
-                </style>
-            </div>
-
-            <div class="Side_Bar_Windows">
-                <div class="Side_Bar_Windows_Container .Friends">
-                    <div class="Header">
-                        <span class="Close_Window">[ Close ]</span>
-                        <div class="Header_Bar">
-                            <button class="Header_Bar_Button"></button>
-                            <button class="Header_Bar_Button"></button>
-                            <button class="Header_Bar_Button"></button>
-                            <button class="Header_Bar_Button"></button>
-                        </div>
-                        <div class="Main_Content">
-                            <div class="Friends_List">
-
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-                <style aria-label="Side_Bar_Windows_Styles">
-
-                    .Side_Bar_Windows_Container {
-                        position: absolute;
-                        width: calc(100% - 60px);
-                        height: calc(100% - 20px);
-                        left: 50px;
-                        top: 10px;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        backdrop-filter: blur(20px);
-                        z-index: 6;
-                        display: none;
-                    }
-
-                    .Side_Bar_Windows_Container > .Header > .Header_Bar {
-                        position: absolute;
-                        left: 10px;
-                        display: flex;
-                        flex-direction: row;
-                        gap: 10px;
-
-                    }
-
-                    .Side_Bar_Windows_Container > .Header > .Header_Bar > .Header_Bar_Button {
-                        width: 20px;
-                        height: 20px;
-                    }
-
-                    .Side_Bar_Windows_Container > .Header {
-                        width: 100%;
-                        height: 40px;
-                        display: flex;
-                        align-items: center;
-                        background-color: var(--Header_Text_Color);
-                    }
-
-                    .Side_Bar_Windows_Container > .Header .Close_Window {
-                        position: absolute;
-                        right: 10px;
-                        color: var(--Main_Text_Color_1);
-                        font-size: var(--Main_Text_1);
-                    }
-
-                </style>
-            </div>
-
-            <div class="Test_Square">
-                <style>
-                    .Test_Square {
-                        position: absolute;
-                        top: 400px;
-                        left: 200px;
-                        width: 100px;
-                        height: 100px;
-                        background-color: red;
-                    }
-                </style>
-            </div>
-
-            <div class="User_Game_Information">
-                <style>
-                    .User_Game_Information {
-                        position: absolute;
-                        top: 260px;
-                        left: 50px;
-                        width: calc(100% - 60px);
-                        height: calc(100% - 270px);
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        overflow-y: scroll;
-                    }
-
-                    .User_Game_Information > .Game_Stats {
-                        position: absolute;
-                        top: 0px;
-                        left: 0px;
-                        width: 100%;
-                        height: auto;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                        align-items: center;
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat {
-                        position: relative;
-                        width: 100%;
-                        height: 130px;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        backdrop-filter: var(--Back_Drop);
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information  {
-                        position: absolute;
-                        left: 10px;
-                        top: 10px;
-                        display: flex;
-                        flex-direction: row;
-                        align-items: start;
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Profile  {
-                        width: 30px;
-                        height: 30px;
-                        background-color: transparent;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Profile > img {
-                        width: 30px;
-                        height: 30px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Player_Points {
-                        margin-left: 10px;
-                        display: flex;
-                        align-items: center;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_3);
-                        gap: 10px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Player_Basic_Information > .Stats_Player_Points > img {
-                        width: 10px;
-                        height: 10px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_List {
-                        position: absolute;
-                        bottom: 10px;
-                        left: 10px;
-                        display: flex;
-                        flex-direction: row;
-                        gap: 10px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_List > button {
-                        width: 20px;
-                        height: 20px;
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_List > button > img {
-                        width: 15px;
-                        height: 15px;
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers {
-                        position: absolute;
-                        right: 10px;
-                        top: 10px;
-                        width: calc(100% - 130px);
-                        height: 40px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div {
-                        position: absolute;
-                        width: 100%;
-                        height: 60px;
-                        background-color: var(--UI-Buttons-Fields-Color-1);
-                        overflow: hidden;
-                        overflow-x: scroll;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span {
-                        min-width: 50px;
-                        height: 100%;
-                        background-color: rgba(0, 0, 0, 0.137);
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span > img {
-                        margin-top: 10px;
-                        width: 30px;
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > div > span > p {
-                        position: absolute;
-                        bottom: 5px;
-                        font-size: var(--Main_Text_1);
-                        color: var(--Main_Text_Color_1);
-                        
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Infantry {
-                        display: flex;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Machine {
-                        display: none;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Air {
-                        display: none;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stats_Military_Numbers > .Stats_Military_Numbers_Sea {
-                        display: none;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stat_Bottom_Buttons {
-                        position: absolute;
-                        right: 10px;
-                        bottom: 10px;
-                        display: flex;
-                        flex-direction: row;
-                        gap: 10px;
-                    }
-
-                    .User_Game_Information > .Game_Stats > .Player_Stat > .Stat_Bottom_Buttons > button {
-                        width: 70px;
-                        height: 20px;
-                    }
-
-                    
-                </style>
-
                 
+                showMessage(`Successfully scanned ${currentSide} side of ID card`, 'success');
+                
+            } catch (error) {
+                console.error('Error extracting text:', error);
+                showError('Failed to extract text from image. Please try again.');
+            } finally {
+                loading.classList.remove('active');
+                capturePhotoBtn.disabled = false;
+            }
+        }
 
-                <!-- ANCHOR: GAME_STATS - Player_Stat -->
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            successMessage.classList.remove('show');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
 
-                <div class="Game_Stats">
-                    <div class="Player_Stat">
-                        <div class="Player_Basic_Information">
-                            <button class="Stats_Profile"><img src="/Images/Profile Pics/render (3).png" alt=""></button>
+        function showMessage(message, type) {
+            if (type === 'success') {
+                successMessage.textContent = message;
+                successMessage.classList.add('show');
+                errorMessage.classList.remove('show');
+            } else {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+            }
+            
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+                errorMessage.classList.remove('show');
+            }, 3000);
+        }
 
-                            <!--Creates the profile menu class="Player_Stat_PBI_Profile_Menu"-->
-
-                            <!-- ANCHOR: GAME_STATS - Player_Stat_PBI_Profile_Menu -->
-                            <div class="Player_Stat_PBI_Profile_Menu">
-                                <button class="View_Profile">View Profile</button>
-
-                                <style aria-label="Player_Stat_PBI_Profile_Menu_Style">
-
-                                    .Player_Stat_PBI_Profile_Menu {
-                                        position: absolute;
-                                        top: 40px;
-                                        width: 120px;
-                                        height: auto;
-                                        flex-direction: column;
-                                        z-index: 7;
-                                        opacity: 0;
-                                        transform: scale(0.95);
-                                        pointer-events: none;
-                                        transition: opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1);
-                                    }
-
-                                    .Player_Stat_PBI_Profile_Menu.menu-visible {
-                                        display: flex;
-                                        opacity: 1;
-                                        transform: scale(1);
-                                        pointer-events: auto;
-                                    }
-
-                                    .Player_Stat_PBI_Profile_Menu > button {
-                                        width: 100%;
-                                        height: 30px;
-                                        font-size: var(--Main_Text_1);
-                                        color: var(--Main_Text_Color_1);
-                                        background-color: var(--UI-Buttons-Fields-Color-2);
-                                    }
-                                </style>
-
-                                <script aria-label="Player_Stat_PBI_Profile_Menu_Script">
-                                    (function(){
-                                        const statsProfileBtn = document.querySelector('.Stats_Profile');
-                                        const profileMenu = document.querySelector('.Player_Stat_PBI_Profile_Menu');
-                                        if(statsProfileBtn && profileMenu) {
-                                            statsProfileBtn.addEventListener('click', function(e) {
-                                                e.stopPropagation();
-                                                if (profileMenu.classList.contains('menu-visible')) {
-                                                    if (window._menuUtils) window._menuUtils.closeMenu(profileMenu);
-                                                    else { profileMenu.classList.remove('menu-visible'); setTimeout(() => { profileMenu.style.display = 'none'; }, 250); }
-                                                } else {
-                                                    if (window._menuUtils) window._menuUtils.openMenu(profileMenu);
-                                                    else { profileMenu.style.display = 'flex'; void profileMenu.offsetWidth; profileMenu.classList.add('menu-visible'); }
-                                                }
-                                            });
-                                            // Hide menu if clicking outside
-                                            document.addEventListener('click', function(e) {
-                                                if (!profileMenu.contains(e.target) && e.target !== statsProfileBtn) {
-                                                    if (window._menuUtils) window._menuUtils.closeMenu(profileMenu);
-                                                    else { profileMenu.classList.remove('menu-visible'); setTimeout(() => { profileMenu.style.display = 'none'; }, 250); }
-                                                }
-                                            });
-                                            // Ensure menu is hidden initially
-                                            profileMenu.style.display = 'none';
-                                        }
-                                    })();
-                                </script>
-                            </div>
-                            <span class="Stats_Player_Points"><img src="/Images/Icons/Points Icon/Gold Star.svg" alt="">3400</span>
-                        </div>
-                        <div class="Stats_Military_List">
-                            <button class="Stats_Military_Infantry"><img src="/Images/Icons/UI/Rifle.png" alt=""></button>
-                            <button class="Stats_Military_Machine"><img src="/Images/Icons/UI/Tank.png" alt=""></button>
-                            <button class="Stats_Military_Air"><img src="/Images/Icons/UI/Plane.png" alt=""></button>
-                            <button class="Stats_Military_Sea"><img src="/Images/Icons/UI/Ship.png" alt=""></button>
-                        </div>
-
-                        <div class="Stats_Military_Numbers">
-                            <div class="Stats_Military_Numbers_Infantry">
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/DW_2_cropped.webp" alt=""><p>2.4K</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/STA-1_cropped.webp" alt=""><p>4.2K</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T20_cropped.webp" alt=""><p>1.0K</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T67_cropped.webp" alt=""><p>130</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T_55A_cropped.webp" alt=""><p>20</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/DW_2_cropped.webp" alt=""><p>460</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/STA-1_cropped.webp" alt=""><p>4.2K</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T20_cropped.webp" alt=""><p>1.0K</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T67_cropped.webp" alt=""><p>130</p></span>
-                                <span><img src="/Images/Icons/Stats_Military_Numbers/T_55A_cropped.webp" alt=""><p>20</p></span>
-                            </div>
-                            <div class="Stats_Military_Numbers_Machine">
-                                
-                            </div>
-                            <div class="Stats_Military_Numbers_Air">
-                                
-                            </div>
-                            <div class="Stats_Military_Numbers_Sea">
-                                
-                            </div>
-                        </div>
-                        
-                        <div class="Stat_Bottom_Buttons">
-                            <button class="Stats_View_Player_Military">View</button>
-                            <button class="Stats_Battle_Player">Battle</button>
-                        </div>
-
-                        <script aria-label="Player_Stat_Script">
-                            const infantryButton = document.querySelector('.Stats_Military_Infantry');
-                            const machineButton = document.querySelector('.Stats_Military_Machine');
-                            const airButton = document.querySelector('.Stats_Military_Air');
-                            const seaButton = document.querySelector('.Stats_Military_Sea');
-
-                            const infantryNumbers = document.querySelector('.Stats_Military_Numbers_Infantry');
-                            const machineNumbers = document.querySelector('.Stats_Military_Numbers_Machine');
-                            const airNumbers = document.querySelector('.Stats_Military_Numbers_Air');
-                            const seaNumbers = document.querySelector('.Stats_Military_Numbers_Sea');
-
-                            infantryButton.addEventListener('click', () => {
-                                infantryNumbers.style.display = 'flex';
-                                machineNumbers.style.display = 'none';
-                                airNumbers.style.display = 'none';
-                                seaNumbers.style.display = 'none';
-                            });
-
-                            machineButton.addEventListener('click', () => {
-                                infantryNumbers.style.display = 'none';
-                                machineNumbers.style.display = 'flex';
-                                airNumbers.style.display = 'none';
-                                seaNumbers.style.display = 'none';
-                            });
-
-                            airButton.addEventListener('click', () => {
-                                infantryNumbers.style.display = 'none';
-                                machineNumbers.style.display = 'none';
-                                airNumbers.style.display = 'flex';
-                                seaNumbers.style.display = 'none';
-                            });
-
-                            seaButton.addEventListener('click', () => {
-                                infantryNumbers.style.display = 'none';
-                                machineNumbers.style.display = 'none';
-                                airNumbers.style.display = 'none';
-                                seaNumbers.style.display = 'flex';
-                            });
-
-                        </script>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        
-    </div>
-    
-
-    <div class="Main_desktop">
-
-    </div>
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
 </body>
 </html>

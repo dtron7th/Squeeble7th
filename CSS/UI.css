@@ -92,7 +92,8 @@
 }
 
 .Window {
-    
+    display: flex;
+    flex-direction: column;
 }
 
 .Window > .Header {
@@ -115,6 +116,7 @@
     right: 10px;
     font-size: var(--Main_Text_1);
     color: var(--Main_Text_Color);
+    background: none;
 }
 
 
