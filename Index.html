@@ -887,12 +887,22 @@
             addLiveOutput('🔍 Parsing ID information from extracted text...', 'info');
             addLiveOutput(`📋 Analyzing ${text.length} characters of text`, 'info');
             
+            // Show the raw extracted text for debugging
+            addLiveOutput('📄 RAW EXTRACTED TEXT:', 'info');
+            addLiveOutput('================================', 'info');
+            addLiveOutput(text, 'info');
+            addLiveOutput('================================', 'info');
+            
             const info = {
                 dln: '',
                 dob: '',
                 exp: '',
                 iss: ''
             };
+            
+            // Clean and normalize text for better parsing
+            const cleanText = text.replace(/\s+/g, ' ').trim();
+            addLiveOutput(`📋 Cleaned text: "${cleanText.substring(0, 200)}${cleanText.length > 200 ? '...' : ''}"`, 'info');
             
             // Enhanced Driver's License Number patterns
             const dlnPatterns = [
@@ -905,8 +915,45 @@
                 /NO\.?\s*([A-Z0-9]{6,12})\s*DL/i,
                 /([A-Z]{1,3}\d{6,9})\s*$/i,  // End of line pattern
                 /([A-Z]{2}\d{6,8})/i,        // Standard format
-                /(\d{8,12})/i                // Pure numbers
+                /(\d{8,12})/i,               // Pure numbers
+                /([A-Z]\d{7,9})/i,           // Letter + numbers
+                /(\d{1}[A-Z]\d{6,8})/i       // Number + letter + numbers
             ];
+            
+            // Enhanced Date patterns (more flexible)
+            const datePatterns = [
+                /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g,  // Any date format
+                /(\d{2}\/\d{2}\/\d{4})/g,              // MM/DD/YYYY
+                /(\d{2}\-\d{2}\-\d{4})/g,              // MM-DD-YYYY
+                /(\d{1,2}\/\d{1,2}\/\d{2})/g,         // MM/DD/YY
+                /(\d{2}\-\d{2}\-\d{2})/g               // MM-DD-YY
+            ];
+            
+            // Extract Driver's License Number
+            addLiveOutput('🔍 Searching for Driver\'s License Number...', 'info');
+            for (let i = 0; i < dlnPatterns.length; i++) {
+                const pattern = dlnPatterns[i];
+                const match = cleanText.match(pattern);
+                if (match && match[1]) {
+                    info.dln = match[1].trim();
+                    addLiveOutput(`✅ DLN found (pattern ${i + 1}): ${info.dln}`, 'success');
+                    break;
+                }
+            }
+            
+            // Find all dates first, then categorize them
+            addLiveOutput('🔍 Finding all dates in text...', 'info');
+            const allDates = [];
+            for (const pattern of datePatterns) {
+                const matches = cleanText.match(pattern);
+                if (matches) {
+                    allDates.push(...matches);
+                }
+            }
+            
+            // Remove duplicates
+            const uniqueDates = [...new Set(allDates)];
+            addLiveOutput(`📅 Found ${uniqueDates.length} unique dates: ${uniqueDates.join(', ')}`, 'info');
             
             // Enhanced Date of Birth patterns
             const dobPatterns = [
@@ -941,23 +988,11 @@
                 /ISS\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
             ];
             
-            // Extract Driver's License Number
-            addLiveOutput('🔍 Searching for Driver\'s License Number...', 'info');
-            for (let i = 0; i < dlnPatterns.length; i++) {
-                const pattern = dlnPatterns[i];
-                const match = text.match(pattern);
-                if (match && match[1]) {
-                    info.dln = match[1].trim();
-                    addLiveOutput(`✅ DLN found (pattern ${i + 1}): ${info.dln}`, 'success');
-                    break;
-                }
-            }
-            
             // Extract Date of Birth
             addLiveOutput('🔍 Searching for Date of Birth...', 'info');
             for (let i = 0; i < dobPatterns.length; i++) {
                 const pattern = dobPatterns[i];
-                const match = text.match(pattern);
+                const match = cleanText.match(pattern);
                 if (match && match[1]) {
                     info.dob = match[1].trim();
                     addLiveOutput(`✅ DOB found (pattern ${i + 1}): ${info.dob}`, 'success');
@@ -969,7 +1004,7 @@
             addLiveOutput('🔍 Searching for Expiration Date...', 'info');
             for (let i = 0; i < expPatterns.length; i++) {
                 const pattern = expPatterns[i];
-                const match = text.match(pattern);
+                const match = cleanText.match(pattern);
                 if (match && match[1]) {
                     info.exp = match[1].trim();
                     addLiveOutput(`✅ EXP found (pattern ${i + 1}): ${info.exp}`, 'success');
@@ -981,11 +1016,44 @@
             addLiveOutput('🔍 Searching for Issue Date...', 'info');
             for (let i = 0; i < issPatterns.length; i++) {
                 const pattern = issPatterns[i];
-                const match = text.match(pattern);
+                const match = cleanText.match(pattern);
                 if (match && match[1]) {
                     info.iss = match[1].trim();
                     addLiveOutput(`✅ ISS found (pattern ${i + 1}): ${info.iss}`, 'success');
                     break;
+                }
+            }
+            
+            // If still missing dates, try to assign from found dates
+            if ((!info.dob || !info.exp || !info.iss) && uniqueDates.length >= 2) {
+                addLiveOutput('� Attempting to assign dates from found dates...', 'info');
+                
+                // Sort dates by year (assuming newer dates are expiration/issue)
+                const sortedDates = uniqueDates.sort((a, b) => {
+                    const yearA = parseInt(a.split(/[/\-]/)[2]);
+                    const yearB = parseInt(b.split(/[/\-]/)[2]);
+                    return yearA - yearB;
+                });
+                
+                addLiveOutput(`📅 Sorted dates: ${sortedDates.join(', ')}`, 'info');
+                
+                // Try to assign dates based on context and order
+                if (!info.dob && sortedDates.length > 0) {
+                    // Usually the earliest date is DOB
+                    info.dob = sortedDates[0];
+                    addLiveOutput(`🎯 Assigned DOB (earliest date): ${info.dob}`, 'success');
+                }
+                
+                if (!info.iss && sortedDates.length > 1) {
+                    // Usually the middle date is issue date
+                    info.iss = sortedDates[1];
+                    addLiveOutput(`🎯 Assigned ISS (middle date): ${info.iss}`, 'success');
+                }
+                
+                if (!info.exp && sortedDates.length > 2) {
+                    // Usually the latest date is expiration
+                    info.exp = sortedDates[sortedDates.length - 1];
+                    addLiveOutput(`🎯 Assigned EXP (latest date): ${info.exp}`, 'success');
                 }
             }
             
@@ -1004,6 +1072,8 @@
                 addLiveOutput('   • Ensure text is in focus', 'info');
                 addLiveOutput('   • Avoid glare and shadows', 'info');
                 addLiveOutput('   • Get closer to the text', 'info');
+                addLiveOutput('   • Make sure ID card is flat', 'info');
+                addLiveOutput('   • Try different angles', 'info');
             } else {
                 addLiveOutput('🎉 All required information found!', 'success');
             }
