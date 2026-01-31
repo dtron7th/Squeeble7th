@@ -715,30 +715,105 @@
             }, 3000);
         }
 
-        // OCR text extraction using Tesseract.js
+        // OCR text extraction using Tesseract.js with enhanced preprocessing
         async function extractTextFromImage(imageData) {
             try {
                 addLiveOutput('🔄 Starting OCR text extraction...', 'info');
                 addLiveOutput('📊 This may take 10-30 seconds depending on image quality', 'info');
                 
-                const result = await Tesseract.recognize(
-                    imageData,
-                    'eng',
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                const progress = Math.round(m.progress * 100);
-                                addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                // Preprocess image for better OCR
+                addLiveOutput('🔧 Preprocessing image for better text extraction...', 'info');
+                const preprocessedImage = await preprocessImageForOCR(imageData);
+                
+                // Try multiple OCR approaches
+                let extractedText = '';
+                let bestResult = '';
+                
+                // Method 1: Standard OCR with preprocessed image
+                try {
+                    addLiveOutput('📋 Attempting standard OCR...', 'info');
+                    const result1 = await Tesseract.recognize(
+                        preprocessedImage,
+                        'eng',
+                        {
+                            logger: m => {
+                                if (m.status === 'recognizing text') {
+                                    const progress = Math.round(m.progress * 100);
+                                    addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                                }
                             }
                         }
+                    );
+                    extractedText = result1.data.text.trim();
+                    addLiveOutput(`✅ Standard OCR completed: ${extractedText.length} characters`, 'success');
+                    bestResult = extractedText;
+                } catch (error1) {
+                    addLiveOutput('❌ Standard OCR failed, trying enhanced...', 'warning');
+                }
+                
+                // Method 2: Try with original image if preprocessed didn't work well
+                if (!bestResult || bestResult.length < 20) {
+                    try {
+                        addLiveOutput('📋 Trying OCR with original image...', 'info');
+                        const result2 = await Tesseract.recognize(
+                            imageData,
+                            'eng',
+                            {
+                                logger: m => {
+                                    if (m.status === 'recognizing text') {
+                                        const progress = Math.round(m.progress * 100);
+                                        addLiveOutput(`📊 OCR Progress (Original): ${progress}%`, 'info');
+                                    }
+                                }
+                            }
+                        );
+                        const originalText = result2.data.text.trim();
+                        if (originalText.length > bestResult.length) {
+                            bestResult = originalText;
+                            addLiveOutput(`✅ Original OCR better: ${originalText.length} characters`, 'success');
+                        }
+                    } catch (error2) {
+                        addLiveOutput('❌ Original OCR failed too', 'warning');
                     }
-                );
+                }
                 
-                const extractedText = result.data.text.trim();
-                addLiveOutput(`✅ OCR completed! Extracted ${extractedText.length} characters`, 'success');
-                addLiveOutput(`📋 Raw text: "${extractedText.substring(0, 200)}${extractedText.length > 200 ? '...' : ''}"`, 'info');
+                // Method 3: Try with different Tesseract options
+                if (!bestResult || bestResult.length < 20) {
+                    try {
+                        addLiveOutput('📋 Trying OCR with enhanced settings...', 'info');
+                        const result3 = await Tesseract.recognize(
+                            preprocessedImage,
+                            'eng',
+                            {
+                                tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/-: .,DLNDOBEXPISSUEDATEBIRTHLICENSEDRIVER',
+                                tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+                                logger: m => {
+                                    if (m.status === 'recognizing text') {
+                                        const progress = Math.round(m.progress * 100);
+                                        addLiveOutput(`📊 OCR Progress (Enhanced): ${progress}%`, 'info');
+                                    }
+                                }
+                            }
+                        );
+                        const enhancedText = result3.data.text.trim();
+                        if (enhancedText.length > bestResult.length) {
+                            bestResult = enhancedText;
+                            addLiveOutput(`✅ Enhanced OCR better: ${enhancedText.length} characters`, 'success');
+                        }
+                    } catch (error3) {
+                        addLiveOutput('❌ Enhanced OCR failed', 'warning');
+                    }
+                }
                 
-                return extractedText;
+                if (!bestResult || bestResult.length < 10) {
+                    addLiveOutput('❌ No meaningful text extracted with any method', 'error');
+                    throw new Error('No text could be extracted from the image');
+                }
+                
+                addLiveOutput(`🎉 Best result: ${bestResult.length} characters extracted`, 'success');
+                addLiveOutput(`📋 Extracted text: "${bestResult.substring(0, 300)}${bestResult.length > 300 ? '...' : ''}"`, 'info');
+                
+                return bestResult;
                 
             } catch (error) {
                 addLiveOutput(`❌ OCR failed: ${error.message}`, 'error');
@@ -746,9 +821,71 @@
             }
         }
 
-        // Parse ID information from extracted text
+        // Image preprocessing for better OCR
+        async function preprocessImageForOCR(imageData) {
+            try {
+                // Create image element from data URL
+                const img = new Image();
+                img.src = imageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                // Create temporary canvas for preprocessing
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set canvas size
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                
+                // Draw original image
+                tempCtx.drawImage(img, 0, 0);
+                
+                // Get image data
+                const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageDataObj.data;
+                
+                // Apply multiple enhancement techniques
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    
+                    // Convert to grayscale
+                    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                    
+                    // Apply adaptive thresholding for better text contrast
+                    let enhanced;
+                    if (gray > 140) {
+                        enhanced = 255; // White background
+                    } else {
+                        enhanced = 0;   // Black text
+                    }
+                    
+                    data[i] = enhanced;     // Red
+                    data[i + 1] = enhanced; // Green
+                    data[i + 2] = enhanced; // Blue
+                    // Alpha channel remains unchanged
+                }
+                
+                // Put enhanced image back
+                tempCtx.putImageData(imageDataObj, 0, 0);
+                
+                // Convert back to data URL
+                const preprocessedImageData = tempCanvas.toDataURL('image/png', 1.0);
+                
+                addLiveOutput('✅ Image preprocessed: enhanced contrast, adaptive thresholding', 'success');
+                return preprocessedImageData;
+                
+            } catch (error) {
+                addLiveOutput(`⚠️ Image preprocessing failed, using original: ${error.message}`, 'warning');
+                return imageData; // Return original if preprocessing fails
+            }
+        }
+
+        // Parse ID information from extracted text with enhanced patterns
         function parseIDInformation(text) {
             addLiveOutput('🔍 Parsing ID information from extracted text...', 'info');
+            addLiveOutput(`📋 Analyzing ${text.length} characters of text`, 'info');
             
             const info = {
                 dln: '',
@@ -757,75 +894,97 @@
                 iss: ''
             };
             
-            // Driver's License Number patterns
+            // Enhanced Driver's License Number patterns
             const dlnPatterns = [
-                /DL\s*#?\s*([A-Z0-9]+)/i,
-                /LICENSE\s*#?\s*([A-Z0-9]+)/i,
-                /DLN\s*[:#]?\s*([A-Z0-9]+)/i,
-                /DRIVER\s*LIC\s*#?\s*([A-Z0-9]+)/i,
-                /([A-Z]{1,2}\d{6,8})/i  // Generic pattern
+                /DL\s*#?\s*([A-Z0-9]{6,12})/i,
+                /LICENSE\s*#?\s*([A-Z0-9]{6,12})/i,
+                /DLN\s*[:#]?\s*([A-Z0-9]{6,12})/i,
+                /DRIVER\s*LIC\s*#?\s*([A-Z0-9]{6,12})/i,
+                /DRIVER['\']?S\s*LICENSE\s*#?\s*([A-Z0-9]{6,12})/i,
+                /LICENSE\s*NO\.?\s*([A-Z0-9]{6,12})/i,
+                /NO\.?\s*([A-Z0-9]{6,12})\s*DL/i,
+                /([A-Z]{1,3}\d{6,9})\s*$/i,  // End of line pattern
+                /([A-Z]{2}\d{6,8})/i,        // Standard format
+                /(\d{8,12})/i                // Pure numbers
             ];
             
-            // Date of Birth patterns
+            // Enhanced Date of Birth patterns
             const dobPatterns = [
                 /DOB\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /BIRTH\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /BORN\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
-                /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*DOB/i
+                /DATE\s*OF\s*BIRTH\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*DOB/i,
+                /B\.?O\.?B\.?\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /BIRTH\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
             ];
             
-            // Expiration Date patterns
+            // Enhanced Expiration Date patterns
             const expPatterns = [
                 /EXP\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /EXPIRES\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /EXP\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
-                /VALID\s*UNTIL\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
+                /EXPIRATION\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /VALID\s*UNTIL\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /GOOD\s*THRU\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /ENDS\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
             ];
             
-            // Issue Date patterns
+            // Enhanced Issue Date patterns
             const issPatterns = [
                 /ISS\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /ISSUED\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
                 /ISSUE\s*DATE\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
-                /DATE\s*ISSUED\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
+                /DATE\s*ISSUED\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /ISSUED\s*ON\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /D\.?O\.?I\.?\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                /ISS\s*[:#]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
             ];
             
             // Extract Driver's License Number
-            for (const pattern of dlnPatterns) {
+            addLiveOutput('🔍 Searching for Driver\'s License Number...', 'info');
+            for (let i = 0; i < dlnPatterns.length; i++) {
+                const pattern = dlnPatterns[i];
                 const match = text.match(pattern);
-                if (match) {
+                if (match && match[1]) {
                     info.dln = match[1].trim();
-                    addLiveOutput(`✅ DLN found: ${info.dln}`, 'success');
+                    addLiveOutput(`✅ DLN found (pattern ${i + 1}): ${info.dln}`, 'success');
                     break;
                 }
             }
             
             // Extract Date of Birth
-            for (const pattern of dobPatterns) {
+            addLiveOutput('🔍 Searching for Date of Birth...', 'info');
+            for (let i = 0; i < dobPatterns.length; i++) {
+                const pattern = dobPatterns[i];
                 const match = text.match(pattern);
-                if (match) {
+                if (match && match[1]) {
                     info.dob = match[1].trim();
-                    addLiveOutput(`✅ DOB found: ${info.dob}`, 'success');
+                    addLiveOutput(`✅ DOB found (pattern ${i + 1}): ${info.dob}`, 'success');
                     break;
                 }
             }
             
             // Extract Expiration Date
-            for (const pattern of expPatterns) {
+            addLiveOutput('🔍 Searching for Expiration Date...', 'info');
+            for (let i = 0; i < expPatterns.length; i++) {
+                const pattern = expPatterns[i];
                 const match = text.match(pattern);
-                if (match) {
+                if (match && match[1]) {
                     info.exp = match[1].trim();
-                    addLiveOutput(`✅ EXP found: ${info.exp}`, 'success');
+                    addLiveOutput(`✅ EXP found (pattern ${i + 1}): ${info.exp}`, 'success');
                     break;
                 }
             }
             
             // Extract Issue Date
-            for (const pattern of issPatterns) {
+            addLiveOutput('🔍 Searching for Issue Date...', 'info');
+            for (let i = 0; i < issPatterns.length; i++) {
+                const pattern = issPatterns[i];
                 const match = text.match(pattern);
-                if (match) {
+                if (match && match[1]) {
                     info.iss = match[1].trim();
-                    addLiveOutput(`✅ ISS found: ${info.iss}`, 'success');
+                    addLiveOutput(`✅ ISS found (pattern ${i + 1}): ${info.iss}`, 'success');
                     break;
                 }
             }
@@ -839,6 +998,12 @@
             
             if (missing.length > 0) {
                 addLiveOutput(`⚠️ Missing information: ${missing.join(', ')}`, 'warning');
+                addLiveOutput('💡 Try these improvements:', 'info');
+                addLiveOutput('   • Better lighting on the ID card', 'info');
+                addLiveOutput('   • Hold camera steadier', 'info');
+                addLiveOutput('   • Ensure text is in focus', 'info');
+                addLiveOutput('   • Avoid glare and shadows', 'info');
+                addLiveOutput('   • Get closer to the text', 'info');
             } else {
                 addLiveOutput('🎉 All required information found!', 'success');
             }
