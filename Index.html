@@ -7,7 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/barcode_scanner@0.4.1646425229/barcode_scanner.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -402,8 +403,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 ID Card Barcode Scanner</h1>
-            <p>Scan PDF417 barcodes from the back of ID cards to extract information</p>
+            <h1>🆔 PDF417 Barcode Scanner</h1>
+            <p>Scan PDF417 barcodes from driver's licenses using Google ML Kit</p>
             <div id="deviceInfo" style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 12px; color: #fff;">
                 <span id="deviceStatus">📱 Checking device compatibility...</span>
             </div>
@@ -424,13 +425,10 @@
                 <video id="video" autoplay playsinline style="display: none;"></video>
                 <canvas id="canvas" style="display: none;"></canvas>
                 <div id="placeholder" class="placeholder">
-                    <div class="placeholder-icon">�</div>
+                    <div class="placeholder-icon">📷</div>
                     <div class="placeholder-text">
-                        Position the back of your ID card with the PDF417 barcode in the camera view
+                        Position the PDF417 barcode from your driver's license in the camera view
                     </div>
-                </div>
-                <div id="scanOverlay" class="scan-overlay" style="display: none;">
-                    <div class="scan-line"></div>
                 </div>
             </div>
 
@@ -438,11 +436,8 @@
                 <button class="btn btn-primary" id="startCamera">
                     📹 Start Camera
                 </button>
-                <button class="btn btn-success" id="scanQR" disabled>
-                    🔍 Scan PDF417 Barcode
-                </button>
-                <button class="btn btn-warning" id="capturePhoto" disabled>
-                    📸 Capture & Scan Barcode
+                <button class="btn btn-success" id="scanPDF417" disabled>
+                    🎯 Scan PDF417 Barcode
                 </button>
                 <button class="btn btn-secondary" id="stopCamera" disabled>
                     ⏹️ Stop Camera
@@ -450,18 +445,18 @@
             </div>
 
             <div class="camera-tips" id="cameraTips" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
-                <h4 style="margin-bottom: 10px;">📸 PDF417 Barcode Scanning Tips:</h4>
+                <h4 style="margin-bottom: 10px;">📸 Google ML Kit PDF417 Tips:</h4>
                 <ul style="margin: 0; padding-left: 20px;">
-                    <li>📷 <strong>BACK SIDE ONLY</strong> - Scan the back of your ID card</li>
-                    <li>💡 <strong>Good lighting</strong> - Bright, even light on the barcode</li>
-                    <li>📏 <strong>Straight angle</strong> - Keep ID card parallel to camera</li>
-                    <li>🔍 <strong>Fill the frame</strong> - Get close so barcode is large and clear</li>
-                    <li>✋ <strong>Hold steady</strong> - Keep phone still when scanning</li>
+                    <li>📷 <strong>BACK SIDE ONLY</strong> - Scan the back of your driver's license</li>
+                    <li>💡 <strong>Bright lighting</strong> - Good light on the PDF417 barcode</li>
+                    <li>📏 <strong>Flat surface</strong> - Keep license flat and parallel to camera</li>
+                    <li>🔍 <strong>Fill frame</strong> - Get close so barcode is clear</li>
+                    <li>✋ <strong>Hold steady</strong> - Keep phone still during scanning</li>
                     <li>⚡ <strong>No glare</strong> - Avoid reflections on the barcode</li>
-                    <li>📊 <strong>PDF417 format</strong> - The 2D barcode on driver's licenses</li>
+                    <li>🤖 <strong>ML Kit Power</strong> - Google's advanced barcode detection</li>
                 </ul>
                 <div style="margin-top: 10px; padding: 8px; background: rgba(0,255,0,0.2); border-radius: 5px; border: 1px solid rgba(0,255,0,0.5);">
-                    <strong style="color: #00ff00;">✅ FOCUSED ON PDF417:</strong> Optimized specifically for driver's license barcodes
+                    <strong style="color: #00ff00;">✅ GOOGLE ML KIT:</strong> Advanced AI-powered PDF417 detection
                 </div>
             </div>
 
@@ -601,13 +596,10 @@
 
     <script>
         let stream = null;
-        let currentSide = 'back';
-        let qrScanner = null;
-        let isScanningQR = false;
-        let scannedData = {
-            front: '',
-            back: ''
-        };
+        let barcodeScanner = null;
+        let camera = null;
+        let isScanning = false;
+        let scannedData = '';
 
         // DOM elements
         const video = document.getElementById('video');
@@ -615,8 +607,7 @@
         const context = canvas.getContext('2d');
         const placeholder = document.getElementById('placeholder');
         const startCameraBtn = document.getElementById('startCamera');
-        const scanQRBtn = document.getElementById('scanQR');
-        const capturePhotoBtn = document.getElementById('capturePhoto');
+        const scanPDF417Btn = document.getElementById('scanPDF417');
         const stopCameraBtn = document.getElementById('stopCamera');
         const loading = document.getElementById('loading');
         const loadingText = document.getElementById('loadingText');
@@ -688,9 +679,162 @@
 
         // Camera controls
         startCameraBtn.addEventListener('click', startCamera);
-        scanQRBtn.addEventListener('click', toggleQRScanning);
-        capturePhotoBtn.addEventListener('click', capturePhoto);
+        scanPDF417Btn.addEventListener('click', togglePDF417Scanning);
         stopCameraBtn.addEventListener('click', stopCamera);
+
+        // Live output functions
+        function startLiveOutput() {
+            liveOutput.style.display = 'block';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Google ML Kit PDF417 Output:</div>';
+        }
+
+        function addLiveOutput(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#00ff00' : type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffd93d' : '#ffffff';
+            const outputDiv = document.createElement('div');
+            outputDiv.style.color = color;
+            outputDiv.style.marginTop = '5px';
+            outputDiv.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+            liveOutput.appendChild(outputDiv);
+            liveOutput.scrollTop = liveOutput.scrollHeight;
+        }
+
+        function clearLiveOutput() {
+            setTimeout(() => {
+                liveOutput.style.display = 'none';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Google ML Kit PDF417 Output:</div>';
+            }, 3000);
+        }
+
+        // Initialize Google ML Kit Barcode Scanner
+        function initializeBarcodeScanner() {
+            try {
+                addLiveOutput('🤖 Initializing Google ML Kit Barcode Scanner...', 'info');
+                
+                barcodeScanner = new BarcodeScanner({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/barcode_scanner@0.4.1646425229/${file}`;
+                    }
+                });
+
+                barcodeScanner.setOptions({
+                    model: 'default',
+                    allowedFormats: ['PDF417']
+                });
+
+                barcodeScanner.onResults(onBarcodeResults);
+                
+                addLiveOutput('✅ Google ML Kit initialized successfully', 'success');
+                return true;
+            } catch (error) {
+                addLiveOutput(`❌ Failed to initialize ML Kit: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Handle barcode scanning results
+        function onBarcodeResults(results) {
+            if (results.barcodes && results.barcodes.length > 0) {
+                for (const barcode of results.barcodes) {
+                    if (barcode.format === 'PDF417') {
+                        addLiveOutput('🎉 PDF417 Barcode detected by Google ML Kit!', 'success');
+                        handlePDF417Detection(barcode);
+                        break; // Process only the first PDF417 found
+                    }
+                }
+            }
+        }
+
+        // Handle PDF417 barcode detection
+        function handlePDF417Detection(barcode) {
+            const data = barcode.rawValue || barcode.data || '';
+            
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`📋 PDF417 DATA:`, 'info');
+            addLiveOutput(`${data}`, 'info');
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`📊 Data length: ${data.length} characters`, 'info');
+            addLiveOutput(`📋 Format: ${barcode.format}`, 'info');
+            addLiveOutput(`📋 Data preview: ${data.substring(0, 200)}${data.length > 200 ? '...' : ''}`, 'info');
+            
+            // Parse and show extracted fields
+            const parsedData = parseIDData(data);
+            if (Object.keys(parsedData).length > 2) {
+                addLiveOutput('🔍 Parsing structured data...', 'info');
+                Object.entries(parsedData).forEach(([key, value]) => {
+                    if (key !== 'Raw Data') {
+                        addLiveOutput(`   ${key}: ${value}`, 'success');
+                    }
+                });
+            }
+            
+            showMessage('✅ PDF417 Barcode detected and processed!', 'success');
+            
+            // Store and display the extracted data
+            scannedData = data;
+            backResult.textContent = data;
+            displayParsedData(data, backParsedContent, backParsed);
+            
+            // Update print section
+            updatePrintSectionFromBarcode(parsedData);
+            
+            // Stop scanning after successful detection
+            stopPDF417Scanning();
+        }
+
+        // Parse barcode data into structured information
+        function parseIDData(data) {
+            addLiveOutput('🔍 Parsing ID data from PDF417...', 'info');
+            
+            const parsed = {
+                'Raw Data': data,
+                'Data Length': data.length + ' characters'
+            };
+            
+            // Try to parse common AAMVA format
+            if (data.includes('ANSI') || data.includes('DL') || data.includes('DAQ')) {
+                addLiveOutput('📋 Detected AAMVA format', 'info');
+                
+                // Extract common fields
+                const fields = {
+                    'DAA': 'Driver\'s License Number',
+                    'DAB': 'Last Name', 
+                    'DAC': 'First Name',
+                    'DAD': 'Middle Name',
+                    'DBB': 'Date of Birth',
+                    'DBA': 'Expiration Date',
+                    'DBC': 'Issue Date',
+                    'DAY': 'Eye Color',
+                    'DAU': 'Height',
+                    'DAG': 'Street Address',
+                    'DAI': 'City',
+                    'DAJ': 'State',
+                    'DAK': 'Zip Code'
+                };
+                
+                // Parse AAMVA data
+                const lines = data.split('\n');
+                for (const line of lines) {
+                    for (const [code, description] of Object.entries(fields)) {
+                        if (line.startsWith(code)) {
+                            const value = line.substring(3);
+                            parsed[description] = value;
+                            addLiveOutput(`✅ Found ${description}: ${value}`, 'success');
+                        }
+                    }
+                }
+            } else {
+                addLiveOutput('⚠️ Unknown barcode format', 'warning');
+                // Try to extract any dates or numbers
+                const dates = data.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
+                if (dates) {
+                    parsed['Dates Found'] = dates.join(', ');
+                    addLiveOutput(`📅 Found dates: ${dates.join(', ')}`, 'info');
+                }
+            }
+            
+            return parsed;
+        }
 
         // Live output functions
         function startLiveOutput() {
@@ -870,29 +1014,232 @@
             stopQRScanning();
         }
 
-        // Live output functions
-        function startLiveOutput() {
-            liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>';
+// Start camera and initialize ML Kit
+        async function startCamera() {
+            try {
+                startLiveOutput();
+                addLiveOutput('📹 Starting camera...', 'info');
+                
+                const deviceInfo = checkDeviceCompatibility();
+                if (!deviceInfo.isCompatible) {
+                    throw new Error('Device not compatible with camera access');
+                }
+                
+                // Get camera stream with mobile optimizations
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: deviceInfo.isMobile ? { ideal: 640 } : { ideal: 1280 },
+                        height: deviceInfo.isMobile ? { ideal: 480 } : { ideal: 720 },
+                        focusMode: 'continuous',
+                        exposureMode: 'continuous',
+                        whiteBalanceMode: 'continuous'
+                    }
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                
+                // Initialize Google ML Kit Barcode Scanner
+                if (!initializeBarcodeScanner()) {
+                    throw new Error('Failed to initialize Google ML Kit');
+                }
+                
+                // Update UI
+                startCameraBtn.disabled = true;
+                scanPDF417Btn.disabled = false;
+                stopCameraBtn.disabled = false;
+                
+                // Show tips for mobile devices
+                if (deviceInfo.isMobile) {
+                    cameraTips.style.display = 'block';
+                }
+                
+                showMessage('Camera started successfully! Click "Scan PDF417 Barcode" to begin.', 'success');
+                addLiveOutput('✅ Camera started successfully', 'success');
+                
+            } catch (error) {
+                addLiveOutput(`❌ Camera failed: ${error.message}`, 'error');
+                if (error.name === 'NotAllowedError') {
+                    showError('Camera access denied. Please allow camera permissions.');
+                } else if (error.name === 'NotFoundError') {
+                    showError('No camera found. Please ensure your device has a working camera.');
+                } else if (error.name === 'NotReadableError') {
+                    showError('Camera is already in use by another application.');
+                } else {
+                    showError('Unable to access camera: ' + error.message);
+                }
+            }
         }
 
-        function addLiveOutput(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const color = type === 'success' ? '#00ff00' : type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffd93d' : '#ffffff';
-            const outputDiv = document.createElement('div');
-            outputDiv.style.color = color;
-            outputDiv.style.marginTop = '5px';
-            outputDiv.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
-            liveOutput.appendChild(outputDiv);
-            liveOutput.scrollTop = liveOutput.scrollHeight;
+        // Toggle PDF417 scanning
+        function togglePDF417Scanning() {
+            if (isScanning) {
+                stopPDF417Scanning();
+            } else {
+                startPDF417Scanning();
+            }
         }
 
-        function clearLiveOutput() {
+        // Start PDF417 scanning with Google ML Kit
+        async function startPDF417Scanning() {
+            try {
+                if (!barcodeScanner) {
+                    throw new Error('Barcode scanner not initialized');
+                }
+                
+                isScanning = true;
+                scanPDF417Btn.textContent = '⏹️ Stop Scanning';
+                scanPDF417Btn.classList.remove('btn-success');
+                scanPDF417Btn.classList.add('btn-secondary');
+                
+                startLiveOutput();
+                addLiveOutput('🎯 Starting Google ML Kit PDF417 scanning...', 'info');
+                
+                // Setup camera with MediaPipe
+                camera = new Camera(video, {
+                    onFrame: async () => {
+                        if (!isScanning) return;
+                        
+                        await barcodeScanner.send({ image: video });
+                    },
+                    width: 640,
+                    height: 480
+                });
+                
+                await camera.start();
+                
+                addLiveOutput('✅ Google ML Kit PDF417 scanning started', 'success');
+                showMessage('Scanning for PDF417 barcodes...', 'info');
+                
+            } catch (error) {
+                addLiveOutput(`❌ Failed to start scanning: ${error.message}`, 'error');
+                showError('Failed to start PDF417 scanning: ' + error.message);
+                stopPDF417Scanning();
+            }
+        }
+
+        // Stop PDF417 scanning
+        function stopPDF417Scanning() {
+            isScanning = false;
+            
+            if (camera) {
+                camera.stop();
+                camera = null;
+            }
+            
+            scanPDF417Btn.textContent = '🎯 Scan PDF417 Barcode';
+            scanPDF417Btn.classList.remove('btn-secondary');
+            scanPDF417Btn.classList.add('btn-success');
+            
+            addLiveOutput('⏹️ PDF417 scanning stopped', 'info');
+            showMessage('PDF417 scanning stopped', 'info');
+            clearLiveOutput();
+        }
+
+        // Stop camera
+        function stopCamera() {
+            stopPDF417Scanning();
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                video.style.display = 'none';
+                placeholder.style.display = 'block';
+                
+                startCameraBtn.disabled = false;
+                scanPDF417Btn.disabled = true;
+                stopCameraBtn.disabled = true;
+                
+                showMessage('Camera stopped', 'info');
+                cameraTips.style.display = 'none';
+            }
+        }
+
+        // Display parsed data
+        function displayParsedData(data, container, containerDiv) {
+            const parsed = parseIDData(data);
+            
+            let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
+            
+            for (const [key, value] of Object.entries(parsed)) {
+                if (key !== 'Raw Data') {
+                    html += `
+                        <div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 5px; border-left: 4px solid #007bff;">
+                            <strong>${key}:</strong> ${value}
+                        </div>
+                    `;
+                }
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+            containerDiv.style.display = 'block';
+        }
+
+        // Update print section from barcode data
+        function updatePrintSectionFromBarcode(parsedData) {
+            // Update print fields
+            document.getElementById('printDLN').textContent = parsedData['Driver\'s License Number'] || 'Not Found';
+            document.getElementById('printDOB').textContent = parsedData['Date of Birth'] || 'Not Found';
+            document.getElementById('printEXP').textContent = parsedData['Expiration Date'] || 'Not Found';
+            document.getElementById('printISS').textContent = parsedData['Issue Date'] || 'Not Found';
+            
+            // Update print validation status
+            const printStatus = document.getElementById('printStatus');
+            const printValidation = document.getElementById('printValidation');
+            
+            const hasRequiredInfo = parsedData['Driver\'s License Number'] && 
+                                   parsedData['Date of Birth'] && 
+                                   parsedData['Expiration Date'] && 
+                                   parsedData['Issue Date'];
+            
+            if (hasRequiredInfo) {
+                printStatus.textContent = 'VALID';
+                printStatus.style.color = '#28a745';
+                printValidation.style.background = '#d4edda';
+                printValidation.style.border = '1px solid #c3e6cb';
+            } else {
+                printStatus.textContent = 'INCOMPLETE';
+                printStatus.style.color = '#ffc107';
+                printValidation.style.background = '#fff3cd';
+                printValidation.style.border = '1px solid #ffeaa7';
+            }
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('printTimestamp').textContent = now.toLocaleString();
+            
+            // Show print section
+            document.getElementById('printSection').style.display = 'block';
+        }
+
+        // Utility functions
+        function showMessage(message, type) {
+            const messageEl = type === 'success' ? successMessage : type === 'error' ? errorMessage : infoMessage;
+            messageEl.textContent = message;
+            messageEl.style.display = 'block';
             setTimeout(() => {
-                liveOutput.style.display = 'none';
-                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live OCR Extraction Output:</div>';
-            }, 3000);
+                messageEl.style.display = 'none';
+            }, 5000);
         }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+
+        function showInfo(message) {
+            showMessage(message, 'info');
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            const deviceInfo = checkDeviceCompatibility();
+            addLiveOutput(`📱 Device: ${deviceInfo.isMobile ? 'Mobile' : 'Desktop'} - Ready for Google ML Kit`, 'info');
+        });
+    </script>
 
         // OCR text extraction using Tesseract.js with enhanced preprocessing
         async function extractTextFromImage(imageData) {
