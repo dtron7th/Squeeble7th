@@ -510,8 +510,92 @@
                     ⚠️ ID Status: <strong>INVALID</strong> - Missing required information (DLN, DOB, EXP, ISS)
                 </div>
             </div>
+            
+            <div class="print-section" id="printSection" style="display: none; margin-top: 20px; padding: 20px; background: white; color: black; border-radius: 10px; border: 2px solid #333;">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #333;">📋 ID Card Information Summary</h3>
+                <div class="print-info-grid">
+                    <div class="print-info-item">
+                        <strong>Driver's License Number:</strong>
+                        <span id="printDLN">-</span>
+                    </div>
+                    <div class="print-info-item">
+                        <strong>Date of Birth:</strong>
+                        <span id="printDOB">-</span>
+                    </div>
+                    <div class="print-info-item">
+                        <strong>Expiration Date:</strong>
+                        <span id="printEXP">-</span>
+                    </div>
+                    <div class="print-info-item">
+                        <strong>Issue Date:</strong>
+                        <span id="printISS">-</span>
+                    </div>
+                </div>
+                <div class="print-validation" id="printValidation">
+                    <strong>ID Status:</strong> <span id="printStatus">-</span>
+                </div>
+                <div class="print-timestamp">
+                    <strong>Extracted on:</strong> <span id="printTimestamp">-</span>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-primary" onclick="window.print()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        🖨️ Print This Information
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printSection, #printSection * {
+                visibility: visible;
+            }
+            #printSection {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                color: black;
+            }
+            .btn {
+                display: none !important;
+            }
+        }
+        
+        .print-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .print-info-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .print-validation {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .print-timestamp {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 
     <script>
         let stream = null;
@@ -810,8 +894,43 @@
                 showError('❌ ID validation failed - missing required information (DLN, DOB, EXP, ISS)');
             }
             
+            // Update print section
+            updatePrintSection(info, isValid);
+            
             // Store data
             scannedData = { ...info, fullText };
+        }
+
+        // Update print section with extracted information
+        function updatePrintSection(info, isValid) {
+            // Update print fields
+            document.getElementById('printDLN').textContent = info.dln || 'Not Found';
+            document.getElementById('printDOB').textContent = info.dob || 'Not Found';
+            document.getElementById('printEXP').textContent = info.exp || 'Not Found';
+            document.getElementById('printISS').textContent = info.iss || 'Not Found';
+            
+            // Update print validation status
+            const printStatus = document.getElementById('printStatus');
+            const printValidation = document.getElementById('printValidation');
+            
+            if (isValid) {
+                printStatus.textContent = 'VALID';
+                printStatus.style.color = '#28a745';
+                printValidation.style.background = '#d4edda';
+                printValidation.style.border = '1px solid #c3e6cb';
+            } else {
+                printStatus.textContent = 'INVALID';
+                printStatus.style.color = '#dc3545';
+                printValidation.style.background = '#f8d7da';
+                printValidation.style.border = '1px solid #f5c6cb';
+            }
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('printTimestamp').textContent = now.toLocaleString();
+            
+            // Show print section
+            document.getElementById('printSection').style.display = 'block';
         }
 
         // Barcode scanning using ZXing library (supports PDF417, Code 128, etc.)
