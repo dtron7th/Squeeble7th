@@ -684,6 +684,59 @@
             }
         }
 
+        // Alternative simple barcode scanner using different approach
+        async function scanWithSimpleBarcode(imageData) {
+            try {
+                addLiveOutput('🔄 Trying simple barcode detection...', 'info');
+                
+                // Create image element from data URL
+                const img = new Image();
+                img.src = imageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                // Create temporary canvas
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Use higher resolution for better barcode detection
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                tempCtx.drawImage(img, 0, 0);
+                
+                // Get image data
+                const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Try a different ZXing approach
+                try {
+                    // Try to decode with tryHarder configuration
+                    const hints = new Map();
+                    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                    hints.set(ZXing.DecodeHintType.ASSUME_CODE_39_CHECK_DIGIT, true);
+                    hints.set(ZXing.DecodeHintType.ASSUME_GS1, true);
+                    
+                    const reader = new ZXing.MultiFormatReader();
+                    reader.setHints(hints);
+                    
+                    const result = reader.decode(imageDataObj);
+                    if (result) {
+                        const format = result.getBarcodeFormat() || 'Unknown';
+                        const text = result.getText();
+                        addLiveOutput(`✅ ${format} barcode found with simple method!`, 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (simpleError) {
+                    addLiveOutput('❌ Simple barcode method failed', 'warning');
+                }
+                
+                throw new Error('No barcode found with simple method');
+                
+            } catch (error) {
+                addLiveOutput(`❌ Simple scan failed: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
         // Alternative QR scanning using jsQR
         async function scanWithJSQR(imageData) {
             try {
@@ -718,6 +771,46 @@
             } catch (error) {
                 addLiveOutput(`❌ jsQR scan failed: ${error.message}`, 'error');
                 throw error;
+            }
+        }
+
+        // Debug function to show captured image
+        function showDebugImage(imageData) {
+            try {
+                const debugDiv = document.createElement('div');
+                debugDiv.style.position = 'fixed';
+                debugDiv.style.top = '10px';
+                debugDiv.style.right = '10px';
+                debugDiv.style.zIndex = '9999';
+                debugDiv.style.background = 'white';
+                debugDiv.style.border = '2px solid red';
+                debugDiv.style.padding = '10px';
+                debugDiv.style.maxWidth = '200px';
+                
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Close Debug';
+                closeBtn.style.marginTop = '5px';
+                closeBtn.onclick = () => document.body.removeChild(debugDiv);
+                
+                debugDiv.appendChild(img);
+                debugDiv.appendChild(closeBtn);
+                document.body.appendChild(debugDiv);
+                
+                addLiveOutput('🔍 Debug image shown (top-right corner)', 'info');
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (document.body.contains(debugDiv)) {
+                        document.body.removeChild(debugDiv);
+                    }
+                }, 10000);
+            } catch (error) {
+                addLiveOutput(`❌ Debug image failed: ${error.message}`, 'error');
             }
         }
 
@@ -908,10 +1001,23 @@
                 const imageData = canvas.toDataURL('image/png', 1.0); // Maximum quality
                 addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
+                // Show debug image for troubleshooting
+                showDebugImage(imageData);
+                
                 // Try multiple scanning approaches - barcode first!
                 addLiveOutput('🔍 Attempting barcode/QR code detection...', 'info');
                 
-                // Method 1: ZXing barcode library (supports PDF417, Code 128, etc.)
+                // Method 1: Simple barcode detection (new approach)
+                try {
+                    const result = await scanWithSimpleBarcode(imageData);
+                    addLiveOutput('✅ Barcode found with simple method!', 'success');
+                    handleQRResult(result);
+                    return;
+                } catch (simpleError) {
+                    addLiveOutput('❌ Simple barcode method failed, trying ZXing...', 'warning');
+                }
+                
+                // Method 2: ZXing barcode library (supports PDF417, Code 128, etc.)
                 try {
                     const result = await scanWithZXing(imageData);
                     addLiveOutput('✅ Barcode found with ZXing library!', 'success');
@@ -921,7 +1027,7 @@
                     addLiveOutput('❌ ZXing barcode library failed, trying QR scanners...', 'warning');
                 }
                 
-                // Method 2: qr-scanner library for QR codes
+                // Method 3: qr-scanner library for QR codes
                 try {
                     const result = await QrScanner.scanImage(imageData, { 
                         returnDetailedScanResult: true,
@@ -934,7 +1040,7 @@
                     addLiveOutput('❌ qr-scanner library failed, trying jsQR...', 'warning');
                 }
                 
-                // Method 3: jsQR library for QR codes
+                // Method 4: jsQR library for QR codes
                 try {
                     const result = await scanWithJSQR(imageData);
                     addLiveOutput('✅ QR code found using jsQR library!', 'success');
@@ -944,7 +1050,7 @@
                     addLiveOutput('❌ jsQR library failed too', 'warning');
                 }
                 
-                // Method 4: Try with blob
+                // Method 5: Try with blob
                 try {
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
                     const result = await QrScanner.scanImage(blob, { 
