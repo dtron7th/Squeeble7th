@@ -556,17 +556,52 @@
                 // Get image data for ZXing
                 const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Create ZXing reader
-                const codeReader = new ZXing.BrowserMultiFormatReader();
+                // Try different ZXing approaches
+                try {
+                    // Method 1: BrowserMultiFormatReader
+                    const codeReader = new ZXing.BrowserMultiFormatReader();
+                    const result = codeReader.decode(imageDataObj);
+                    if (result) {
+                        const format = result.getBarcodeFormat() || 'Unknown';
+                        const text = result.getText();
+                        addLiveOutput(`✅ ${format} barcode found with ZXing!`, 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (multiFormatError) {
+                    addLiveOutput('❌ BrowserMultiFormatReader failed, trying PDF417...', 'warning');
+                }
                 
                 try {
-                    // Try to decode with ZXing
-                    const result = codeReader.decode(imageDataObj);
-                    addLiveOutput(`✅ ${result.getBarcodeFormat()} barcode found with ZXing!`, 'success');
-                    return { data: result.getText() };
-                } catch (zxingError) {
-                    throw new Error('No barcode found with ZXing: ' + zxingError.message);
+                    // Method 2: Try PDF417 specifically
+                    const pdf417Reader = new ZXing.PDF417Reader();
+                    const result = pdf417Reader.decode(imageDataObj);
+                    if (result) {
+                        const text = result.getText();
+                        addLiveOutput('✅ PDF417 barcode found with ZXing!', 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (pdf417Error) {
+                    addLiveOutput('❌ PDF417 reader failed, trying Code128...', 'warning');
                 }
+                
+                try {
+                    // Method 3: Try Code128
+                    const code128Reader = new ZXing.Code128Reader();
+                    const result = code128Reader.decode(imageDataObj);
+                    if (result) {
+                        const text = result.getText();
+                        addLiveOutput('✅ Code128 barcode found with ZXing!', 'success');
+                        addLiveOutput(`📋 Data: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`, 'info');
+                        return { data: text };
+                    }
+                } catch (code128Error) {
+                    addLiveOutput('❌ Code128 reader failed', 'warning');
+                }
+                
+                throw new Error('No barcode found with any ZXing reader');
+                
             } catch (error) {
                 addLiveOutput(`❌ ZXing scan failed: ${error.message}`, 'error');
                 throw error;
@@ -711,11 +746,17 @@
         }
 
         function handleQRResult(result) {
-            console.log('QR Result received:', result);
+            console.log('Barcode/QR Result received:', result);
             const data = result.data;
-            addLiveOutput('✅ QR Code detected and processed!', 'success');
-            addLiveOutput(`📋 Raw data length: ${data.length} characters`, 'info');
-            addLiveOutput(`📋 Raw data: ${data.substring(0, 150)}${data.length > 150 ? '...' : ''}`, 'info');
+            
+            // IMMEDIATELY print the barcode information
+            addLiveOutput('🎉 BARCODE/QR CODE DETECTED!', 'success');
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`📋 RAW BARCODE DATA:`, 'info');
+            addLiveOutput(`${data}`, 'info');
+            addLiveOutput('================================', 'success');
+            addLiveOutput(`� Data length: ${data.length} characters`, 'info');
+            addLiveOutput(`📋 Data preview: ${data.substring(0, 200)}${data.length > 200 ? '...' : ''}`, 'info');
             
             // Parse and show extracted fields
             const parsedData = parseIDData(data);
@@ -728,7 +769,7 @@
                 });
             }
             
-            showMessage('✅ QR Code detected and processed!', 'success');
+            showMessage('✅ Barcode/QR Code detected and processed!', 'success');
             
             // Store and display the extracted data (back side only)
             scannedData.back = data;
@@ -812,6 +853,43 @@
                 
                 // All methods failed
                 addLiveOutput('❌ All barcode/QR scanning methods failed', 'error');
+                addLiveOutput('🔄 Trying OCR as last resort to read visible text...', 'info');
+                
+                try {
+                    // Try OCR as last resort
+                    const result = await Tesseract.recognize(
+                        imageData,
+                        'eng',
+                        {
+                            logger: m => {
+                                if (m.status === 'recognizing text') {
+                                    const progress = Math.round(m.progress * 100);
+                                    addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                                }
+                            }
+                        }
+                    );
+                    
+                    const extractedText = result.data.text.trim();
+                    if (extractedText && extractedText.length > 10) {
+                        addLiveOutput('✅ Text found with OCR - checking for barcode-like patterns...', 'success');
+                        addLiveOutput(`📋 Extracted text: ${extractedText.substring(0, 200)}${extractedText.length > 200 ? '...' : ''}`, 'info');
+                        
+                        // Check if the extracted text looks like barcode data
+                        if (extractedText.includes('%') || extractedText.includes('ANSI') || extractedText.length > 50) {
+                            addLiveOutput('🎯 Text appears to be barcode data!', 'success');
+                            handleQRResult({ data: extractedText });
+                            return;
+                        } else {
+                            addLiveOutput('⚠️ Text found but doesn\'t appear to be barcode data', 'warning');
+                        }
+                    } else {
+                        addLiveOutput('❌ No meaningful text found with OCR', 'error');
+                    }
+                } catch (ocrError) {
+                    addLiveOutput('❌ OCR failed too', 'error');
+                }
+                
                 addLiveOutput('💡 Troubleshooting tips for barcodes:', 'info');
                 addLiveOutput('   • Ensure barcode is clearly visible and in focus', 'info');
                 addLiveOutput('   • Good lighting without glare on barcode', 'info');
@@ -819,6 +897,7 @@
                 addLiveOutput('   • Try moving closer or farther from barcode', 'info');
                 addLiveOutput('   • Ensure barcode is not damaged or partially obscured', 'info');
                 addLiveOutput('   • PDF417 barcodes need good contrast and clarity', 'info');
+                addLiveOutput('   • Try different angles and distances', 'info');
                 
                 throw new Error('No barcode or QR code detected with any method');
                 
