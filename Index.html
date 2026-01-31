@@ -460,6 +460,9 @@
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p id="loadingText">Processing image and extracting text...</p>
+                <div id="liveOutput" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; display: none;">
+                    <div style="color: #00ff00; font-weight: bold;">🔍 Live Scan Output:</div>
+                </div>
             </div>
         </div>
 
@@ -510,6 +513,7 @@
         const scanOverlay = document.getElementById('scanOverlay');
         const loading = document.getElementById('loading');
         const loadingText = document.getElementById('loadingText');
+        const liveOutput = document.getElementById('liveOutput');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
         const infoMessage = document.getElementById('infoMessage');
@@ -548,6 +552,30 @@
         capturePhotoBtn.addEventListener('click', capturePhoto);
         stopCameraBtn.addEventListener('click', stopCamera);
         fileInput.addEventListener('change', handleFileUpload);
+
+        // Live output functions
+        function startLiveOutput() {
+            liveOutput.style.display = 'block';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Scan Output:</div>';
+        }
+
+        function addLiveOutput(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#00ff00' : type === 'error' ? '#ff6b6b' : type === 'warning' ? '#ffd93d' : '#ffffff';
+            const outputDiv = document.createElement('div');
+            outputDiv.style.color = color;
+            outputDiv.style.marginTop = '5px';
+            outputDiv.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+            liveOutput.appendChild(outputDiv);
+            liveOutput.scrollTop = liveOutput.scrollHeight;
+        }
+
+        function clearLiveOutput() {
+            setTimeout(() => {
+                liveOutput.style.display = 'none';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Scan Output:</div>';
+            }, 3000);
+        }
 
         async function startCamera() {
             try {
@@ -652,6 +680,20 @@
 
         function handleQRResult(result) {
             const data = result.data;
+            addLiveOutput('✅ QR Code detected and processed!', 'success');
+            addLiveOutput(`📋 Raw data: ${data.substring(0, 100)}${data.length > 100 ? '...' : ''}`, 'info');
+            
+            // Parse and show extracted fields
+            const parsedData = parseIDData(data);
+            if (Object.keys(parsedData).length > 1) {
+                addLiveOutput('🔍 Parsing structured data...', 'info');
+                Object.entries(parsedData).forEach(([key, value]) => {
+                    if (key !== 'Raw Data') {
+                        addLiveOutput(`   ${key}: ${value}`, 'success');
+                    }
+                });
+            }
+            
             showMessage('✅ QR Code detected and processed!', 'success');
             
             // Store and display the extracted data
@@ -681,54 +723,95 @@
             // Draw current video frame to canvas
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Show loading
+            // Show loading and start live output
             loading.classList.add('active');
             capturePhotoBtn.disabled = true;
+            startLiveOutput();
+            addLiveOutput(`📸 Capturing photo from ${currentSide} side...`, 'info');
             
             try {
                 // Get image data from canvas
                 const imageData = canvas.toDataURL('image/png');
+                addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
                 if (scanMode === 'qr' || scanMode === 'both') {
+                    addLiveOutput('🔍 Attempting QR code detection...', 'info');
                     // Try QR scanning first
                     try {
                         const result = await QrScanner.scanImage(imageData, { returnDetailedScanResult: true });
+                        addLiveOutput('✅ QR code found in image!', 'success');
                         handleQRResult(result);
                     } catch (qrError) {
+                        addLiveOutput('❌ No QR code detected', 'warning');
                         if (scanMode === 'qr') {
                             throw new Error('No QR code found in image');
                         }
                         // If both modes, fall back to OCR
+                        addLiveOutput('🔄 Falling back to OCR text extraction...', 'info');
                         await performOCR(imageData);
                     }
                 } else {
+                    addLiveOutput('📝 Starting OCR text extraction...', 'info');
                     // OCR only
                     await performOCR(imageData);
                 }
                 
             } catch (error) {
+                addLiveOutput(`❌ Error: ${error.message}`, 'error');
                 console.error('Error processing image:', error);
                 showError('Failed to process image: ' + error.message);
             } finally {
                 loading.classList.remove('active');
                 capturePhotoBtn.disabled = false;
+                clearLiveOutput();
             }
         }
 
         async function performOCR(imageData) {
             loadingText.textContent = 'Extracting text using OCR...';
+            addLiveOutput('📝 Initializing OCR engine...', 'info');
             
             const result = await Tesseract.recognize(
                 imageData,
                 'eng',
                 {
-                    logger: m => console.log(m)
+                    logger: m => {
+                        // Show OCR progress in live output
+                        if (m.status === 'recognizing text') {
+                            const progress = Math.round(m.progress * 100);
+                            addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                        } else if (m.status === 'initializing tesseract') {
+                            addLiveOutput('🔧 Loading OCR engine...', 'info');
+                        } else if (m.status === 'loading language traineddata') {
+                            addLiveOutput('📚 Loading language data...', 'info');
+                        }
+                    }
                 }
             );
             
             // Store and display the extracted text
             const extractedText = result.data.text.trim();
+            addLiveOutput(`✅ Text extraction complete!`, 'success');
+            addLiveOutput(`📄 Found ${extractedText.length} characters of text`, 'info');
+            
+            if (extractedText) {
+                addLiveOutput(`📋 Text preview: "${extractedText.substring(0, 50)}${extractedText.length > 50 ? '...' : ''}"`, 'info');
+            } else {
+                addLiveOutput('⚠️ No text found in image', 'warning');
+            }
+            
             scannedData[currentSide] = extractedText;
+            
+            // Parse and show structured data
+            const parsedData = parseIDData(extractedText);
+            if (Object.keys(parsedData).length > 1) {
+                addLiveOutput('🔍 Parsing structured data from text...', 'info');
+                Object.entries(parsedData).forEach(([key, value]) => {
+                    if (key !== 'Raw Data') {
+                        addLiveOutput(`   ${key}: ${value}`, 'success');
+                    }
+                });
+            }
             
             if (currentSide === 'front') {
                 frontResult.textContent = extractedText || 'No text found on front side.';
@@ -747,44 +830,86 @@
 
             loading.classList.add('active');
             loadingText.textContent = 'Processing uploaded image...';
+            startLiveOutput();
+            addLiveOutput(`📁 File uploaded: ${file.name}`, 'info');
+            addLiveOutput(`📊 File size: ${(file.size / 1024).toFixed(2)} KB`, 'info');
+            addLiveOutput(`🖼️ File type: ${file.type}`, 'info');
 
             try {
                 if (scanMode === 'qr' || scanMode === 'both') {
+                    addLiveOutput('🔍 Attempting QR code detection...', 'info');
                     try {
                         const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
+                        addLiveOutput('✅ QR code found in uploaded file!', 'success');
                         handleQRResult(result);
                     } catch (qrError) {
+                        addLiveOutput('❌ No QR code detected in file', 'warning');
                         if (scanMode === 'qr') {
                             throw new Error('No QR code found in uploaded file');
                         }
                         // Fall back to OCR
+                        addLiveOutput('🔄 Falling back to OCR text extraction...', 'info');
                         await performOCRFromFile(file);
                     }
                 } else {
+                    addLiveOutput('📝 Starting OCR text extraction...', 'info');
                     await performOCRFromFile(file);
                 }
             } catch (error) {
+                addLiveOutput(`❌ Error: ${error.message}`, 'error');
                 console.error('Error processing file:', error);
                 showError('Failed to process file: ' + error.message);
             } finally {
                 loading.classList.remove('active');
                 fileInput.value = ''; // Reset file input
+                clearLiveOutput();
             }
         }
 
         async function performOCRFromFile(file) {
             loadingText.textContent = 'Extracting text using OCR...';
+            addLiveOutput('📝 Initializing OCR engine for file...', 'info');
             
             const result = await Tesseract.recognize(
                 file,
                 'eng',
                 {
-                    logger: m => console.log(m)
+                    logger: m => {
+                        // Show OCR progress in live output
+                        if (m.status === 'recognizing text') {
+                            const progress = Math.round(m.progress * 100);
+                            addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
+                        } else if (m.status === 'initializing tesseract') {
+                            addLiveOutput('🔧 Loading OCR engine...', 'info');
+                        } else if (m.status === 'loading language traineddata') {
+                            addLiveOutput('📚 Loading language data...', 'info');
+                        }
+                    }
                 }
             );
             
             const extractedText = result.data.text.trim();
+            addLiveOutput(`✅ Text extraction complete!`, 'success');
+            addLiveOutput(`📄 Found ${extractedText.length} characters of text`, 'info');
+            
+            if (extractedText) {
+                addLiveOutput(`📋 Text preview: "${extractedText.substring(0, 50)}${extractedText.length > 50 ? '...' : ''}"`, 'info');
+            } else {
+                addLiveOutput('⚠️ No text found in uploaded file', 'warning');
+            }
+            
             scannedData[currentSide] = extractedText;
+            
+            // Parse and show structured data
+            const parsedData = parseIDData(extractedText);
+            if (Object.keys(parsedData).length > 1) {
+                addLiveOutput('🔍 Parsing structured data from text...', 'info');
+                Object.entries(parsedData).forEach(([key, value]) => {
+                    if (key !== 'Raw Data') {
+                        addLiveOutput(`   ${key}: ${value}`, 'success');
+                    }
+                });
+            }
             
             if (currentSide === 'front') {
                 frontResult.textContent = extractedText || 'No text found in uploaded file.';
