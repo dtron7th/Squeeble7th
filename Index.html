@@ -728,7 +728,17 @@
                 return true;
             } catch (error) {
                 addLiveOutput(`❌ Failed to initialize ML Kit: ${error.message}`, 'error');
-                return false;
+                // Try fallback method
+                addLiveOutput('🔄 Trying fallback initialization...', 'warning');
+                try {
+                    barcodeScanner = new BarcodeScanner();
+                    barcodeScanner.onResults(onBarcodeResults);
+                    addLiveOutput('✅ Fallback initialization successful', 'success');
+                    return true;
+                } catch (fallbackError) {
+                    addLiveOutput(`❌ Fallback also failed: ${fallbackError.message}`, 'error');
+                    return false;
+                }
             }
         }
 
@@ -1098,18 +1108,27 @@
                 startLiveOutput();
                 addLiveOutput('🎯 Starting Google ML Kit PDF417 scanning...', 'info');
                 
-                // Setup camera with MediaPipe
-                camera = new Camera(video, {
-                    onFrame: async () => {
-                        if (!isScanning) return;
-                        
+                // Use a simpler approach - process frames directly
+                const processFrame = async () => {
+                    if (!isScanning) return;
+                    
+                    try {
+                        // Send video frame to barcode scanner
                         await barcodeScanner.send({ image: video });
-                    },
-                    width: 640,
-                    height: 480
-                });
+                        
+                        // Continue processing
+                        requestAnimationFrame(processFrame);
+                    } catch (error) {
+                        addLiveOutput(`⚠️ Frame processing error: ${error.message}`, 'warning');
+                        // Continue trying
+                        setTimeout(() => {
+                            if (isScanning) requestAnimationFrame(processFrame);
+                        }, 100);
+                    }
+                };
                 
-                await camera.start();
+                // Start frame processing
+                requestAnimationFrame(processFrame);
                 
                 addLiveOutput('✅ Google ML Kit PDF417 scanning started', 'success');
                 showMessage('Scanning for PDF417 barcodes...', 'info');
@@ -1125,10 +1144,8 @@
         function stopPDF417Scanning() {
             isScanning = false;
             
-            if (camera) {
-                camera.stop();
-                camera = null;
-            }
+            // No need to stop camera - just stop processing frames
+            camera = null;
             
             scanPDF417Btn.textContent = '🎯 Scan PDF417 Barcode';
             scanPDF417Btn.classList.remove('btn-secondary');
