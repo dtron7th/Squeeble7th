@@ -391,8 +391,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 ID Card Scanner</h1>
-            <p>Scan QR codes and extract text from ID cards using your camera</p>
+            <h1>🆔 ID Card QR Scanner</h1>
+            <p>Scan QR codes from the back of ID cards to extract information</p>
         </div>
 
         <div class="scanner-section">
@@ -400,23 +400,8 @@
             <div class="success-message" id="successMessage"></div>
             <div class="info-message" id="infoMessage"></div>
 
-            <div class="scan-mode-selector">
-                <button class="mode-btn active" data-mode="text">
-                    📝 Text OCR
-                </button>
-                <button class="mode-btn" data-mode="qr">
-                    🔍 QR Code
-                </button>
-                <button class="mode-btn" data-mode="both">
-                    🔄 Both
-                </button>
-            </div>
-
-            <div class="side-selector">
-                <button class="side-btn active" data-side="front">
-                    📷 Front Side
-                </button>
-                <button class="side-btn" data-side="back">
+            <div class="side-selector" style="display: none;">
+                <button class="side-btn active" data-side="back">
                     📷 Back Side
                 </button>
             </div>
@@ -459,32 +444,21 @@
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">Processing image and extracting text...</p>
+                <p id="loadingText">Scanning for QR codes...</p>
                 <div id="liveOutput" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; display: none;">
-                    <div style="color: #00ff00; font-weight: bold;">🔍 Live Scan Output:</div>
+                    <div style="color: #00ff00; font-weight: bold;">🔍 Live QR Scan Output:</div>
                 </div>
             </div>
         </div>
 
         <div class="results-section">
             <div class="result-card">
-                <h3>📋 Front Side Results</h3>
-                <div class="scanned-text" id="frontResult">
-                    No front side data scanned yet. Capture a photo of the front of your ID card.
-                </div>
-                <div class="parsed-data" id="frontParsed" style="display: none;">
-                    <h4 style="margin-bottom: 15px; color: #10b981;">🔍 Parsed Information</h4>
-                    <div id="frontParsedContent"></div>
-                </div>
-            </div>
-
-            <div class="result-card">
-                <h3>📋 Back Side Results</h3>
+                <h3>📋 ID Card QR Code Results</h3>
                 <div class="scanned-text" id="backResult">
-                    No back side data scanned yet. Capture a photo of the back of your ID card.
+                    No QR code data scanned yet. Position the back of your ID card with the QR code in the camera view.
                 </div>
                 <div class="parsed-data" id="backParsed" style="display: none;">
-                    <h4 style="margin-bottom: 15px; color: #10b981;">🔍 Parsed Information</h4>
+                    <h4 style="margin-bottom: 15px; color: #10b981;">🔍 Extracted Information</h4>
                     <div id="backParsedContent"></div>
                 </div>
             </div>
@@ -493,12 +467,10 @@
 
     <script>
         let stream = null;
-        let currentSide = 'front';
-        let scanMode = 'text';
+        let currentSide = 'back';
         let qrScanner = null;
         let isScanningQR = false;
         let scannedData = {
-            front: '',
             back: ''
         };
 
@@ -517,36 +489,12 @@
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
         const infoMessage = document.getElementById('infoMessage');
-        const frontResult = document.getElementById('frontResult');
         const backResult = document.getElementById('backResult');
-        const frontParsed = document.getElementById('frontParsed');
         const backParsed = document.getElementById('backParsed');
-        const frontParsedContent = document.getElementById('frontParsedContent');
         const backParsedContent = document.getElementById('backParsedContent');
         const fileInput = document.getElementById('fileInput');
 
-        // Mode selector
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                scanMode = this.dataset.mode;
-                updateScanMode();
-                showMessage(`Switched to ${scanMode} scanning mode`, 'info');
-            });
-        });
-
-        // Side selector
-        document.querySelectorAll('.side-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentSide = this.dataset.side;
-                showMessage(`Switched to ${currentSide} side`, 'info');
-            });
-        });
-
-        // Camera controls
+        // Camera controls - QR scanning only
         startCameraBtn.addEventListener('click', startCamera);
         scanQRBtn.addEventListener('click', toggleQRScanning);
         capturePhotoBtn.addEventListener('click', capturePhoto);
@@ -556,7 +504,7 @@
         // Live output functions
         function startLiveOutput() {
             liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Scan Output:</div>';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live QR Scan Output:</div>';
         }
 
         function addLiveOutput(message, type = 'info') {
@@ -593,6 +541,7 @@
                 
                 startCameraBtn.disabled = true;
                 capturePhotoBtn.disabled = false;
+                scanQRBtn.disabled = false;
                 stopCameraBtn.disabled = false;
                 
                 // Initialize QR scanner
@@ -605,8 +554,7 @@
                     }
                 );
                 
-                updateScanMode();
-                showMessage('Camera started successfully', 'success');
+                showMessage('Camera started successfully - Ready for QR scanning', 'success');
             } catch (error) {
                 console.error('Error accessing camera:', error);
                 showError('Unable to access camera. Please ensure you have granted camera permissions.');
@@ -633,17 +581,6 @@
                 }
                 
                 showMessage('Camera stopped', 'success');
-            }
-        }
-
-        function updateScanMode() {
-            if (scanMode === 'qr' || scanMode === 'both') {
-                scanQRBtn.disabled = false;
-            } else {
-                scanQRBtn.disabled = true;
-                if (isScanningQR) {
-                    stopQRScanning();
-                }
             }
         }
 
@@ -696,21 +633,13 @@
             
             showMessage('✅ QR Code detected and processed!', 'success');
             
-            // Store and display the extracted data
-            scannedData[currentSide] = data;
-            
-            if (currentSide === 'front') {
-                frontResult.textContent = data;
-                displayParsedData(data, frontParsedContent, frontParsed);
-            } else {
-                backResult.textContent = data;
-                displayParsedData(data, backParsedContent, backParsed);
-            }
+            // Store and display the extracted data (back side only)
+            scannedData.back = data;
+            backResult.textContent = data;
+            displayParsedData(data, backParsedContent, backParsed);
             
             // Stop scanning after successful detection
-            if (scanMode === 'qr') {
-                stopQRScanning();
-            }
+            stopQRScanning();
         }
 
         async function capturePhoto() {
@@ -727,33 +656,22 @@
             loading.classList.add('active');
             capturePhotoBtn.disabled = true;
             startLiveOutput();
-            addLiveOutput(`📸 Capturing photo from ${currentSide} side...`, 'info');
+            addLiveOutput('📸 Capturing photo from ID card back side...', 'info');
             
             try {
                 // Get image data from canvas
                 const imageData = canvas.toDataURL('image/png');
                 addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
-                if (scanMode === 'qr' || scanMode === 'both') {
-                    addLiveOutput('🔍 Attempting QR code detection...', 'info');
-                    // Try QR scanning first
-                    try {
-                        const result = await QrScanner.scanImage(imageData, { returnDetailedScanResult: true });
-                        addLiveOutput('✅ QR code found in image!', 'success');
-                        handleQRResult(result);
-                    } catch (qrError) {
-                        addLiveOutput('❌ No QR code detected', 'warning');
-                        if (scanMode === 'qr') {
-                            throw new Error('No QR code found in image');
-                        }
-                        // If both modes, fall back to OCR
-                        addLiveOutput('🔄 Falling back to OCR text extraction...', 'info');
-                        await performOCR(imageData);
-                    }
-                } else {
-                    addLiveOutput('📝 Starting OCR text extraction...', 'info');
-                    // OCR only
-                    await performOCR(imageData);
+                addLiveOutput('🔍 Scanning for QR codes...', 'info');
+                // QR scanning only
+                try {
+                    const result = await QrScanner.scanImage(imageData, { returnDetailedScanResult: true });
+                    addLiveOutput('✅ QR code found in image!', 'success');
+                    handleQRResult(result);
+                } catch (qrError) {
+                    addLiveOutput('❌ No QR code detected in image', 'error');
+                    throw new Error('No QR code found in image. Please ensure the QR code is clearly visible.');
                 }
                 
             } catch (error) {
@@ -767,94 +685,22 @@
             }
         }
 
-        async function performOCR(imageData) {
-            loadingText.textContent = 'Extracting text using OCR...';
-            addLiveOutput('📝 Initializing OCR engine...', 'info');
-            
-            const result = await Tesseract.recognize(
-                imageData,
-                'eng',
-                {
-                    logger: m => {
-                        // Show OCR progress in live output
-                        if (m.status === 'recognizing text') {
-                            const progress = Math.round(m.progress * 100);
-                            addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
-                        } else if (m.status === 'initializing tesseract') {
-                            addLiveOutput('🔧 Loading OCR engine...', 'info');
-                        } else if (m.status === 'loading language traineddata') {
-                            addLiveOutput('📚 Loading language data...', 'info');
-                        }
-                    }
-                }
-            );
-            
-            // Store and display the extracted text
-            const extractedText = result.data.text.trim();
-            addLiveOutput(`✅ Text extraction complete!`, 'success');
-            addLiveOutput(`📄 Found ${extractedText.length} characters of text`, 'info');
-            
-            if (extractedText) {
-                addLiveOutput(`📋 Text preview: "${extractedText.substring(0, 50)}${extractedText.length > 50 ? '...' : ''}"`, 'info');
-            } else {
-                addLiveOutput('⚠️ No text found in image', 'warning');
-            }
-            
-            scannedData[currentSide] = extractedText;
-            
-            // Parse and show structured data
-            const parsedData = parseIDData(extractedText);
-            if (Object.keys(parsedData).length > 1) {
-                addLiveOutput('🔍 Parsing structured data from text...', 'info');
-                Object.entries(parsedData).forEach(([key, value]) => {
-                    if (key !== 'Raw Data') {
-                        addLiveOutput(`   ${key}: ${value}`, 'success');
-                    }
-                });
-            }
-            
-            if (currentSide === 'front') {
-                frontResult.textContent = extractedText || 'No text found on front side.';
-                displayParsedData(extractedText, frontParsedContent, frontParsed);
-            } else {
-                backResult.textContent = extractedText || 'No text found on back side.';
-                displayParsedData(extractedText, backParsedContent, backParsed);
-            }
-            
-            showMessage(`Successfully scanned ${currentSide} side of ID card`, 'success');
-        }
-
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             loading.classList.add('active');
-            loadingText.textContent = 'Processing uploaded image...';
+            loadingText.textContent = 'Scanning uploaded image for QR codes...';
             startLiveOutput();
             addLiveOutput(`📁 File uploaded: ${file.name}`, 'info');
             addLiveOutput(`📊 File size: ${(file.size / 1024).toFixed(2)} KB`, 'info');
             addLiveOutput(`🖼️ File type: ${file.type}`, 'info');
 
             try {
-                if (scanMode === 'qr' || scanMode === 'both') {
-                    addLiveOutput('🔍 Attempting QR code detection...', 'info');
-                    try {
-                        const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
-                        addLiveOutput('✅ QR code found in uploaded file!', 'success');
-                        handleQRResult(result);
-                    } catch (qrError) {
-                        addLiveOutput('❌ No QR code detected in file', 'warning');
-                        if (scanMode === 'qr') {
-                            throw new Error('No QR code found in uploaded file');
-                        }
-                        // Fall back to OCR
-                        addLiveOutput('🔄 Falling back to OCR text extraction...', 'info');
-                        await performOCRFromFile(file);
-                    }
-                } else {
-                    addLiveOutput('📝 Starting OCR text extraction...', 'info');
-                    await performOCRFromFile(file);
-                }
+                addLiveOutput('🔍 Scanning for QR codes...', 'info');
+                const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
+                addLiveOutput('✅ QR code found in uploaded file!', 'success');
+                handleQRResult(result);
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
                 console.error('Error processing file:', error);
@@ -864,62 +710,6 @@
                 fileInput.value = ''; // Reset file input
                 clearLiveOutput();
             }
-        }
-
-        async function performOCRFromFile(file) {
-            loadingText.textContent = 'Extracting text using OCR...';
-            addLiveOutput('📝 Initializing OCR engine for file...', 'info');
-            
-            const result = await Tesseract.recognize(
-                file,
-                'eng',
-                {
-                    logger: m => {
-                        // Show OCR progress in live output
-                        if (m.status === 'recognizing text') {
-                            const progress = Math.round(m.progress * 100);
-                            addLiveOutput(`📊 OCR Progress: ${progress}%`, 'info');
-                        } else if (m.status === 'initializing tesseract') {
-                            addLiveOutput('🔧 Loading OCR engine...', 'info');
-                        } else if (m.status === 'loading language traineddata') {
-                            addLiveOutput('📚 Loading language data...', 'info');
-                        }
-                    }
-                }
-            );
-            
-            const extractedText = result.data.text.trim();
-            addLiveOutput(`✅ Text extraction complete!`, 'success');
-            addLiveOutput(`📄 Found ${extractedText.length} characters of text`, 'info');
-            
-            if (extractedText) {
-                addLiveOutput(`📋 Text preview: "${extractedText.substring(0, 50)}${extractedText.length > 50 ? '...' : ''}"`, 'info');
-            } else {
-                addLiveOutput('⚠️ No text found in uploaded file', 'warning');
-            }
-            
-            scannedData[currentSide] = extractedText;
-            
-            // Parse and show structured data
-            const parsedData = parseIDData(extractedText);
-            if (Object.keys(parsedData).length > 1) {
-                addLiveOutput('🔍 Parsing structured data from text...', 'info');
-                Object.entries(parsedData).forEach(([key, value]) => {
-                    if (key !== 'Raw Data') {
-                        addLiveOutput(`   ${key}: ${value}`, 'success');
-                    }
-                });
-            }
-            
-            if (currentSide === 'front') {
-                frontResult.textContent = extractedText || 'No text found in uploaded file.';
-                displayParsedData(extractedText, frontParsedContent, frontParsed);
-            } else {
-                backResult.textContent = extractedText || 'No text found in uploaded file.';
-                displayParsedData(extractedText, backParsedContent, backParsed);
-            }
-            
-            showMessage(`Successfully processed uploaded file`, 'success');
         }
 
         function displayParsedData(data, container, containerDiv) {
