@@ -553,13 +553,16 @@
                 scanQRBtn.disabled = false;
                 stopCameraBtn.disabled = false;
                 
-                // Initialize QR scanner
+                // Initialize QR scanner with better configuration
                 qrScanner = new QrScanner(
                     video,
                     result => handleQRResult(result),
                     {
                         highlightScanRegion: false,
-                        highlightCodeOutline: false,
+                        highlightCodeOutline: true,
+                        preferredCamera: 'environment',
+                        maxScansPerSecond: 10,
+                        returnDetailedScanResult: true
                     }
                 );
                 
@@ -603,13 +606,20 @@
 
         function startQRScanning() {
             if (qrScanner) {
-                qrScanner.start();
-                isScanningQR = true;
-                scanQRBtn.textContent = '⏹️ Stop QR Scan';
-                scanQRBtn.classList.remove('btn-success');
-                scanQRBtn.classList.add('btn-secondary');
-                scanOverlay.style.display = 'block';
-                showMessage('🔍 Scanning for QR codes...', 'info');
+                addLiveOutput('🔍 Starting QR scanner...', 'info');
+                qrScanner.start().then(() => {
+                    isScanningQR = true;
+                    scanQRBtn.textContent = '⏹️ Stop QR Scan';
+                    scanQRBtn.classList.remove('btn-success');
+                    scanQRBtn.classList.add('btn-secondary');
+                    scanOverlay.style.display = 'block';
+                    addLiveOutput('✅ QR scanner started successfully', 'success');
+                    showMessage('🔍 Scanning for QR codes...', 'info');
+                }).catch(error => {
+                    addLiveOutput(`❌ Failed to start QR scanner: ${error.message}`, 'error');
+                    console.error('QR Scanner start error:', error);
+                    showError('Failed to start QR scanner: ' + error.message);
+                });
             }
         }
 
@@ -625,9 +635,11 @@
         }
 
         function handleQRResult(result) {
+            console.log('QR Result received:', result);
             const data = result.data;
             addLiveOutput('✅ QR Code detected and processed!', 'success');
-            addLiveOutput(`📋 Raw data: ${data.substring(0, 100)}${data.length > 100 ? '...' : ''}`, 'info');
+            addLiveOutput(`📋 Raw data length: ${data.length} characters`, 'info');
+            addLiveOutput(`📋 Raw data: ${data.substring(0, 150)}${data.length > 150 ? '...' : ''}`, 'info');
             
             // Parse and show extracted fields
             const parsedData = parseIDData(data);
@@ -669,19 +681,44 @@
             
             try {
                 // Get image data from canvas
-                const imageData = canvas.toDataURL('image/png');
+                const imageData = canvas.toDataURL('image/png', 1.0); // Maximum quality
                 addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
-                addLiveOutput('🔍 Scanning for QR codes...', 'info');
-                // QR scanning only
+                // Try multiple QR scanning approaches
+                addLiveOutput('🔍 Attempting QR code detection...', 'info');
+                
                 try {
-                    const result = await QrScanner.scanImage(imageData, { returnDetailedScanResult: true });
-                    addLiveOutput('✅ QR code found in image!', 'success');
+                    // Method 1: Direct QR scanning
+                    const result = await QrScanner.scanImage(imageData, { 
+                        returnDetailedScanResult: true,
+                        alsoTryWithoutScanRegion: true
+                    });
+                    addLiveOutput('✅ QR code found using direct scan!', 'success');
                     handleQRResult(result);
-                } catch (qrError) {
-                    addLiveOutput('❌ No QR code detected in image', 'error');
-                    throw new Error('No QR code found in image. Please ensure the QR code is clearly visible.');
+                    return;
+                } catch (directError) {
+                    addLiveOutput('❌ Direct scan failed, trying alternative methods...', 'warning');
                 }
+                
+                // Method 2: Create a blob and try again
+                try {
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+                    const result = await QrScanner.scanImage(blob, { 
+                        returnDetailedScanResult: true,
+                        alsoTryWithoutScanRegion: true
+                    });
+                    addLiveOutput('✅ QR code found using blob scan!', 'success');
+                    handleQRResult(result);
+                    return;
+                } catch (blobError) {
+                    addLiveOutput('❌ Blob scan failed too', 'warning');
+                }
+                
+                throw new Error('No QR code detected. Please ensure:');
+                addLiveOutput('   • QR code is clearly visible', 'error');
+                addLiveOutput('   • Good lighting on the QR code', 'error');
+                addLiveOutput('   • Camera is focused on the QR code', 'error');
+                addLiveOutput('   • QR code is not damaged or blurry', 'error');
                 
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
@@ -707,9 +744,24 @@
 
             try {
                 addLiveOutput('🔍 Scanning for QR codes...', 'info');
-                const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
-                addLiveOutput('✅ QR code found in uploaded file!', 'success');
-                handleQRResult(result);
+                
+                // Try multiple scanning methods for uploaded files
+                try {
+                    const result = await QrScanner.scanImage(file, { 
+                        returnDetailedScanResult: true,
+                        alsoTryWithoutScanRegion: true
+                    });
+                    addLiveOutput('✅ QR code found in uploaded file!', 'success');
+                    handleQRResult(result);
+                } catch (scanError) {
+                    addLiveOutput('❌ No QR code found in uploaded file', 'error');
+                    addLiveOutput('💡 Tips for better QR scanning:', 'info');
+                    addLiveOutput('   • Ensure QR code is high resolution', 'info');
+                    addLiveOutput('   • QR code should be straight (not angled)', 'info');
+                    addLiveOutput('   • Good contrast between QR code and background', 'info');
+                    addLiveOutput('   • No glare or reflections on QR code', 'info');
+                    throw new Error('No QR code detected in uploaded file');
+                }
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
                 console.error('Error processing file:', error);
