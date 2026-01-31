@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -401,8 +402,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 ID Card QR Scanner</h1>
-            <p>Scan QR codes from the back of ID cards to extract information</p>
+            <h1>🆔 ID Card Barcode Scanner</h1>
+            <p>Scan barcodes and QR codes from the back of ID cards to extract information</p>
         </div>
 
         <div class="scanner-section">
@@ -442,7 +443,7 @@
                     📹 Start Camera
                 </button>
                 <button class="btn btn-success" id="scanQR" disabled>
-                    🔍 Scan QR Code
+                    🔍 Scan Barcode/QR
                 </button>
                 <button class="btn btn-secondary" id="capturePhoto" disabled>
                     📸 Capture Photo
@@ -454,18 +455,18 @@
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">Scanning for QR codes...</p>
+                <p id="loadingText">Scanning for barcodes and QR codes...</p>
                 <div id="liveOutput" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; display: none;">
-                    <div style="color: #00ff00; font-weight: bold;">🔍 Live QR Scan Output:</div>
+                    <div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>
                 </div>
             </div>
         </div>
 
         <div class="results-section">
             <div class="result-card">
-                <h3>📋 ID Card QR Code Results</h3>
+                <h3>📋 ID Card Barcode Results</h3>
                 <div class="scanned-text" id="backResult">
-                    No QR code data scanned yet. Position the back of your ID card with the QR code in the camera view.
+                    No barcode data scanned yet. Position the back of your ID card with the barcode/QR code in the camera view.
                 </div>
                 <div class="parsed-data" id="backParsed" style="display: none;">
                     <h4 style="margin-bottom: 15px; color: #10b981;">🔍 Extracted Information</h4>
@@ -514,7 +515,7 @@
         // Live output functions
         function startLiveOutput() {
             liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live QR Scan Output:</div>';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>';
         }
 
         function addLiveOutput(message, type = 'info') {
@@ -531,14 +532,51 @@
         function clearLiveOutput() {
             setTimeout(() => {
                 liveOutput.style.display = 'none';
-                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live QR Scan Output:</div>';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Live Barcode Scan Output:</div>';
             }, 3000);
+        }
+
+        // Barcode scanning using ZXing library (supports PDF417, Code 128, etc.)
+        async function scanWithZXing(imageData) {
+            try {
+                addLiveOutput('🔄 Trying barcode scanner (ZXing)...', 'info');
+                
+                // Create image element from data URL
+                const img = new Image();
+                img.src = imageData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                // Create temporary canvas for ZXing
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                tempCtx.drawImage(img, 0, 0);
+                
+                // Get image data for ZXing
+                const imageDataObj = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Create ZXing reader
+                const codeReader = new ZXing.BrowserMultiFormatReader();
+                
+                try {
+                    // Try to decode with ZXing
+                    const result = codeReader.decode(imageDataObj);
+                    addLiveOutput(`✅ ${result.getBarcodeFormat()} barcode found with ZXing!`, 'success');
+                    return { data: result.getText() };
+                } catch (zxingError) {
+                    throw new Error('No barcode found with ZXing: ' + zxingError.message);
+                }
+            } catch (error) {
+                addLiveOutput(`❌ ZXing scan failed: ${error.message}`, 'error');
+                throw error;
+            }
         }
 
         // Alternative QR scanning using jsQR
         async function scanWithJSQR(imageData) {
             try {
-                addLiveOutput('🔄 Trying alternative QR scanner (jsQR)...', 'info');
+                addLiveOutput('🔄 Trying QR scanner (jsQR)...', 'info');
                 
                 // Create image element from data URL
                 const img = new Image();
@@ -722,10 +760,20 @@
                 const imageData = canvas.toDataURL('image/png', 1.0); // Maximum quality
                 addLiveOutput(`📷 Image captured: ${canvas.width}x${canvas.height}px`, 'success');
                 
-                // Try multiple QR scanning approaches
-                addLiveOutput('🔍 Attempting QR code detection...', 'info');
+                // Try multiple scanning approaches - barcode first!
+                addLiveOutput('🔍 Attempting barcode/QR code detection...', 'info');
                 
-                // Method 1: qr-scanner library
+                // Method 1: ZXing barcode library (supports PDF417, Code 128, etc.)
+                try {
+                    const result = await scanWithZXing(imageData);
+                    addLiveOutput('✅ Barcode found with ZXing library!', 'success');
+                    handleQRResult(result);
+                    return;
+                } catch (zxingError) {
+                    addLiveOutput('❌ ZXing barcode library failed, trying QR scanners...', 'warning');
+                }
+                
+                // Method 2: qr-scanner library for QR codes
                 try {
                     const result = await QrScanner.scanImage(imageData, { 
                         returnDetailedScanResult: true,
@@ -738,7 +786,7 @@
                     addLiveOutput('❌ qr-scanner library failed, trying jsQR...', 'warning');
                 }
                 
-                // Method 2: jsQR library
+                // Method 3: jsQR library for QR codes
                 try {
                     const result = await scanWithJSQR(imageData);
                     addLiveOutput('✅ QR code found using jsQR library!', 'success');
@@ -748,7 +796,7 @@
                     addLiveOutput('❌ jsQR library failed too', 'warning');
                 }
                 
-                // Method 3: Try with blob
+                // Method 4: Try with blob
                 try {
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
                     const result = await QrScanner.scanImage(blob, { 
@@ -763,15 +811,16 @@
                 }
                 
                 // All methods failed
-                addLiveOutput('❌ All QR scanning methods failed', 'error');
-                addLiveOutput('💡 Troubleshooting tips:', 'info');
-                addLiveOutput('   • Ensure QR code is clearly visible and in focus', 'info');
-                addLiveOutput('   • Good lighting without glare', 'info');
-                addLiveOutput('   • QR code should be straight (not angled)', 'info');
-                addLiveOutput('   • Try moving closer or farther from QR code', 'info');
-                addLiveOutput('   • Ensure QR code is not damaged or partially obscured', 'info');
+                addLiveOutput('❌ All barcode/QR scanning methods failed', 'error');
+                addLiveOutput('💡 Troubleshooting tips for barcodes:', 'info');
+                addLiveOutput('   • Ensure barcode is clearly visible and in focus', 'info');
+                addLiveOutput('   • Good lighting without glare on barcode', 'info');
+                addLiveOutput('   • Barcode should be straight (not angled)', 'info');
+                addLiveOutput('   • Try moving closer or farther from barcode', 'info');
+                addLiveOutput('   • Ensure barcode is not damaged or partially obscured', 'info');
+                addLiveOutput('   • PDF417 barcodes need good contrast and clarity', 'info');
                 
-                throw new Error('No QR code detected with any method');
+                throw new Error('No barcode or QR code detected with any method');
                 
             } catch (error) {
                 addLiveOutput(`❌ Error: ${error.message}`, 'error');
