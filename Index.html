@@ -936,34 +936,24 @@
         }
         
         async function scanFrame() {
-            addTerminal('> DEBUG: scanFrame called...', 'info');
-            
-            if (!isScanning) {
-                addTerminal('> DEBUG: Scanning stopped, exiting...', 'info');
-                return;
-            }
+            if (!isScanning) return;
             
             frameCount++;
-            addTerminal(`> DEBUG: Processing frame ${frameCount}...`, 'info');
             
             try {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0);
                 
-                addTerminal(`> DEBUG: Canvas size: ${canvas.width}x${canvas.height}`, 'info');
-                
-                // Only perform OCR every 30 frames to save processing
-                if (frameCount % 30 === 0) {
-                    addTerminal('> DEBUG: Running OCR...', 'loading');
+                // Run OCR every 10 frames instead of 30 for better detection
+                if (frameCount % 10 === 0) {
                     const imageData = canvas.toDataURL('image/jpeg', 0.8);
                     
                     addTerminal(`> OCR scanning frame ${frameCount}...`, 'loading');
                     
                     try {
-                        addTerminal('> DEBUG: Calling OCR worker...', 'info');
                         const { data: { text } } = await ocrWorker.recognize(imageData);
-                        addTerminal(`> DEBUG: OCR result: "${text.substring(0, 50)}..."`, 'info');
+                        addTerminal(`> OCR Text: "${text.substring(0, 100)}..."`, 'info');
                         
                         // Look for date of birth with multiple patterns
                         let dob = null;
@@ -979,7 +969,7 @@
                             const match = text.match(pattern);
                             if (match) {
                                 dob = match[1];
-                                addTerminal(`> DOB found with pattern: ${dob}`, 'success');
+                                addTerminal(`> DOB found: ${dob}`, 'success');
                                 break;
                             }
                         }
@@ -988,12 +978,13 @@
                         if (!dob) {
                             const allDates = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
                             if (allDates && allDates.length > 0) {
+                                addTerminal(`> Found dates: ${allDates.join(', ')}`, 'info');
                                 // Try the first few dates to see if any make sense as birth dates
                                 for (const date of allDates.slice(0, 3)) {
                                     const ageInfo = calculateAge(date);
                                     if (ageInfo.age && ageInfo.age > 15 && ageInfo.age < 100) {
                                         dob = date;
-                                        addTerminal(`> Likely birth date found: ${dob} (age ${ageInfo.age})`, 'success');
+                                        addTerminal(`> Likely birth date: ${dob} (age ${ageInfo.age})`, 'success');
                                         break;
                                     }
                                 }
@@ -1002,7 +993,6 @@
                         
                         // Pattern 3: Look for common ID card formats
                         if (!dob) {
-                            // Format: MM/DD/YYYY followed by age or other indicators
                             const agePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s.*?(?:age|years|y\/o)/i;
                             const ageMatch = text.match(agePattern);
                             if (ageMatch) {
@@ -1012,42 +1002,33 @@
                         }
                         
                         if (dob) {
-                            addTerminal(`> Final DOB: ${dob}`, 'success');
+                            addTerminal(`> Processing DOB: ${dob}`, 'success');
                             const ageInfo = calculateAge(dob);
                             
-                            addTerminal(`> Age calculated: ${ageInfo.age} years old`, 'info');
-                            addTerminal(`> 21+ Status: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
+                            addTerminal(`> Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
                             
                             displayAgeResult(ageInfo);
                             playSuccessBeep();
                             stopScanning();
                             return;
                         } else {
-                            addTerminal('> DEBUG: No DOB found in OCR text', 'warning');
-                            addTerminal('> OCR Text Sample: ' + text.substring(0, 200), 'info');
+                            addTerminal('> No DOB found, continuing scan...', 'warning');
                         }
                         
                     } catch (ocrError) {
                         addTerminal(`> OCR error: ${ocrError.message}`, 'warning');
                     }
-                } else {
-                    addTerminal(`> DEBUG: Skipping OCR (frame ${frameCount} % 30 != 0)`, 'info');
                 }
                 
-                // Show progress
-                if (frameCount % 20 === 0) {
+                // Show progress less frequently
+                if (frameCount % 15 === 0) {
                     addTerminal(`> Scanning frame ${frameCount}...`, 'loading');
-                    if (isMobile) {
-                        addResultTerminal(`> Keep ID card steady... (${frameCount})`, 'loading');
-                    }
                 }
                 
-                addTerminal('> DEBUG: Requesting next frame...', 'info');
                 requestAnimationFrame(scanFrame);
                 
             } catch (error) {
                 addTerminal(`> Frame error: ${error.message}`, 'error');
-                addTerminal(`> Stack: ${error.stack}`, 'error');
                 requestAnimationFrame(scanFrame);
             }
         }
@@ -1055,8 +1036,6 @@
         // Calculate age from date string
         function calculateAge(dateString) {
             try {
-                addTerminal(`> Calculating age from: ${dateString}`, 'info');
-                
                 let cleaned = dateString.replace(/[^\d\/\-]/g, '');
                 
                 let month, day, year;
@@ -1077,14 +1056,9 @@
                     }
                 }
                 
-                // Validate date components
+                // Basic validation
                 if (!month || !day || !year || month < 1 || month > 12 || day < 1 || day > 31) {
-                    addTerminal(`> Invalid date components: M=${month}, D=${day}, Y=${year}`, 'error');
-                    return {
-                        age: 'INVALID',
-                        isOver21: false,
-                        formattedDate: dateString
-                    };
+                    return { age: 'INVALID', isOver21: false, formattedDate: dateString };
                 }
                 
                 // Handle 2-digit years
@@ -1095,12 +1069,7 @@
                 // Validate year range
                 const currentYear = new Date().getFullYear();
                 if (year < 1900 || year > currentYear) {
-                    addTerminal(`> Invalid year: ${year}`, 'error');
-                    return {
-                        age: 'INVALID',
-                        isOver21: false,
-                        formattedDate: dateString
-                    };
+                    return { age: 'INVALID', isOver21: false, formattedDate: dateString };
                 }
                 
                 const birthDate = new Date(year, month - 1, day);
@@ -1108,12 +1077,7 @@
                 
                 // Check if date is valid
                 if (birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) {
-                    addTerminal(`> Invalid date: ${dateString}`, 'error');
-                    return {
-                        age: 'INVALID',
-                        isOver21: false,
-                        formattedDate: dateString
-                    };
+                    return { age: 'INVALID', isOver21: false, formattedDate: dateString };
                 }
                 
                 let age = today.getFullYear() - birthDate.getFullYear();
@@ -1126,8 +1090,6 @@
                 const isOver21 = age >= 21;
                 const formattedDate = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
                 
-                addTerminal(`> Age calculation complete: ${age} years, 21+: ${isOver21}`, 'success');
-                
                 return {
                     age: age,
                     isOver21: isOver21,
@@ -1135,12 +1097,7 @@
                 };
                 
             } catch (error) {
-                addTerminal(`> Age calculation error: ${error.message}`, 'error');
-                return {
-                    age: 'ERROR',
-                    isOver21: false,
-                    formattedDate: dateString
-                };
+                return { age: 'ERROR', isOver21: false, formattedDate: dateString };
             }
         }
         
