@@ -701,28 +701,58 @@
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 
-                // Try to decode with ZXing
+                // Try multiple ZXing approaches for better detection
+                let detected = false;
+                
+                // Method 1: Standard multi-format reader
                 try {
                     const result = codeReader.decodeFromImageData(imageData);
                     if (result) {
                         const format = result.getBarcodeFormat();
                         const text = result.getText();
                         
+                        // Accept PDF417 or any long barcode (likely PDF417)
                         if (format === 'PDF_417' || format === 'PDF417' || text.length > 100) {
                             addTerminal(`> PDF417 DETECTED! Format: ${format}`, 'success');
+                            addTerminal(`> Data length: ${text.length} characters`, 'info');
                             addResultTerminal(`> Barcode found: ${text.length} chars`, 'success');
+                            processPDF417Data(text);
+                            stopScanning();
+                            return;
+                        } else if (format && text.length > 20) {
+                            addTerminal(`> Barcode detected: ${format} (${text.length} chars)`, 'info');
+                            // Try processing anyway - might be PDF417
                             processPDF417Data(text);
                             stopScanning();
                             return;
                         }
                     }
                 } catch (decodeError) {
-                    // No barcode found, continue scanning
+                    // No barcode found, continue to next method
                 }
                 
-                // Show progress every 30 frames
-                if (frameCount % 30 === 0) {
+                // Method 2: Try PDF417 reader specifically
+                try {
+                    const pdf417Reader = new ZXing.PDF417Reader();
+                    const result = pdf417Reader.decode(imageData);
+                    if (result && result.length > 50) {
+                        addTerminal(`> PDF417 DETECTED! (Direct reader)`, 'success');
+                        addTerminal(`> Data length: ${result.length} characters`, 'info');
+                        addResultTerminal(`> PDF417 found: ${result.length} chars`, 'success');
+                        processPDF417Data(result);
+                        stopScanning();
+                        return;
+                    }
+                } catch (pdf417Error) {
+                    // No PDF417 found
+                }
+                
+                // Show progress and feedback
+                if (frameCount % 20 === 0) {
                     addTerminal(`> Scanning frame ${frameCount}...`, 'loading');
+                    if (isMobile) {
+                        addResultTerminal(`> Keep barcode steady... (${frameCount})`, 'loading');
+                    }
                 }
                 
                 // Continue scanning
@@ -735,27 +765,57 @@
         }
         
         function processPDF417Data(data) {
-            addTerminal('> Processing PDF417 data...', 'loading');
+            addTerminal('> Processing barcode data...', 'loading');
             addResultTerminal('> Processing age verification...', 'loading');
             
-            // Parse AAMVA format
+            addTerminal(`> Raw data length: ${data.length} characters`, 'info');
+            addTerminal(`> Data preview: ${data.substring(0, 100)}...`, 'info');
+            
+            // Parse AAMVA format (standard for US driver's licenses)
             const lines = data.split('\n');
             let dob = '';
             let name = '';
             let dln = '';
             let exp = '';
             
+            addTerminal('> Parsing AAMVA format...', 'info');
+            
             for (const line of lines) {
                 if (line.startsWith('DBB')) {
                     dob = line.substring(3);
+                    addTerminal(`> Found DOB: ${dob}`, 'success');
                 } else if (line.startsWith('DAC')) {
                     name += line.substring(3) + ' ';
                 } else if (line.startsWith('DAB')) {
                     name = line.substring(3) + ' ' + name;
+                    addTerminal(`> Found Name: ${name.trim()}`, 'success');
                 } else if (line.startsWith('DAA')) {
                     dln = line.substring(3);
+                    addTerminal(`> Found DLN: ${dln}`, 'success');
                 } else if (line.startsWith('DBA')) {
                     exp = line.substring(3);
+                    addTerminal(`> Found EXP: ${exp}`, 'success');
+                }
+            }
+            
+            // If no AAMVA data found, try other formats
+            if (!dob && !dln) {
+                addTerminal('> No AAMVA data found, trying other formats...', 'warning');
+                
+                // Try to find dates in the data
+                const datePattern = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g;
+                const dates = data.match(datePattern);
+                if (dates && dates.length > 0) {
+                    dob = dates[0];
+                    addTerminal(`> Found possible DOB: ${dob}`, 'info');
+                }
+                
+                // Try to find license number (alphanumeric, 6-15 chars)
+                const licensePattern = /[A-Z0-9]{6,15}/g;
+                const licenses = data.match(licensePattern);
+                if (licenses && licenses.length > 0) {
+                    dln = licenses[0];
+                    addTerminal(`> Found possible DLN: ${dln}`, 'info');
                 }
             }
             
