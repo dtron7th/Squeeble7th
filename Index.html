@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF417 AGE VERIFICATION SYSTEM v1.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest/umd/index.min.js"></script>
+    <title>ID CARD AGE VERIFICATION SYSTEM v1.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <audio id="successBeep" preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
     </audio>
@@ -425,7 +425,7 @@
 <body>
     <div class="dos-container">
         <div class="dos-header">
-            PDF417 AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
+            ID CARD AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
         </div>
         
         <div class="dos-main">
@@ -445,29 +445,30 @@
                 
                 <div class="dos-controls">
                     <button class="dos-button" id="startBtn" onclick="startSystem()">[F1] INIT CAMERA</button>
-                    <button class="dos-button" id="scanBtn" onclick="toggleScanning()" disabled>[F2] SCAN PDF417</button>
+                    <button class="dos-button" id="scanBtn" onclick="toggleScanning()" disabled>[F2] SCAN ID CARD</button>
                     <button class="dos-button" id="stopBtn" onclick="stopSystem()" disabled>[F3] SHUTDOWN</button>
-                    <button class="dos-button" id="testBtn" onclick="testBarcodeDetection()" disabled>[F4] TEST SCAN</button>
+                    <button class="dos-button" id="testBtn" onclick="testOCR()" disabled>[F4] TEST OCR</button>
                 </div>
                 
                 <div class="mobile-controls" id="mobileControls">
                     <button class="dos-button mobile-btn" id="mobileStartBtn" onclick="startSystem()">📱 START CAMERA</button>
-                    <button class="dos-button mobile-btn" id="mobileScanBtn" onclick="toggleScanning()" disabled>📷 SCAN ID</button>
+                    <button class="dos-button mobile-btn" id="mobileScanBtn" onclick="toggleScanning()" disabled>📷 SCAN ID CARD</button>
                     <button class="dos-button mobile-btn" id="mobileStopBtn" onclick="stopSystem()" disabled>⏹️ STOP</button>
-                    <button class="dos-button mobile-btn" id="mobileTestBtn" onclick="testBarcodeDetection()" disabled>🔧 TEST SCAN</button>
+                    <button class="dos-button mobile-btn" id="mobileTestBtn" onclick="testOCR()" disabled>🔧 TEST OCR</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
-                    <div class="dos-title">> PHONE SCANNING TIPS</div>
-                    <div class="tip-item">📷 Hold phone steady</div>
-                    <div class="tip-item">💡 Good lighting on barcode</div>
-                    <div class="tip-item">📏 Fill screen with PDF417</div>
-                    <div class="tip-item">⚡ Avoid glare/reflection</div>
-                    <div class="tip-item">📱 Use back camera</div>
+                    <div class="dos-title">> ID CARD SCANNING TIPS</div>
+                    <div class="tip-item">📷 Position FRONT of ID card</div>
+                    <div class="tip-item">💡 Good lighting on text</div>
+                    <div class="tip-item">📏 Fill screen with ID card</div>
+                    <div class="tip-item">⚡ Avoid glare on text</div>
+                    <div class="tip-item">📱 Keep text sharp and clear</div>
+                    <div class="tip-item">🔍 Focus on Date of Birth</div>
                 </div>
                 
                 <div class="dos-terminal" id="terminal">
-                    PDF417 AGE VERIFICATION SYSTEM v1.0
+                    ID CARD AGE VERIFICATION SYSTEM v1.0
                     =====================================
                     > System Ready...
                     > Waiting for initialization...
@@ -480,7 +481,7 @@
                 
                 <div class="age-result age-unknown" id="ageResult">
                     <div>[ NO DATA RECEIVED ]</div>
-                    <div>SCAN PDF417 BARCODE</div>
+                    <div>SCAN FRONT OF ID CARD</div>
                 </div>
                 
                 <div class="dos-info" id="personInfo" style="display: none;">
