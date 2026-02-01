@@ -448,6 +448,7 @@
                     <button class="dos-button" id="scanBtn" onclick="toggleScanning()" disabled>[F2] SCAN ID CARD</button>
                     <button class="dos-button" id="stopBtn" onclick="stopSystem()" disabled>[F3] SHUTDOWN</button>
                     <button class="dos-button" id="testBtn" onclick="testOCR()" disabled>[F4] TEST OCR</button>
+                    <button class="dos-button" id="testAgeBtn" onclick="testAgeVerification()">[F5] TEST AGE</button>
                 </div>
                 
                 <div class="mobile-controls" id="mobileControls">
@@ -563,6 +564,16 @@
             try {
                 addTerminal('> Initializing OCR engine...', 'loading');
                 ocrWorker = await Tesseract.createWorker('eng');
+                
+                // Configure OCR for better text recognition
+                await ocrWorker.setParameters({
+                    tessedit_char_whitelist: '0123456789/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -.:DOBDateofBirthBornYears',
+                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+                    tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY,
+                    preserve_interword_spaces: '1',
+                    tessedit_do_invert: '0'
+                });
+                
                 addTerminal('> OCR engine initialized successfully', 'success');
                 return true;
             } catch (error) {
@@ -755,19 +766,47 @@
                 addTerminal(`> Captured frame: ${canvas.width}x${canvas.height}px`, 'info');
                 
                 const { data: { text } } = await ocrWorker.recognize(imageData);
-                addTerminal(`> OCR Result: "${text.substring(0, 100)}..."`, 'info');
+                addTerminal(`> OCR Result: "${text.substring(0, 200)}..."`, 'info');
                 
-                // Look for date patterns
+                // Look for any dates
                 const dateMatch = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/);
                 if (dateMatch) {
                     addTerminal(`> Date found: ${dateMatch[0]}`, 'success');
+                    const ageInfo = calculateAge(dateMatch[0]);
+                    addTerminal(`> Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
                 } else {
                     addTerminal('> No dates found in text', 'warning');
+                }
+                
+                // Test with a sample date if no dates found
+                if (!dateMatch) {
+                    addTerminal('> Testing with sample date: 01/15/1995', 'info');
+                    const testAgeInfo = calculateAge('01/15/1995');
+                    addTerminal(`> Sample Age: ${testAgeInfo.age} | 21+: ${testAgeInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
                 }
                 
             } catch (error) {
                 addTerminal(`> OCR Error: ${error.message}`, 'error');
             }
+        }
+        
+        // Manual test with known dates
+        function testAgeVerification() {
+            addTerminal('> TESTING AGE VERIFICATION...', 'loading');
+            
+            const testDates = [
+                '01/15/1995', // 29 years old - 21+
+                '12/01/2005', // 19 years old - Under 21
+                '06/30/2002', // 22 years old - 21+
+                '08/15/2008'  // 16 years old - Under 21
+            ];
+            
+            testDates.forEach(date => {
+                const ageInfo = calculateAge(date);
+                addTerminal(`> ${date} → Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
+            });
+            
+            addTerminal('> Age verification test complete', 'success');
         }
         
         // Update mobile button states
