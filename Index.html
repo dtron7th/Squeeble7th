@@ -451,6 +451,7 @@
                 <div class="dos-controls">
                     <button id="scanBtn" class="dos-button" onclick="onScanPdf417()">SCAN PDF417</button>
                     <button id="testDecodeBtn" class="dos-button" onclick="onTestDecode()">TEST DECODE</button>
+                    <button id="startCameraBtn" class="dos-button" onclick="onStartCamera()">START CAMERA</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
@@ -796,12 +797,16 @@
         function setScanButtonState() {
             const scanBtn = document.getElementById('scanBtn');
             const testDecodeBtn = document.getElementById('testDecodeBtn');
+            const startCameraBtn = document.getElementById('startCameraBtn');
             if (scanBtn) {
                 scanBtn.textContent = isScanning ? 'STOP' : 'SCAN PDF417';
-                scanBtn.disabled = !stream;
+                scanBtn.disabled = false;
             }
             if (testDecodeBtn) {
-                testDecodeBtn.disabled = !stream || isScanning;
+                testDecodeBtn.disabled = isScanning;
+            }
+            if (startCameraBtn) {
+                startCameraBtn.disabled = false;
             }
         }
         
@@ -905,6 +910,18 @@
             }
 
             setScanButtonState();
+        }
+
+        async function onStartCamera() {
+            try {
+                addTerminal('> START CAMERA button clicked', 'loading');
+                await ensureReady();
+                addTerminal('> Camera started successfully', 'success');
+            } catch (e) {
+                updateStatus('ERROR');
+                addTerminal(`> ERROR: ${e.message}`, 'error');
+                setScanButtonState();
+            }
         }
 
         async function onScanPdf417() {
