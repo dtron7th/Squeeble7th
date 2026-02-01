@@ -825,11 +825,13 @@
         }
         
         async function ensureReady() {
+            addTerminal('> ensureReady: checking...', 'loading');
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error('Camera not supported in this browser');
             }
 
             if (!codeReader) {
+                addTerminal('> ensureReady: initializing barcode reader...', 'loading');
                 const ok = initializeBarcodeReader();
                 if (!ok) {
                     throw new Error('Barcode reader initialization failed');
@@ -838,7 +840,7 @@
 
             if (!stream) {
                 updateStatus('INITIALIZING...');
-                addTerminal('> Requesting camera access...', 'loading');
+                addTerminal('> ensureReady: requesting camera access...', 'loading');
 
                 const constraints = {
                     video: {
@@ -850,7 +852,9 @@
 
                 try {
                     stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    addTerminal('> ensureReady: camera stream obtained', 'success');
                 } catch (e) {
+                    addTerminal(`> ensureReady: fallback constraints due to ${e.message}`, 'warning');
                     stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 }
 
@@ -864,7 +868,9 @@
 
                 try {
                     await video.play();
+                    addTerminal('> ensureReady: video playing', 'success');
                 } catch (_) {
+                    addTerminal('> ensureReady: video play failed', 'warning');
                 }
 
                 try {
@@ -885,13 +891,17 @@
 
                         if (advanced.length) {
                             await track.applyConstraints({ advanced });
+                            addTerminal('> ensureReady: applied continuous focus/exposure', 'success');
                         }
                     }
                 } catch (_) {
+                    addTerminal('> ensureReady: could not apply track constraints', 'warning');
                 }
 
                 updateStatus('CAMERA READY');
                 addTerminal('> Camera ready', 'success');
+            } else {
+                addTerminal('> ensureReady: camera already ready', 'info');
             }
 
             setScanButtonState();
@@ -899,12 +909,16 @@
 
         async function onScanPdf417() {
             try {
+                addTerminal('> SCAN PDF417 button clicked', 'loading');
                 if (isScanning) {
+                    addTerminal('> Stopping scanning...', 'info');
                     stopScanning();
                     return;
                 }
 
+                addTerminal('> Ensuring system ready...', 'loading');
                 await ensureReady();
+                addTerminal('> Starting scanning loop...', 'loading');
                 startScanning();
             } catch (e) {
                 updateStatus('ERROR');
