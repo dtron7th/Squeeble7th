@@ -524,7 +524,7 @@
         
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const placeholder = document.getElementById('placeholder');
         const scanLine = document.getElementById('scanLine');
         const terminal = document.getElementById('terminal');
@@ -535,6 +535,12 @@
 
         let decodeLoopActive = false;
         let scanRafId = null;
+        let lastDecodeAt = 0;
+        const decodeIntervalMs = 120;
+        const roiCanvas = document.createElement('canvas');
+        const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
+        const rotCanvas = document.createElement('canvas');
+        const rotCtx = rotCanvas.getContext('2d', { willReadFrequently: true });
 
         function setAgeResultMessage(title, subtitle) {
             ageResult.className = 'age-result age-unknown';
@@ -576,6 +582,7 @@
                 addTerminal('> Creating barcode reader...', 'loading');
                 const hints = new Map();
                 hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
                 hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
                 codeReader = new ZXing.BrowserMultiFormatReader(hints);
                 
@@ -712,8 +719,8 @@
                 const constraints = {
                     video: {
                         facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
                     }
                 };
 
@@ -733,6 +740,34 @@
 
                 try {
                     await video.play();
+                } catch (_) {
+                }
+
+                try {
+                    const track = stream.getVideoTracks && stream.getVideoTracks()[0];
+                    if (track && typeof track.applyConstraints === 'function') {
+                        const caps = typeof track.getCapabilities === 'function' ? track.getCapabilities() : {};
+                        const advanced = [];
+
+                        if (caps.focusMode && Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
+                            advanced.push({ focusMode: 'continuous' });
+                        }
+                        if (caps.exposureMode && Array.isArray(caps.exposureMode) && caps.exposureMode.includes('continuous')) {
+                            advanced.push({ exposureMode: 'continuous' });
+                        }
+                        if (caps.whiteBalanceMode && Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes('continuous')) {
+                            advanced.push({ whiteBalanceMode: 'continuous' });
+                        }
+
+                        if (caps.zoom && typeof caps.zoom === 'object' && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number') {
+                            const z = Math.min(caps.zoom.max, Math.max(caps.zoom.min, caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.35));
+                            advanced.push({ zoom: z });
+                        }
+
+                        if (advanced.length) {
+                            await track.applyConstraints({ advanced });
+                        }
+                    }
                 } catch (_) {
                 }
 
@@ -789,7 +824,7 @@
 
                 try {
                     if (video.readyState >= 2 && video.videoWidth && video.videoHeight) {
-                        const targetWidth = Math.min(640, video.videoWidth);
+                        const targetWidth = Math.min(1280, video.videoWidth);
                         const scale = targetWidth / video.videoWidth;
                         const targetHeight = Math.max(1, Math.floor(video.videoHeight * scale));
 
@@ -797,20 +832,59 @@
                         canvas.height = targetHeight;
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const now = performance.now();
+                        if (now - lastDecodeAt >= decodeIntervalMs) {
+                            lastDecodeAt = now;
 
-                        try {
-                            const result = codeReader.decodeFromImageData(imageData);
-                            if (result) {
-                                const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
-                                handleResult(text);
-                                return;
-                            }
-                        } catch (e) {
-                            const name = e && e.name ? e.name : '';
-                            if (name && name !== 'NotFoundException') {
-                                addTerminal(`> Scan error: ${name} ${e.message || ''}`, 'warning');
-                            }
+                            const tryDecodeImageData = (imageData) => {
+                                try {
+                                    const result = codeReader.decodeFromImageData(imageData);
+                                    if (result) {
+                                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                                        handleResult(text);
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    const name = e && e.name ? e.name : '';
+                                    if (name && name !== 'NotFoundException') {
+                                        addTerminal(`> Scan error: ${name} ${e.message || ''}`, 'warning');
+                                    }
+                                }
+                                return false;
+                            };
+
+                            const fullImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            if (tryDecodeImageData(fullImageData)) return;
+
+                            const roiW = Math.max(1, Math.floor(canvas.width * 0.75));
+                            const roiH = Math.max(1, Math.floor(canvas.height * 0.55));
+                            const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
+                            const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
+
+                            roiCanvas.width = roiW;
+                            roiCanvas.height = roiH;
+                            roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
+                            const roiImageData = roiCtx.getImageData(0, 0, roiW, roiH);
+                            if (tryDecodeImageData(roiImageData)) return;
+
+                            rotCanvas.width = roiH;
+                            rotCanvas.height = roiW;
+                            rotCtx.save();
+                            rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+                            rotCtx.rotate(Math.PI / 2);
+                            rotCtx.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                            rotCtx.restore();
+                            const rotImageData = rotCtx.getImageData(0, 0, rotCanvas.width, rotCanvas.height);
+                            if (tryDecodeImageData(rotImageData)) return;
+
+                            rotCtx.save();
+                            rotCtx.clearRect(0, 0, rotCanvas.width, rotCanvas.height);
+                            rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+                            rotCtx.rotate(-Math.PI / 2);
+                            rotCtx.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                            rotCtx.restore();
+                            const rotImageData2 = rotCtx.getImageData(0, 0, rotCanvas.width, rotCanvas.height);
+                            if (tryDecodeImageData(rotImageData2)) return;
                         }
                     }
                 } catch (e) {
