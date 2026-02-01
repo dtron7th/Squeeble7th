@@ -534,6 +534,7 @@
         const personInfo = document.getElementById('personInfo');
 
         let decodeLoopActive = false;
+        let scanRafId = null;
 
         function setAgeResultMessage(title, subtitle) {
             ageResult.className = 'age-result age-unknown';
@@ -730,6 +731,11 @@
                     video.onloadedmetadata = () => resolve();
                 });
 
+                try {
+                    await video.play();
+                } catch (_) {
+                }
+
                 updateStatus('CAMERA READY');
                 addTerminal('> Camera ready', 'success');
             }
@@ -774,44 +780,59 @@
                 stopScanning();
             };
 
-            try {
-                if (video.paused) {
-                    video.play().catch(() => {});
+            const scanLoop = () => {
+                if (!isScanning) {
+                    decodeLoopActive = false;
+                    scanRafId = null;
+                    return;
                 }
 
-                codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
-                    if (!isScanning) return;
+                try {
+                    if (video.readyState >= 2 && video.videoWidth && video.videoHeight) {
+                        const targetWidth = Math.min(640, video.videoWidth);
+                        const scale = targetWidth / video.videoWidth;
+                        const targetHeight = Math.max(1, Math.floor(video.videoHeight * scale));
 
-                    if (result) {
-                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
-                        handleResult(text);
-                        return;
-                    }
+                        canvas.width = targetWidth;
+                        canvas.height = targetHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                    if (err) {
-                        const name = err.name || '';
-                        if (name && name !== 'NotFoundException') {
-                            addTerminal(`> Scan error: ${name} ${err.message || ''}`, 'warning');
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                        try {
+                            const result = codeReader.decodeFromImageData(imageData);
+                            if (result) {
+                                const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                                handleResult(text);
+                                return;
+                            }
+                        } catch (e) {
+                            const name = e && e.name ? e.name : '';
+                            if (name && name !== 'NotFoundException') {
+                                addTerminal(`> Scan error: ${name} ${e.message || ''}`, 'warning');
+                            }
                         }
                     }
-                });
-            } catch (e) {
-                decodeLoopActive = false;
-                addTerminal(`> Scan start failed: ${e.message}`, 'error');
-                stopScanning();
-            }
+                } catch (e) {
+                    addTerminal(`> Scan loop error: ${e.message}`, 'warning');
+                }
+
+                scanRafId = requestAnimationFrame(scanLoop);
+            };
+
+            scanRafId = requestAnimationFrame(scanLoop);
         }
         
         function stopScanning() {
             isScanning = false;
             decodeLoopActive = false;
+            if (scanRafId) {
+                cancelAnimationFrame(scanRafId);
+                scanRafId = null;
+            }
             scanLine.style.display = 'none';
             updateStatus(stream ? 'CAMERA READY' : 'READY');
             setScanButtonState();
-
-            if (codeReader && typeof codeReader.reset === 'function') {
-                try { codeReader.reset(); } catch (_) {}
-            }
 
             addTerminal('> Scanning stopped');
             addResultTerminal('> Scan terminated');
