@@ -534,6 +534,14 @@
         const personInfo = document.getElementById('personInfo');
 
         let decodeLoopActive = false;
+
+        function setAgeResultMessage(title, subtitle) {
+            ageResult.className = 'age-result age-unknown';
+            ageResult.innerHTML = `
+                <div>[ ${title} ]</div>
+                <div>${subtitle}</div>
+            `;
+        }
         
         // Detect mobile device
         function detectMobile() {
@@ -565,7 +573,10 @@
                 }
                 
                 addTerminal('> Creating barcode reader...', 'loading');
-                codeReader = new ZXing.BrowserMultiFormatReader();
+                const hints = new Map();
+                hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
+                codeReader = new ZXing.BrowserMultiFormatReader(hints);
                 
                 addTerminal('> Barcode reader initialized successfully', 'success');
                 return true;
@@ -600,7 +611,11 @@
                 addResultTerminal('> Processing age verification...', 'loading');
 
                 const raw = String(data || '');
-                const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                const normalized = raw
+                    .replace(/\u001e/g, '\n')
+                    .replace(/\u001d/g, '\n')
+                    .replace(/\r/g, '\n');
+                const lines = normalized.split(/\n+/).map(l => l.trim()).filter(Boolean);
 
                 const fields = {
                     firstName: '',
@@ -746,6 +761,7 @@
             setScanButtonState();
             addTerminal('> Scanning PDF417...', 'loading');
             addResultTerminal('> Scan initiated...', 'loading');
+            setAgeResultMessage('SCANNING', 'POINT CAMERA AT PDF417');
 
             if (decodeLoopActive) return;
             decodeLoopActive = true;
@@ -759,36 +775,31 @@
             };
 
             try {
-                const hints = new Map();
-                hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
-                codeReader.hints = hints;
-            } catch (_) {
-            }
-
-            codeReader.decodeFromVideoDevice(null, video, (result, err) => {
-                if (!isScanning) return;
-
-                if (result) {
-                    const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
-                    handleResult(text);
-                    return;
+                if (video.paused) {
+                    video.play().catch(() => {});
                 }
 
-                if (err) {
-                    const name = err.name || '';
-                    if (name !== 'NotFoundException') {
-                        addTerminal(`> Scan error: ${name} ${err.message || ''}`, 'warning');
+                codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
+                    if (!isScanning) return;
+
+                    if (result) {
+                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                        handleResult(text);
+                        return;
                     }
-                }
-            }).catch(e => {
-                if (isScanning) {
-                    addTerminal(`> Scan start failed: ${e.message}`, 'error');
-                    stopScanning();
-                }
-            }).finally(() => {
+
+                    if (err) {
+                        const name = err.name || '';
+                        if (name && name !== 'NotFoundException') {
+                            addTerminal(`> Scan error: ${name} ${err.message || ''}`, 'warning');
+                        }
+                    }
+                });
+            } catch (e) {
                 decodeLoopActive = false;
-            });
+                addTerminal(`> Scan start failed: ${e.message}`, 'error');
+                stopScanning();
+            }
         }
         
         function stopScanning() {
