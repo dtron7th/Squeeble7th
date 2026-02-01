@@ -965,18 +965,66 @@
                         const { data: { text } } = await ocrWorker.recognize(imageData);
                         addTerminal(`> DEBUG: OCR result: "${text.substring(0, 50)}..."`, 'info');
                         
-                        // Look for date of birth
-                        const dobMatch = text.match(/(?:DOB|Date of Birth|Birth|Born)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
-                        if (dobMatch) {
-                            const dob = dobMatch[1];
-                            addTerminal(`> Date of Birth found: ${dob}`, 'success');
+                        // Look for date of birth with multiple patterns
+                        let dob = null;
+                        
+                        // Pattern 1: DOB labels
+                        const dobPatterns = [
+                            /(?:DOB|Date of Birth|Birth|Born|Birthdate|B\.O\.D\.)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                            /(?:Date\s*of\s*Birth|Birth\s*Date)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+                            /(?:Born|Birth)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
+                        ];
+                        
+                        for (const pattern of dobPatterns) {
+                            const match = text.match(pattern);
+                            if (match) {
+                                dob = match[1];
+                                addTerminal(`> DOB found with pattern: ${dob}`, 'success');
+                                break;
+                            }
+                        }
+                        
+                        // Pattern 2: Look for any date that could be a birth date
+                        if (!dob) {
+                            const allDates = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
+                            if (allDates && allDates.length > 0) {
+                                // Try the first few dates to see if any make sense as birth dates
+                                for (const date of allDates.slice(0, 3)) {
+                                    const ageInfo = calculateAge(date);
+                                    if (ageInfo.age && ageInfo.age > 15 && ageInfo.age < 100) {
+                                        dob = date;
+                                        addTerminal(`> Likely birth date found: ${dob} (age ${ageInfo.age})`, 'success');
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Pattern 3: Look for common ID card formats
+                        if (!dob) {
+                            // Format: MM/DD/YYYY followed by age or other indicators
+                            const agePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s.*?(?:age|years|y\/o)/i;
+                            const ageMatch = text.match(agePattern);
+                            if (ageMatch) {
+                                dob = ageMatch[1];
+                                addTerminal(`> Birth date with age indicator: ${dob}`, 'success');
+                            }
+                        }
+                        
+                        if (dob) {
+                            addTerminal(`> Final DOB: ${dob}`, 'success');
                             const ageInfo = calculateAge(dob);
+                            
+                            addTerminal(`> Age calculated: ${ageInfo.age} years old`, 'info');
+                            addTerminal(`> 21+ Status: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
+                            
                             displayAgeResult(ageInfo);
                             playSuccessBeep();
                             stopScanning();
                             return;
                         } else {
                             addTerminal('> DEBUG: No DOB found in OCR text', 'warning');
+                            addTerminal('> OCR Text Sample: ' + text.substring(0, 200), 'info');
                         }
                         
                     } catch (ocrError) {
@@ -1007,28 +1055,66 @@
         // Calculate age from date string
         function calculateAge(dateString) {
             try {
+                addTerminal(`> Calculating age from: ${dateString}`, 'info');
+                
                 let cleaned = dateString.replace(/[^\d\/\-]/g, '');
                 
                 let month, day, year;
                 
                 if (cleaned.includes('/')) {
                     const parts = cleaned.split('/');
-                    month = parseInt(parts[0]);
-                    day = parseInt(parts[1]);
-                    year = parseInt(parts[2]);
+                    if (parts.length === 3) {
+                        month = parseInt(parts[0]);
+                        day = parseInt(parts[1]);
+                        year = parseInt(parts[2]);
+                    }
                 } else if (cleaned.includes('-')) {
                     const parts = cleaned.split('-');
-                    month = parseInt(parts[0]);
-                    day = parseInt(parts[1]);
-                    year = parseInt(parts[2]);
+                    if (parts.length === 3) {
+                        month = parseInt(parts[0]);
+                        day = parseInt(parts[1]);
+                        year = parseInt(parts[2]);
+                    }
                 }
                 
+                // Validate date components
+                if (!month || !day || !year || month < 1 || month > 12 || day < 1 || day > 31) {
+                    addTerminal(`> Invalid date components: M=${month}, D=${day}, Y=${year}`, 'error');
+                    return {
+                        age: 'INVALID',
+                        isOver21: false,
+                        formattedDate: dateString
+                    };
+                }
+                
+                // Handle 2-digit years
                 if (year < 100) {
                     year += year < 50 ? 2000 : 1900;
                 }
                 
+                // Validate year range
+                const currentYear = new Date().getFullYear();
+                if (year < 1900 || year > currentYear) {
+                    addTerminal(`> Invalid year: ${year}`, 'error');
+                    return {
+                        age: 'INVALID',
+                        isOver21: false,
+                        formattedDate: dateString
+                    };
+                }
+                
                 const birthDate = new Date(year, month - 1, day);
                 const today = new Date();
+                
+                // Check if date is valid
+                if (birthDate.getMonth() !== month - 1 || birthDate.getDate() !== day) {
+                    addTerminal(`> Invalid date: ${dateString}`, 'error');
+                    return {
+                        age: 'INVALID',
+                        isOver21: false,
+                        formattedDate: dateString
+                    };
+                }
                 
                 let age = today.getFullYear() - birthDate.getFullYear();
                 const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -1037,15 +1123,21 @@
                     age--;
                 }
                 
+                const isOver21 = age >= 21;
+                const formattedDate = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
+                
+                addTerminal(`> Age calculation complete: ${age} years, 21+: ${isOver21}`, 'success');
+                
                 return {
                     age: age,
-                    isOver21: age >= 21,
-                    formattedDate: `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`
+                    isOver21: isOver21,
+                    formattedDate: formattedDate
                 };
                 
             } catch (error) {
+                addTerminal(`> Age calculation error: ${error.message}`, 'error');
                 return {
-                    age: 'UNKNOWN',
+                    age: 'ERROR',
                     isOver21: false,
                     formattedDate: dateString
                 };
@@ -1059,31 +1151,56 @@
             document.getElementById('personName').textContent = 'ID CARD HOLDER';
             document.getElementById('personDLN').textContent = 'EXTRACTED FROM ID';
             document.getElementById('personEXP').textContent = 'N/A';
-            document.getElementById('personStatus').textContent = ageInfo.isOver21 ? '21+ APPROVED' : 'UNDER 21';
             
-            personInfo.style.display = 'block';
+            let status, statusClass, resultHtml, statusText;
             
-            if (ageInfo.isOver21) {
-                ageResult.className = 'age-result age-verified';
-                ageResult.innerHTML = `
+            if (ageInfo.age === 'INVALID' || ageInfo.age === 'ERROR') {
+                status = 'ERROR';
+                statusClass = 'age-denied';
+                resultHtml = `
+                    <div>[ VERIFICATION ERROR ]</div>
+                    <div>INVALID DATE FORMAT</div>
+                    <div>PLEASE TRY AGAIN ✗</div>
+                `;
+                statusText = 'ERROR: INVALID DATE';
+                addTerminal(`> VERIFICATION ERROR: Invalid date format`, 'error');
+                addResultTerminal(`> Please scan ID card again`, 'error');
+            } else if (ageInfo.isOver21) {
+                status = 'VERIFIED: 21+';
+                statusClass = 'age-verified';
+                const yearsOver = ageInfo.age - 21;
+                resultHtml = `
                     <div>[ AGE VERIFIED ]</div>
                     <div>${ageInfo.age} YEARS OLD</div>
                     <div>21+ - APPROVED ✓</div>
+                    <div>${yearsOver} YEAR${yearsOver !== 1 ? 'S' : ''} OVER 21</div>
                 `;
-                updateStatus('VERIFIED: 21+');
-                addTerminal(`> AGE VERIFIED: ${ageInfo.age} (21+)`, 'success');
-                addResultTerminal(`> ACCESS GRANTED: Age ${ageInfo.age}`, 'success');
+                statusText = '21+ APPROVED';
+                addTerminal(`> ✓ AGE VERIFIED: ${ageInfo.age} years old (21+)`, 'success');
+                addResultTerminal(`> ✓ ACCESS GRANTED: Age ${ageInfo.age} - 21+ APPROVED`, 'success');
             } else {
-                ageResult.className = 'age-result age-denied';
-                ageResult.innerHTML = `
+                status = 'DENIED: UNDER 21';
+                statusClass = 'age-denied';
+                const yearsTo21 = 21 - ageInfo.age;
+                resultHtml = `
                     <div>[ ACCESS DENIED ]</div>
                     <div>${ageInfo.age} YEARS OLD</div>
                     <div>UNDER 21 - REJECTED ✗</div>
+                    <div>${yearsTo21} YEAR${yearsTo21 !== 1 ? 'S' : ''} TO 21</div>
                 `;
-                updateStatus('DENIED: UNDER 21');
-                addTerminal(`> ACCESS DENIED: ${ageInfo.age} (Under 21)`, 'error');
-                addResultTerminal(`> ACCESS DENIED: Under 21`, 'error');
+                statusText = 'UNDER 21';
+                addTerminal(`> ✗ ACCESS DENIED: ${ageInfo.age} years old (Under 21)`, 'error');
+                addResultTerminal(`> ✗ ACCESS DENIED: Under 21 - ${yearsTo21} year${yearsTo21 !== 1 ? 's' : ''} to 21`, 'error');
             }
+            
+            document.getElementById('personStatus').textContent = statusText;
+            personInfo.style.display = 'block';
+            
+            ageResult.className = `age-result ${statusClass}`;
+            ageResult.innerHTML = resultHtml;
+            updateStatus(status);
+            
+            addTerminal('> Verification complete', 'success');
         }
         
         function addTerminal(message, type = 'normal') {
