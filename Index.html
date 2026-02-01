@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF417 AGE VERIFICATION SYSTEM v1.0</title>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest/umd/index.min.js"></script>
+    <audio id="successBeep" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
         
@@ -450,6 +453,7 @@
                     <button class="dos-button mobile-btn" id="mobileStartBtn" onclick="startSystem()">📱 START CAMERA</button>
                     <button class="dos-button mobile-btn" id="mobileScanBtn" onclick="toggleScanning()" disabled>📷 SCAN ID</button>
                     <button class="dos-button mobile-btn" id="mobileStopBtn" onclick="stopSystem()" disabled>⏹️ STOP</button>
+                    <button class="dos-button mobile-btn" id="mobileTestBtn" onclick="testBarcodeDetection()" disabled>🔧 TEST SCAN</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
@@ -539,11 +543,62 @@
             return isMobile;
         }
         
+        // Play success beep sound
+        function playSuccessBeep() {
+            try {
+                const beep = document.getElementById('successBeep');
+                if (beep) {
+                    beep.currentTime = 0;
+                    beep.play().catch(e => {
+                        console.log('Could not play beep:', e);
+                    });
+                }
+            } catch (error) {
+                console.log('Beep error:', error);
+            }
+        }
+        
+        // Test barcode detection with visual feedback
+        function testBarcodeDetection() {
+            if (!video.videoWidth) {
+                addTerminal('> ERROR: Camera not active', 'error');
+                return;
+            }
+            
+            addTerminal('> Testing barcode detection...', 'loading');
+            
+            // Capture a single frame
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            addTerminal(`> Test frame: ${canvas.width}x${canvas.height}px`, 'info');
+            addTerminal(`> Image data: ${imageData.data.length} pixels`, 'info');
+            
+            // Try to detect any barcode
+            try {
+                const result = codeReader.decodeFromImageData(imageData);
+                if (result) {
+                    addTerminal(`> TEST SUCCESS: Barcode found!`, 'success');
+                    addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
+                    addTerminal(`> Length: ${result.getText().length} chars`, 'info');
+                    playSuccessBeep();
+                } else {
+                    addTerminal(`> TEST: No barcode detected`, 'warning');
+                }
+            } catch (error) {
+                addTerminal(`> TEST: No barcode found - ${error.message}`, 'warning');
+            }
+        }
+        
         // Update mobile button states
         function updateMobileButtons() {
             const mobileStartBtn = document.getElementById('mobileStartBtn');
             const mobileScanBtn = document.getElementById('mobileScanBtn');
             const mobileStopBtn = document.getElementById('mobileStopBtn');
+            const mobileTestBtn = document.getElementById('mobileTestBtn');
             
             const desktopStartBtn = document.getElementById('startBtn');
             const desktopScanBtn = document.getElementById('scanBtn');
@@ -554,6 +609,7 @@
                 mobileStartBtn.disabled = desktopStartBtn.disabled;
                 mobileScanBtn.disabled = desktopScanBtn.disabled;
                 mobileStopBtn.disabled = desktopStopBtn.disabled;
+                mobileTestBtn.disabled = desktopStartBtn.disabled; // Test button needs camera
                 
                 // Update mobile button text
                 if (isScanning) {
@@ -725,11 +781,13 @@
                         if (format === 'PDF_417' || format === 'PDF417' || text.length > 100) {
                             addTerminal(`> PDF417 CONFIRMED! Processing...`, 'success');
                             addResultTerminal(`> PDF417 found: ${text.length} chars`, 'success');
+                            playSuccessBeep(); // Play beep sound
                             processPDF417Data(text);
                             stopScanning();
                             return;
                         } else if (format && text.length > 20) {
                             addTerminal(`> Processing barcode anyway (${text.length} chars)`, 'info');
+                            playSuccessBeep(); // Play beep sound
                             // Try processing anyway - might be PDF417
                             processPDF417Data(text);
                             stopScanning();
@@ -753,6 +811,7 @@
                         addTerminal(`> PDF417 DETECTED! (Direct reader)`, 'success');
                         addTerminal(`> Data length: ${result.length} characters`, 'info');
                         addResultTerminal(`> PDF417 found: ${result.length} chars`, 'success');
+                        playSuccessBeep(); // Play beep sound
                         processPDF417Data(result);
                         stopScanning();
                         return;
@@ -776,6 +835,7 @@
                         addTerminal(`> BARCODE FOUND with hints! Format: ${format}`, 'success');
                         if (text.length > 50) {
                             addResultTerminal(`> Processing with hints...`, 'success');
+                            playSuccessBeep(); // Play beep sound
                             processPDF417Data(text);
                             stopScanning();
                             return;
