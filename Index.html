@@ -871,14 +871,39 @@
         
         async function startSystem() {
             try {
+                addTerminal('> === CAMERA DEBUG START ===', 'loading');
                 addTerminal('> Starting system...', 'loading');
                 updateStatus('INITIALIZING...');
-                document.getElementById('startBtn').disabled = true;
                 
+                // Disable buttons immediately
+                const startBtn = document.getElementById('startBtn');
+                const mobileStartBtn = document.getElementById('mobileStartBtn');
+                
+                addTerminal(`> Start button found: ${!!startBtn}`, 'info');
+                addTerminal(`> Mobile start button found: ${!!mobileStartBtn}`, 'info');
+                
+                startBtn.disabled = true;
+                if (mobileStartBtn) mobileStartBtn.disabled = true;
+                
+                addTerminal('> Buttons disabled', 'info');
+                
+                // Test browser support
+                addTerminal('> Checking browser support...', 'info');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera not supported in this browser');
+                }
+                addTerminal('> Browser supports camera', 'success');
+                
+                // Test OCR
+                addTerminal('> Initializing OCR...', 'loading');
                 const ocrReady = await initializeOCR();
-                if (!ocrReady) throw new Error('OCR failed');
+                if (!ocrReady) {
+                    throw new Error('OCR initialization failed');
+                }
+                addTerminal('> OCR ready', 'success');
                 
-                addTerminal('> Accessing camera...');
+                // Test camera access
+                addTerminal('> Requesting camera access...', 'loading');
                 
                 const constraints = {
                     video: {
@@ -888,23 +913,69 @@
                     }
                 };
                 
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                addTerminal(`> Camera constraints: ${JSON.stringify(constraints)}`, 'info');
+                
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    addTerminal('> Camera access granted!', 'success');
+                } catch (cameraError) {
+                    addTerminal(`> Camera access failed: ${cameraError.name}`, 'error');
+                    addTerminal(`> Camera error: ${cameraError.message}`, 'error');
+                    
+                    // Try fallback constraints
+                    addTerminal('> Trying fallback camera settings...', 'loading');
+                    const fallbackConstraints = {
+                        video: true
+                    };
+                    
+                    stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+                    addTerminal('> Fallback camera worked!', 'success');
+                }
+                
+                // Setup video
+                addTerminal('> Setting up video element...', 'info');
+                const video = document.getElementById('video');
+                const placeholder = document.getElementById('placeholder');
+                
+                addTerminal('> Video element found: ' + !!video, 'info');
+                addTerminal('> Placeholder element found: ' + !!placeholder, 'info');
+                
                 video.srcObject = stream;
                 video.style.display = 'block';
                 placeholder.style.display = 'none';
                 
+                // Wait for video to load
+                addTerminal('> Waiting for video to load...', 'loading');
+                await new Promise(resolve => {
+                    video.onloadedmetadata = () => {
+                        addTerminal(`> Video loaded: ${video.videoWidth}x${video.videoHeight}`, 'success');
+                        resolve();
+                    };
+                });
+                
+                // Enable buttons
                 updateStatus('CAMERA READY');
                 document.getElementById('scanBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = false;
                 document.getElementById('testBtn').disabled = false;
                 
                 updateMobileButtons();
-                addTerminal('> Camera ready!', 'success');
+                
+                addTerminal('> === CAMERA DEBUG SUCCESS ===', 'success');
+                addTerminal('> Camera ready for scanning!', 'success');
                 
             } catch (error) {
                 updateStatus('ERROR');
+                addTerminal(`> === CAMERA DEBUG ERROR ===`, 'error');
                 addTerminal(`> ERROR: ${error.message}`, 'error');
+                addTerminal(`> ERROR TYPE: ${error.name}`, 'error');
+                addTerminal(`> ERROR STACK: ${error.stack}`, 'error');
+                
+                // Re-enable start button
                 document.getElementById('startBtn').disabled = false;
+                const mobileStartBtn = document.getElementById('mobileStartBtn');
+                if (mobileStartBtn) mobileStartBtn.disabled = false;
+                
                 updateMobileButtons();
             }
         }
