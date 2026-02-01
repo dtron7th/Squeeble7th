@@ -914,12 +914,19 @@
                 
                 // Test OCR
                 addTerminal('> Initializing OCR...', 'loading');
-                const ocrReady = await initializeOCR();
-                if (!ocrReady) {
-                    addTerminal('> OCR failed, but continuing with camera only...', 'warning');
-                    addTerminal('> You can test camera, but scanning will not work', 'warning');
-                } else {
-                    addTerminal('> OCR ready', 'success');
+                let ocrReady = false;
+                try {
+                    ocrReady = await initializeOCR();
+                    if (ocrReady) {
+                        addTerminal('> OCR ready', 'success');
+                    } else {
+                        addTerminal('> OCR failed, but continuing with camera only...', 'warning');
+                        addTerminal('> You can test camera, but scanning will not work', 'warning');
+                    }
+                } catch (ocrError) {
+                    addTerminal('> OCR failed completely, but continuing with camera...', 'warning');
+                    addTerminal('> OCR Error: ' + ocrError.message, 'warning');
+                    ocrReady = false;
                 }
                 
                 // Test camera access
@@ -1026,10 +1033,16 @@
                 return;
             }
             
-            if (!ocrWorker || !stream) {
+            // Check if OCR is available
+            if (!ocrWorker) {
+                addTerminal('> ERROR: OCR not available - camera only mode', 'error');
+                addResultTerminal('> OCR failed to initialize - restart app', 'error');
+                return;
+            }
+            
+            if (!stream) {
                 addTerminal('> ERROR: System not initialized', 'error');
-                if (!ocrWorker) addTerminal('> - OCR Worker not ready', 'error');
-                if (!stream) addTerminal('> - Camera stream not ready', 'error');
+                addTerminal('> - Camera stream not ready', 'error');
                 return;
             }
             
