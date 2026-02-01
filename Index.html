@@ -538,12 +538,38 @@
         let lastDecodeAt = 0;
         const decodeIntervalMs = 120;
         let decodeTick = 0;
+        let decodeInFlight = false;
+        let lastDecodeWarnAt = 0;
         const roiCanvas = document.createElement('canvas');
         const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
         const smallCanvas = document.createElement('canvas');
         const smallCtx = smallCanvas.getContext('2d', { willReadFrequently: true });
-        const rotCanvas = document.createElement('canvas');
-        const rotCtx = rotCanvas.getContext('2d', { willReadFrequently: true });
+        const rotCanvas90 = document.createElement('canvas');
+        const rotCtx90 = rotCanvas90.getContext('2d', { willReadFrequently: true });
+        const rotCanvasNeg90 = document.createElement('canvas');
+        const rotCtxNeg90 = rotCanvasNeg90.getContext('2d', { willReadFrequently: true });
+
+        ctx.imageSmoothingEnabled = false;
+        roiCtx.imageSmoothingEnabled = false;
+        smallCtx.imageSmoothingEnabled = false;
+        rotCtx90.imageSmoothingEnabled = false;
+        rotCtxNeg90.imageSmoothingEnabled = false;
+
+        async function tryDecodeCanvasElement(cnv) {
+            try {
+                if (codeReader && typeof codeReader.decodeFromCanvas === 'function') {
+                    const res = codeReader.decodeFromCanvas(cnv);
+                    return await Promise.resolve(res);
+                }
+
+                const c = cnv.getContext('2d', { willReadFrequently: true });
+                const img = c.getImageData(0, 0, cnv.width, cnv.height);
+                const res = codeReader.decodeFromImageData(img);
+                return await Promise.resolve(res);
+            } catch (e) {
+                throw e;
+            }
+        }
 
         function setAgeResultMessage(title, subtitle) {
             ageResult.className = 'age-result age-unknown';
@@ -822,7 +848,7 @@
 
                 try {
                     if (video.readyState >= 2 && video.videoWidth && video.videoHeight) {
-                        const targetWidth = Math.min(1280, video.videoWidth);
+                        const targetWidth = Math.min(1600, video.videoWidth);
                         const scale = targetWidth / video.videoWidth;
                         const targetHeight = Math.max(1, Math.floor(video.videoHeight * scale));
 
@@ -831,67 +857,70 @@
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                         const now = performance.now();
-                        if (now - lastDecodeAt >= decodeIntervalMs) {
+                        if (!decodeInFlight && (now - lastDecodeAt >= decodeIntervalMs)) {
                             lastDecodeAt = now;
                             decodeTick++;
 
-                            const tryDecodeImageData = (imageData) => {
-                                try {
-                                    const result = codeReader.decodeFromImageData(imageData);
-                                    if (result) {
-                                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
-                                        handleResult(text);
-                                        return true;
-                                    }
-                                } catch (e) {
-                                    const name = e && e.name ? e.name : '';
-                                    if (name && name !== 'NotFoundException') {
-                                        addTerminal(`> Scan error: ${name} ${e.message || ''}`, 'warning');
+                            decodeInFlight = true;
+                            (async () => {
+                                const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
+                                const roiH = Math.max(1, Math.floor(canvas.height * 0.70));
+                                const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
+                                const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
+
+                                roiCanvas.width = roiW;
+                                roiCanvas.height = roiH;
+                                roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
+
+                                smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
+                                smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
+                                smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+
+                                const canvasesToTry = [roiCanvas, smallCanvas];
+                                if (decodeTick % 2 === 0) canvasesToTry.push(canvas);
+
+                                rotCanvas90.width = roiH;
+                                rotCanvas90.height = roiW;
+                                rotCtx90.save();
+                                rotCtx90.clearRect(0, 0, rotCanvas90.width, rotCanvas90.height);
+                                rotCtx90.translate(rotCanvas90.width / 2, rotCanvas90.height / 2);
+                                rotCtx90.rotate(Math.PI / 2);
+                                rotCtx90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                                rotCtx90.restore();
+                                canvasesToTry.push(rotCanvas90);
+
+                                rotCanvasNeg90.width = roiH;
+                                rotCanvasNeg90.height = roiW;
+                                rotCtxNeg90.save();
+                                rotCtxNeg90.clearRect(0, 0, rotCanvasNeg90.width, rotCanvasNeg90.height);
+                                rotCtxNeg90.translate(rotCanvasNeg90.width / 2, rotCanvasNeg90.height / 2);
+                                rotCtxNeg90.rotate(-Math.PI / 2);
+                                rotCtxNeg90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                                rotCtxNeg90.restore();
+                                canvasesToTry.push(rotCanvasNeg90);
+
+                                for (const cnv of canvasesToTry) {
+                                    try {
+                                        const result = await tryDecodeCanvasElement(cnv);
+                                        if (result) {
+                                            const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                                            handleResult(text);
+                                            return;
+                                        }
+                                    } catch (e) {
+                                        const name = e && e.name ? e.name : '';
+                                        if (name && name !== 'NotFoundException') {
+                                            const t = performance.now();
+                                            if (t - lastDecodeWarnAt > 1000) {
+                                                lastDecodeWarnAt = t;
+                                                addTerminal(`> Scan error: ${name} ${e.message || ''}`, 'warning');
+                                            }
+                                        }
                                     }
                                 }
-                                return false;
-                            };
-
-                            const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
-                            const roiH = Math.max(1, Math.floor(canvas.height * 0.70));
-                            const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
-                            const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
-
-                            roiCanvas.width = roiW;
-                            roiCanvas.height = roiH;
-                            roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
-                            const roiImageData = roiCtx.getImageData(0, 0, roiW, roiH);
-                            if (tryDecodeImageData(roiImageData)) return;
-
-                            smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
-                            smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
-                            smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
-                            const smallImageData = smallCtx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
-                            if (tryDecodeImageData(smallImageData)) return;
-
-                            if (decodeTick % 2 === 0) {
-                                const fullImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                                if (tryDecodeImageData(fullImageData)) return;
-                            }
-
-                            rotCanvas.width = roiH;
-                            rotCanvas.height = roiW;
-                            rotCtx.save();
-                            rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
-                            rotCtx.rotate(Math.PI / 2);
-                            rotCtx.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
-                            rotCtx.restore();
-                            const rotImageData = rotCtx.getImageData(0, 0, rotCanvas.width, rotCanvas.height);
-                            if (tryDecodeImageData(rotImageData)) return;
-
-                            rotCtx.save();
-                            rotCtx.clearRect(0, 0, rotCanvas.width, rotCanvas.height);
-                            rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
-                            rotCtx.rotate(-Math.PI / 2);
-                            rotCtx.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
-                            rotCtx.restore();
-                            const rotImageData2 = rotCtx.getImageData(0, 0, rotCanvas.width, rotCanvas.height);
-                            if (tryDecodeImageData(rotImageData2)) return;
+                            })().finally(() => {
+                                decodeInFlight = false;
+                            });
                         }
                     }
                 } catch (e) {
