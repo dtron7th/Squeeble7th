@@ -7,8 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/barcode_scanner@0.4.1646425229/barcode_scanner.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest/umd/index.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -403,8 +402,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🆔 PDF417 Barcode Scanner</h1>
-            <p>Scan PDF417 barcodes from driver's licenses using Google ML Kit</p>
+            <h1>🆔 PDF417 Scanner</h1>
+            <p>Scan PDF417 barcodes from State IDs using ZXing (Free)</p>
             <div id="deviceInfo" style="margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 12px; color: #fff;">
                 <span id="deviceStatus">📱 Checking device compatibility...</span>
             </div>
@@ -445,18 +444,18 @@
             </div>
 
             <div class="camera-tips" id="cameraTips" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
-                <h4 style="margin-bottom: 10px;">📸 Google ML Kit PDF417 Tips:</h4>
+                <h4 style="margin-bottom: 10px;">📸 ZXing PDF417 Tips:</h4>
                 <ul style="margin: 0; padding-left: 20px;">
-                    <li>📷 <strong>BACK SIDE ONLY</strong> - Scan the back of your driver's license</li>
+                    <li>📷 <strong>BACK SIDE ONLY</strong> - Scan the back of your State ID</li>
                     <li>💡 <strong>Bright lighting</strong> - Good light on the PDF417 barcode</li>
-                    <li>📏 <strong>Flat surface</strong> - Keep license flat and parallel to camera</li>
+                    <li>📏 <strong>Flat surface</strong> - Keep ID flat and parallel to camera</li>
                     <li>🔍 <strong>Fill frame</strong> - Get close so barcode is clear</li>
                     <li>✋ <strong>Hold steady</strong> - Keep phone still during scanning</li>
                     <li>⚡ <strong>No glare</strong> - Avoid reflections on the barcode</li>
-                    <li>🤖 <strong>ML Kit Power</strong> - Google's advanced barcode detection</li>
+                    <li>🆓 <strong>ZXing Free</strong> - Open-source barcode detection</li>
                 </ul>
                 <div style="margin-top: 10px; padding: 8px; background: rgba(0,255,0,0.2); border-radius: 5px; border: 1px solid rgba(0,255,0,0.5);">
-                    <strong style="color: #00ff00;">✅ GOOGLE ML KIT:</strong> Advanced AI-powered PDF417 detection
+                    <strong style="color: #00ff00;">✅ ZXING LIBRARY:</strong> 100% Free PDF417 scanning
                 </div>
             </div>
 
@@ -596,10 +595,9 @@
 
     <script>
         let stream = null;
-        let barcodeScanner = null;
-        let camera = null;
         let isScanning = false;
         let scannedData = '';
+        let codeReader = null;
 
         // DOM elements
         const video = document.getElementById('video');
@@ -685,7 +683,7 @@
         // Live output functions
         function startLiveOutput() {
             liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Google ML Kit PDF417 Output:</div>';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 ZXing PDF417 Output:</div>';
         }
 
         function addLiveOutput(message, type = 'info') {
@@ -702,69 +700,72 @@
         function clearLiveOutput() {
             setTimeout(() => {
                 liveOutput.style.display = 'none';
-                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Google ML Kit PDF417 Output:</div>';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 ZXing PDF417 Output:</div>';
             }, 3000);
         }
 
-        // Initialize Google ML Kit Barcode Scanner
-        function initializeBarcodeScanner() {
+        // Initialize ZXing Library
+        function initializeZXing() {
             try {
-                addLiveOutput('🤖 Initializing Google ML Kit Barcode Scanner...', 'info');
+                addLiveOutput('📊 Initializing ZXing Library...', 'info');
                 
-                barcodeScanner = new BarcodeScanner({
-                    locateFile: (file) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/barcode_scanner@0.4.1646425229/${file}`;
-                    }
-                });
-
-                barcodeScanner.setOptions({
-                    model: 'default',
-                    allowedFormats: ['PDF417']
-                });
-
-                barcodeScanner.onResults(onBarcodeResults);
+                codeReader = new ZXing.BrowserMultiFormatReader();
                 
-                addLiveOutput('✅ Google ML Kit initialized successfully', 'success');
+                addLiveOutput('✅ ZXing initialized successfully', 'success');
                 return true;
             } catch (error) {
-                addLiveOutput(`❌ Failed to initialize ML Kit: ${error.message}`, 'error');
-                // Try fallback method
-                addLiveOutput('🔄 Trying fallback initialization...', 'warning');
-                try {
-                    barcodeScanner = new BarcodeScanner();
-                    barcodeScanner.onResults(onBarcodeResults);
-                    addLiveOutput('✅ Fallback initialization successful', 'success');
-                    return true;
-                } catch (fallbackError) {
-                    addLiveOutput(`❌ Fallback also failed: ${fallbackError.message}`, 'error');
-                    return false;
-                }
+                addLiveOutput(`❌ Failed to initialize ZXing: ${error.message}`, 'error');
+                return false;
             }
         }
 
-        // Handle barcode scanning results
-        function onBarcodeResults(results) {
-            if (results.barcodes && results.barcodes.length > 0) {
-                for (const barcode of results.barcodes) {
-                    if (barcode.format === 'PDF417') {
-                        addLiveOutput('🎉 PDF417 Barcode detected by Google ML Kit!', 'success');
-                        handlePDF417Detection(barcode);
-                        break; // Process only the first PDF417 found
+        // Scan for PDF417 using ZXing
+        async function scanForPDF417() {
+            if (!isScanning || !codeReader) return;
+            
+            try {
+                // Capture current frame from video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+                
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Try to decode with ZXing
+                const result = codeReader.decodeFromImageData(imageData);
+                
+                if (result) {
+                    const format = result.getBarcodeFormat();
+                    if (format === 'PDF_417' || format === 'PDF417') {
+                        addLiveOutput('🎉 PDF417 Barcode detected by ZXing!', 'success');
+                        handlePDF417Detection(result.getText(), format);
+                        return;
+                    } else {
+                        addLiveOutput(`📊 Found ${format} barcode, looking for PDF417...`, 'info');
                     }
+                }
+                
+                // Continue scanning
+                if (isScanning) {
+                    requestAnimationFrame(scanForPDF417);
+                }
+                
+            } catch (error) {
+                // No barcode found in this frame, continue scanning
+                if (isScanning) {
+                    requestAnimationFrame(scanForPDF417);
                 }
             }
         }
 
         // Handle PDF417 barcode detection
-        function handlePDF417Detection(barcode) {
-            const data = barcode.rawValue || barcode.data || '';
-            
+        function handlePDF417Detection(data, format = 'PDF417') {
             addLiveOutput('================================', 'success');
             addLiveOutput(`📋 PDF417 DATA:`, 'info');
             addLiveOutput(`${data}`, 'info');
             addLiveOutput('================================', 'success');
             addLiveOutput(`📊 Data length: ${data.length} characters`, 'info');
-            addLiveOutput(`📋 Format: ${barcode.format}`, 'info');
+            addLiveOutput(`📋 Format: ${format}`, 'info');
             addLiveOutput(`📋 Data preview: ${data.substring(0, 200)}${data.length > 200 ? '...' : ''}`, 'info');
             
             // Parse and show extracted fields
@@ -1021,10 +1022,10 @@
             updatePrintSectionFromBarcode(parsedData);
             
             // Stop scanning after successful detection
-            stopQRScanning();
+            stopPDF417Scanning();
         }
 
-// Start camera and initialize ML Kit
+// Start camera and initialize ZXing
         async function startCamera() {
             try {
                 startLiveOutput();
@@ -1052,9 +1053,9 @@
                 video.style.display = 'block';
                 placeholder.style.display = 'none';
                 
-                // Initialize Google ML Kit Barcode Scanner
-                if (!initializeBarcodeScanner()) {
-                    throw new Error('Failed to initialize Google ML Kit');
+                // Initialize ZXing Library
+                if (!initializeZXing()) {
+                    throw new Error('Failed to initialize ZXing');
                 }
                 
                 // Update UI
@@ -1093,11 +1094,11 @@
             }
         }
 
-        // Start PDF417 scanning with Google ML Kit
+        // Start PDF417 scanning with ZXing
         async function startPDF417Scanning() {
             try {
-                if (!barcodeScanner) {
-                    throw new Error('Barcode scanner not initialized');
+                if (!codeReader) {
+                    throw new Error('ZXing reader not initialized');
                 }
                 
                 isScanning = true;
@@ -1106,31 +1107,12 @@
                 scanPDF417Btn.classList.add('btn-secondary');
                 
                 startLiveOutput();
-                addLiveOutput('🎯 Starting Google ML Kit PDF417 scanning...', 'info');
-                
-                // Use a simpler approach - process frames directly
-                const processFrame = async () => {
-                    if (!isScanning) return;
-                    
-                    try {
-                        // Send video frame to barcode scanner
-                        await barcodeScanner.send({ image: video });
-                        
-                        // Continue processing
-                        requestAnimationFrame(processFrame);
-                    } catch (error) {
-                        addLiveOutput(`⚠️ Frame processing error: ${error.message}`, 'warning');
-                        // Continue trying
-                        setTimeout(() => {
-                            if (isScanning) requestAnimationFrame(processFrame);
-                        }, 100);
-                    }
-                };
+                addLiveOutput('🎯 Starting ZXing PDF417 scanning...', 'info');
                 
                 // Start frame processing
-                requestAnimationFrame(processFrame);
+                requestAnimationFrame(scanForPDF417);
                 
-                addLiveOutput('✅ Google ML Kit PDF417 scanning started', 'success');
+                addLiveOutput('✅ ZXing PDF417 scanning started', 'success');
                 showMessage('Scanning for PDF417 barcodes...', 'info');
                 
             } catch (error) {
@@ -1143,9 +1125,6 @@
         // Stop PDF417 scanning
         function stopPDF417Scanning() {
             isScanning = false;
-            
-            // No need to stop camera - just stop processing frames
-            camera = null;
             
             scanPDF417Btn.textContent = '🎯 Scan PDF417 Barcode';
             scanPDF417Btn.classList.remove('btn-secondary');
@@ -1254,11 +1233,11 @@
         // Initialize on page load
         window.addEventListener('load', () => {
             const deviceInfo = checkDeviceCompatibility();
-            addLiveOutput(`📱 Device: ${deviceInfo.isMobile ? 'Mobile' : 'Desktop'} - Ready for Google ML Kit`, 'info');
+            addLiveOutput(`📱 Device: ${deviceInfo.isMobile ? 'Mobile' : 'Desktop'} - Ready for ZXing`, 'info');
         });
     </script>
-
-        // OCR text extraction using Tesseract.js with enhanced preprocessing
+</body>
+</html>
         async function extractTextFromImage(imageData) {
             try {
                 addLiveOutput('🔄 Starting OCR text extraction...', 'info');
