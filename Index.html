@@ -447,6 +447,7 @@
                     <button class="dos-button" id="startBtn" onclick="startSystem()">[F1] INIT CAMERA</button>
                     <button class="dos-button" id="scanBtn" onclick="toggleScanning()" disabled>[F2] SCAN PDF417</button>
                     <button class="dos-button" id="stopBtn" onclick="stopSystem()" disabled>[F3] SHUTDOWN</button>
+                    <button class="dos-button" id="testBtn" onclick="testBarcodeDetection()" disabled>[F4] TEST SCAN</button>
                 </div>
                 
                 <div class="mobile-controls" id="mobileControls">
@@ -560,69 +561,36 @@
         
         // Test barcode detection with visual feedback
         function testBarcodeDetection() {
-            if (!video.videoWidth) {
-                addTerminal('> ERROR: Camera not active', 'error');
+            addTerminal('> TEST BUTTON CLICKED!', 'success');
+            
+            if (!video || !video.videoWidth) {
+                addTerminal('> ERROR: Camera not active or video not ready', 'error');
+                addTerminal('> Video element exists: ' + (video ? 'YES' : 'NO'), 'info');
+                addTerminal('> Video width: ' + (video ? video.videoWidth : 'N/A'), 'info');
                 return;
             }
             
             addTerminal('> Testing barcode detection...', 'loading');
             
-            // Capture a single frame
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-            
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            addTerminal(`> Test frame: ${canvas.width}x${canvas.height}px`, 'info');
-            addTerminal(`> Image data: ${imageData.data.length} pixels`, 'info');
-            
-            // Try all detection methods for testing
-            let found = false;
-            
-            // Method 1: Standard reader
             try {
-                const result = codeReader.decodeFromImageData(imageData);
-                if (result) {
-                    addTerminal(`> TEST SUCCESS: Barcode found!`, 'success');
-                    addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
-                    addTerminal(`> Length: ${result.getText().length} chars`, 'info');
-                    addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
-                    playSuccessBeep();
-                    found = true;
-                }
-            } catch (error) {
-                addTerminal(`> Method 1: No barcode - ${error.message}`, 'info');
-            }
-            
-            // Method 2: PDF417 reader
-            if (!found) {
+                // Capture a single frame
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                addTerminal(`> Test frame: ${canvas.width}x${canvas.height}px`, 'info');
+                addTerminal(`> Image data: ${imageData.data.length} pixels`, 'info');
+                
+                // Try all detection methods for testing
+                let found = false;
+                
+                // Method 1: Standard reader
                 try {
-                    const pdf417Reader = new ZXing.PDF417Reader();
-                    const result = pdf417Reader.decode(imageData);
-                    if (result && result.length > 20) {
-                        addTerminal(`> TEST SUCCESS: PDF417 found!`, 'success');
-                        addTerminal(`> Length: ${result.length} chars`, 'info');
-                        addTerminal(`> Preview: ${result.substring(0, 50)}...`, 'info');
-                        playSuccessBeep();
-                        found = true;
-                    }
-                } catch (error) {
-                    addTerminal(`> Method 2: No PDF417 - ${error.message}`, 'info');
-                }
-            }
-            
-            // Method 3: With hints
-            if (!found) {
-                try {
-                    const hints = new Map();
-                    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                    const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
-                    codeReaderWithHints.hints = hints;
-                    
-                    const result = codeReaderWithHints.decodeFromImageData(imageData);
+                    const result = codeReader.decodeFromImageData(imageData);
                     if (result) {
-                        addTerminal(`> TEST SUCCESS: Found with hints!`, 'success');
+                        addTerminal(`> TEST SUCCESS: Barcode found!`, 'success');
                         addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
                         addTerminal(`> Length: ${result.getText().length} chars`, 'info');
                         addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
@@ -630,17 +598,59 @@
                         found = true;
                     }
                 } catch (error) {
-                    addTerminal(`> Method 3: No barcode with hints - ${error.message}`, 'info');
+                    addTerminal(`> Method 1: No barcode - ${error.message}`, 'info');
                 }
-            }
-            
-            if (!found) {
-                addTerminal(`> TEST RESULT: No barcode detected in current frame`, 'warning');
-                addTerminal(`> Tips:`, 'info');
-                addTerminal(`> - Ensure PDF417 barcode is visible`, 'info');
-                addTerminal(`> - Fill screen with barcode`, 'info');
-                addTerminal(`> - Good lighting, no glare`, 'info');
-                addTerminal(`> - Hold camera steady`, 'info');
+                
+                // Method 2: PDF417 reader
+                if (!found) {
+                    try {
+                        const pdf417Reader = new ZXing.PDF417Reader();
+                        const result = pdf417Reader.decode(imageData);
+                        if (result && result.length > 20) {
+                            addTerminal(`> TEST SUCCESS: PDF417 found!`, 'success');
+                            addTerminal(`> Length: ${result.length} chars`, 'info');
+                            addTerminal(`> Preview: ${result.substring(0, 50)}...`, 'info');
+                            playSuccessBeep();
+                            found = true;
+                        }
+                    } catch (error) {
+                        addTerminal(`> Method 2: No PDF417 - ${error.message}`, 'info');
+                    }
+                }
+                
+                // Method 3: With hints
+                if (!found) {
+                    try {
+                        const hints = new Map();
+                        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                        const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
+                        codeReaderWithHints.hints = hints;
+                        
+                        const result = codeReaderWithHints.decodeFromImageData(imageData);
+                        if (result) {
+                            addTerminal(`> TEST SUCCESS: Found with hints!`, 'success');
+                            addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
+                            addTerminal(`> Length: ${result.getText().length} chars`, 'info');
+                            addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
+                            playSuccessBeep();
+                            found = true;
+                        }
+                    } catch (error) {
+                        addTerminal(`> Method 3: No barcode with hints - ${error.message}`, 'info');
+                    }
+                }
+                
+                if (!found) {
+                    addTerminal(`> TEST RESULT: No barcode detected in current frame`, 'warning');
+                    addTerminal(`> Tips:`, 'info');
+                    addTerminal(`> - Ensure PDF417 barcode is visible`, 'info');
+                    addTerminal(`> - Fill screen with barcode`, 'info');
+                    addTerminal(`> - Good lighting, no glare`, 'info');
+                    addTerminal(`> - Hold camera steady`, 'info');
+                }
+            } catch (error) {
+                addTerminal(`> TEST ERROR: ${error.message}`, 'error');
+                addTerminal(`> Error details: ${error.stack}`, 'error');
             }
         }
         
@@ -654,6 +664,7 @@
             const desktopStartBtn = document.getElementById('startBtn');
             const desktopScanBtn = document.getElementById('scanBtn');
             const desktopStopBtn = document.getElementById('stopBtn');
+            const desktopTestBtn = document.getElementById('testBtn');
             
             if (isMobile) {
                 // Sync mobile buttons with desktop button states
@@ -668,6 +679,11 @@
                 } else {
                     mobileScanBtn.textContent = '📷 SCAN ID';
                 }
+            }
+            
+            // Update desktop test button
+            if (desktopTestBtn) {
+                desktopTestBtn.disabled = desktopStartBtn.disabled;
             }
         }
         
