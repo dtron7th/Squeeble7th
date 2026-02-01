@@ -751,6 +751,13 @@
         
         // Test OCR with current frame
         async function testOCR() {
+            // Only allow OCR testing on mobile devices
+            if (!isMobile) {
+                addTerminal('> ERROR: OCR testing only available on mobile devices', 'error');
+                addResultTerminal('> Please use mobile device for ID scanning', 'error');
+                return;
+            }
+            
             if (!video || !video.videoWidth) {
                 addTerminal('> ERROR: Camera not active', 'error');
                 return;
@@ -933,6 +940,14 @@
             addTerminal(`> DEBUG: OCR Worker exists: ${!!ocrWorker}`, 'info');
             addTerminal(`> DEBUG: Stream exists: ${!!stream}`, 'info');
             addTerminal(`> DEBUG: Video ready: ${!!video && !!video.videoWidth}`, 'info');
+            addTerminal(`> DEBUG: Is mobile: ${isMobile}`, 'info');
+            
+            // Only allow scanning on mobile devices
+            if (!isMobile) {
+                addTerminal('> ERROR: Age verification only available on mobile devices', 'error');
+                addResultTerminal('> Please use mobile device for ID scanning', 'error');
+                return;
+            }
             
             if (!ocrWorker || !stream) {
                 addTerminal('> ERROR: System not initialized', 'error');
@@ -953,10 +968,8 @@
             addTerminal('> Starting ID card OCR scanning...', 'loading');
             addResultTerminal('> Scan initiated...', 'loading');
             
-            if (isMobile) {
-                addTerminal('> Mobile OCR mode active', 'info');
-                addResultTerminal('> Position ID card clearly...', 'info');
-            }
+            addTerminal('> Mobile OCR mode active', 'info');
+            addResultTerminal('> Position ID card clearly...', 'info');
             
             frameCount = 0;
             addTerminal('> DEBUG: Calling scanFrame...', 'info');
@@ -1249,8 +1262,8 @@
                 addResultTerminal('> Use touch buttons below');
             } else {
                 addTerminal('> Desktop detected');
-                addTerminal('> Keyboard shortcuts available');
-                addResultTerminal('> Use F1-F5 keys or buttons');
+                addTerminal('> Age verification available on mobile only');
+                addResultTerminal('> Use mobile device for ID scanning');
             }
             
             addTerminal('> ID CARD AGE VERIFICATION SYSTEM v1.0');
