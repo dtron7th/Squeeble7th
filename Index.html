@@ -450,6 +450,7 @@
                 
                 <div class="dos-controls">
                     <button id="scanBtn" class="dos-button" onclick="onScanPdf417()">SCAN PDF417</button>
+                    <button id="testDecodeBtn" class="dos-button" onclick="onTestDecode()">TEST DECODE</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
@@ -794,9 +795,13 @@
         
         function setScanButtonState() {
             const scanBtn = document.getElementById('scanBtn');
+            const testDecodeBtn = document.getElementById('testDecodeBtn');
             if (scanBtn) {
                 scanBtn.textContent = isScanning ? 'STOP' : 'SCAN PDF417';
                 scanBtn.disabled = false;
+            }
+            if (testDecodeBtn) {
+                testDecodeBtn.disabled = false;
             }
         }
         
