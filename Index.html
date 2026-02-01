@@ -456,6 +456,7 @@
                     <button class="dos-button mobile-btn" id="mobileScanBtn" onclick="toggleScanning()" disabled>📷 SCAN ID CARD</button>
                     <button class="dos-button mobile-btn" id="mobileStopBtn" onclick="stopSystem()" disabled>⏹️ STOP</button>
                     <button class="dos-button mobile-btn" id="mobileTestBtn" onclick="testOCR()" disabled>🔧 TEST OCR</button>
+                    <button class="dos-button mobile-btn" id="mobileTestAgeBtn" onclick="testAgeVerification()">🧪 TEST AGE</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
@@ -1216,6 +1217,26 @@
             addTerminal(`STATUS: ${newStatus}`);
         }
         
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'F1') {
+                event.preventDefault();
+                startSystem();
+            } else if (event.key === 'F2') {
+                event.preventDefault();
+                toggleScanning();
+            } else if (event.key === 'F3') {
+                event.preventDefault();
+                stopSystem();
+            } else if (event.key === 'F4') {
+                event.preventDefault();
+                testOCR();
+            } else if (event.key === 'F5') {
+                event.preventDefault();
+                testAgeVerification();
+            }
+        });
+        
         // Initialize mobile detection and setup
         window.addEventListener('load', () => {
             detectMobile();
@@ -1229,7 +1250,7 @@
             } else {
                 addTerminal('> Desktop detected');
                 addTerminal('> Keyboard shortcuts available');
-                addResultTerminal('> Use F1-F4 keys or buttons');
+                addResultTerminal('> Use F1-F5 keys or buttons');
             }
             
             addTerminal('> ID CARD AGE VERIFICATION SYSTEM v1.0');
