@@ -877,18 +877,31 @@
         }
         
         function toggleScanning() {
+            addTerminal('> SCAN BUTTON CLICKED!', 'success');
+            
             if (isScanning) {
+                addTerminal('> Stopping scanning...', 'info');
                 stopScanning();
             } else {
+                addTerminal('> Starting scanning...', 'info');
                 startScanning();
             }
         }
         
         function startScanning() {
+            addTerminal('> DEBUG: Starting scan function...', 'info');
+            addTerminal(`> DEBUG: OCR Worker exists: ${!!ocrWorker}`, 'info');
+            addTerminal(`> DEBUG: Stream exists: ${!!stream}`, 'info');
+            addTerminal(`> DEBUG: Video ready: ${!!video && !!video.videoWidth}`, 'info');
+            
             if (!ocrWorker || !stream) {
                 addTerminal('> ERROR: System not initialized', 'error');
+                if (!ocrWorker) addTerminal('> - OCR Worker not ready', 'error');
+                if (!stream) addTerminal('> - Camera stream not ready', 'error');
                 return;
             }
+            
+            addTerminal('> DEBUG: All checks passed, starting scan...', 'success');
             
             isScanning = true;
             scanLine.style.display = 'block';
@@ -906,6 +919,7 @@
             }
             
             frameCount = 0;
+            addTerminal('> DEBUG: Calling scanFrame...', 'info');
             scanFrame();
         }
         
@@ -922,23 +936,34 @@
         }
         
         async function scanFrame() {
-            if (!isScanning) return;
+            addTerminal('> DEBUG: scanFrame called...', 'info');
+            
+            if (!isScanning) {
+                addTerminal('> DEBUG: Scanning stopped, exiting...', 'info');
+                return;
+            }
             
             frameCount++;
+            addTerminal(`> DEBUG: Processing frame ${frameCount}...`, 'info');
             
             try {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0);
                 
+                addTerminal(`> DEBUG: Canvas size: ${canvas.width}x${canvas.height}`, 'info');
+                
                 // Only perform OCR every 30 frames to save processing
                 if (frameCount % 30 === 0) {
+                    addTerminal('> DEBUG: Running OCR...', 'loading');
                     const imageData = canvas.toDataURL('image/jpeg', 0.8);
                     
                     addTerminal(`> OCR scanning frame ${frameCount}...`, 'loading');
                     
                     try {
+                        addTerminal('> DEBUG: Calling OCR worker...', 'info');
                         const { data: { text } } = await ocrWorker.recognize(imageData);
+                        addTerminal(`> DEBUG: OCR result: "${text.substring(0, 50)}..."`, 'info');
                         
                         // Look for date of birth
                         const dobMatch = text.match(/(?:DOB|Date of Birth|Birth|Born)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
@@ -950,11 +975,15 @@
                             playSuccessBeep();
                             stopScanning();
                             return;
+                        } else {
+                            addTerminal('> DEBUG: No DOB found in OCR text', 'warning');
                         }
                         
                     } catch (ocrError) {
                         addTerminal(`> OCR error: ${ocrError.message}`, 'warning');
                     }
+                } else {
+                    addTerminal(`> DEBUG: Skipping OCR (frame ${frameCount} % 30 != 0)`, 'info');
                 }
                 
                 // Show progress
@@ -965,10 +994,12 @@
                     }
                 }
                 
+                addTerminal('> DEBUG: Requesting next frame...', 'info');
                 requestAnimationFrame(scanFrame);
                 
             } catch (error) {
                 addTerminal(`> Frame error: ${error.message}`, 'error');
+                addTerminal(`> Stack: ${error.stack}`, 'error');
                 requestAnimationFrame(scanFrame);
             }
         }
