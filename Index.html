@@ -449,7 +449,8 @@
                 </div>
                 
                 <div class="dos-controls">
-                    <button class="dos-button" id="scanBtn" onclick="onScanPdf417()">SCAN PDF417</button>
+                    <button id="scanBtn" class="dos-button" onclick="onScanPdf417()">SCAN PDF417</button>
+                    <button id="testDecodeBtn" class="dos-button" onclick="onTestDecode()">TEST DECODE</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
@@ -542,6 +543,7 @@
         let lastDecodeWarnAt = 0;
         let videoDecodeActive = false;
         let lastVideoWarnAt = 0;
+        let debugBeepInterval = null;
         const roiCanvas = document.createElement('canvas');
         const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
         const smallCanvas = document.createElement('canvas');
@@ -556,6 +558,88 @@
         smallCtx.imageSmoothingEnabled = false;
         rotCtx90.imageSmoothingEnabled = false;
         rotCtxNeg90.imageSmoothingEnabled = false;
+
+        function playDebugBeep() {
+            try {
+                const beep = document.getElementById('successBeep');
+                if (beep) {
+                    const clone = beep.cloneNode();
+                    clone.volume = 0.15;
+                    clone.currentTime = 0;
+                    clone.play().catch(() => {});
+                }
+            } catch (_) {}
+        }
+
+        async function onTestDecode() {
+            if (!stream || !video.videoWidth) {
+                addTerminal('> TEST DECODE: No video ready', 'error');
+                return;
+            }
+
+            addTerminal('> TEST DECODE: Trying one frame...', 'loading');
+
+            const targetWidth = Math.min(1600, video.videoWidth);
+            const scale = targetWidth / video.videoWidth;
+            const targetHeight = Math.max(1, Math.floor(video.videoHeight * scale));
+
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
+            const roiH = Math.max(1, Math.floor(canvas.height * 0.70));
+            const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
+            const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
+
+            roiCanvas.width = roiW;
+            roiCanvas.height = roiH;
+            roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
+
+            smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
+            smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
+            smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+
+            rotCanvas90.width = roiH;
+            rotCanvas90.height = roiW;
+            rotCtx90.save();
+            rotCtx90.clearRect(0, 0, rotCanvas90.width, rotCanvas90.height);
+            rotCtx90.translate(rotCanvas90.width / 2, rotCanvas90.height / 2);
+            rotCtx90.rotate(Math.PI / 2);
+            rotCtx90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+            rotCtx90.restore();
+
+            rotCanvasNeg90.width = roiH;
+            rotCanvasNeg90.height = roiW;
+            rotCtxNeg90.save();
+            rotCtxNeg90.clearRect(0, 0, rotCanvasNeg90.width, rotCanvasNeg90.height);
+            rotCtxNeg90.translate(rotCanvasNeg90.width / 2, rotCanvasNeg90.height / 2);
+            rotCtxNeg90.rotate(-Math.PI / 2);
+            rotCtxNeg90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+            rotCtxNeg90.restore();
+
+            const canvasesToTry = [roiCanvas, smallCanvas, canvas, rotCanvas90, rotCanvasNeg90];
+
+            for (const cnv of canvasesToTry) {
+                try {
+                    const result = await tryDecodeCanvasElement(cnv);
+                    if (result) {
+                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                        addTerminal('> TEST DECODE: PDF417 found!', 'success');
+                        playSuccessBeep();
+                        processPDF417Data(text);
+                        return;
+                    }
+                } catch (e) {
+                    const name = e && e.name ? e.name : '';
+                    if (name && name !== 'NotFoundException') {
+                        addTerminal(`> TEST DECODE error: ${name} ${e.message || ''}`, 'warning');
+                    }
+                }
+            }
+
+            addTerminal('> TEST DECODE: No PDF417 detected on this frame', 'error');
+        }
 
         async function tryDecodeCanvasElement(cnv) {
             try {
@@ -711,9 +795,14 @@
         
         function setScanButtonState() {
             const scanBtn = document.getElementById('scanBtn');
-            if (!scanBtn) return;
-            scanBtn.textContent = isScanning ? 'STOP' : 'SCAN PDF417';
-            scanBtn.disabled = false;
+            const testDecodeBtn = document.getElementById('testDecodeBtn');
+            if (scanBtn) {
+                scanBtn.textContent = isScanning ? 'STOP' : 'SCAN PDF417';
+                scanBtn.disabled = !stream;
+            }
+            if (testDecodeBtn) {
+                testDecodeBtn.disabled = !stream || isScanning;
+            }
         }
         
         function addTerminal(message, type = 'normal') {
@@ -833,6 +922,10 @@
             addTerminal('> Scanning PDF417...', 'loading');
             addResultTerminal('> Scan initiated...', 'loading');
             setAgeResultMessage('SCANNING', 'POINT CAMERA AT PDF417');
+
+            debugBeepInterval = setInterval(() => {
+                if (isScanning) playDebugBeep();
+            }, 800);
 
             if (decodeLoopActive) return;
             decodeLoopActive = true;
@@ -979,6 +1072,10 @@
             if (scanRafId) {
                 cancelAnimationFrame(scanRafId);
                 scanRafId = null;
+            }
+            if (debugBeepInterval) {
+                clearInterval(debugBeepInterval);
+                debugBeepInterval = null;
             }
 
             if (videoDecodeActive && codeReader) {
