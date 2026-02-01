@@ -871,31 +871,22 @@
         
         async function startSystem() {
             try {
+                addTerminal('> Starting system...', 'loading');
                 updateStatus('INITIALIZING...');
                 document.getElementById('startBtn').disabled = true;
                 
-                addTerminal('> Initializing OCR engine...');
-                
-                // Initialize OCR first
                 const ocrReady = await initializeOCR();
-                if (!ocrReady) {
-                    throw new Error('OCR initialization failed');
-                }
+                if (!ocrReady) throw new Error('OCR failed');
                 
-                addTerminal('> Requesting camera access...');
+                addTerminal('> Accessing camera...');
                 
                 const constraints = {
                     video: {
                         facingMode: 'environment',
-                        width: isMobile ? { ideal: 640, max: 1280 } : { ideal: 640 },
-                        height: isMobile ? { ideal: 480, max: 720 } : { ideal: 480 },
-                        focusMode: isMobile ? 'continuous' : 'auto'
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
                     }
                 };
-                
-                if (isMobile) {
-                    addTerminal('> Mobile device detected - optimizing camera...', 'loading');
-                }
                 
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
@@ -905,15 +896,10 @@
                 updateStatus('CAMERA READY');
                 document.getElementById('scanBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = false;
+                document.getElementById('testBtn').disabled = false;
                 
                 updateMobileButtons();
-                
-                addTerminal('> Camera initialized: SUCCESS', 'success');
-                addTerminal('> Ready for ID card scanning', 'success');
-                
-                if (isMobile) {
-                    addTerminal('> Touch controls enabled', 'info');
-                }
+                addTerminal('> Camera ready!', 'success');
                 
             } catch (error) {
                 updateStatus('ERROR');
