@@ -885,7 +885,7 @@
         }
         
         function startScanning() {
-            if (!codeReader || !stream) {
+            if (!ocrWorker || !stream) {
                 addTerminal('> ERROR: System not initialized', 'error');
                 return;
             }
@@ -895,15 +895,14 @@
             document.getElementById('scanBtn').textContent = '[F2] STOP SCANNING';
             updateStatus('SCANNING...');
             
-            // Update mobile buttons
             updateMobileButtons();
             
-            addTerminal('> Starting PDF417 scan...', 'loading');
+            addTerminal('> Starting ID card OCR scanning...', 'loading');
             addResultTerminal('> Scan initiated...', 'loading');
             
             if (isMobile) {
-                addTerminal('> Mobile scanning mode active', 'info');
-                addResultTerminal('> Hold phone steady over barcode', 'info');
+                addTerminal('> Mobile OCR mode active', 'info');
+                addResultTerminal('> Position ID card clearly...', 'info');
             }
             
             frameCount = 0;
@@ -913,13 +912,12 @@
         function stopScanning() {
             isScanning = false;
             scanLine.style.display = 'none';
-            document.getElementById('scanBtn').textContent = '[F2] SCAN PDF417';
+            document.getElementById('scanBtn').textContent = '[F2] SCAN ID CARD';
             updateStatus('CAMERA READY');
             
-            // Update mobile buttons
             updateMobileButtons();
             
-            addTerminal('> Scanning stopped');
+            addTerminal('> OCR scanning stopped');
             addResultTerminal('> Scan terminated');
         }
         
@@ -929,110 +927,44 @@
             frameCount++;
             
             try {
-                // Capture frame
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0);
                 
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                
-                // Debug: Show frame info
-                if (frameCount % 50 === 0) {
-                    addTerminal(`> Frame ${frameCount}: ${canvas.width}x${canvas.height}px`, 'info');
-                    addResultTerminal(`> Analyzing frame ${frameCount}...`, 'loading');
-                }
-                
-                // Try multiple ZXing approaches for better detection
-                let detected = false;
-                
-                // Method 1: Standard multi-format reader
-                try {
-                    const result = codeReader.decodeFromImageData(imageData);
-                    if (result) {
-                        const format = result.getBarcodeFormat();
-                        const text = result.getText();
-                        
-                        addTerminal(`> BARCODE DETECTED! Format: ${format}`, 'success');
-                        addTerminal(`> Text length: ${text.length} characters`, 'info');
-                        addTerminal(`> Text preview: ${text.substring(0, 50)}...`, 'info');
-                        
-                        // Accept PDF417 or any long barcode (likely PDF417)
-                        if (format === 'PDF_417' || format === 'PDF417' || text.length > 100) {
-                            addTerminal(`> PDF417 CONFIRMED! Processing...`, 'success');
-                            addResultTerminal(`> PDF417 found: ${text.length} chars`, 'success');
-                            playSuccessBeep(); // Play beep sound
-                            processPDF417Data(text);
-                            stopScanning();
-                            return;
-                        } else if (format && text.length > 20) {
-                            addTerminal(`> Processing barcode anyway (${text.length} chars)`, 'info');
-                            playSuccessBeep(); // Play beep sound
-                            // Try processing anyway - might be PDF417
-                            processPDF417Data(text);
-                            stopScanning();
-                            return;
-                        } else {
-                            addTerminal(`> Barcode too short (${text.length} chars), continuing scan...`, 'warning');
-                        }
-                    }
-                } catch (decodeError) {
-                    // No barcode found, continue to next method
-                    if (frameCount % 100 === 0) {
-                        addTerminal(`> No barcode found in frame ${frameCount}`, 'info');
-                    }
-                }
-                
-                // Method 2: Try PDF417 reader specifically
-                try {
-                    const pdf417Reader = new ZXing.PDF417Reader();
-                    const result = pdf417Reader.decode(imageData);
-                    if (result && result.length > 50) {
-                        addTerminal(`> PDF417 DETECTED! (Direct reader)`, 'success');
-                        addTerminal(`> Data length: ${result.length} characters`, 'info');
-                        addResultTerminal(`> PDF417 found: ${result.length} chars`, 'success');
-                        playSuccessBeep(); // Play beep sound
-                        processPDF417Data(result);
-                        stopScanning();
-                        return;
-                    }
-                } catch (pdf417Error) {
-                    // No PDF417 found
-                }
-                
-                // Method 3: Try with different hints
-                try {
-                    const hints = new Map();
-                    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                    const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
-                    codeReaderWithHints.hints = hints;
+                // Only perform OCR every 30 frames to save processing
+                if (frameCount % 30 === 0) {
+                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
                     
-                    const result = codeReaderWithHints.decodeFromImageData(imageData);
-                    if (result) {
-                        const format = result.getBarcodeFormat();
-                        const text = result.getText();
+                    addTerminal(`> OCR scanning frame ${frameCount}...`, 'loading');
+                    
+                    try {
+                        const { data: { text } } = await ocrWorker.recognize(imageData);
                         
-                        addTerminal(`> BARCODE FOUND with hints! Format: ${format}`, 'success');
-                        if (text.length > 50) {
-                            addResultTerminal(`> Processing with hints...`, 'success');
-                            playSuccessBeep(); // Play beep sound
-                            processPDF417Data(text);
+                        // Look for date of birth
+                        const dobMatch = text.match(/(?:DOB|Date of Birth|Birth|Born)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+                        if (dobMatch) {
+                            const dob = dobMatch[1];
+                            addTerminal(`> Date of Birth found: ${dob}`, 'success');
+                            const ageInfo = calculateAge(dob);
+                            displayAgeResult(ageInfo);
+                            playSuccessBeep();
                             stopScanning();
                             return;
                         }
+                        
+                    } catch (ocrError) {
+                        addTerminal(`> OCR error: ${ocrError.message}`, 'warning');
                     }
-                } catch (hintsError) {
-                    // No barcode found with hints
                 }
                 
-                // Show progress and feedback
+                // Show progress
                 if (frameCount % 20 === 0) {
                     addTerminal(`> Scanning frame ${frameCount}...`, 'loading');
                     if (isMobile) {
-                        addResultTerminal(`> Keep barcode steady... (${frameCount})`, 'loading');
+                        addResultTerminal(`> Keep ID card steady... (${frameCount})`, 'loading');
                     }
                 }
                 
-                // Continue scanning
                 requestAnimationFrame(scanFrame);
                 
             } catch (error) {
@@ -1041,75 +973,65 @@
             }
         }
         
-        function processPDF417Data(data) {
-            addTerminal('> Processing barcode data...', 'loading');
-            addResultTerminal('> Processing age verification...', 'loading');
-            
-            addTerminal(`> Raw data length: ${data.length} characters`, 'info');
-            addTerminal(`> Data preview: ${data.substring(0, 100)}...`, 'info');
-            
-            // Parse AAMVA format (standard for US driver's licenses)
-            const lines = data.split('\n');
-            let dob = '';
-            let name = '';
-            let dln = '';
-            let exp = '';
-            
-            addTerminal('> Parsing AAMVA format...', 'info');
-            
-            for (const line of lines) {
-                if (line.startsWith('DBB')) {
-                    dob = line.substring(3);
-                    addTerminal(`> Found DOB: ${dob}`, 'success');
-                } else if (line.startsWith('DAC')) {
-                    name += line.substring(3) + ' ';
-                } else if (line.startsWith('DAB')) {
-                    name = line.substring(3) + ' ' + name;
-                    addTerminal(`> Found Name: ${name.trim()}`, 'success');
-                } else if (line.startsWith('DAA')) {
-                    dln = line.substring(3);
-                    addTerminal(`> Found DLN: ${dln}`, 'success');
-                } else if (line.startsWith('DBA')) {
-                    exp = line.substring(3);
-                    addTerminal(`> Found EXP: ${exp}`, 'success');
-                }
-            }
-            
-            // If no AAMVA data found, try other formats
-            if (!dob && !dln) {
-                addTerminal('> No AAMVA data found, trying other formats...', 'warning');
+        // Calculate age from date string
+        function calculateAge(dateString) {
+            try {
+                let cleaned = dateString.replace(/[^\d\/\-]/g, '');
                 
-                // Try to find dates in the data
-                const datePattern = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g;
-                const dates = data.match(datePattern);
-                if (dates && dates.length > 0) {
-                    dob = dates[0];
-                    addTerminal(`> Found possible DOB: ${dob}`, 'info');
+                let month, day, year;
+                
+                if (cleaned.includes('/')) {
+                    const parts = cleaned.split('/');
+                    month = parseInt(parts[0]);
+                    day = parseInt(parts[1]);
+                    year = parseInt(parts[2]);
+                } else if (cleaned.includes('-')) {
+                    const parts = cleaned.split('-');
+                    month = parseInt(parts[0]);
+                    day = parseInt(parts[1]);
+                    year = parseInt(parts[2]);
                 }
                 
-                // Try to find license number (alphanumeric, 6-15 chars)
-                const licensePattern = /[A-Z0-9]{6,15}/g;
-                const licenses = data.match(licensePattern);
-                if (licenses && licenses.length > 0) {
-                    dln = licenses[0];
-                    addTerminal(`> Found possible DLN: ${dln}`, 'info');
+                if (year < 100) {
+                    year += year < 50 ? 2000 : 1900;
                 }
+                
+                const birthDate = new Date(year, month - 1, day);
+                const today = new Date();
+                
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                return {
+                    age: age,
+                    isOver21: age >= 21,
+                    formattedDate: `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`
+                };
+                
+            } catch (error) {
+                return {
+                    age: 'UNKNOWN',
+                    isOver21: false,
+                    formattedDate: dateString
+                };
             }
-            
-            // Calculate age
-            const ageInfo = calculateAge(dob);
-            
-            // Update UI
-            document.getElementById('personName').textContent = name.trim() || 'UNKNOWN';
+        }
+        
+        // Display age verification result
+        function displayAgeResult(ageInfo) {
             document.getElementById('personAge').textContent = ageInfo.age;
             document.getElementById('personDOB').textContent = ageInfo.formattedDate;
-            document.getElementById('personDLN').textContent = dln || 'UNKNOWN';
-            document.getElementById('personEXP').textContent = exp || 'UNKNOWN';
+            document.getElementById('personName').textContent = 'ID CARD HOLDER';
+            document.getElementById('personDLN').textContent = 'EXTRACTED FROM ID';
+            document.getElementById('personEXP').textContent = 'N/A';
             document.getElementById('personStatus').textContent = ageInfo.isOver21 ? '21+ APPROVED' : 'UNDER 21';
             
             personInfo.style.display = 'block';
             
-            // Update age result display
             if (ageInfo.isOver21) {
                 ageResult.className = 'age-result age-verified';
                 ageResult.innerHTML = `
@@ -1131,31 +1053,55 @@
                 addTerminal(`> ACCESS DENIED: ${ageInfo.age} (Under 21)`, 'error');
                 addResultTerminal(`> ACCESS DENIED: Under 21`, 'error');
             }
-            
-            addTerminal('> Processing complete', 'success');
-            addResultTerminal('> Verification complete', 'success');
         }
         
-        function calculateAge(dateString) {
-            try {
-                // Clean date string
-                let cleaned = dateString.replace(/[^\d\/\-]/g, '');
-                
-                let month, day, year;
-                
-                if (cleaned.includes('/')) {
-                    const parts = cleaned.split('/');
-                    month = parseInt(parts[0]);
-                    day = parseInt(parts[1]);
-                    year = parseInt(parts[2]);
-                } else if (cleaned.includes('-')) {
-                    const parts = cleaned.split('-');
-                    month = parseInt(parts[0]);
-                    day = parseInt(parts[1]);
-                    year = parseInt(parts[2]);
-                }
-                
-                // Handle 2-digit years
+        function addTerminal(message, type = 'normal') {
+            const timestamp = new Date().toLocaleTimeString();
+            terminal.innerHTML += `\n[${timestamp}] ${message}`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        function addResultTerminal(message, type = 'normal') {
+            const timestamp = new Date().toLocaleTimeString();
+            resultTerminal.innerHTML += `\n[${timestamp}] ${message}`;
+            resultTerminal.scrollTop = resultTerminal.scrollHeight;
+        }
+        
+        function updateStatus(newStatus) {
+            status.textContent = newStatus;
+            addTerminal(`STATUS: ${newStatus}`);
+        }
+        
+        // Initialize mobile detection and setup
+        window.addEventListener('load', () => {
+            detectMobile();
+            
+            if (isMobile) {
+                addTerminal('> Mobile device detected');
+                addTerminal('> Touch controls enabled');
+                addTerminal('> Optimized for ID card scanning');
+                addResultTerminal('> Mobile mode ready');
+                addResultTerminal('> Use touch buttons below');
+            } else {
+                addTerminal('> Desktop detected');
+                addTerminal('> Keyboard shortcuts available');
+                addResultTerminal('> Use F1-F4 keys or buttons');
+            }
+            
+            addTerminal('> ID CARD AGE VERIFICATION SYSTEM v1.0');
+            addTerminal('> Copyright (C) Written by Daryle Walton JR');
+            
+            if (isMobile) {
+                addTerminal('> Touch 📱 START CAMERA to begin');
+            } else {
+                addTerminal('> Press F1 to initialize system');
+            }
+            
+            addResultTerminal('> Verification system ready');
+        });
+    </script>
+</body>
+</html>
                 if (year < 100) {
                     year += year < 50 ? 2000 : 1900;
                 }
@@ -1196,12 +1142,16 @@
                 stream = null;
             }
             
+            if (ocrWorker) {
+                ocrWorker.terminate();
+                ocrWorker = null;
+            }
+            
             updateStatus('SYSTEM OFFLINE');
             document.getElementById('startBtn').disabled = false;
             document.getElementById('scanBtn').disabled = true;
             document.getElementById('stopBtn').disabled = true;
             
-            // Update mobile buttons
             updateMobileButtons();
             
             addTerminal('> System shutdown complete');
