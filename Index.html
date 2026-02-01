@@ -540,6 +540,8 @@
         let decodeTick = 0;
         let decodeInFlight = false;
         let lastDecodeWarnAt = 0;
+        let videoDecodeActive = false;
+        let lastVideoWarnAt = 0;
         const roiCanvas = document.createElement('canvas');
         const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
         const smallCanvas = document.createElement('canvas');
@@ -832,12 +834,47 @@
             decodeLoopActive = true;
 
             const handleResult = (resultText) => {
+                if (!isScanning) return;
                 if (!resultText) return;
                 addTerminal('> PDF417 detected!', 'success');
                 playSuccessBeep();
                 processPDF417Data(resultText);
                 stopScanning();
             };
+
+            if (
+                codeReader &&
+                typeof codeReader.decodeFromVideoElementContinuously === 'function' &&
+                typeof codeReader.stopContinuousDecode === 'function'
+            ) {
+                videoDecodeActive = true;
+                try {
+                    codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
+                        if (!isScanning) return;
+
+                        if (result) {
+                            const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                            handleResult(text);
+                            return;
+                        }
+
+                        if (err) {
+                            const name = err.name || '';
+                            if (name && name !== 'NotFoundException') {
+                                const t = performance.now();
+                                if (t - lastVideoWarnAt > 1000) {
+                                    lastVideoWarnAt = t;
+                                    addTerminal(`> Scan error: ${name} ${err.message || ''}`, 'warning');
+                                }
+                            }
+                        }
+                    });
+                    return;
+                } catch (e) {
+                    videoDecodeActive = false;
+                    addTerminal(`> Video scan mode failed, falling back...`, 'warning');
+                }
+            }
 
             const scanLoop = () => {
                 if (!isScanning) {
@@ -940,6 +977,12 @@
                 cancelAnimationFrame(scanRafId);
                 scanRafId = null;
             }
+
+            if (videoDecodeActive && codeReader && typeof codeReader.stopContinuousDecode === 'function') {
+                try { codeReader.stopContinuousDecode(); } catch (_) {}
+                videoDecodeActive = false;
+            }
+
             scanLine.style.display = 'none';
             updateStatus(stream ? 'CAMERA READY' : 'READY');
             setScanButtonState();
