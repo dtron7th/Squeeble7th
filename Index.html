@@ -563,23 +563,41 @@
         // Initialize OCR worker
         async function initializeOCR() {
             try {
-                addTerminal('> Initializing OCR engine...', 'loading');
-                ocrWorker = await Tesseract.createWorker('eng');
+                addTerminal('> Loading OCR library...', 'loading');
                 
-                // Configure OCR for better text recognition
-                await ocrWorker.setParameters({
-                    tessedit_char_whitelist: '0123456789/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -.:DOBDateofBirthBornYears',
-                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
-                    tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY,
-                    preserve_interword_spaces: '1',
-                    tessedit_do_invert: '0'
+                // Check if Tesseract is available
+                if (typeof Tesseract === 'undefined') {
+                    throw new Error('Tesseract library not loaded');
+                }
+                
+                addTerminal('> Creating OCR worker...', 'loading');
+                ocrWorker = await Tesseract.createWorker('eng', 1, {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            addTerminal(`> OCR Progress: ${Math.round(m.progress * 100)}%`, 'info');
+                        }
+                    }
                 });
                 
+                addTerminal('> OCR worker created', 'success');
+                
+                // Skip complex configuration for now to avoid issues
                 addTerminal('> OCR engine initialized successfully', 'success');
                 return true;
+                
             } catch (error) {
                 addTerminal(`> OCR initialization failed: ${error.message}`, 'error');
-                return false;
+                
+                // Try to create a simple fallback
+                try {
+                    addTerminal('> Trying OCR fallback...', 'loading');
+                    ocrWorker = await Tesseract.createWorker('eng');
+                    addTerminal('> OCR fallback worked!', 'success');
+                    return true;
+                } catch (fallbackError) {
+                    addTerminal(`> OCR fallback failed: ${fallbackError.message}`, 'error');
+                    return false;
+                }
             }
         }
         
@@ -898,9 +916,11 @@
                 addTerminal('> Initializing OCR...', 'loading');
                 const ocrReady = await initializeOCR();
                 if (!ocrReady) {
-                    throw new Error('OCR initialization failed');
+                    addTerminal('> OCR failed, but continuing with camera only...', 'warning');
+                    addTerminal('> You can test camera, but scanning will not work', 'warning');
+                } else {
+                    addTerminal('> OCR ready', 'success');
                 }
-                addTerminal('> OCR ready', 'success');
                 
                 // Test camera access
                 addTerminal('> Requesting camera access...', 'loading');
