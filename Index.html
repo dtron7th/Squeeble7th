@@ -577,19 +577,70 @@
             addTerminal(`> Test frame: ${canvas.width}x${canvas.height}px`, 'info');
             addTerminal(`> Image data: ${imageData.data.length} pixels`, 'info');
             
-            // Try to detect any barcode
+            // Try all detection methods for testing
+            let found = false;
+            
+            // Method 1: Standard reader
             try {
                 const result = codeReader.decodeFromImageData(imageData);
                 if (result) {
                     addTerminal(`> TEST SUCCESS: Barcode found!`, 'success');
                     addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
                     addTerminal(`> Length: ${result.getText().length} chars`, 'info');
+                    addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
                     playSuccessBeep();
-                } else {
-                    addTerminal(`> TEST: No barcode detected`, 'warning');
+                    found = true;
                 }
             } catch (error) {
-                addTerminal(`> TEST: No barcode found - ${error.message}`, 'warning');
+                addTerminal(`> Method 1: No barcode - ${error.message}`, 'info');
+            }
+            
+            // Method 2: PDF417 reader
+            if (!found) {
+                try {
+                    const pdf417Reader = new ZXing.PDF417Reader();
+                    const result = pdf417Reader.decode(imageData);
+                    if (result && result.length > 20) {
+                        addTerminal(`> TEST SUCCESS: PDF417 found!`, 'success');
+                        addTerminal(`> Length: ${result.length} chars`, 'info');
+                        addTerminal(`> Preview: ${result.substring(0, 50)}...`, 'info');
+                        playSuccessBeep();
+                        found = true;
+                    }
+                } catch (error) {
+                    addTerminal(`> Method 2: No PDF417 - ${error.message}`, 'info');
+                }
+            }
+            
+            // Method 3: With hints
+            if (!found) {
+                try {
+                    const hints = new Map();
+                    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                    const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
+                    codeReaderWithHints.hints = hints;
+                    
+                    const result = codeReaderWithHints.decodeFromImageData(imageData);
+                    if (result) {
+                        addTerminal(`> TEST SUCCESS: Found with hints!`, 'success');
+                        addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
+                        addTerminal(`> Length: ${result.getText().length} chars`, 'info');
+                        addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
+                        playSuccessBeep();
+                        found = true;
+                    }
+                } catch (error) {
+                    addTerminal(`> Method 3: No barcode with hints - ${error.message}`, 'info');
+                }
+            }
+            
+            if (!found) {
+                addTerminal(`> TEST RESULT: No barcode detected in current frame`, 'warning');
+                addTerminal(`> Tips:`, 'info');
+                addTerminal(`> - Ensure PDF417 barcode is visible`, 'info');
+                addTerminal(`> - Fill screen with barcode`, 'info');
+                addTerminal(`> - Good lighting, no glare`, 'info');
+                addTerminal(`> - Hold camera steady`, 'info');
             }
         }
         
@@ -609,7 +660,7 @@
                 mobileStartBtn.disabled = desktopStartBtn.disabled;
                 mobileScanBtn.disabled = desktopScanBtn.disabled;
                 mobileStopBtn.disabled = desktopStopBtn.disabled;
-                mobileTestBtn.disabled = desktopStartBtn.disabled; // Test button needs camera
+                mobileTestBtn.disabled = desktopStartBtn.disabled; // Test button needs camera, but not scanning
                 
                 // Update mobile button text
                 if (isScanning) {
