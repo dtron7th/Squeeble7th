@@ -929,20 +929,23 @@
             stopPDF417Scanning();
         }
 
-        // Parse barcode data into structured information
+        // Parse barcode data into structured information - Age Verification Focus
         function parseIDData(data) {
-            addLiveOutput('🔍 Parsing ID data from PDF417...', 'info');
+            addLiveOutput('🔍 Parsing ID data for age verification...', 'info');
             
             const parsed = {
                 'Raw Data': data,
                 'Data Length': data.length + ' characters'
             };
             
+            let dateOfBirth = '';
+            let expirationDate = '';
+            
             // Try to parse common AAMVA format
             if (data.includes('ANSI') || data.includes('DL') || data.includes('DAQ')) {
                 addLiveOutput('📋 Detected AAMVA format', 'info');
                 
-                // Extract common fields
+                // Extract critical fields for age verification
                 const fields = {
                     'DAA': 'Driver\'s License Number',
                     'DAB': 'Last Name', 
@@ -966,21 +969,166 @@
                         if (line.startsWith(code)) {
                             const value = line.substring(3);
                             parsed[description] = value;
-                            addLiveOutput(`✅ Found ${description}: ${value}`, 'success');
+                            
+                            // Extract dates for age calculation
+                            if (code === 'DBB') {
+                                dateOfBirth = value;
+                                addLiveOutput(`✅ Found Date of Birth: ${value}`, 'success');
+                            }
+                            if (code === 'DBA') {
+                                expirationDate = value;
+                                addLiveOutput(`✅ Found Expiration Date: ${value}`, 'success');
+                            }
+                            
+                            if (code !== 'DBB' && code !== 'DBA') {
+                                addLiveOutput(`✅ Found ${description}: ${value}`, 'success');
+                            }
                         }
                     }
                 }
             } else {
-                addLiveOutput('⚠️ Unknown barcode format', 'warning');
-                // Try to extract any dates or numbers
+                addLiveOutput('⚠️ Unknown barcode format, searching for dates...', 'warning');
+                
+                // Try to extract dates from unknown format
                 const dates = data.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
-                if (dates) {
-                    parsed['Dates Found'] = dates.join(', ');
-                    addLiveOutput(`📅 Found dates: ${dates.join(', ')}`, 'info');
+                if (dates && dates.length > 0) {
+                    addLiveOutput(`📅 Found ${dates.length} dates: ${dates.join(', ')}`, 'info');
+                    
+                    // Assume first date is DOB, second might be expiration
+                    dateOfBirth = dates[0];
+                    if (dates.length > 1) {
+                        expirationDate = dates[1];
+                    }
+                    
+                    parsed['Date of Birth'] = dateOfBirth;
+                    if (expirationDate) {
+                        parsed['Expiration Date'] = expirationDate;
+                    }
                 }
             }
             
+            // AGE VERIFICATION AND CALCULATION
+            if (dateOfBirth) {
+                const ageInfo = calculateAge(dateOfBirth);
+                parsed['Age'] = ageInfo.age;
+                parsed['Is 21+'] = ageInfo.isOver21;
+                parsed['Birth Date'] = ageInfo.formattedDate;
+                parsed['Age Status'] = ageInfo.status;
+                
+                addLiveOutput('================================', 'success');
+                addLiveOutput('🎂 AGE VERIFICATION RESULTS:', 'info');
+                addLiveOutput(`📅 Date of Birth: ${ageInfo.formattedDate}`, 'info');
+                addLiveOutput(`👤 Current Age: ${ageInfo.age} years old`, 'info');
+                addLiveOutput(`🍺 Is 21+: ${ageInfo.isOver21 ? '✅ YES' : '❌ NO'}`, ageInfo.isOver21 ? 'success' : 'error');
+                addLiveOutput(`📋 Status: ${ageInfo.status}`, 'info');
+                addLiveOutput('================================', 'success');
+                
+                // Show prominent age verification message
+                if (ageInfo.isOver21) {
+                    showMessage(`✅ AGE VERIFIED: ${ageInfo.age} years old (21+)`, 'success');
+                } else {
+                    showMessage(`❌ UNDER 21: ${ageInfo.age} years old`, 'error');
+                }
+            } else {
+                addLiveOutput('❌ Date of Birth not found in barcode data', 'error');
+                parsed['Age Status'] = 'ERROR: No birth date found';
+                parsed['Is 21+'] = false;
+                showMessage('❌ Cannot verify age - no birth date found', 'error');
+            }
+            
             return parsed;
+        }
+
+        // Calculate age from date string
+        function calculateAge(dateString) {
+            try {
+                // Clean and parse the date
+                let cleanedDate = dateString.replace(/[^\d\/\-]/g, '');
+                
+                // Handle different date formats
+                let day, month, year;
+                
+                if (cleanedDate.includes('/')) {
+                    const parts = cleanedDate.split('/');
+                    if (parts.length === 3) {
+                        // MM/DD/YYYY or MM/DD/YY format
+                        month = parseInt(parts[0]);
+                        day = parseInt(parts[1]);
+                        year = parseInt(parts[2]);
+                        
+                        // Handle 2-digit year
+                        if (year < 100) {
+                            year += year < 50 ? 2000 : 1900;
+                        }
+                    }
+                } else if (cleanedDate.includes('-')) {
+                    const parts = cleanedDate.split('-');
+                    if (parts.length === 3) {
+                        // MM-DD-YYYY or MM-DD-YY format
+                        month = parseInt(parts[0]);
+                        day = parseInt(parts[1]);
+                        year = parseInt(parts[2]);
+                        
+                        // Handle 2-digit year
+                        if (year < 100) {
+                            year += year < 50 ? 2000 : 1900;
+                        }
+                    }
+                }
+                
+                if (!month || !day || !year) {
+                    throw new Error('Invalid date format');
+                }
+                
+                // Create birth date
+                const birthDate = new Date(year, month - 1, day);
+                
+                // Get current date
+                const today = new Date();
+                
+                // Calculate age
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                // Adjust age if birthday hasn't occurred yet this year
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                // Check if 21 or over
+                const isOver21 = age >= 21;
+                
+                // Format date for display
+                const formattedDate = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
+                
+                // Determine status
+                let status;
+                if (age < 21) {
+                    status = `UNDER 21 - ${21 - age} year(s) to go`;
+                } else if (age === 21) {
+                    status = 'EXACTLY 21 - JUST LEGAL';
+                } else {
+                    status = `OVER 21 - ${age - 21} year(s) over limit`;
+                }
+                
+                return {
+                    age: age,
+                    isOver21: isOver21,
+                    formattedDate: formattedDate,
+                    status: status,
+                    birthDate: birthDate
+                };
+                
+            } catch (error) {
+                addLiveOutput(`❌ Error calculating age: ${error.message}`, 'error');
+                return {
+                    age: 'Unknown',
+                    isOver21: false,
+                    formattedDate: dateString,
+                    status: 'ERROR: Cannot calculate age',
+                    birthDate: null
+                };
+            }
         }
 
         // Live output functions
@@ -1296,20 +1444,91 @@
             }
         }
 
-        // Display parsed data
+        // Display parsed data with age verification focus
         function displayParsedData(data, container, containerDiv) {
             const parsed = parseIDData(data);
             
             let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
             
-            for (const [key, value] of Object.entries(parsed)) {
-                if (key !== 'Raw Data') {
+            // PROMINENT AGE VERIFICATION SECTION
+            if (parsed['Age'] !== undefined && parsed['Age'] !== 'Unknown') {
+                const age = parsed['Age'];
+                const isOver21 = parsed['Is 21+'];
+                const status = parsed['Age Status'];
+                
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; text-align: center; border: 3px solid ${isOver21 ? '#28a745' : '#dc3545'}; background: ${isOver21 ? '#d4edda' : '#f8d7da'};">
+                        <h3 style="margin: 0 0 10px 0; color: ${isOver21 ? '#155724' : '#721c24'};">
+                            ${isOver21 ? '✅ AGE VERIFIED' : '❌ UNDER 21'}
+                        </h3>
+                        <div style="font-size: 24px; font-weight: bold; color: ${isOver21 ? '#155724' : '#721c24'};">
+                            ${age} years old
+                        </div>
+                        <div style="font-size: 16px; margin-top: 5px; color: ${isOver21 ? '#155724' : '#721c24'};">
+                            ${isOver21 ? '🍺 21+ - APPROVED' : '🚫 NOT 21+ - DENIED'}
+                        </div>
+                        <div style="font-size: 14px; margin-top: 5px; color: ${isOver21 ? '#155724' : '#721c24'};">
+                            ${status}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // PERSONAL INFORMATION
+            if (parsed['First Name'] || parsed['Last Name']) {
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #007bff;">
+                        <strong>Name:</strong> ${parsed['First Name'] || ''} ${parsed['Last Name'] || ''}
+                    </div>
+                `;
+            }
+            
+            // BIRTH DATE
+            if (parsed['Birth Date']) {
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #28a745;">
+                        <strong>Birth Date:</strong> ${parsed['Birth Date']}
+                    </div>
+                `;
+            }
+            
+            // DRIVER'S LICENSE NUMBER
+            if (parsed['Driver\'s License Number']) {
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #ffc107;">
+                        <strong>License #:</strong> ${parsed['Driver\'s License Number']}
+                    </div>
+                `;
+            }
+            
+            // EXPIRATION DATE
+            if (parsed['Expiration Date']) {
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #fd7e14;">
+                        <strong>Expires:</strong> ${parsed['Expiration Date']}
+                    </div>
+                `;
+            }
+            
+            // OTHER INFORMATION
+            const otherFields = ['Address', 'City', 'State', 'Zip Code', 'Height', 'Eye Color'];
+            for (const field of otherFields) {
+                if (parsed[field]) {
                     html += `
-                        <div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 5px; border-left: 4px solid #007bff;">
-                            <strong>${key}:</strong> ${value}
+                        <div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 5px; border-left: 4px solid #6c757d;">
+                            <strong>${field}:</strong> ${parsed[field]}
                         </div>
                     `;
                 }
+            }
+            
+            // ERROR MESSAGE
+            if (parsed['Age Status'] && parsed['Age Status'].includes('ERROR')) {
+                html += `
+                    <div style="margin-bottom: 10px; padding: 10px; background: #f8d7da; border-radius: 5px; border-left: 4px solid #dc3545;">
+                        <strong style="color: #721c24;">❌ ${parsed['Age Status']}</strong>
+                    </div>
+                `;
             }
             
             html += '</div>';
@@ -1317,30 +1536,33 @@
             containerDiv.style.display = 'block';
         }
 
-        // Update print section from barcode data
+        // Update print section from barcode data - Age Verification Focus
         function updatePrintSectionFromBarcode(parsedData) {
-            // Update print fields
+            // Update print fields with age verification focus
             document.getElementById('printDLN').textContent = parsedData['Driver\'s License Number'] || 'Not Found';
-            document.getElementById('printDOB').textContent = parsedData['Date of Birth'] || 'Not Found';
+            document.getElementById('printDOB').textContent = parsedData['Birth Date'] || parsedData['Date of Birth'] || 'Not Found';
             document.getElementById('printEXP').textContent = parsedData['Expiration Date'] || 'Not Found';
             document.getElementById('printISS').textContent = parsedData['Issue Date'] || 'Not Found';
             
-            // Update print validation status
+            // Update print validation status based on age verification
             const printStatus = document.getElementById('printStatus');
             const printValidation = document.getElementById('printValidation');
             
-            const hasRequiredInfo = parsedData['Driver\'s License Number'] && 
-                                   parsedData['Date of Birth'] && 
-                                   parsedData['Expiration Date'] && 
-                                   parsedData['Issue Date'];
+            const hasAgeInfo = parsedData['Age'] !== undefined && parsedData['Age'] !== 'Unknown';
+            const isOver21 = parsedData['Is 21+'];
             
-            if (hasRequiredInfo) {
-                printStatus.textContent = 'VALID';
+            if (hasAgeInfo && isOver21) {
+                printStatus.textContent = '21+ APPROVED';
                 printStatus.style.color = '#28a745';
                 printValidation.style.background = '#d4edda';
                 printValidation.style.border = '1px solid #c3e6cb';
+            } else if (hasAgeInfo && !isOver21) {
+                printStatus.textContent = 'UNDER 21';
+                printStatus.style.color = '#dc3545';
+                printValidation.style.background = '#f8d7da';
+                printValidation.style.border = '1px solid #f5c6cb';
             } else {
-                printStatus.textContent = 'INCOMPLETE';
+                printStatus.textContent = 'AGE UNKNOWN';
                 printStatus.style.color = '#ffc107';
                 printValidation.style.background = '#fff3cd';
                 printValidation.style.border = '1px solid #ffeaa7';
