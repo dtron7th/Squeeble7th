@@ -422,7 +422,7 @@
 <body>
     <div class="dos-container">
         <div class="dos-header">
-            PDF417 AGE VERIFICATION SYSTEM v1.0 - [C] 2025 AGE-CORP
+            PDF417 AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
         </div>
         
         <div class="dos-main">
@@ -701,6 +701,12 @@
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 
+                // Debug: Show frame info
+                if (frameCount % 50 === 0) {
+                    addTerminal(`> Frame ${frameCount}: ${canvas.width}x${canvas.height}px`, 'info');
+                    addResultTerminal(`> Analyzing frame ${frameCount}...`, 'loading');
+                }
+                
                 // Try multiple ZXing approaches for better detection
                 let detected = false;
                 
@@ -711,24 +717,32 @@
                         const format = result.getBarcodeFormat();
                         const text = result.getText();
                         
+                        addTerminal(`> BARCODE DETECTED! Format: ${format}`, 'success');
+                        addTerminal(`> Text length: ${text.length} characters`, 'info');
+                        addTerminal(`> Text preview: ${text.substring(0, 50)}...`, 'info');
+                        
                         // Accept PDF417 or any long barcode (likely PDF417)
                         if (format === 'PDF_417' || format === 'PDF417' || text.length > 100) {
-                            addTerminal(`> PDF417 DETECTED! Format: ${format}`, 'success');
-                            addTerminal(`> Data length: ${text.length} characters`, 'info');
-                            addResultTerminal(`> Barcode found: ${text.length} chars`, 'success');
+                            addTerminal(`> PDF417 CONFIRMED! Processing...`, 'success');
+                            addResultTerminal(`> PDF417 found: ${text.length} chars`, 'success');
                             processPDF417Data(text);
                             stopScanning();
                             return;
                         } else if (format && text.length > 20) {
-                            addTerminal(`> Barcode detected: ${format} (${text.length} chars)`, 'info');
+                            addTerminal(`> Processing barcode anyway (${text.length} chars)`, 'info');
                             // Try processing anyway - might be PDF417
                             processPDF417Data(text);
                             stopScanning();
                             return;
+                        } else {
+                            addTerminal(`> Barcode too short (${text.length} chars), continuing scan...`, 'warning');
                         }
                     }
                 } catch (decodeError) {
                     // No barcode found, continue to next method
+                    if (frameCount % 100 === 0) {
+                        addTerminal(`> No barcode found in frame ${frameCount}`, 'info');
+                    }
                 }
                 
                 // Method 2: Try PDF417 reader specifically
@@ -745,6 +759,30 @@
                     }
                 } catch (pdf417Error) {
                     // No PDF417 found
+                }
+                
+                // Method 3: Try with different hints
+                try {
+                    const hints = new Map();
+                    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                    const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
+                    codeReaderWithHints.hints = hints;
+                    
+                    const result = codeReaderWithHints.decodeFromImageData(imageData);
+                    if (result) {
+                        const format = result.getBarcodeFormat();
+                        const text = result.getText();
+                        
+                        addTerminal(`> BARCODE FOUND with hints! Format: ${format}`, 'success');
+                        if (text.length > 50) {
+                            addResultTerminal(`> Processing with hints...`, 'success');
+                            processPDF417Data(text);
+                            stopScanning();
+                            return;
+                        }
+                    }
+                } catch (hintsError) {
+                    // No barcode found with hints
                 }
                 
                 // Show progress and feedback
@@ -948,7 +986,7 @@
             }
             
             addTerminal('> PDF417 AGE VERIFICATION SYSTEM v1.0');
-            addTerminal('> Copyright (C) 2025 AGE-CORP');
+            addTerminal('> Copyright (C) Written by Daryle Walton JR');
             
             if (isMobile) {
                 addTerminal('> Touch 📱 START CAMERA to begin');
