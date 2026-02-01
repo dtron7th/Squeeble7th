@@ -536,7 +536,7 @@
         let decodeLoopActive = false;
         let scanRafId = null;
         let lastDecodeAt = 0;
-        const decodeIntervalMs = 120;
+        const decodeIntervalMs = 80;
         let decodeTick = 0;
         let decodeInFlight = false;
         let lastDecodeWarnAt = 0;
@@ -563,7 +563,7 @@
                 const beep = document.getElementById('successBeep');
                 if (beep) {
                     const clone = beep.cloneNode();
-                    clone.volume = 0.15;
+                    clone.volume = 0.4;
                     clone.currentTime = 0;
                     clone.play().catch(() => {});
                 }
@@ -946,7 +946,7 @@
 
             debugBeepInterval = setInterval(() => {
                 if (isScanning) playDebugBeep();
-            }, 800);
+            }, 400);
 
             if (decodeLoopActive) return;
             decodeLoopActive = true;
@@ -965,6 +965,7 @@
                 typeof codeReader.decodeFromVideoElementContinuously === 'function'
             ) {
                 videoDecodeActive = true;
+                addTerminal('> Using video-element continuous decode...', 'loading');
                 try {
                     codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
                         if (!isScanning) return;
@@ -991,6 +992,8 @@
                     videoDecodeActive = false;
                     addTerminal(`> Video scan mode failed, falling back...`, 'warning');
                 }
+            } else {
+                addTerminal('> Video-element decode not available, using canvas fallback...', 'info');
             }
 
             const scanLoop = () => {
