@@ -704,24 +704,100 @@
             }, 3000);
         }
 
-        // Initialize ZXing Library
+        // Initialize ZXing Library - Enhanced for PDF417
         function initializeZXing() {
             try {
                 addLiveOutput('📊 Initializing ZXing Library...', 'info');
                 
+                // Create multi-format reader with PDF417 focus
                 codeReader = new ZXing.BrowserMultiFormatReader();
                 
+                // Try to also create dedicated PDF417 reader as backup
+                try {
+                    const pdf417Reader = new ZXing.PDF417Reader();
+                    addLiveOutput('✅ PDF417 reader created as backup', 'success');
+                } catch (pdf417Error) {
+                    addLiveOutput('⚠️ PDF417 reader not available, using multi-format only', 'warning');
+                }
+                
                 addLiveOutput('✅ ZXing initialized successfully', 'success');
+                addLiveOutput('📋 Ready to scan PDF417 barcodes', 'info');
                 return true;
             } catch (error) {
                 addLiveOutput(`❌ Failed to initialize ZXing: ${error.message}`, 'error');
-                return false;
+                
+                // Try fallback initialization
+                addLiveOutput('🔄 Trying fallback ZXing initialization...', 'warning');
+                try {
+                    codeReader = new ZXing.BrowserMultiFormatReader();
+                    addLiveOutput('✅ Fallback ZXing initialization successful', 'success');
+                    return true;
+                } catch (fallbackError) {
+                    addLiveOutput(`❌ Fallback also failed: ${fallbackError.message}`, 'error');
+                    return false;
+                }
             }
         }
 
-        // Scan for PDF417 using ZXing
+        // Debug function to show captured image
+        function showDebugImage(imageData) {
+            try {
+                const debugDiv = document.createElement('div');
+                debugDiv.style.position = 'fixed';
+                debugDiv.style.top = '10px';
+                debugDiv.style.right = '10px';
+                debugDiv.style.zIndex = '9999';
+                debugDiv.style.background = 'white';
+                debugDiv.style.border = '2px solid red';
+                debugDiv.style.padding = '10px';
+                debugDiv.style.maxWidth = '200px';
+                debugDiv.style.borderRadius = '8px';
+                debugDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '4px';
+                
+                const title = document.createElement('div');
+                title.textContent = '🔍 Camera View Debug';
+                title.style.fontWeight = 'bold';
+                title.style.marginBottom = '5px';
+                title.style.fontSize = '12px';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'Close';
+                closeBtn.style.marginTop = '5px';
+                closeBtn.style.width = '100%';
+                closeBtn.style.padding = '5px';
+                closeBtn.style.fontSize = '12px';
+                closeBtn.onclick = () => document.body.removeChild(debugDiv);
+                
+                debugDiv.appendChild(title);
+                debugDiv.appendChild(img);
+                debugDiv.appendChild(closeBtn);
+                document.body.appendChild(debugDiv);
+                
+                addLiveOutput('🔍 Debug image shown (top-right corner)', 'info');
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (document.body.contains(debugDiv)) {
+                        document.body.removeChild(debugDiv);
+                    }
+                }, 10000);
+            } catch (error) {
+                addLiveOutput(`❌ Debug image failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Enhanced scanning with debug option
+        let debugCounter = 0;
         async function scanForPDF417() {
             if (!isScanning || !codeReader) return;
+            
+            debugCounter++;
             
             try {
                 // Capture current frame from video
@@ -729,31 +805,91 @@
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0);
                 
+                // Show debug image every 30 frames (approximately every 3 seconds)
+                if (debugCounter % 30 === 0) {
+                    const debugImageData = canvas.toDataURL('image/jpeg', 0.5);
+                    showDebugImage(debugImageData);
+                }
+                
+                // Get image data for ZXing
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 
-                // Try to decode with ZXing
-                const result = codeReader.decodeFromImageData(imageData);
+                // Try multiple ZXing approaches
+                let result = null;
+                let methodUsed = '';
                 
-                if (result) {
-                    const format = result.getBarcodeFormat();
-                    if (format === 'PDF_417' || format === 'PDF417') {
-                        addLiveOutput('🎉 PDF417 Barcode detected by ZXing!', 'success');
-                        handlePDF417Detection(result.getText(), format);
-                        return;
-                    } else {
-                        addLiveOutput(`📊 Found ${format} barcode, looking for PDF417...`, 'info');
+                // Method 1: Try with BrowserMultiFormatReader
+                try {
+                    result = codeReader.decodeFromImageData(imageData);
+                    methodUsed = 'Multi-Format Reader';
+                    addLiveOutput('🔍 Trying multi-format reader...', 'info');
+                } catch (e1) {
+                    addLiveOutput('⚠️ Multi-format reader failed, trying PDF417 reader...', 'warning');
+                    
+                    // Method 2: Try with dedicated PDF417 reader
+                    try {
+                        const pdf417Reader = new ZXing.PDF417Reader();
+                        result = pdf417Reader.decode(imageData);
+                        methodUsed = 'PDF417 Reader';
+                        addLiveOutput('🔍 Trying PDF417 reader...', 'info');
+                    } catch (e2) {
+                        addLiveOutput('⚠️ PDF417 reader failed, trying Code128 reader...', 'warning');
+                        
+                        // Method 3: Try with Code128 reader (sometimes PDF417 is detected as Code128)
+                        try {
+                            const code128Reader = new ZXing.Code128Reader();
+                            result = code128Reader.decode(imageData);
+                            methodUsed = 'Code128 Reader';
+                            addLiveOutput('🔍 Trying Code128 reader...', 'info');
+                        } catch (e3) {
+                            // All methods failed, continue scanning
+                            addLiveOutput('⚠️ All readers failed for this frame', 'warning');
+                        }
                     }
                 }
                 
-                // Continue scanning
+                if (result) {
+                    const format = result.getBarcodeFormat ? result.getBarcodeFormat() : 'Unknown';
+                    const text = result.getText ? result.getText() : result.text || '';
+                    
+                    addLiveOutput(`📊 Found ${format} barcode (${methodUsed}) with ${text.length} characters`, 'info');
+                    
+                    // Accept PDF417 or any barcode that looks like it contains ID data
+                    if (format === 'PDF_417' || format === 'PDF417' || 
+                        (text && (text.includes('ANSI') || text.includes('DL') || text.includes('DAQ') || text.length > 100))) {
+                        
+                        addLiveOutput('🎉 PDF417 or ID barcode detected by ZXing!', 'success');
+                        handlePDF417Detection(text, format);
+                        return;
+                    } else {
+                        addLiveOutput(`📊 Found ${format} barcode, but not PDF417 format`, 'info');
+                    }
+                } else {
+                    // Show scanning progress
+                    if (debugCounter % 10 === 0) {
+                        addLiveOutput(`🔍 Scanning frame ${debugCounter}...`, 'info');
+                    }
+                }
+                
+                // Continue scanning with a small delay to prevent overwhelming the CPU
                 if (isScanning) {
-                    requestAnimationFrame(scanForPDF417);
+                    setTimeout(() => {
+                        if (isScanning) {
+                            requestAnimationFrame(scanForPDF417);
+                        }
+                    }, 100);
                 }
                 
             } catch (error) {
-                // No barcode found in this frame, continue scanning
+                addLiveOutput(`⚠️ Frame scan error: ${error.message}`, 'warning');
+                
+                // Continue scanning even with errors
                 if (isScanning) {
-                    requestAnimationFrame(scanForPDF417);
+                    setTimeout(() => {
+                        if (isScanning) {
+                            requestAnimationFrame(scanForPDF417);
+                        }
+                    }, 200);
                 }
             }
         }
@@ -1094,7 +1230,7 @@
             }
         }
 
-        // Start PDF417 scanning with ZXing
+        // Start PDF417 scanning with ZXing - Enhanced
         async function startPDF417Scanning() {
             try {
                 if (!codeReader) {
@@ -1108,9 +1244,15 @@
                 
                 startLiveOutput();
                 addLiveOutput('🎯 Starting ZXing PDF417 scanning...', 'info');
+                addLiveOutput('📸 Position the PDF417 barcode in the camera view', 'info');
+                addLiveOutput('💡 Tips: Good lighting, hold steady, fill the frame', 'info');
                 
-                // Start frame processing
-                requestAnimationFrame(scanForPDF417);
+                // Start frame processing with initial delay
+                setTimeout(() => {
+                    if (isScanning) {
+                        requestAnimationFrame(scanForPDF417);
+                    }
+                }, 500);
                 
                 addLiveOutput('✅ ZXing PDF417 scanning started', 'success');
                 showMessage('Scanning for PDF417 barcodes...', 'info');
