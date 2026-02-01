@@ -642,15 +642,86 @@
                 
                 if (!found) {
                     addTerminal(`> TEST RESULT: No barcode detected in current frame`, 'warning');
+                    addTerminal(`> VISUAL DEBUG: Creating snapshot...`, 'info');
+                    
+                    // Show visual debug image
+                    showDebugImage(canvas.toDataURL('image/jpeg', 0.8));
+                    
                     addTerminal(`> Tips:`, 'info');
                     addTerminal(`> - Ensure PDF417 barcode is visible`, 'info');
                     addTerminal(`> - Fill screen with barcode`, 'info');
                     addTerminal(`> - Good lighting, no glare`, 'info');
                     addTerminal(`> - Hold camera steady`, 'info');
+                    addTerminal(`> - Check debug image (top-right)`, 'info');
+                    addTerminal(`> - PDF417 is on BACK of driver's license`, 'info');
+                    addTerminal(`> - Should look like a stacked barcode pattern`, 'info');
                 }
             } catch (error) {
                 addTerminal(`> TEST ERROR: ${error.message}`, 'error');
                 addTerminal(`> Error details: ${error.stack}`, 'error');
+            }
+        }
+        
+        // Debug function to show captured image
+        function showDebugImage(imageData) {
+            try {
+                const debugDiv = document.createElement('div');
+                debugDiv.style.position = 'fixed';
+                debugDiv.style.top = '10px';
+                debugDiv.style.right = '10px';
+                debugDiv.style.zIndex = '9999';
+                debugDiv.style.background = '#000000';
+                debugDiv.style.border = '2px solid #00ff00';
+                debugDiv.style.padding = '10px';
+                debugDiv.style.maxWidth = '200px';
+                debugDiv.style.borderRadius = '8px';
+                debugDiv.style.boxShadow = '0 0 20px #00ff00';
+                
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.style.width = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '4px';
+                img.style.border = '1px solid #00ff00';
+                
+                const title = document.createElement('div');
+                title.textContent = '🔍 CAMERA VIEW';
+                title.style.fontFamily = 'VT323, monospace';
+                title.style.fontWeight = 'bold';
+                title.style.marginBottom = '5px';
+                title.style.fontSize = '14px';
+                title.style.color = '#00ff00';
+                title.style.textAlign = 'center';
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = 'CLOSE';
+                closeBtn.style.marginTop = '5px';
+                closeBtn.style.width = '100%';
+                closeBtn.style.padding = '5px';
+                closeBtn.style.fontSize = '12px';
+                closeBtn.style.fontFamily = 'VT323, monospace';
+                closeBtn.style.background = '#000000';
+                closeBtn.style.color = '#00ff00';
+                closeBtn.style.border = '1px solid #00ff00';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.onclick = () => document.body.removeChild(debugDiv);
+                
+                debugDiv.appendChild(title);
+                debugDiv.appendChild(img);
+                debugDiv.appendChild(closeBtn);
+                document.body.appendChild(debugDiv);
+                
+                addTerminal('> Debug image shown (top-right corner)', 'success');
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (document.body.contains(debugDiv)) {
+                        document.body.removeChild(debugDiv);
+                        addTerminal('> Debug image auto-removed', 'info');
+                    }
+                }, 10000);
+            } catch (error) {
+                addTerminal(`> Debug image failed: ${error.message}`, 'error');
             }
         }
         
