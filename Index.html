@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ID Card QR Scanner</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest/umd/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest/umd/index.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -598,6 +597,7 @@
         let isScanning = false;
         let scannedData = '';
         let codeReader = null;
+        let qrScanner = null;
 
         // DOM elements
         const video = document.getElementById('video');
@@ -619,61 +619,32 @@
         const deviceStatus = document.getElementById('deviceStatus');
         const cameraTips = document.getElementById('cameraTips');
 
-        // Device compatibility check for Nokia C210 and other mobile devices
+        // Check device compatibility
         function checkDeviceCompatibility() {
-            const userAgent = navigator.userAgent;
-            const isAndroid = /Android/i.test(userAgent);
-            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isNokiaC210 = navigator.userAgent.includes('Nokia') && navigator.userAgent.includes('C210');
             
-            // Check for Nokia C210 specifically
-            const isNokiaC210 = /Nokia.*C210/i.test(userAgent) || (isAndroid && navigator.hardwareConcurrency <= 4);
-            
-            let statusMessage = '';
-            let isCompatible = true;
-            
-            if (isNokiaC210) {
-                statusMessage = '✅ Nokia C210 detected - Optimized settings applied';
-                addLiveOutput('📱 Nokia C210 detected - Applying mobile optimizations', 'info');
-            } else if (isAndroid) {
-                statusMessage = '✅ Android device detected - Mobile optimizations applied';
-                addLiveOutput('📱 Android device detected - Applying mobile optimizations', 'info');
-            } else if (isMobile) {
-                statusMessage = '✅ Mobile device detected - Optimized for mobile scanning';
-                addLiveOutput('📱 Mobile device detected - Applying optimizations', 'info');
-            } else {
-                statusMessage = '🖥️ Desktop detected - Full resolution enabled';
-            }
-            
-            // Check browser capabilities
             const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
             const hasCanvas = !!document.createElement('canvas').getContext;
-            const hasWebGL = !!document.createElement('canvas').getContext('webgl');
-            
-            if (!hasGetUserMedia) {
-                statusMessage += ' ❌ Camera access not supported';
-                isCompatible = false;
-            } else if (!hasCanvas) {
-                statusMessage += ' ❌ Canvas not supported';
-                isCompatible = false;
-            } else {
-                statusMessage += ' ✅ All required features supported';
-            }
-            
-            deviceStatus.textContent = statusMessage;
+            const hasWebGL = (() => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    return !!(window.WebGLRenderingContext && 
+                        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+                } catch(e) {
+                    return false;
+                }
+            })();
             
             return {
-                isMobile,
-                isAndroid,
-                isNokiaC210,
-                isCompatible,
-                hasGetUserMedia,
-                hasCanvas,
-                hasWebGL
+                isMobile: isMobile,
+                isNokiaC210: isNokiaC210,
+                isCompatible: hasGetUserMedia && hasCanvas,
+                hasWebGL: hasWebGL,
+                userAgent: navigator.userAgent,
+                camera: 'environment'
             };
         }
-
-        // Run compatibility check on page load
-        const deviceInfo = checkDeviceCompatibility();
 
         // Camera controls
         startCameraBtn.addEventListener('click', startCamera);
@@ -683,7 +654,7 @@
         // Live output functions
         function startLiveOutput() {
             liveOutput.style.display = 'block';
-            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 ZXing PDF417 Output:</div>';
+            liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Multi-Library PDF417 Scanner:</div>';
         }
 
         function addLiveOutput(message, type = 'info') {
@@ -700,41 +671,160 @@
         function clearLiveOutput() {
             setTimeout(() => {
                 liveOutput.style.display = 'none';
-                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 ZXing PDF417 Output:</div>';
+                liveOutput.innerHTML = '<div style="color: #00ff00; font-weight: bold;">🔍 Multi-Library PDF417 Scanner:</div>';
             }, 3000);
         }
 
-        // Initialize ZXing Library - Enhanced for PDF417
-        function initializeZXing() {
+        // Initialize all scanning libraries
+        function initializeScanners() {
             try {
-                addLiveOutput('📊 Initializing ZXing Library...', 'info');
+                addLiveOutput('📊 Initializing multiple scanning libraries...', 'info');
                 
-                // Create multi-format reader with PDF417 focus
-                codeReader = new ZXing.BrowserMultiFormatReader();
-                
-                // Try to also create dedicated PDF417 reader as backup
-                try {
-                    const pdf417Reader = new ZXing.PDF417Reader();
-                    addLiveOutput('✅ PDF417 reader created as backup', 'success');
-                } catch (pdf417Error) {
-                    addLiveOutput('⚠️ PDF417 reader not available, using multi-format only', 'warning');
-                }
-                
-                addLiveOutput('✅ ZXing initialized successfully', 'success');
-                addLiveOutput('📋 Ready to scan PDF417 barcodes', 'info');
-                return true;
-            } catch (error) {
-                addLiveOutput(`❌ Failed to initialize ZXing: ${error.message}`, 'error');
-                
-                // Try fallback initialization
-                addLiveOutput('🔄 Trying fallback ZXing initialization...', 'warning');
+                // Initialize ZXing
                 try {
                     codeReader = new ZXing.BrowserMultiFormatReader();
-                    addLiveOutput('✅ Fallback ZXing initialization successful', 'success');
-                    return true;
-                } catch (fallbackError) {
-                    addLiveOutput(`❌ Fallback also failed: ${fallbackError.message}`, 'error');
-                    return false;
+                    addLiveOutput('✅ ZXing initialized', 'success');
+                } catch (zxingError) {
+                    addLiveOutput(`⚠️ ZXing failed: ${zxingError.message}`, 'warning');
+                }
+                
+                // Initialize QR Scanner
+                try {
+                    qrScanner = new QrScanner(
+                        null,
+                        result => handleQRResult(result),
+                        {
+                            highlightScanRegion: false,
+                            highlightCodeOutline: false,
+                        }
+                    );
+                    addLiveOutput('✅ QR Scanner initialized', 'success');
+                } catch (qrError) {
+                    addLiveOutput(`⚠️ QR Scanner failed: ${qrError.message}`, 'warning');
+                }
+                
+                addLiveOutput('✅ All scanners initialized successfully', 'success');
+                return true;
+            } catch (error) {
+                addLiveOutput(`❌ Scanner initialization failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Handle QR Scanner results
+        function handleQRResult(result) {
+            if (result && result.data) {
+                addLiveOutput('🎉 QR Scanner found barcode!', 'success');
+                handlePDF417Detection(result.data, 'QR Scanner');
+            }
+        }
+
+        // Multi-library scanning approach
+        let frameCounter = 0;
+        async function scanForPDF417() {
+            if (!isScanning) return;
+            
+            frameCounter++;
+            
+            try {
+                // Capture current frame from video
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                context.drawImage(video, 0, 0);
+                
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Show debug image every 30 frames
+                if (frameCounter % 30 === 0) {
+                    showDebugImage(dataUrl);
+                }
+                
+                let found = false;
+                
+                // Method 1: ZXing BrowserMultiFormatReader
+                if (!found && codeReader) {
+                    try {
+                        const result = codeReader.decodeFromImageData(imageData);
+                        if (result) {
+                            const format = result.getBarcodeFormat();
+                            const text = result.getText();
+                            addLiveOutput(`✅ ZXing found ${format}: ${text.substring(0, 50)}...`, 'success');
+                            handlePDF417Detection(text, format);
+                            found = true;
+                        }
+                    } catch (zxingError) {
+                        // Normal - no barcode found
+                    }
+                }
+                
+                // Method 2: ZXing PDF417 Reader
+                if (!found && codeReader) {
+                    try {
+                        const pdf417Reader = new ZXing.PDF417Reader();
+                        const result = pdf417Reader.decode(imageData);
+                        if (result) {
+                            addLiveOutput(`✅ ZXing PDF417 found: ${result.substring(0, 50)}...`, 'success');
+                            handlePDF417Detection(result, 'PDF417');
+                            found = true;
+                        }
+                    } catch (pdf417Error) {
+                        // Normal - no barcode found
+                    }
+                }
+                
+                // Method 3: jsQR
+                if (!found) {
+                    try {
+                        const jsqrResult = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (jsqrResult) {
+                            addLiveOutput(`✅ jsQR found: ${jsqrResult.data.substring(0, 50)}...`, 'success');
+                            handlePDF417Detection(jsqrResult.data, 'jsQR');
+                            found = true;
+                        }
+                    } catch (jsqrError) {
+                        // Normal - no barcode found
+                    }
+                }
+                
+                // Method 4: QR Scanner
+                if (!found && qrScanner) {
+                    try {
+                        const result = await qrScanner.scanImage(dataUrl, { returnDetailedScanResult: false });
+                        if (result) {
+                            addLiveOutput(`✅ QR Scanner found: ${result.substring(0, 50)}...`, 'success');
+                            handlePDF417Detection(result, 'QR Scanner');
+                            found = true;
+                        }
+                    } catch (qrError) {
+                        // Normal - no barcode found
+                    }
+                }
+                
+                // Show progress
+                if (frameCounter % 20 === 0 && !found) {
+                    addLiveOutput(`🔍 Scanning frame ${frameCounter}...`, 'info');
+                }
+                
+                // Continue scanning
+                if (isScanning && !found) {
+                    setTimeout(() => {
+                        if (isScanning) {
+                            requestAnimationFrame(scanForPDF417);
+                        }
+                    }, 150);
+                }
+                
+            } catch (error) {
+                addLiveOutput(`⚠️ Frame scan error: ${error.message}`, 'warning');
+                
+                // Continue scanning even with errors
+                if (isScanning) {
+                    setTimeout(() => {
+                        if (isScanning) {
+                            requestAnimationFrame(scanForPDF417);
+                        }
+                    }, 200);
                 }
             }
         }
@@ -761,7 +851,7 @@
                 img.style.borderRadius = '4px';
                 
                 const title = document.createElement('div');
-                title.textContent = '🔍 Camera View Debug';
+                title.textContent = `🔍 Frame ${frameCounter}`;
                 title.style.fontWeight = 'bold';
                 title.style.marginBottom = '5px';
                 title.style.fontSize = '12px';
@@ -779,118 +869,14 @@
                 debugDiv.appendChild(closeBtn);
                 document.body.appendChild(debugDiv);
                 
-                addLiveOutput('🔍 Debug image shown (top-right corner)', 'info');
-                
-                // Auto-remove after 10 seconds
+                // Auto-remove after 5 seconds
                 setTimeout(() => {
                     if (document.body.contains(debugDiv)) {
                         document.body.removeChild(debugDiv);
                     }
-                }, 10000);
+                }, 5000);
             } catch (error) {
                 addLiveOutput(`❌ Debug image failed: ${error.message}`, 'error');
-            }
-        }
-
-        // Enhanced scanning with debug option
-        let debugCounter = 0;
-        async function scanForPDF417() {
-            if (!isScanning || !codeReader) return;
-            
-            debugCounter++;
-            
-            try {
-                // Capture current frame from video
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0);
-                
-                // Show debug image every 30 frames (approximately every 3 seconds)
-                if (debugCounter % 30 === 0) {
-                    const debugImageData = canvas.toDataURL('image/jpeg', 0.5);
-                    showDebugImage(debugImageData);
-                }
-                
-                // Get image data for ZXing
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                
-                // Try multiple ZXing approaches
-                let result = null;
-                let methodUsed = '';
-                
-                // Method 1: Try with BrowserMultiFormatReader
-                try {
-                    result = codeReader.decodeFromImageData(imageData);
-                    methodUsed = 'Multi-Format Reader';
-                    addLiveOutput('🔍 Trying multi-format reader...', 'info');
-                } catch (e1) {
-                    addLiveOutput('⚠️ Multi-format reader failed, trying PDF417 reader...', 'warning');
-                    
-                    // Method 2: Try with dedicated PDF417 reader
-                    try {
-                        const pdf417Reader = new ZXing.PDF417Reader();
-                        result = pdf417Reader.decode(imageData);
-                        methodUsed = 'PDF417 Reader';
-                        addLiveOutput('🔍 Trying PDF417 reader...', 'info');
-                    } catch (e2) {
-                        addLiveOutput('⚠️ PDF417 reader failed, trying Code128 reader...', 'warning');
-                        
-                        // Method 3: Try with Code128 reader (sometimes PDF417 is detected as Code128)
-                        try {
-                            const code128Reader = new ZXing.Code128Reader();
-                            result = code128Reader.decode(imageData);
-                            methodUsed = 'Code128 Reader';
-                            addLiveOutput('🔍 Trying Code128 reader...', 'info');
-                        } catch (e3) {
-                            // All methods failed, continue scanning
-                            addLiveOutput('⚠️ All readers failed for this frame', 'warning');
-                        }
-                    }
-                }
-                
-                if (result) {
-                    const format = result.getBarcodeFormat ? result.getBarcodeFormat() : 'Unknown';
-                    const text = result.getText ? result.getText() : result.text || '';
-                    
-                    addLiveOutput(`📊 Found ${format} barcode (${methodUsed}) with ${text.length} characters`, 'info');
-                    
-                    // Accept PDF417 or any barcode that looks like it contains ID data
-                    if (format === 'PDF_417' || format === 'PDF417' || 
-                        (text && (text.includes('ANSI') || text.includes('DL') || text.includes('DAQ') || text.length > 100))) {
-                        
-                        addLiveOutput('🎉 PDF417 or ID barcode detected by ZXing!', 'success');
-                        handlePDF417Detection(text, format);
-                        return;
-                    } else {
-                        addLiveOutput(`📊 Found ${format} barcode, but not PDF417 format`, 'info');
-                    }
-                } else {
-                    // Show scanning progress
-                    if (debugCounter % 10 === 0) {
-                        addLiveOutput(`🔍 Scanning frame ${debugCounter}...`, 'info');
-                    }
-                }
-                
-                // Continue scanning with a small delay to prevent overwhelming the CPU
-                if (isScanning) {
-                    setTimeout(() => {
-                        if (isScanning) {
-                            requestAnimationFrame(scanForPDF417);
-                        }
-                    }, 100);
-                }
-                
-            } catch (error) {
-                addLiveOutput(`⚠️ Frame scan error: ${error.message}`, 'warning');
-                
-                // Continue scanning even with errors
-                if (isScanning) {
-                    setTimeout(() => {
-                        if (isScanning) {
-                            requestAnimationFrame(scanForPDF417);
-                        }
-                    }, 200);
-                }
             }
         }
 
@@ -1309,7 +1295,7 @@
             stopPDF417Scanning();
         }
 
-// Start camera and initialize ZXing
+// Start camera and initialize all scanners
         async function startCamera() {
             try {
                 startLiveOutput();
@@ -1337,9 +1323,9 @@
                 video.style.display = 'block';
                 placeholder.style.display = 'none';
                 
-                // Initialize ZXing Library
-                if (!initializeZXing()) {
-                    throw new Error('Failed to initialize ZXing');
+                // Initialize all scanning libraries
+                if (!initializeScanners()) {
+                    throw new Error('Failed to initialize scanning libraries');
                 }
                 
                 // Update UI
@@ -1378,11 +1364,11 @@
             }
         }
 
-        // Start PDF417 scanning with ZXing - Enhanced
+        // Start PDF417 scanning with all libraries
         async function startPDF417Scanning() {
             try {
-                if (!codeReader) {
-                    throw new Error('ZXing reader not initialized');
+                if (!codeReader && !qrScanner) {
+                    throw new Error('No scanning libraries available');
                 }
                 
                 isScanning = true;
@@ -1391,9 +1377,12 @@
                 scanPDF417Btn.classList.add('btn-secondary');
                 
                 startLiveOutput();
-                addLiveOutput('🎯 Starting ZXing PDF417 scanning...', 'info');
+                addLiveOutput('🎯 Starting multi-library PDF417 scanning...', 'info');
                 addLiveOutput('📸 Position the PDF417 barcode in the camera view', 'info');
-                addLiveOutput('💡 Tips: Good lighting, hold steady, fill the frame', 'info');
+                addLiveOutput('💡 Using ZXing, QR Scanner, and jsQR for maximum compatibility', 'info');
+                
+                // Reset frame counter
+                frameCounter = 0;
                 
                 // Start frame processing with initial delay
                 setTimeout(() => {
@@ -1402,7 +1391,7 @@
                     }
                 }, 500);
                 
-                addLiveOutput('✅ ZXing PDF417 scanning started', 'success');
+                addLiveOutput('✅ Multi-library scanning started', 'success');
                 showMessage('Scanning for PDF417 barcodes...', 'info');
                 
             } catch (error) {
