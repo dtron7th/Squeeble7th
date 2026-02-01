@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID CARD AGE VERIFICATION SYSTEM v1.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <title>PDF417 AGE VERIFICATION SYSTEM v1.0</title>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <audio id="successBeep" preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
     </audio>
@@ -425,7 +425,7 @@
 <body>
     <div class="dos-container">
         <div class="dos-header">
-            ID CARD AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
+            PDF417 AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
         </div>
         
         <div class="dos-main">
@@ -444,33 +444,21 @@
                 </div>
                 
                 <div class="dos-controls">
-                    <button class="dos-button" id="startBtn" onclick="startSystem()">[F1] INIT CAMERA</button>
-                    <button class="dos-button" id="scanBtn" onclick="toggleScanning()" disabled>[F2] SCAN ID CARD</button>
-                    <button class="dos-button" id="stopBtn" onclick="stopSystem()" disabled>[F3] SHUTDOWN</button>
-                    <button class="dos-button" id="testBtn" onclick="testOCR()" disabled>[F4] TEST OCR</button>
-                    <button class="dos-button" id="testAgeBtn" onclick="testAgeVerification()">[F5] TEST AGE</button>
-                </div>
-                
-                <div class="mobile-controls" id="mobileControls">
-                    <button class="dos-button mobile-btn" id="mobileStartBtn" onclick="startSystem()">📱 START CAMERA</button>
-                    <button class="dos-button mobile-btn" id="mobileScanBtn" onclick="toggleScanning()" disabled>📷 SCAN ID CARD</button>
-                    <button class="dos-button mobile-btn" id="mobileStopBtn" onclick="stopSystem()" disabled>⏹️ STOP</button>
-                    <button class="dos-button mobile-btn" id="mobileTestBtn" onclick="testOCR()" disabled>🔧 TEST OCR</button>
-                    <button class="dos-button mobile-btn" id="mobileTestAgeBtn" onclick="testAgeVerification()">🧪 TEST AGE</button>
+                    <button class="dos-button" id="scanBtn" onclick="onScanPdf417()">SCAN PDF417</button>
                 </div>
                 
                 <div class="camera-tips" id="cameraTips">
-                    <div class="dos-title">> ID CARD SCANNING TIPS</div>
-                    <div class="tip-item">📷 Position FRONT of ID card</div>
-                    <div class="tip-item">💡 Good lighting on text</div>
-                    <div class="tip-item">📏 Fill screen with ID card</div>
-                    <div class="tip-item">⚡ Avoid glare on text</div>
-                    <div class="tip-item">📱 Keep text sharp and clear</div>
-                    <div class="tip-item">🔍 Focus on Date of Birth</div>
+                    <div class="dos-title">> PDF417 SCANNING TIPS</div>
+                    <div class="tip-item">📷 Position PDF417 barcode</div>
+                    <div class="tip-item">💡 Good lighting on barcode</div>
+                    <div class="tip-item">📏 Fill screen with barcode</div>
+                    <div class="tip-item">⚡ Avoid glare on barcode</div>
+                    <div class="tip-item">📱 Keep barcode flat and steady</div>
+                    <div class="tip-item">🔍 Focus on barcode lines</div>
                 </div>
                 
                 <div class="dos-terminal" id="terminal">
-                    ID CARD AGE VERIFICATION SYSTEM v1.0
+                    PDF417 AGE VERIFICATION SYSTEM v1.0
                     =====================================
                     > System Ready...
                     > Waiting for initialization...
@@ -483,7 +471,7 @@
                 
                 <div class="age-result age-unknown" id="ageResult">
                     <div>[ NO DATA RECEIVED ]</div>
-                    <div>SCAN FRONT OF ID CARD</div>
+                    <div>SCAN PDF417 BARCODE</div>
                 </div>
                 
                 <div class="dos-info" id="personInfo" style="display: none;">
@@ -526,9 +514,8 @@
     <script>
         let stream = null;
         let isScanning = false;
-        let frameCount = 0;
         let isMobile = false;
-        let ocrWorker = null;
+        let codeReader = null;
         
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -540,6 +527,8 @@
         const status = document.getElementById('status');
         const ageResult = document.getElementById('ageResult');
         const personInfo = document.getElementById('personInfo');
+
+        let decodeLoopActive = false;
         
         // Detect mobile device
         function detectMobile() {
@@ -560,312 +549,108 @@
             }
         }
         
-        // Initialize OCR worker
-        async function initializeOCR() {
+        // Initialize ZXing barcode reader
+        function initializeBarcodeReader() {
             try {
-                addTerminal('> Loading OCR library...', 'loading');
+                addTerminal('> Initializing barcode reader...', 'loading');
                 
-                // Check if Tesseract is available
-                if (typeof Tesseract === 'undefined') {
-                    throw new Error('Tesseract library not loaded');
+                // Check if ZXing is available
+                if (typeof ZXing === 'undefined') {
+                    throw new Error('ZXing library not loaded');
                 }
                 
-                addTerminal('> Creating OCR worker...', 'loading');
-                ocrWorker = await Tesseract.createWorker('eng', 1, {
-                    logger: (m) => {
-                        if (m.status === 'recognizing text') {
-                            addTerminal(`> OCR Progress: ${Math.round(m.progress * 100)}%`, 'info');
-                        }
-                    }
-                });
+                addTerminal('> Creating barcode reader...', 'loading');
+                codeReader = new ZXing.BrowserMultiFormatReader();
                 
-                addTerminal('> OCR worker created', 'success');
-                
-                // Skip complex configuration for now to avoid issues
-                addTerminal('> OCR engine initialized successfully', 'success');
+                addTerminal('> Barcode reader initialized successfully', 'success');
                 return true;
                 
             } catch (error) {
-                addTerminal(`> OCR initialization failed: ${error.message}`, 'error');
-                
-                // Try to create a simple fallback
-                try {
-                    addTerminal('> Trying OCR fallback...', 'loading');
-                    ocrWorker = await Tesseract.createWorker('eng');
-                    addTerminal('> OCR fallback worked!', 'success');
-                    return true;
-                } catch (fallbackError) {
-                    addTerminal(`> OCR fallback failed: ${fallbackError.message}`, 'error');
-                    return false;
-                }
+                addTerminal(`> Barcode reader initialization failed: ${error.message}`, 'error');
+                return false;
             }
         }
-        
-        // Test barcode detection with visual feedback
-        function testBarcodeDetection() {
-            addTerminal('> TEST BUTTON CLICKED!', 'success');
-            
-            if (!video || !video.videoWidth) {
-                addTerminal('> ERROR: Camera not active or video not ready', 'error');
-                addTerminal('> Video element exists: ' + (video ? 'YES' : 'NO'), 'info');
-                addTerminal('> Video width: ' + (video ? video.videoWidth : 'N/A'), 'info');
-                return;
+
+        function parseAamvaDate(raw) {
+            if (!raw) return '';
+            const digits = String(raw).replace(/[^0-9]/g, '');
+            if (digits.length === 8) {
+                const yyyy = parseInt(digits.slice(0, 4), 10);
+                if (yyyy >= 1900 && yyyy <= 2100) {
+                    const mm = digits.slice(4, 6);
+                    const dd = digits.slice(6, 8);
+                    return `${mm}/${dd}/${digits.slice(0, 4)}`;
+                }
+                const mm = digits.slice(0, 2);
+                const dd = digits.slice(2, 4);
+                const year = digits.slice(4, 8);
+                return `${mm}/${dd}/${year}`;
             }
-            
-            addTerminal('> Testing barcode detection...', 'loading');
-            
+            return raw;
+        }
+
+        function processPDF417Data(data) {
             try {
-                // Capture a single frame
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0);
-                
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                
-                addTerminal(`> Test frame: ${canvas.width}x${canvas.height}px`, 'info');
-                addTerminal(`> Image data: ${imageData.data.length} pixels`, 'info');
-                
-                // Try all detection methods for testing
-                let found = false;
-                
-                // Method 1: Standard reader
-                try {
-                    const result = codeReader.decodeFromImageData(imageData);
-                    if (result) {
-                        addTerminal(`> TEST SUCCESS: Barcode found!`, 'success');
-                        addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
-                        addTerminal(`> Length: ${result.getText().length} chars`, 'info');
-                        addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
-                        playSuccessBeep();
-                        found = true;
-                    }
-                } catch (error) {
-                    addTerminal(`> Method 1: No barcode - ${error.message}`, 'info');
+                addTerminal('> Processing PDF417 data...', 'loading');
+                addResultTerminal('> Processing age verification...', 'loading');
+
+                const raw = String(data || '');
+                const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+                const fields = {
+                    firstName: '',
+                    middleName: '',
+                    lastName: '',
+                    fullName: '',
+                    dln: '',
+                    dob: '',
+                    exp: ''
+                };
+
+                for (const line of lines) {
+                    if (line.startsWith('DCS')) fields.lastName = line.substring(3).trim();
+                    else if (line.startsWith('DAC')) fields.firstName = line.substring(3).trim();
+                    else if (line.startsWith('DAD')) fields.middleName = line.substring(3).trim();
+                    else if (line.startsWith('DAA')) fields.fullName = line.substring(3).trim();
+                    else if (line.startsWith('DAQ')) fields.dln = line.substring(3).trim();
+                    else if (line.startsWith('DBB')) fields.dob = line.substring(3).trim();
+                    else if (line.startsWith('DBA')) fields.exp = line.substring(3).trim();
                 }
-                
-                // Method 2: PDF417 reader
-                if (!found) {
-                    try {
-                        const pdf417Reader = new ZXing.PDF417Reader();
-                        const result = pdf417Reader.decode(imageData);
-                        if (result && result.length > 20) {
-                            addTerminal(`> TEST SUCCESS: PDF417 found!`, 'success');
-                            addTerminal(`> Length: ${result.length} chars`, 'info');
-                            addTerminal(`> Preview: ${result.substring(0, 50)}...`, 'info');
-                            playSuccessBeep();
-                            found = true;
-                        }
-                    } catch (error) {
-                        addTerminal(`> Method 2: No PDF417 - ${error.message}`, 'info');
-                    }
+
+                const nameFromParts = [fields.firstName, fields.middleName, fields.lastName].filter(Boolean).join(' ').trim();
+                const displayName = fields.fullName || nameFromParts || 'UNKNOWN';
+
+                const dobFormatted = parseAamvaDate(fields.dob);
+                const expFormatted = parseAamvaDate(fields.exp);
+
+                if (!dobFormatted) {
+                    addTerminal('> ERROR: DOB not found in PDF417 data', 'error');
+                    addResultTerminal('> ERROR: DOB not found', 'error');
+                    return;
                 }
-                
-                // Method 3: With hints
-                if (!found) {
-                    try {
-                        const hints = new Map();
-                        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                        const codeReaderWithHints = new ZXing.BrowserMultiFormatReader();
-                        codeReaderWithHints.hints = hints;
-                        
-                        const result = codeReaderWithHints.decodeFromImageData(imageData);
-                        if (result) {
-                            addTerminal(`> TEST SUCCESS: Found with hints!`, 'success');
-                            addTerminal(`> Format: ${result.getBarcodeFormat()}`, 'info');
-                            addTerminal(`> Length: ${result.getText().length} chars`, 'info');
-                            addTerminal(`> Preview: ${result.getText().substring(0, 50)}...`, 'info');
-                            playSuccessBeep();
-                            found = true;
-                        }
-                    } catch (error) {
-                        addTerminal(`> Method 3: No barcode with hints - ${error.message}`, 'info');
-                    }
-                }
-                
-                if (!found) {
-                    addTerminal(`> TEST RESULT: No barcode detected in current frame`, 'warning');
-                    addTerminal(`> VISUAL DEBUG: Creating snapshot...`, 'info');
-                    
-                    // Show visual debug image
-                    showDebugImage(canvas.toDataURL('image/jpeg', 0.8));
-                    
-                    addTerminal(`> Tips:`, 'info');
-                    addTerminal(`> - Ensure PDF417 barcode is visible`, 'info');
-                    addTerminal(`> - Fill screen with barcode`, 'info');
-                    addTerminal(`> - Good lighting, no glare`, 'info');
-                    addTerminal(`> - Hold camera steady`, 'info');
-                    addTerminal(`> - Check debug image (top-right)`, 'info');
-                    addTerminal(`> - PDF417 is on BACK of driver's license`, 'info');
-                    addTerminal(`> - Should look like a stacked barcode pattern`, 'info');
-                }
-            } catch (error) {
-                addTerminal(`> TEST ERROR: ${error.message}`, 'error');
-                addTerminal(`> Error details: ${error.stack}`, 'error');
+
+                const ageInfo = calculateAge(dobFormatted);
+
+                document.getElementById('personName').textContent = displayName;
+                document.getElementById('personAge').textContent = ageInfo.age;
+                document.getElementById('personDOB').textContent = ageInfo.formattedDate;
+                document.getElementById('personDLN').textContent = fields.dln || 'UNKNOWN';
+                document.getElementById('personEXP').textContent = expFormatted || 'UNKNOWN';
+                document.getElementById('personStatus').textContent = ageInfo.isOver21 ? '21+ APPROVED' : 'UNDER 21';
+                personInfo.style.display = 'block';
+
+                displayAgeResult(ageInfo);
+
+            } catch (e) {
+                addTerminal(`> ERROR processing PDF417: ${e.message}`, 'error');
             }
         }
         
-        // Debug function to show captured image
-        function showDebugImage(imageData) {
-            try {
-                const debugDiv = document.createElement('div');
-                debugDiv.style.position = 'fixed';
-                debugDiv.style.top = '10px';
-                debugDiv.style.right = '10px';
-                debugDiv.style.zIndex = '9999';
-                debugDiv.style.background = '#000000';
-                debugDiv.style.border = '2px solid #00ff00';
-                debugDiv.style.padding = '10px';
-                debugDiv.style.maxWidth = '200px';
-                debugDiv.style.borderRadius = '8px';
-                debugDiv.style.boxShadow = '0 0 20px #00ff00';
-                
-                const img = document.createElement('img');
-                img.src = imageData;
-                img.style.width = '100%';
-                img.style.height = 'auto';
-                img.style.borderRadius = '4px';
-                img.style.border = '1px solid #00ff00';
-                
-                const title = document.createElement('div');
-                title.textContent = '🔍 CAMERA VIEW';
-                title.style.fontFamily = 'VT323, monospace';
-                title.style.fontWeight = 'bold';
-                title.style.marginBottom = '5px';
-                title.style.fontSize = '14px';
-                title.style.color = '#00ff00';
-                title.style.textAlign = 'center';
-                
-                const closeBtn = document.createElement('button');
-                closeBtn.textContent = 'CLOSE';
-                closeBtn.style.marginTop = '5px';
-                closeBtn.style.width = '100%';
-                closeBtn.style.padding = '5px';
-                closeBtn.style.fontSize = '12px';
-                closeBtn.style.fontFamily = 'VT323, monospace';
-                closeBtn.style.background = '#000000';
-                closeBtn.style.color = '#00ff00';
-                closeBtn.style.border = '1px solid #00ff00';
-                closeBtn.style.cursor = 'pointer';
-                closeBtn.onclick = () => document.body.removeChild(debugDiv);
-                
-                debugDiv.appendChild(title);
-                debugDiv.appendChild(img);
-                debugDiv.appendChild(closeBtn);
-                document.body.appendChild(debugDiv);
-                
-                addTerminal('> Debug image shown (top-right corner)', 'success');
-                
-                // Auto-remove after 10 seconds
-                setTimeout(() => {
-                    if (document.body.contains(debugDiv)) {
-                        document.body.removeChild(debugDiv);
-                        addTerminal('> Debug image auto-removed', 'info');
-                    }
-                }, 10000);
-            } catch (error) {
-                addTerminal(`> Debug image failed: ${error.message}`, 'error');
-            }
-        }
-        
-        // Test OCR with current frame
-        async function testOCR() {
-            // Only allow OCR testing on mobile devices
-            if (!isMobile) {
-                addTerminal('> ERROR: OCR testing only available on mobile devices', 'error');
-                addResultTerminal('> Please use mobile device for ID scanning', 'error');
-                return;
-            }
-            
-            if (!video || !video.videoWidth) {
-                addTerminal('> ERROR: Camera not active', 'error');
-                return;
-            }
-            
-            addTerminal('> TESTING OCR...', 'loading');
-            
-            try {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0);
-                
-                const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                addTerminal(`> Captured frame: ${canvas.width}x${canvas.height}px`, 'info');
-                
-                const { data: { text } } = await ocrWorker.recognize(imageData);
-                addTerminal(`> OCR Result: "${text.substring(0, 200)}..."`, 'info');
-                
-                // Look for any dates
-                const dateMatch = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/);
-                if (dateMatch) {
-                    addTerminal(`> Date found: ${dateMatch[0]}`, 'success');
-                    const ageInfo = calculateAge(dateMatch[0]);
-                    addTerminal(`> Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
-                } else {
-                    addTerminal('> No dates found in text', 'warning');
-                }
-                
-                // Test with a sample date if no dates found
-                if (!dateMatch) {
-                    addTerminal('> Testing with sample date: 01/15/1995', 'info');
-                    const testAgeInfo = calculateAge('01/15/1995');
-                    addTerminal(`> Sample Age: ${testAgeInfo.age} | 21+: ${testAgeInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
-                }
-                
-            } catch (error) {
-                addTerminal(`> OCR Error: ${error.message}`, 'error');
-            }
-        }
-        
-        // Manual test with known dates
-        function testAgeVerification() {
-            addTerminal('> TESTING AGE VERIFICATION...', 'loading');
-            
-            const testDates = [
-                '01/15/1995', // 29 years old - 21+
-                '12/01/2005', // 19 years old - Under 21
-                '06/30/2002', // 22 years old - 21+
-                '08/15/2008'  // 16 years old - Under 21
-            ];
-            
-            testDates.forEach(date => {
-                const ageInfo = calculateAge(date);
-                addTerminal(`> ${date} → Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
-            });
-            
-            addTerminal('> Age verification test complete', 'success');
-        }
-        
-        // Update mobile button states
-        function updateMobileButtons() {
-            const mobileStartBtn = document.getElementById('mobileStartBtn');
-            const mobileScanBtn = document.getElementById('mobileScanBtn');
-            const mobileStopBtn = document.getElementById('mobileStopBtn');
-            const mobileTestBtn = document.getElementById('mobileTestBtn');
-            
-            const desktopStartBtn = document.getElementById('startBtn');
-            const desktopScanBtn = document.getElementById('scanBtn');
-            const desktopStopBtn = document.getElementById('stopBtn');
-            const desktopTestBtn = document.getElementById('testBtn');
-            
-            if (isMobile) {
-                // Sync mobile buttons with desktop button states
-                mobileStartBtn.disabled = desktopStartBtn.disabled;
-                mobileScanBtn.disabled = desktopScanBtn.disabled;
-                mobileStopBtn.disabled = desktopStopBtn.disabled;
-                mobileTestBtn.disabled = desktopStartBtn.disabled; // Test button needs camera, but not scanning
-                
-                // Update mobile button text
-                if (isScanning) {
-                    mobileScanBtn.textContent = '⏹️ STOP SCANNING';
-                } else {
-                    mobileScanBtn.textContent = '📷 SCAN ID';
-                }
-            }
-            
-            // Update desktop test button
-            if (desktopTestBtn) {
-                desktopTestBtn.disabled = desktopStartBtn.disabled;
-            }
+        function setScanButtonState() {
+            const scanBtn = document.getElementById('scanBtn');
+            if (!scanBtn) return;
+            scanBtn.textContent = isScanning ? 'STOP' : 'SCAN PDF417';
+            scanBtn.disabled = false;
         }
         
         function addTerminal(message, type = 'normal') {
@@ -887,293 +672,133 @@
             addTerminal(`STATUS: ${newStatus}`);
         }
         
-        async function startSystem() {
-            try {
-                addTerminal('> === CAMERA DEBUG START ===', 'loading');
-                addTerminal('> Starting system...', 'loading');
+        async function ensureReady() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Camera not supported in this browser');
+            }
+
+            if (!codeReader) {
+                const ok = initializeBarcodeReader();
+                if (!ok) {
+                    throw new Error('Barcode reader initialization failed');
+                }
+            }
+
+            if (!stream) {
                 updateStatus('INITIALIZING...');
-                
-                // Disable buttons immediately
-                const startBtn = document.getElementById('startBtn');
-                const mobileStartBtn = document.getElementById('mobileStartBtn');
-                
-                addTerminal(`> Start button found: ${!!startBtn}`, 'info');
-                addTerminal(`> Mobile start button found: ${!!mobileStartBtn}`, 'info');
-                
-                startBtn.disabled = true;
-                if (mobileStartBtn) mobileStartBtn.disabled = true;
-                
-                addTerminal('> Buttons disabled', 'info');
-                
-                // Test browser support
-                addTerminal('> Checking browser support...', 'info');
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error('Camera not supported in this browser');
-                }
-                addTerminal('> Browser supports camera', 'success');
-                
-                // Test OCR
-                addTerminal('> Initializing OCR...', 'loading');
-                let ocrReady = false;
-                try {
-                    ocrReady = await initializeOCR();
-                    if (ocrReady) {
-                        addTerminal('> OCR ready', 'success');
-                    } else {
-                        addTerminal('> OCR failed, but continuing with camera only...', 'warning');
-                        addTerminal('> You can test camera, but scanning will not work', 'warning');
-                    }
-                } catch (ocrError) {
-                    addTerminal('> OCR failed completely, but continuing with camera...', 'warning');
-                    addTerminal('> OCR Error: ' + ocrError.message, 'warning');
-                    ocrReady = false;
-                }
-                
-                // Test camera access
                 addTerminal('> Requesting camera access...', 'loading');
-                
+
                 const constraints = {
                     video: {
                         facingMode: 'environment',
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     }
                 };
-                
-                addTerminal(`> Camera constraints: ${JSON.stringify(constraints)}`, 'info');
-                
+
                 try {
                     stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    addTerminal('> Camera access granted!', 'success');
-                } catch (cameraError) {
-                    addTerminal(`> Camera access failed: ${cameraError.name}`, 'error');
-                    addTerminal(`> Camera error: ${cameraError.message}`, 'error');
-                    
-                    // Try fallback constraints
-                    addTerminal('> Trying fallback camera settings...', 'loading');
-                    const fallbackConstraints = {
-                        video: true
-                    };
-                    
-                    stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
-                    addTerminal('> Fallback camera worked!', 'success');
+                } catch (e) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 }
-                
-                // Setup video
-                addTerminal('> Setting up video element...', 'info');
-                const video = document.getElementById('video');
-                const placeholder = document.getElementById('placeholder');
-                
-                addTerminal('> Video element found: ' + !!video, 'info');
-                addTerminal('> Placeholder element found: ' + !!placeholder, 'info');
-                
+
                 video.srcObject = stream;
                 video.style.display = 'block';
                 placeholder.style.display = 'none';
-                
-                // Wait for video to load
-                addTerminal('> Waiting for video to load...', 'loading');
+
                 await new Promise(resolve => {
-                    video.onloadedmetadata = () => {
-                        addTerminal(`> Video loaded: ${video.videoWidth}x${video.videoHeight}`, 'success');
-                        resolve();
-                    };
+                    video.onloadedmetadata = () => resolve();
                 });
-                
-                // Enable buttons
+
                 updateStatus('CAMERA READY');
-                document.getElementById('scanBtn').disabled = false;
-                document.getElementById('stopBtn').disabled = false;
-                document.getElementById('testBtn').disabled = false;
-                
-                updateMobileButtons();
-                
-                addTerminal('> === CAMERA DEBUG SUCCESS ===', 'success');
-                addTerminal('> Camera ready for scanning!', 'success');
-                
-            } catch (error) {
-                updateStatus('ERROR');
-                addTerminal(`> === CAMERA DEBUG ERROR ===`, 'error');
-                addTerminal(`> ERROR: ${error.message}`, 'error');
-                addTerminal(`> ERROR TYPE: ${error.name}`, 'error');
-                addTerminal(`> ERROR STACK: ${error.stack}`, 'error');
-                
-                // Re-enable start button
-                document.getElementById('startBtn').disabled = false;
-                const mobileStartBtn = document.getElementById('mobileStartBtn');
-                if (mobileStartBtn) mobileStartBtn.disabled = false;
-                
-                updateMobileButtons();
+                addTerminal('> Camera ready', 'success');
             }
+
+            setScanButtonState();
         }
-        
-        function toggleScanning() {
-            addTerminal('> SCAN BUTTON CLICKED!', 'success');
-            
-            if (isScanning) {
-                addTerminal('> Stopping scanning...', 'info');
-                stopScanning();
-            } else {
-                addTerminal('> Starting scanning...', 'info');
+
+        async function onScanPdf417() {
+            try {
+                if (isScanning) {
+                    stopScanning();
+                    return;
+                }
+
+                await ensureReady();
                 startScanning();
+            } catch (e) {
+                updateStatus('ERROR');
+                addTerminal(`> ERROR: ${e.message}`, 'error');
+                setScanButtonState();
             }
         }
         
         function startScanning() {
-            addTerminal('> DEBUG: Starting scan function...', 'info');
-            addTerminal(`> DEBUG: OCR Worker exists: ${!!ocrWorker}`, 'info');
-            addTerminal(`> DEBUG: Stream exists: ${!!stream}`, 'info');
-            addTerminal(`> DEBUG: Video ready: ${!!video && !!video.videoWidth}`, 'info');
-            addTerminal(`> DEBUG: Is mobile: ${isMobile}`, 'info');
-            
-            // Only allow scanning on mobile devices
-            if (!isMobile) {
-                addTerminal('> ERROR: Age verification only available on mobile devices', 'error');
-                addResultTerminal('> Please use mobile device for ID scanning', 'error');
-                return;
-            }
-            
-            // Check if OCR is available
-            if (!ocrWorker) {
-                addTerminal('> ERROR: OCR not available - camera only mode', 'error');
-                addResultTerminal('> OCR failed to initialize - restart app', 'error');
-                return;
-            }
-            
-            if (!stream) {
-                addTerminal('> ERROR: System not initialized', 'error');
-                addTerminal('> - Camera stream not ready', 'error');
-                return;
-            }
-            
-            addTerminal('> DEBUG: All checks passed, starting scan...', 'success');
-            
             isScanning = true;
             scanLine.style.display = 'block';
-            document.getElementById('scanBtn').textContent = '[F2] STOP SCANNING';
             updateStatus('SCANNING...');
-            
-            updateMobileButtons();
-            
-            addTerminal('> Starting ID card OCR scanning...', 'loading');
+
+            setScanButtonState();
+            addTerminal('> Scanning PDF417...', 'loading');
             addResultTerminal('> Scan initiated...', 'loading');
-            
-            addTerminal('> Mobile OCR mode active', 'info');
-            addResultTerminal('> Position ID card clearly...', 'info');
-            
-            frameCount = 0;
-            addTerminal('> DEBUG: Calling scanFrame...', 'info');
-            scanFrame();
+
+            if (decodeLoopActive) return;
+            decodeLoopActive = true;
+
+            const handleResult = (resultText) => {
+                if (!resultText) return;
+                addTerminal('> PDF417 detected!', 'success');
+                playSuccessBeep();
+                processPDF417Data(resultText);
+                stopScanning();
+            };
+
+            try {
+                const hints = new Map();
+                hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
+                codeReader.hints = hints;
+            } catch (_) {
+            }
+
+            codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+                if (!isScanning) return;
+
+                if (result) {
+                    const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                    handleResult(text);
+                    return;
+                }
+
+                if (err) {
+                    const name = err.name || '';
+                    if (name !== 'NotFoundException') {
+                        addTerminal(`> Scan error: ${name} ${err.message || ''}`, 'warning');
+                    }
+                }
+            }).catch(e => {
+                if (isScanning) {
+                    addTerminal(`> Scan start failed: ${e.message}`, 'error');
+                    stopScanning();
+                }
+            }).finally(() => {
+                decodeLoopActive = false;
+            });
         }
         
         function stopScanning() {
             isScanning = false;
+            decodeLoopActive = false;
             scanLine.style.display = 'none';
-            document.getElementById('scanBtn').textContent = '[F2] SCAN ID CARD';
-            updateStatus('CAMERA READY');
-            
-            updateMobileButtons();
-            
-            addTerminal('> OCR scanning stopped');
-            addResultTerminal('> Scan terminated');
-        }
-        
-        async function scanFrame() {
-            if (!isScanning) return;
-            
-            frameCount++;
-            
-            try {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0);
-                
-                // Run OCR every 10 frames instead of 30 for better detection
-                if (frameCount % 10 === 0) {
-                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                    
-                    addTerminal(`> OCR scanning frame ${frameCount}...`, 'loading');
-                    
-                    try {
-                        const { data: { text } } = await ocrWorker.recognize(imageData);
-                        addTerminal(`> OCR Text: "${text.substring(0, 100)}..."`, 'info');
-                        
-                        // Look for date of birth with multiple patterns
-                        let dob = null;
-                        
-                        // Pattern 1: DOB labels
-                        const dobPatterns = [
-                            /(?:DOB|Date of Birth|Birth|Born|Birthdate|B\.O\.D\.)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
-                            /(?:Date\s*of\s*Birth|Birth\s*Date)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
-                            /(?:Born|Birth)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i
-                        ];
-                        
-                        for (const pattern of dobPatterns) {
-                            const match = text.match(pattern);
-                            if (match) {
-                                dob = match[1];
-                                addTerminal(`> DOB found: ${dob}`, 'success');
-                                break;
-                            }
-                        }
-                        
-                        // Pattern 2: Look for any date that could be a birth date
-                        if (!dob) {
-                            const allDates = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g);
-                            if (allDates && allDates.length > 0) {
-                                addTerminal(`> Found dates: ${allDates.join(', ')}`, 'info');
-                                // Try the first few dates to see if any make sense as birth dates
-                                for (const date of allDates.slice(0, 3)) {
-                                    const ageInfo = calculateAge(date);
-                                    if (ageInfo.age && ageInfo.age > 15 && ageInfo.age < 100) {
-                                        dob = date;
-                                        addTerminal(`> Likely birth date: ${dob} (age ${ageInfo.age})`, 'success');
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Pattern 3: Look for common ID card formats
-                        if (!dob) {
-                            const agePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s.*?(?:age|years|y\/o)/i;
-                            const ageMatch = text.match(agePattern);
-                            if (ageMatch) {
-                                dob = ageMatch[1];
-                                addTerminal(`> Birth date with age indicator: ${dob}`, 'success');
-                            }
-                        }
-                        
-                        if (dob) {
-                            addTerminal(`> Processing DOB: ${dob}`, 'success');
-                            const ageInfo = calculateAge(dob);
-                            
-                            addTerminal(`> Age: ${ageInfo.age} | 21+: ${ageInfo.isOver21 ? 'YES' : 'NO'}`, 'info');
-                            
-                            displayAgeResult(ageInfo);
-                            playSuccessBeep();
-                            stopScanning();
-                            return;
-                        } else {
-                            addTerminal('> No DOB found, continuing scan...', 'warning');
-                        }
-                        
-                    } catch (ocrError) {
-                        addTerminal(`> OCR error: ${ocrError.message}`, 'warning');
-                    }
-                }
-                
-                // Show progress less frequently
-                if (frameCount % 15 === 0) {
-                    addTerminal(`> Scanning frame ${frameCount}...`, 'loading');
-                }
-                
-                requestAnimationFrame(scanFrame);
-                
-            } catch (error) {
-                addTerminal(`> Frame error: ${error.message}`, 'error');
-                requestAnimationFrame(scanFrame);
+            updateStatus(stream ? 'CAMERA READY' : 'READY');
+            setScanButtonState();
+
+            if (codeReader && typeof codeReader.reset === 'function') {
+                try { codeReader.reset(); } catch (_) {}
             }
+
+            addTerminal('> Scanning stopped');
+            addResultTerminal('> Scan terminated');
         }
         
         // Calculate age from date string
@@ -1248,9 +873,6 @@
         function displayAgeResult(ageInfo) {
             document.getElementById('personAge').textContent = ageInfo.age;
             document.getElementById('personDOB').textContent = ageInfo.formattedDate;
-            document.getElementById('personName').textContent = 'ID CARD HOLDER';
-            document.getElementById('personDLN').textContent = 'EXTRACTED FROM ID';
-            document.getElementById('personEXP').textContent = 'N/A';
             
             let status, statusClass, resultHtml, statusText;
             
@@ -1302,156 +924,22 @@
             
             addTerminal('> Verification complete', 'success');
         }
-        
-        function addTerminal(message, type = 'normal') {
-            const timestamp = new Date().toLocaleTimeString();
-            terminal.innerHTML += `\n[${timestamp}] ${message}`;
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-        
-        function addResultTerminal(message, type = 'normal') {
-            const timestamp = new Date().toLocaleTimeString();
-            resultTerminal.innerHTML += `\n[${timestamp}] ${message}`;
-            resultTerminal.scrollTop = resultTerminal.scrollHeight;
-        }
-        
-        function updateStatus(newStatus) {
-            status.textContent = newStatus;
-            addTerminal(`STATUS: ${newStatus}`);
-        }
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'F1') {
-                event.preventDefault();
-                startSystem();
-            } else if (event.key === 'F2') {
-                event.preventDefault();
-                toggleScanning();
-            } else if (event.key === 'F3') {
-                event.preventDefault();
-                stopSystem();
-            } else if (event.key === 'F4') {
-                event.preventDefault();
-                testOCR();
-            } else if (event.key === 'F5') {
-                event.preventDefault();
-                testAgeVerification();
-            }
-        });
-        
-        // Initialize mobile detection and setup
+
         window.addEventListener('load', () => {
             detectMobile();
-            
-            if (isMobile) {
-                addTerminal('> Mobile device detected');
-                addTerminal('> Touch controls enabled');
-                addTerminal('> Optimized for ID card scanning');
-                addResultTerminal('> Mobile mode ready');
-                addResultTerminal('> Use touch buttons below');
-            } else {
-                addTerminal('> Desktop detected');
-                addTerminal('> Age verification available on mobile only');
-                addResultTerminal('> Use mobile device for ID scanning');
-            }
-            
-            addTerminal('> ID CARD AGE VERIFICATION SYSTEM v1.0');
-            addTerminal('> Copyright (C) Written by Daryle Walton JR');
-            
-            if (isMobile) {
-                addTerminal('> Touch 📱 START CAMERA to begin');
-            } else {
-                addTerminal('> Press F1 to initialize system');
-            }
-            
-            addResultTerminal('> Verification system ready');
-        });
-    </script>
-</body>
-</html>
-                if (year < 100) {
-                    year += year < 50 ? 2000 : 1900;
-                }
-                
-                const birthDate = new Date(year, month - 1, day);
-                const today = new Date();
-                
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDiff = today.getMonth() - birthDate.getMonth();
-                
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                
-                return {
-                    age: age,
-                    isOver21: age >= 21,
-                    formattedDate: `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`
-                };
-                
-            } catch (error) {
-                return {
-                    age: 'UNKNOWN',
-                    isOver21: false,
-                    formattedDate: dateString
-                };
-            }
-        }
-        
-        function stopSystem() {
-            stopScanning();
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-                video.style.display = 'none';
-                placeholder.style.display = 'block';
-                stream = null;
-            }
-            
-            if (ocrWorker) {
-                ocrWorker.terminate();
-                ocrWorker = null;
-            }
-            
-            updateStatus('SYSTEM OFFLINE');
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('scanBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = true;
-            
-            updateMobileButtons();
-            
-            addTerminal('> System shutdown complete');
-            addResultTerminal('> System offline');
-        }
-        
-        // Initialize mobile detection and setup
-        window.addEventListener('load', () => {
-            detectMobile();
-            
-            if (isMobile) {
-                addTerminal('> Mobile device detected');
-                addTerminal('> Touch controls enabled');
-                addTerminal('> Optimized for phone scanning');
-                addResultTerminal('> Mobile mode ready');
-                addResultTerminal('> Use touch buttons below');
-            } else {
-                addTerminal('> Desktop detected');
-                addTerminal('> Keyboard shortcuts available');
-                addResultTerminal('> Use F1-F3 keys or buttons');
-            }
-            
+            setScanButtonState();
+            updateStatus('READY');
             addTerminal('> PDF417 AGE VERIFICATION SYSTEM v1.0');
-            addTerminal('> Copyright (C) Written by Daryle Walton JR');
-            
-            if (isMobile) {
-                addTerminal('> Touch 📱 START CAMERA to begin');
-            } else {
-                addTerminal('> Press F1 to initialize system');
+            addTerminal('> Written by Daryle Walton JR');
+            addTerminal('> Tap SCAN PDF417 to start');
+            addResultTerminal('> Ready for scan...');
+        });
+
+        window.addEventListener('beforeunload', () => {
+            try {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+            } catch (_) {
             }
-            
-            addResultTerminal('> Verification system ready');
         });
     </script>
 </body>
