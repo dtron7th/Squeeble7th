@@ -564,10 +564,14 @@
                     return await Promise.resolve(res);
                 }
 
-                const c = cnv.getContext('2d', { willReadFrequently: true });
-                const img = c.getImageData(0, 0, cnv.width, cnv.height);
-                const res = codeReader.decodeFromImageData(img);
-                return await Promise.resolve(res);
+                if (codeReader && typeof codeReader.decodeFromImageData === 'function') {
+                    const c = cnv.getContext('2d', { willReadFrequently: true });
+                    const img = c.getImageData(0, 0, cnv.width, cnv.height);
+                    const res = codeReader.decodeFromImageData(img);
+                    return await Promise.resolve(res);
+                }
+
+                return null;
             } catch (e) {
                 throw e;
             }
@@ -844,8 +848,7 @@
 
             if (
                 codeReader &&
-                typeof codeReader.decodeFromVideoElementContinuously === 'function' &&
-                typeof codeReader.stopContinuousDecode === 'function'
+                typeof codeReader.decodeFromVideoElementContinuously === 'function'
             ) {
                 videoDecodeActive = true;
                 try {
@@ -978,8 +981,19 @@
                 scanRafId = null;
             }
 
-            if (videoDecodeActive && codeReader && typeof codeReader.stopContinuousDecode === 'function') {
-                try { codeReader.stopContinuousDecode(); } catch (_) {}
+            if (videoDecodeActive && codeReader) {
+                if (typeof codeReader.stopContinuousDecode === 'function') {
+                    try { codeReader.stopContinuousDecode(); } catch (_) {}
+                } else if (typeof codeReader.reset === 'function') {
+                    try { codeReader.reset(); } catch (_) {}
+                    if (stream) {
+                        try {
+                            video.srcObject = stream;
+                            video.play().catch(() => {});
+                        } catch (_) {
+                        }
+                    }
+                }
                 videoDecodeActive = false;
             }
 
