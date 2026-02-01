@@ -537,8 +537,11 @@
         let scanRafId = null;
         let lastDecodeAt = 0;
         const decodeIntervalMs = 120;
+        let decodeTick = 0;
         const roiCanvas = document.createElement('canvas');
         const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
+        const smallCanvas = document.createElement('canvas');
+        const smallCtx = smallCanvas.getContext('2d', { willReadFrequently: true });
         const rotCanvas = document.createElement('canvas');
         const rotCtx = rotCanvas.getContext('2d', { willReadFrequently: true });
 
@@ -759,11 +762,6 @@
                             advanced.push({ whiteBalanceMode: 'continuous' });
                         }
 
-                        if (caps.zoom && typeof caps.zoom === 'object' && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number') {
-                            const z = Math.min(caps.zoom.max, Math.max(caps.zoom.min, caps.zoom.min + (caps.zoom.max - caps.zoom.min) * 0.35));
-                            advanced.push({ zoom: z });
-                        }
-
                         if (advanced.length) {
                             await track.applyConstraints({ advanced });
                         }
@@ -835,6 +833,7 @@
                         const now = performance.now();
                         if (now - lastDecodeAt >= decodeIntervalMs) {
                             lastDecodeAt = now;
+                            decodeTick++;
 
                             const tryDecodeImageData = (imageData) => {
                                 try {
@@ -853,11 +852,8 @@
                                 return false;
                             };
 
-                            const fullImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            if (tryDecodeImageData(fullImageData)) return;
-
-                            const roiW = Math.max(1, Math.floor(canvas.width * 0.75));
-                            const roiH = Math.max(1, Math.floor(canvas.height * 0.55));
+                            const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
+                            const roiH = Math.max(1, Math.floor(canvas.height * 0.70));
                             const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
                             const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
 
@@ -866,6 +862,17 @@
                             roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
                             const roiImageData = roiCtx.getImageData(0, 0, roiW, roiH);
                             if (tryDecodeImageData(roiImageData)) return;
+
+                            smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
+                            smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
+                            smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+                            const smallImageData = smallCtx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
+                            if (tryDecodeImageData(smallImageData)) return;
+
+                            if (decodeTick % 2 === 0) {
+                                const fullImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                if (tryDecodeImageData(fullImageData)) return;
+                            }
 
                             rotCanvas.width = roiH;
                             rotCanvas.height = roiW;
