@@ -524,9 +524,9 @@
     <script>
         let stream = null;
         let isScanning = false;
-        let codeReader = null;
         let frameCount = 0;
         let isMobile = false;
+        let ocrWorker = null;
         
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -551,12 +551,23 @@
                 const beep = document.getElementById('successBeep');
                 if (beep) {
                     beep.currentTime = 0;
-                    beep.play().catch(e => {
-                        console.log('Could not play beep:', e);
-                    });
+                    beep.play().catch(e => console.log('Could not play beep:', e));
                 }
             } catch (error) {
                 console.log('Beep error:', error);
+            }
+        }
+        
+        // Initialize OCR worker
+        async function initializeOCR() {
+            try {
+                addTerminal('> Initializing OCR engine...', 'loading');
+                ocrWorker = await Tesseract.createWorker('eng');
+                addTerminal('> OCR engine initialized successfully', 'success');
+                return true;
+            } catch (error) {
+                addTerminal(`> OCR initialization failed: ${error.message}`, 'error');
+                return false;
             }
         }
         
@@ -726,6 +737,39 @@
             }
         }
         
+        // Test OCR with current frame
+        async function testOCR() {
+            if (!video || !video.videoWidth) {
+                addTerminal('> ERROR: Camera not active', 'error');
+                return;
+            }
+            
+            addTerminal('> TESTING OCR...', 'loading');
+            
+            try {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                addTerminal(`> Captured frame: ${canvas.width}x${canvas.height}px`, 'info');
+                
+                const { data: { text } } = await ocrWorker.recognize(imageData);
+                addTerminal(`> OCR Result: "${text.substring(0, 100)}..."`, 'info');
+                
+                // Look for date patterns
+                const dateMatch = text.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/);
+                if (dateMatch) {
+                    addTerminal(`> Date found: ${dateMatch[0]}`, 'success');
+                } else {
+                    addTerminal('> No dates found in text', 'warning');
+                }
+                
+            } catch (error) {
+                addTerminal(`> OCR Error: ${error.message}`, 'error');
+            }
+        }
+        
         // Update mobile button states
         function updateMobileButtons() {
             const mobileStartBtn = document.getElementById('mobileStartBtn');
@@ -783,29 +827,27 @@
                 updateStatus('INITIALIZING...');
                 document.getElementById('startBtn').disabled = true;
                 
-                addTerminal('> Initializing ZXing PDF417 Scanner...');
+                addTerminal('> Initializing OCR engine...');
                 
-                // Initialize ZXing
-                codeReader = new ZXing.BrowserMultiFormatReader();
-                addTerminal('> ZXing Library: OK', 'success');
+                // Initialize OCR first
+                const ocrReady = await initializeOCR();
+                if (!ocrReady) {
+                    throw new Error('OCR initialization failed');
+                }
                 
                 addTerminal('> Requesting camera access...');
                 
-                // Mobile-optimized camera settings
                 const constraints = {
                     video: {
                         facingMode: 'environment',
                         width: isMobile ? { ideal: 640, max: 1280 } : { ideal: 640 },
                         height: isMobile ? { ideal: 480, max: 720 } : { ideal: 480 },
-                        focusMode: isMobile ? 'continuous' : 'auto',
-                        exposureMode: 'continuous',
-                        whiteBalanceMode: 'continuous'
+                        focusMode: isMobile ? 'continuous' : 'auto'
                     }
                 };
                 
                 if (isMobile) {
                     addTerminal('> Mobile device detected - optimizing camera...', 'loading');
-                    addTerminal('> Using back camera for best results', 'info');
                 }
                 
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -817,15 +859,13 @@
                 document.getElementById('scanBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = false;
                 
-                // Update mobile buttons
                 updateMobileButtons();
                 
                 addTerminal('> Camera initialized: SUCCESS', 'success');
-                addTerminal('> System ready for PDF417 scanning', 'success');
+                addTerminal('> Ready for ID card scanning', 'success');
                 
                 if (isMobile) {
                     addTerminal('> Touch controls enabled', 'info');
-                    addResultTerminal('> Mobile mode active', 'info');
                 }
                 
             } catch (error) {
