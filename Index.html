@@ -643,6 +643,9 @@
 
         async function tryDecodeCanvasElement(cnv) {
             try {
+                const methods = codeReader ? Object.getOwnPropertyNames(Object.getPrototypeOf(codeReader)).filter(m => typeof codeReader[m] === 'function') : [];
+                addTerminal(`> ZXing methods: ${methods.join(', ')}`, 'info');
+                
                 if (codeReader && typeof codeReader.decodeFromCanvas === 'function') {
                     const res = codeReader.decodeFromCanvas(cnv);
                     return await Promise.resolve(res);
@@ -654,7 +657,8 @@
                     const res = codeReader.decodeFromImageData(img);
                     return await Promise.resolve(res);
                 }
-
+                
+                addTerminal(`> No decode method available. Methods: ${methods.join(', ')}`, 'error');
                 return null;
             } catch (e) {
                 throw e;
