@@ -272,7 +272,7 @@ VERIFICATION LOG
         let decodeLoopActive = false;
         let scanRafId = null;
         let lastDecodeAt = 0;
-        const decodeIntervalMs = 80;
+        const decodeIntervalMs = 50;
         let decodeInFlight = false;
         let lastDecodeWarnAt = 0;
         let videoDecodeActive = false;
@@ -300,12 +300,15 @@ VERIFICATION LOG
         const rotCtx90 = rotCanvas90.getContext('2d', { willReadFrequently: true });
         const rotCanvasNeg90 = document.createElement('canvas');
         const rotCtxNeg90 = rotCanvasNeg90.getContext('2d', { willReadFrequently: true });
+        const tinyCanvas = document.createElement('canvas');
+        const tinyCtx = tinyCanvas.getContext('2d', { willReadFrequently: true });
 
         ctx.imageSmoothingEnabled = false;
         roiCtx.imageSmoothingEnabled = false;
         smallCtx.imageSmoothingEnabled = false;
         rotCtx90.imageSmoothingEnabled = false;
         rotCtxNeg90.imageSmoothingEnabled = false;
+        tinyCtx.imageSmoothingEnabled = false;
 
         function addTerminal(message) {
             const timestamp = new Date().toLocaleTimeString();
@@ -649,7 +652,7 @@ VERIFICATION LOG
                             }
                         }
                     });
-                    return;
+                    // Do not return; keep canvas fallback running too.
                 } catch (e) {
                     videoDecodeActive = false;
                     addTerminal('> Video decode failed, using canvas fallback...');
@@ -681,8 +684,8 @@ VERIFICATION LOG
                             }
                             decodeInFlight = true;
                             (async () => {
-                                const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
-                                const roiH = Math.max(1, Math.floor(canvas.height * 0.70));
+                                const roiW = Math.max(1, Math.floor(canvas.width * 0.92));
+                                const roiH = Math.max(1, Math.floor(canvas.height * 0.75));
                                 const roiX = Math.max(0, Math.floor((canvas.width - roiW) / 2));
                                 const roiY = Math.max(0, Math.floor((canvas.height - roiH) / 2));
                                 roiCanvas.width = roiW;
@@ -692,6 +695,10 @@ VERIFICATION LOG
                                 smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
                                 smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
                                 smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+
+                                tinyCanvas.width = Math.max(1, Math.floor(canvas.width * 0.35));
+                                tinyCanvas.height = Math.max(1, Math.floor(canvas.height * 0.35));
+                                tinyCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, tinyCanvas.width, tinyCanvas.height);
 
                                 rotCanvas90.width = roiH;
                                 rotCanvas90.height = roiW;
@@ -711,7 +718,7 @@ VERIFICATION LOG
                                 rotCtxNeg90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
                                 rotCtxNeg90.restore();
 
-                                const canvasesToTry = [roiCanvas, smallCanvas, canvas, rotCanvas90, rotCanvasNeg90];
+                                const canvasesToTry = [roiCanvas, smallCanvas, tinyCanvas, canvas, rotCanvas90, rotCanvasNeg90];
 
                                 for (const cnv of canvasesToTry) {
                                     try {
