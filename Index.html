@@ -203,8 +203,68 @@
         }
     </style>
 </head>
+<body>
+    <div class="dos-container">
+        <div class="dos-header">
+            PDF417 AGE VERIFICATION SYSTEM v1.0 - [C] Written by Daryle Walton JR
+        </div>
+        <div class="dos-main">
+            <div class="dos-left">
+                <div class="dos-title">> AGE VERIFICATION TERMINAL</div>
+                <div class="dos-status">STATUS: <span id="status">READY</span><span class="cursor"></span></div>
+                <div class="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="scan-line" id="scanLine"></div>
+                    <div class="dos-placeholder" id="placeholder">
+                        <div>[ CAMERA OFFLINE ]</div>
+                        <div>INITIALIZE SYSTEM TO BEGIN</div>
+                    </div>
+                </div>
+                <div class="dos-controls">
+                    <button id="scanBtn" class="dos-button" onclick="onScanPdf417()">SCAN PDF417</button>
+                </div>
+                <div class="camera-tips" id="cameraTips">
+                    <div class="dos-title">> PDF417 SCANNING TIPS</div>
+                    <div class="tip-item">📷 Position PDF417 barcode</div>
+                    <div class="tip-item">💡 Good lighting on barcode</div>
+                    <div class="tip-item">📏 Fill screen with barcode</div>
+                    <div class="tip-item">⚡ Avoid glare on barcode</div>
+                    <div class="tip-item">📱 Keep barcode flat and steady</div>
+                    <div class="tip-item">🔍 Focus on barcode lines</div>
+                </div>
+                <div class="dos-terminal" id="terminal">
+PDF417 AGE VERIFICATION SYSTEM v1.0
+=====================================
+> System Ready...
+> Waiting for initialization...
+>
+                </div>
+            </div>
+            <div class="dos-right">
+                <div class="dos-title">> VERIFICATION RESULTS</div>
+                <div class="age-result age-unknown" id="ageResult">
+                    <div>[ NO DATA RECEIVED ]</div>
+                    <div>SCAN PDF417 BARCODE</div>
+                </div>
+                <div class="dos-info" id="personInfo" style="display: none;">
+                    <div class="dos-info-item"><span class="dos-label">NAME:</span> <span class="dos-value" id="personName">-</span></div>
+                    <div class="dos-info-item"><span class="dos-label">AGE:</span> <span class="dos-value" id="personAge">-</span></div>
+                    <div class="dos-info-item"><span class="dos-label">BIRTH DATE:</span> <span class="dos-value" id="personDOB">-</span></div>
+                    <div class="dos-info-item"><span class="dos-label">LICENSE #:</span> <span class="dos-value" id="personDLN">-</span></div>
+                    <div class="dos-info-item"><span class="dos-label">EXPIRES:</span> <span class="dos-value" id="personEXP">-</span></div>
+                    <div class="dos-info-item"><span class="dos-label">STATUS:</span> <span class="dos-value" id="personStatus">-</span></div>
+                </div>
+                <div class="dos-terminal" id="resultTerminal" style="margin-top: 10px;">
+VERIFICATION LOG
+================
+> Ready for scan...
+>
+                </div>
+            </div>
+        </div>
+    </div>
 
-               
     <script>
         let stream = null;
         let isScanning = false;
