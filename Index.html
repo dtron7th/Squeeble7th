@@ -367,10 +367,16 @@ VERIFICATION LOG
                 hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
                 hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
                 hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
-                if (typeof ZXing.BrowserPDF417Reader === 'function') {
-                    codeReader = new ZXing.BrowserPDF417Reader(hints);
-                    addTerminal('> Using PDF417-specific reader');
-                } else {
+                try {
+                    if (typeof ZXing.BrowserPDF417Reader === 'function') {
+                        codeReader = new ZXing.BrowserPDF417Reader(hints);
+                        addTerminal('> Using PDF417-specific reader');
+                    }
+                } catch (e) {
+                    addTerminal(`> PDF417 reader init failed: ${e.message || e}`, 'error');
+                    codeReader = null;
+                }
+                if (!codeReader) {
                     codeReader = new ZXing.BrowserMultiFormatReader(hints);
                     addTerminal('> Using multi-format reader');
                 }
