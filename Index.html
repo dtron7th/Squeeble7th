@@ -337,10 +337,25 @@ VERIFICATION LOG
 
         function playDebugBeep() {
             try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) {
+                    const ctxAudio = new AudioCtx();
+                    const osc = ctxAudio.createOscillator();
+                    const gain = ctxAudio.createGain();
+                    osc.type = 'square';
+                    osc.frequency.value = 880;
+                    gain.gain.value = 0.15;
+                    osc.connect(gain);
+                    gain.connect(ctxAudio.destination);
+                    osc.start();
+                    osc.stop(ctxAudio.currentTime + 0.08);
+                    osc.onended = () => ctxAudio.close();
+                    return;
+                }
                 const beep = document.getElementById('successBeep');
                 if (beep) {
                     const clone = beep.cloneNode();
-                    clone.volume = 0.3;
+                    clone.volume = 0.6;
                     clone.currentTime = 0;
                     clone.play().catch(() => {});
                 }
