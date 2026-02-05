@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF417 AGE VERIFICATION SYSTEM v1.0</title>
-    <script src="https://unpkg.com/@zxing/library@0.18.6"></script>
+    <script src="https://unpkg.com/@zxing/browser@0.1.4"></script>
     <audio id="successBeep" preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav" />
     </audio>
@@ -360,16 +360,17 @@ VERIFICATION LOG
         function initializeBarcodeReader() {
             try {
                 addTerminal('> Initializing barcode reader...');
-                if (typeof ZXing === 'undefined') {
+                const ZX = typeof ZXingBrowser !== 'undefined' ? ZXingBrowser : (typeof ZXing !== 'undefined' ? ZXing : null);
+                if (!ZX) {
                     throw new Error('ZXing library not loaded');
                 }
                 const hints = new Map();
-                hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-                hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
-                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
+                hints.set(ZX.DecodeHintType.TRY_HARDER, true);
+                hints.set(ZX.DecodeHintType.ALSO_INVERTED, true);
+                hints.set(ZX.DecodeHintType.POSSIBLE_FORMATS, [ZX.BarcodeFormat.PDF_417]);
                 try {
-                    if (typeof ZXing.BrowserPDF417Reader === 'function') {
-                        codeReader = new ZXing.BrowserPDF417Reader(hints);
+                    if (typeof ZX.BrowserPDF417Reader === 'function') {
+                        codeReader = new ZX.BrowserPDF417Reader(hints);
                         addTerminal('> Using PDF417-specific reader');
                     }
                 } catch (e) {
@@ -377,7 +378,7 @@ VERIFICATION LOG
                     codeReader = null;
                 }
                 if (!codeReader) {
-                    codeReader = new ZXing.BrowserMultiFormatReader(hints);
+                    codeReader = new ZX.BrowserMultiFormatReader(hints);
                     addTerminal('> Using multi-format reader');
                 }
                 const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(codeReader))
