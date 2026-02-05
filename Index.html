@@ -272,9 +272,11 @@ VERIFICATION LOG
         let decodeLoopActive = false;
         let scanRafId = null;
         let lastDecodeAt = 0;
-        const decodeIntervalMs = 120;
+        const decodeIntervalMs = 80;
         let decodeInFlight = false;
         let lastDecodeWarnAt = 0;
+        let videoDecodeActive = false;
+        let lastVideoWarnAt = 0;
         let debugBeepInterval = null;
 
         const video = document.getElementById('video');
@@ -290,9 +292,18 @@ VERIFICATION LOG
 
         const roiCanvas = document.createElement('canvas');
         const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
+        const smallCanvas = document.createElement('canvas');
+        const smallCtx = smallCanvas.getContext('2d', { willReadFrequently: true });
+        const rotCanvas90 = document.createElement('canvas');
+        const rotCtx90 = rotCanvas90.getContext('2d', { willReadFrequently: true });
+        const rotCanvasNeg90 = document.createElement('canvas');
+        const rotCtxNeg90 = rotCanvasNeg90.getContext('2d', { willReadFrequently: true });
 
         ctx.imageSmoothingEnabled = false;
         roiCtx.imageSmoothingEnabled = false;
+        smallCtx.imageSmoothingEnabled = false;
+        rotCtx90.imageSmoothingEnabled = false;
+        rotCtxNeg90.imageSmoothingEnabled = false;
 
         function addTerminal(message) {
             const timestamp = new Date().toLocaleTimeString();
@@ -394,6 +405,12 @@ VERIFICATION LOG
             try {
                 if (codeReader && typeof codeReader.decodeFromCanvas === 'function') {
                     const res = codeReader.decodeFromCanvas(cnv);
+                    return await Promise.resolve(res);
+                }
+                if (codeReader && typeof codeReader.decodeFromImageData === 'function') {
+                    const c = cnv.getContext('2d', { willReadFrequently: true });
+                    const img = c.getImageData(0, 0, cnv.width, cnv.height);
+                    const res = codeReader.decodeFromImageData(img);
                     return await Promise.resolve(res);
                 }
                 return null;
@@ -583,7 +600,7 @@ VERIFICATION LOG
 
             debugBeepInterval = setInterval(() => {
                 if (isScanning) playDebugBeep();
-            }, 600);
+            }, 400);
 
             if (decodeLoopActive) return;
             decodeLoopActive = true;
@@ -595,6 +612,38 @@ VERIFICATION LOG
                 processPDF417Data(resultText);
                 stopScanning();
             };
+
+            if (
+                codeReader &&
+                typeof codeReader.decodeFromVideoElementContinuously === 'function'
+            ) {
+                videoDecodeActive = true;
+                addTerminal('> Using video-element continuous decode...');
+                try {
+                    codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
+                        if (!isScanning) return;
+                        if (result) {
+                            const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                            handleResult(text);
+                            return;
+                        }
+                        if (err) {
+                            const name = err.name || '';
+                            if (name && name !== 'NotFoundException') {
+                                const t = performance.now();
+                                if (t - lastVideoWarnAt > 1000) {
+                                    lastVideoWarnAt = t;
+                                    addTerminal(`> Scan error: ${name} ${err.message || ''}`);
+                                }
+                            }
+                        }
+                    });
+                    return;
+                } catch (e) {
+                    videoDecodeActive = false;
+                    addTerminal('> Video decode failed, using canvas fallback...');
+                }
+            }
 
             const scanLoop = () => {
                 if (!isScanning) {
@@ -624,19 +673,46 @@ VERIFICATION LOG
                                 roiCanvas.height = roiH;
                                 roiCtx.drawImage(canvas, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
 
-                                try {
-                                    const result = await tryDecodeCanvas(roiCanvas);
-                                    if (result) {
-                                        const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
-                                        handleResult(text);
-                                    }
-                                } catch (e) {
-                                    const name = e && e.name ? e.name : '';
-                                    if (name && name !== 'NotFoundException') {
-                                        const t = performance.now();
-                                        if (t - lastDecodeWarnAt > 1000) {
-                                            lastDecodeWarnAt = t;
-                                            addTerminal(`> Scan error: ${name} ${e.message || ''}`);
+                                smallCanvas.width = Math.max(1, Math.floor(canvas.width * 0.6));
+                                smallCanvas.height = Math.max(1, Math.floor(canvas.height * 0.6));
+                                smallCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, smallCanvas.width, smallCanvas.height);
+
+                                rotCanvas90.width = roiH;
+                                rotCanvas90.height = roiW;
+                                rotCtx90.save();
+                                rotCtx90.clearRect(0, 0, rotCanvas90.width, rotCanvas90.height);
+                                rotCtx90.translate(rotCanvas90.width / 2, rotCanvas90.height / 2);
+                                rotCtx90.rotate(Math.PI / 2);
+                                rotCtx90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                                rotCtx90.restore();
+
+                                rotCanvasNeg90.width = roiH;
+                                rotCanvasNeg90.height = roiW;
+                                rotCtxNeg90.save();
+                                rotCtxNeg90.clearRect(0, 0, rotCanvasNeg90.width, rotCanvasNeg90.height);
+                                rotCtxNeg90.translate(rotCanvasNeg90.width / 2, rotCanvasNeg90.height / 2);
+                                rotCtxNeg90.rotate(-Math.PI / 2);
+                                rotCtxNeg90.drawImage(roiCanvas, -roiW / 2, -roiH / 2);
+                                rotCtxNeg90.restore();
+
+                                const canvasesToTry = [roiCanvas, smallCanvas, canvas, rotCanvas90, rotCanvasNeg90];
+
+                                for (const cnv of canvasesToTry) {
+                                    try {
+                                        const result = await tryDecodeCanvas(cnv);
+                                        if (result) {
+                                            const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
+                                            handleResult(text);
+                                            return;
+                                        }
+                                    } catch (e) {
+                                        const name = e && e.name ? e.name : '';
+                                        if (name && name !== 'NotFoundException') {
+                                            const t = performance.now();
+                                            if (t - lastDecodeWarnAt > 1000) {
+                                                lastDecodeWarnAt = t;
+                                                addTerminal(`> Scan error: ${name} ${e.message || ''}`);
+                                            }
                                         }
                                     }
                                 }
@@ -665,6 +741,15 @@ VERIFICATION LOG
                 clearInterval(debugBeepInterval);
                 debugBeepInterval = null;
             }
+            if (videoDecodeActive && codeReader) {
+                if (typeof codeReader.stopContinuousDecode === 'function') {
+                    try { codeReader.stopContinuousDecode(); } catch (_) {}
+                } else if (typeof codeReader.reset === 'function') {
+                    try { codeReader.reset(); } catch (_) {}
+                }
+                videoDecodeActive = false;
+            }
+
             scanLine.style.display = 'none';
             updateStatus(stream ? 'CAMERA READY' : 'READY');
             setScanButtonState();
