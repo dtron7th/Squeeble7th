@@ -813,6 +813,12 @@ VERIFICATION LOG
             updateStatus('READY');
             addTerminal('> PDF417 AGE VERIFICATION SYSTEM v1.0');
             addTerminal('> Tap SCAN PDF417 to start');
+            const isFile = window.location && window.location.protocol === 'file:';
+            if (isFile) {
+                addTerminal('> WARNING: file:// may block external scripts. Use a local server for ZXing.');
+            }
+            addTerminal(`> ZXingBrowser loaded: ${typeof ZXingBrowser !== 'undefined' ? 'yes' : 'no'}`);
+            addTerminal(`> ZXing loaded: ${typeof ZXing !== 'undefined' ? 'yes' : 'no'}`);
             addResultTerminal('> Ready for scan...');
         });
 
