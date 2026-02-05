@@ -644,6 +644,7 @@ VERIFICATION LOG
             const handleResult = (resultText) => {
                 if (!isScanning || !resultText) return;
                 addTerminal('> PDF417 detected!');
+                playDebugBeep();
                 playSuccessBeep();
                 processPDF417Data(resultText);
                 stopScanning();
