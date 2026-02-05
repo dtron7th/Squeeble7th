@@ -278,6 +278,8 @@ VERIFICATION LOG
         let videoDecodeActive = false;
         let lastVideoWarnAt = 0;
         let debugBeepInterval = null;
+        let decodeAttemptCount = 0;
+        let lastDecodeLogAt = 0;
 
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -363,6 +365,9 @@ VERIFICATION LOG
                 hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
                 hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
                 codeReader = new ZXing.BrowserMultiFormatReader(hints);
+                const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(codeReader))
+                    .filter(m => typeof codeReader[m] === 'function');
+                addTerminal(`> ZXing methods: ${methods.join(', ')}`);
                 addTerminal('> Barcode reader initialized successfully');
                 return true;
             } catch (error) {
@@ -622,6 +627,12 @@ VERIFICATION LOG
                 try {
                     codeReader.decodeFromVideoElementContinuously(video, (result, err) => {
                         if (!isScanning) return;
+                        decodeAttemptCount++;
+                        const now = performance.now();
+                        if (now - lastDecodeLogAt > 1000) {
+                            lastDecodeLogAt = now;
+                            addTerminal(`> Decode attempts: ${decodeAttemptCount}`);
+                        }
                         if (result) {
                             const text = result.text || (typeof result.getText === 'function' ? result.getText() : '');
                             handleResult(text);
@@ -663,6 +674,11 @@ VERIFICATION LOG
                         const now = performance.now();
                         if (!decodeInFlight && (now - lastDecodeAt >= decodeIntervalMs)) {
                             lastDecodeAt = now;
+                            decodeAttemptCount++;
+                            if (now - lastDecodeLogAt > 1000) {
+                                lastDecodeLogAt = now;
+                                addTerminal(`> Decode attempts: ${decodeAttemptCount}`);
+                            }
                             decodeInFlight = true;
                             (async () => {
                                 const roiW = Math.max(1, Math.floor(canvas.width * 0.90));
