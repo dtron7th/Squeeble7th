@@ -675,7 +675,9 @@ VERIFICATION LOG
                                 const t = performance.now();
                                 if (t - lastVideoWarnAt > 1000) {
                                     lastVideoWarnAt = t;
-                                    addTerminal(`> Scan error: ${name} ${err.message || ''}`);
+                                    const msg = err && err.message ? err.message : '';
+                                    const type = err && err.constructor ? err.constructor.name : typeof err;
+                                    addTerminal(`> Scan error: ${name} ${msg} (${type})`);
                                 }
                             }
                         }
@@ -758,13 +760,9 @@ VERIFICATION LOG
                                         }
                                     } catch (e) {
                                         const name = e && e.name ? e.name : '';
-                                        if (name && name !== 'NotFoundException') {
-                                            const t = performance.now();
-                                            if (t - lastDecodeWarnAt > 1000) {
-                                                lastDecodeWarnAt = t;
-                                                addTerminal(`> Scan error: ${name} ${e.message || ''}`);
-                                            }
-                                        }
+                                        const msg = e && e.message ? e.message : '';
+                                        const type = e && e.constructor ? e.constructor.name : typeof e;
+                                        addTerminal(`> Scan error: ${name} ${msg} (${type})`);
                                     }
                                 }
                             })().finally(() => {
