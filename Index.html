@@ -360,27 +360,42 @@ VERIFICATION LOG
         function initializeBarcodeReader() {
             try {
                 addTerminal('> Initializing barcode reader...');
-                const ZX = typeof ZXingBrowser !== 'undefined' ? ZXingBrowser : (typeof ZXing !== 'undefined' ? ZXing : null);
+                const hasZXingBrowser = typeof ZXingBrowser !== 'undefined';
+                const hasZXing = typeof ZXing !== 'undefined';
+                addTerminal(`> ZXingBrowser: ${hasZXingBrowser ? 'yes' : 'no'}, ZXing: ${hasZXing ? 'yes' : 'no'}`);
+
+                const ZX = hasZXingBrowser ? ZXingBrowser : (hasZXing ? ZXing : null);
                 if (!ZX) {
                     throw new Error('ZXing library not loaded');
                 }
-                const hints = new Map();
-                hints.set(ZX.DecodeHintType.TRY_HARDER, true);
-                hints.set(ZX.DecodeHintType.ALSO_INVERTED, true);
-                hints.set(ZX.DecodeHintType.POSSIBLE_FORMATS, [ZX.BarcodeFormat.PDF_417]);
+
+                let hints = null;
+                if (ZX.DecodeHintType && ZX.BarcodeFormat) {
+                    hints = new Map();
+                    hints.set(ZX.DecodeHintType.TRY_HARDER, true);
+                    hints.set(ZX.DecodeHintType.ALSO_INVERTED, true);
+                    hints.set(ZX.DecodeHintType.POSSIBLE_FORMATS, [ZX.BarcodeFormat.PDF_417]);
+                } else {
+                    addTerminal('> ZXing hints not available, continuing without hints');
+                }
+
                 try {
                     if (typeof ZX.BrowserPDF417Reader === 'function') {
-                        codeReader = new ZX.BrowserPDF417Reader(hints);
+                        codeReader = hints ? new ZX.BrowserPDF417Reader(hints) : new ZX.BrowserPDF417Reader();
                         addTerminal('> Using PDF417-specific reader');
                     }
                 } catch (e) {
                     addTerminal(`> PDF417 reader init failed: ${e.message || e}`, 'error');
                     codeReader = null;
                 }
+
                 if (!codeReader) {
-                    codeReader = new ZX.BrowserMultiFormatReader(hints);
+                    codeReader = hints
+                        ? new ZX.BrowserMultiFormatReader(hints)
+                        : new ZX.BrowserMultiFormatReader();
                     addTerminal('> Using multi-format reader');
                 }
+
                 const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(codeReader))
                     .filter(m => typeof codeReader[m] === 'function');
                 addTerminal(`> ZXing methods: ${methods.join(', ')}`);
