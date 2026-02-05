@@ -367,7 +367,13 @@ VERIFICATION LOG
                 hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
                 hints.set(ZXing.DecodeHintType.ALSO_INVERTED, true);
                 hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
-                codeReader = new ZXing.BrowserMultiFormatReader(hints);
+                if (typeof ZXing.BrowserPDF417Reader === 'function') {
+                    codeReader = new ZXing.BrowserPDF417Reader(hints);
+                    addTerminal('> Using PDF417-specific reader');
+                } else {
+                    codeReader = new ZXing.BrowserMultiFormatReader(hints);
+                    addTerminal('> Using multi-format reader');
+                }
                 const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(codeReader))
                     .filter(m => typeof codeReader[m] === 'function');
                 addTerminal(`> ZXing methods: ${methods.join(', ')}`);
