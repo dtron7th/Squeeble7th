@@ -649,10 +649,6 @@ VERIFICATION LOG
             addResultTerminal('> Scan initiated...');
             setAgeResultMessage('SCANNING', 'POINT CAMERA AT PDF417');
 
-            debugBeepInterval = setInterval(() => {
-                if (isScanning) playDebugBeep();
-            }, 400);
-
             if (decodeLoopActive) return;
             decodeLoopActive = true;
 
