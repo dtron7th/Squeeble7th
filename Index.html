@@ -21,8 +21,8 @@
             --Main_UI_Blur: 30px;
             --Main_UI_Border: 1px solid rgba(255, 255, 255, 0.178);
             
-            --Main_UI_Border_Radius_Window: 10px;
-            --Main_UI_Border_Radius_Button: 5px;
+            --Main_UI_Border_Radius_Window: 0px;
+            --Main_UI_Border_Radius_Button: 0px;
 
             --Main_Text_Color: rgb(255, 255, 255);
 
@@ -57,7 +57,9 @@
 
         <!--Panel-->
         <div class="Panel">
-            
+            <div class="Panel_Buttons">
+
+            </div>
         </div>
     </div>
 
@@ -86,9 +88,13 @@
             justify-content: center;
             align-items: center;
             font-size: var(--Main_Font_Size);
-            background-color: var(--Main_UI_Color);
             border-radius: var(--Main_UI_Border_Radius_Button);
             color: var(--Main_Text_Color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            background-color: var(--Main_UI_Color);
         }
 
         .Window {
@@ -151,6 +157,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .Panel > .Title {
+            position: absolute;
+            top: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Font_Size);
         }
     </style>
     
@@ -420,18 +433,23 @@
                     </div>
                 </div>
                 <div class="Content">
-                    <button>Register</button>
+                    <button>[ Register ]</button>
                 </div>
             </div>
 
             <!--Book_Mark: Login_Builld - Panel-->
             <div class="Panel">
-                <button class="Login_Profile"><img src="/Images/Icons/UI/login_24dp_1F1F1F_FILL1_wght400_GRAD0_opsz24.svg" alt=""></button>
-                <button>1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>5</button>
+                <p class="Title">Start Menu</p>
+                <div class="Panel_Buttons">
+                    <button>[ Login ]</button>
+                    <button>[ Character Index ]</button>
+                    <button>[ About Vista D-Net ]</button>
+                    <button>[ D-Wifi Connections ]</button>
+                    <button>[ Reset to original OS ]</button>
+                    <button>[ Load from disk ]</button>
+                    <button>[ Author ]</button>
+                
+                </div>
             </div>
         </div>
         <!--Book_Mark: Login_Style-->
@@ -465,16 +483,9 @@
             .Login > .Login_Build > #Login_Window > .Content > button {
                 position: absolute;
                 bottom: 10px;
-                left: 60px;
-                width: 160px;
-                height: 30px;
-            }
-
-            .Login > .Login_Build > .Panel {
-                width: 50px;
-                height: 300px;
-                display: flex;
-                flex-direction: column;
+                right: 10px;
+                width: auto;
+                height: auto;
             }
 
             .Login > .Login_Build > .Panel {
@@ -484,23 +495,33 @@
                 left: 10px;
 
                 /*Style*/
-                width: 60px;
-                height: 310px;
+                width: auto;
+                height: auto;
                 display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                text-indent: 10px;
+                gap: 10px;
+                padding-bottom: 10px;
+                padding-right: 50px;
+            }
+
+            .Login > .Login_Build > .Panel > .Panel_Buttons {
+                padding-top: 60px;
+                margin-left: 10px;
+                width: auto;
+                height: auto;
+                display: flex;
+                align-items: flex-start;
                 flex-direction: column;
                 gap: 10px;
             }
 
-            .Login > .Login_Build > .Panel > button {
-                width: 40px;
-                height: 40px;
+            .Login > .Login_Build > .Panel > .Panel_Buttons > button {
+                width: auto;
+                height: auto;
                 display: flex;
                 flex-direction: column;
-            }
-
-            .Login > .Login_Build > .Panel > button > img {
-                width: 15px;
-                
             }
 
         </style>
