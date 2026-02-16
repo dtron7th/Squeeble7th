@@ -28,7 +28,7 @@
 
             --Main_Font_Size: 11px;
 
-            --Box_Shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+            --Box_Shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
             
         }
     </style>
@@ -43,11 +43,10 @@
         <div class="Window">
             <div class="Header">
                 <p class="Title"></p>
-                
                 <div class="Window_Manipulation">
-                    <button class="Minimize"></button>
-                    <button class="Maximize"></button>
-                    <button class="Close"></button>
+                    <button id="Minimize"></button>
+                    <button id="Maximize"></button>
+                    <button id="Close"></button>
                 </div>
             </div>
             <div class="Content">
@@ -406,7 +405,33 @@
                 });
             });
         })();
-        
+
+        //Bring to front.
+
+        // Bring to front when clicking on Window or Panel
+        (function() {
+            let zIndex = 100;
+
+            document.addEventListener('mousedown', function(e) {
+                const element = e.target.closest('.Window') || e.target.closest('.Panel');
+                if (element) {
+                    zIndex++;
+                    element.style.zIndex = zIndex;
+                }
+            });
+
+            document.addEventListener('touchstart', function(e) {
+                const element = e.target.closest('.Window') || e.target.closest('.Panel');
+                if (element) {
+                    zIndex++;
+                    element.style.zIndex = zIndex;
+                }
+            });
+        })();
+
+        //Book_Mark: Window open animation.
+                
+        //Window open animation.
 
     </Script>
 
@@ -427,9 +452,9 @@
                 <div class="Header">
                     <p class="Title">Login</p>
                     <div class="Window_Manipulation">
-                        <button class="Minimize"></button>
-                        <button class="Maximize"></button>
-                        <button class="Close"></button>
+                        <button class="Minimize" id="Login_Window_Minimize"></button>
+                        <button class="Maximize" id="Login_Window_Maximize"></button>
+                        <button class="Close" id="Login_Window_Close"></button>
                     </div>
                 </div>
                 <div class="Content">
@@ -441,14 +466,13 @@
             <div class="Panel">
                 <p class="Title">Start Menu</p>
                 <div class="Panel_Buttons">
-                    <button>[ Login ]</button>
+                    <button id="Panel_Login">[ Login ]</button>
                     <button>[ Character Index ]</button>
                     <button>[ About Vista D-Net ]</button>
                     <button>[ D-Wifi Connections ]</button>
                     <button>[ Reset to original OS ]</button>
                     <button>[ Load from disk ]</button>
                     <button>[ Author ]</button>
-                
                 </div>
             </div>
         </div>
@@ -477,7 +501,7 @@
             .Login > .Login_Build > #Login_Window {
                 width: 260px;
                 height: 280px;
-                
+                display: none;
             }
 
             .Login > .Login_Build > #Login_Window > .Content > button {
@@ -525,7 +549,20 @@
             }
 
         </style>
+
+        <!--Book_Mark: Login_Script-->
         <Script>
+
+            document.getElementById('Panel_Login').addEventListener('click', function() {
+                const loginWindow = document.getElementById('Login_Window');
+                loginWindow.style.display = 'flex';
+                loginWindow.style.zIndex = Math.max(...Array.from(document.querySelectorAll('.Window, .Panel')).map(el => parseInt(el.style.zIndex) || 0)) + 1;
+            });
+
+            document.getElementById('Login_Window_Close').addEventListener('click', function() {
+                document.getElementById('Login_Window').style.display = 'none';
+            });
+            
 
         </Script>
     </div>
