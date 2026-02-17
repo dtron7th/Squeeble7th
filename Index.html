@@ -47,10 +47,46 @@
                     <button class="Minimize"></button>
                     <button class="Maximize"></button>
                     <button class="Close"></button>
+
+                    <style aria-label="Window_Manipulation - Style">
+                        .Window_Manipulation {
+                            position: absolute;
+                            right: 10px;
+                            display: flex;
+                            gap: 10px;
+                        }
+
+                        .Window_Manipulation > button {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                        }
+                        .Window_Manipulation > .Minimize {
+                            background-color: rgb(255, 255, 0);
+                        }
+
+                        .Window_Manipulation > .Maximize {
+                            background-color: rgb(0, 255, 0);
+                        }
+
+                        .Window_Manipulation > .Close {
+                            background-color: rgb(255, 0, 0);
+                        }
+                    </style>
+
+                    <script aria-label="Window_Manipulation - Script">
+
+                    </script>
                 </div>
             </div>
             <div class="Content">
-                
+                <style>
+
+                </style>
+
+                <script>
+                    
+                </script>
             </div>
         </div>
 
@@ -58,6 +94,13 @@
         <div class="Panel">
             <div class="Panel_Buttons">
 
+                <style aria-label="Panel_Buttons - Style">
+
+                </style>
+
+                <script aria-label="Panel_Buttons - Script">
+
+                </script>
             </div>
             <style aria-label="Panel">
                 .Panel {
@@ -154,17 +197,7 @@
             border-radius: 50%;
         }
 
-        .Window > .Header > .Window_Manipulation > .Minimize {
-            background-color: rgb(255, 255, 0);
-        }
 
-        .Window > .Header > .Window_Manipulation > .Maximize {
-            background-color: rgb(0, 255, 0);
-        }
-
-        .Window > .Header > .Window_Manipulation > .Close {
-            background-color: rgb(255, 0, 0);
-        }
 
         
     </style>
@@ -622,44 +655,6 @@
                 </div>
             </div>
 
-            <div class="Clock">
-
-            </div>
-
-            <!--Book_Mark: Lgoin_Builld - Login_Window-->
-            <div class="Window" id="Login_Window">
-                <div class="Header">
-                    <p class="Title">Login</p>
-                    <div class="Window_Manipulation">
-                        <button class="Minimize" id="Login_Window_Minimize"></button>
-                        <button class="Maximize" id="Login_Window_Maximize"></button>
-                        <button class="Close" id="Login_Window_Close"></button>
-                    </div>
-                </div>
-                <div class="Content">
-                    <div class="Login_Terminal">
-                        
-                    </div>
-                </div>
-
-                <style aria-label="Login_Window - Style">
-                    #Login_Window {
-                        width: 260px;
-                        height: 280px;
-                        
-                    }
-
-                    #Login_Window > .Content >  {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        width: auto;
-                        height: auto;
-                        /*Specials*/
-                    }
-                </style>
-            </div>
-
             <!--Book_Mark: Login_Builld - Start_Menu_Panel-->
             <div class="Panel" id="Start_Menu_Panel">
                 <p class="Title">Start Menu</p>
@@ -674,7 +669,7 @@
                 </div>
                 
                         
-                <!--Book_Mark: Start_Menu_Panel - Style-->
+                <!--Book_Mark: Login_Builld - Start_Menu_Panel - Style-->
                 <style aria-label="Start_Menu_Panel - Style">
                     #Start_Menu_Panel {
                         /*Default Position*/
@@ -722,6 +717,55 @@
 
                 </style>
             </div>
+
+
+
+            <!--Book_Mark: Lgoin_Builld - Login_Window-->
+            <div class="Window" id="Login_Window">
+                <div class="Header" id="Login_Window-_Header">
+                    <p class="Title">Login</p>
+                    <div class="Window_Manipulation">
+                        <button class="Minimize" id="Login_Window_Minimize"></button>
+                        <button class="Maximize" id="Login_Window_Maximize"></button>
+                        <button class="Close" id="Login_Window_Close"></button>
+                    </div>
+                </div>
+                <div class="Content" id="Login_Window-_Content">
+                    <div class="Login_Window-_Content-_Terminal">
+                        
+                    </div>
+
+                    <style aria-label="Login_Window-_Content-_Terminal - Style"> 
+
+
+                    </style>
+                </div>
+
+                <style aria-label="Login_Window - Style">
+                    #Login_Window {
+                        width: 260px;
+                        height: 280px;
+                        
+                    }
+
+                    #Login_Window > #Login_Window-_Content {
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                        width: calc(100% - 20px);
+                        height: 240px;
+                        /*Specials*/
+                        
+                        background-color: black;
+                    }
+                </style>
+            </div>
+
+            <div class="Clock">
+
+            </div>
+
+            
         </div>
         <!--Book_Mark: Login_Style-->
         <style aria-label="Login_Style">
