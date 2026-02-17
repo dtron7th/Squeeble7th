@@ -44,9 +44,9 @@
             <div class="Header">
                 <p class="Title"></p>
                 <div class="Window_Manipulation">
-                    <button id="Minimize"></button>
-                    <button id="Maximize"></button>
-                    <button id="Close"></button>
+                    <button class="Minimize"></button>
+                    <button class="Maximize"></button>
+                    <button class="Close"></button>
                 </div>
             </div>
             <div class="Content">
@@ -433,10 +433,164 @@
                 
         //Window open animation.
 
+        (function() {
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes windowOpenAnimation {
+                    0% {
+                        opacity: 0;
+                        transform: scale(0.85) translateY(20px);
+                        filter: blur(4px);
+                    }
+                    50% {
+                        opacity: 0.8;
+                        filter: blur(1px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: scale(1) translateY(0);
+                        filter: blur(0);
+                    }
+                }
+
+                .Window.window-opening {
+                    animation: windowOpenAnimation 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            const windowStates = new WeakMap();
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const windows = document.querySelectorAll('.Window');
+                windows.forEach(win => {
+                    const computedStyle = window.getComputedStyle(win);
+                    windowStates.set(win, computedStyle.display !== 'none');
+                });
+            });
+
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const win = mutation.target;
+                        if (win.classList.contains('Window')) {
+                            const computedStyle = window.getComputedStyle(win);
+                            const isVisible = computedStyle.display !== 'none';
+                            const wasVisible = windowStates.get(win) || false;
+
+                            if (isVisible && !wasVisible && !win.classList.contains('window-opening')) {
+                                win.classList.add('window-opening');
+                                win.addEventListener('animationend', function handler() {
+                                    win.classList.remove('window-opening');
+                                    win.removeEventListener('animationend', handler);
+                                });
+                            }
+
+                            windowStates.set(win, isVisible);
+                        }
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const windows = document.querySelectorAll('.Window');
+                windows.forEach(win => {
+                    observer.observe(win, { attributes: true, attributeFilter: ['style'] });
+                });
+            });
+
+            window.openWindow = function(win) {
+                if (typeof win === 'string') {
+                    win = document.querySelector(win);
+                }
+                if (!win) return;
+                
+                win.classList.remove('window-opening');
+                win.style.display = 'flex';
+                void win.offsetWidth;
+                win.classList.add('window-opening');
+                
+                win.addEventListener('animationend', function handler() {
+                    win.classList.remove('window-opening');
+                    win.removeEventListener('animationend', handler);
+                });
+
+                windowStates.set(win, true);
+            };
+
+            window.closeWindow = function(win) {
+                if (typeof win === 'string') {
+                    win = document.querySelector(win);
+                }
+                if (!win) return;
+                
+                win.style.display = 'none';
+                windowStates.set(win, false);
+            };
+        })();
+
+        //Book_Mark: Cursor
+
     </Script>
+    
 
 </head>
 <body>
+
+    <!--Book_Mark: Cursor-->    
+    <div class="Cursor_Test">
+        <div class="Cursor">
+            <div class="Cursor_Build">
+                <span id="Cursor_Pointer"></span>
+            </div>
+            <style>
+                #Cursor_Pointer {
+                    position: absolute;
+                    width: 5px;
+                    height: 5px;
+                    border-radius: 50%;
+                    background-color: rgb(255, 255, 255);
+                    z-index: 100;
+                }
+            </style>
+            <Script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const cursorPointer = document.getElementById('Cursor_Pointer');
+                    
+                    // Hide default cursor on all elements
+                    document.documentElement.style.cursor = 'none';
+                    document.body.style.cursor = 'none';
+                    
+                    // Apply cursor:none to all elements
+                    const style = document.createElement('style');
+                    style.textContent = '* { cursor: none !important; }';
+                    document.head.appendChild(style);
+                    
+                    // Make cursor non-interactive so clicks pass through
+                    cursorPointer.style.pointerEvents = 'none';
+                    cursorPointer.style.zIndex = '2147483647';
+                    cursorPointer.style.position = 'fixed';
+                    
+                    document.addEventListener('mousemove', function(e) {
+                        cursorPointer.style.left = e.clientX + 'px';
+                        cursorPointer.style.top = e.clientY + 'px';
+                    });
+                    
+                    // Hide custom cursor when mouse leaves window
+                    document.addEventListener('mouseleave', function() {
+                        cursorPointer.style.display = 'none';
+                    });
+                    
+                    // Show custom cursor when mouse enters window
+                    document.addEventListener('mouseenter', function() {
+                        cursorPointer.style.display = 'block';
+                    });
+                });
+                
+            </Script>
+        </div>
+    </div>
+
     <div class="Login">
         <div class="Login_Build">
 
@@ -458,7 +612,9 @@
                     </div>
                 </div>
                 <div class="Content">
-                    <button>[ Register ]</button>
+                    <div class="Login_Terminal">
+                        
+                    </div>
                 </div>
             </div>
 
@@ -501,10 +657,10 @@
             .Login > .Login_Build > #Login_Window {
                 width: 260px;
                 height: 280px;
-                display: none;
+                
             }
 
-            .Login > .Login_Build > #Login_Window > .Content > button {
+            .Login > .Login_Build > #Login_Window > .Content >  {
                 position: absolute;
                 bottom: 10px;
                 right: 10px;
