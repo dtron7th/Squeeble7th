@@ -59,6 +59,26 @@
             <div class="Panel_Buttons">
 
             </div>
+            <style aria-label="Panel">
+                .Panel {
+                    position: absolute;
+                    background-color: var(--Main_UI_Color);
+                    backdrop-filter: blur(var(--Main_UI_Blur));
+                    border: var(--Main_UI_Border);
+                    border-radius: var(--Main_UI_Border_Radius_Window);
+                    box-shadow: var(--Box_Shadow);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .Panel > .Title {
+                    position: absolute;
+                    top: 10px;
+                    color: var(--Main_Text_Color);
+                    font-size: var(--Main_Font_Size);
+                }
+            </style>
         </div>
     </div>
 
@@ -146,24 +166,7 @@
             background-color: rgb(255, 0, 0);
         }
 
-        .Panel {
-            position: absolute;
-            background-color: var(--Main_UI_Color);
-            backdrop-filter: blur(var(--Main_UI_Blur));
-            border: var(--Main_UI_Border);
-            border-radius: var(--Main_UI_Border_Radius_Window);
-            box-shadow: var(--Box_Shadow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .Panel > .Title {
-            position: absolute;
-            top: 10px;
-            color: var(--Main_Text_Color);
-            font-size: var(--Main_Font_Size);
-        }
+        
     </style>
     
     <!-- Prefabs -->
@@ -585,6 +588,24 @@
                     document.addEventListener('mouseenter', function() {
                         cursorPointer.style.display = 'block';
                     });
+                    
+                    // Touch support - cursor follows touch point during drag
+                    document.addEventListener('touchstart', function(e) {
+                        const touch = e.touches[0];
+                        cursorPointer.style.left = touch.clientX + 'px';
+                        cursorPointer.style.top = touch.clientY + 'px';
+                        cursorPointer.style.display = 'block';
+                    });
+                    
+                    document.addEventListener('touchmove', function(e) {
+                        const touch = e.touches[0];
+                        cursorPointer.style.left = touch.clientX + 'px';
+                        cursorPointer.style.top = touch.clientY + 'px';
+                    });
+                    
+                    document.addEventListener('touchend', function() {
+                        cursorPointer.style.display = 'flex';
+                    });
                 });
                 
             </Script>
@@ -599,6 +620,10 @@
                 <div class="Wallpapers_List">
                     <img src="/Images/Wallpaper/3d-render-gradient-1080x2160-9736.jpg" alt="">
                 </div>
+            </div>
+
+            <div class="Clock">
+
             </div>
 
             <!--Book_Mark: Lgoin_Builld - Login_Window-->
@@ -616,12 +641,29 @@
                         
                     </div>
                 </div>
+
+                <style aria-label="Login_Window - Style">
+                    #Login_Window {
+                        width: 260px;
+                        height: 280px;
+                        
+                    }
+
+                    #Login_Window > .Content >  {
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                        width: auto;
+                        height: auto;
+                        /*Specials*/
+                    }
+                </style>
             </div>
 
-            <!--Book_Mark: Login_Builld - Panel-->
-            <div class="Panel">
+            <!--Book_Mark: Login_Builld - Start_Menu_Panel-->
+            <div class="Panel" id="Start_Menu_Panel">
                 <p class="Title">Start Menu</p>
-                <div class="Panel_Buttons">
+                <div class="Start_Menu_Panel_Buttons">
                     <button id="Panel_Login">[ Login ]</button>
                     <button>[ Character Index ]</button>
                     <button>[ About Vista D-Net ]</button>
@@ -630,6 +672,55 @@
                     <button>[ Load from disk ]</button>
                     <button>[ Author ]</button>
                 </div>
+                
+                        
+                <!--Book_Mark: Start_Menu_Panel - Style-->
+                <style aria-label="Start_Menu_Panel - Style">
+                    #Start_Menu_Panel {
+                        /*Default Position*/
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+
+                        /*Style*/
+                        width: auto;
+                        height: auto;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        text-indent: 10px;
+                        gap: 10px;
+                        padding-bottom: 10px;
+                        padding-right: 50px;
+                    }
+
+                    #Start_Menu_Panel > .Start_Menu_Panel_Buttons {
+                        padding-top: 60px;
+                        margin-left: 10px;
+                        width: auto;
+                        height: auto;
+                        display: flex;
+                        align-items: flex-start;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+
+                    #Start_Menu_Panel > .Start_Menu_Panel_Buttons > button {
+                        width: auto;
+                        height: auto;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    #Start_Menu_Panel > .Start_Panel_Buttons > button {
+                        width: auto;
+                        height: auto;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+
+                </style>
             </div>
         </div>
         <!--Book_Mark: Login_Style-->
@@ -651,57 +742,6 @@
                 height: 100dvh;
                 width: 100dvw;
                 background-size: contain;
-            }
-
-
-            .Login > .Login_Build > #Login_Window {
-                width: 260px;
-                height: 280px;
-                
-            }
-
-            .Login > .Login_Build > #Login_Window > .Content >  {
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                width: auto;
-                height: auto;
-            }
-
-            .Login > .Login_Build > .Panel {
-                /*Default Position*/
-                position: absolute;
-                top: 10px;
-                left: 10px;
-
-                /*Style*/
-                width: auto;
-                height: auto;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                text-indent: 10px;
-                gap: 10px;
-                padding-bottom: 10px;
-                padding-right: 50px;
-            }
-
-            .Login > .Login_Build > .Panel > .Panel_Buttons {
-                padding-top: 60px;
-                margin-left: 10px;
-                width: auto;
-                height: auto;
-                display: flex;
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .Login > .Login_Build > .Panel > .Panel_Buttons > button {
-                width: auto;
-                height: auto;
-                display: flex;
-                flex-direction: column;
             }
 
         </style>
