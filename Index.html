@@ -1010,6 +1010,9 @@
                         let firstName = '';
                         let lastName = '';
                         
+                        // Apply text wrapping style to terminal text
+                        terminalText.style.cssText = 'position: absolute; top: 10px; left: 10px; width: calc(100% - 20px); word-wrap: break-word; word-break: break-all; overflow-wrap: break-word; color: var(--Terminal_Text_Color);';
+                        
                         async function generateSHA256(text) {
                             const encoder = new TextEncoder();
                             const data = encoder.encode(text);
@@ -1078,19 +1081,19 @@
                             let displayText = '';
                             
                             if (currentField === 'welcome') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                                displayText = '<span style="display: inline-block; width: calc(100% - 20px); word-wrap: break-word; overflow-wrap: break-word;">Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate</span><span class="terminal-cursor">' + cursor + '</span>';
                             } else if (currentField === 'firstName') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + userInput + '<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                                displayText = '<span style="display: inline-block; width: calc(100% - 20px); word-wrap: break-word; overflow-wrap: break-word;">Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate</span><br><br>First Name: ' + userInput + '<span class="terminal-cursor">' + cursor + '</span>';
                             } else if (currentField === 'lastName') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + userInput + '<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                                displayText = '<span style="display: inline-block; width: calc(100% - 20px); word-wrap: break-word; overflow-wrap: break-word;">Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate</span><br><br>First Name: ' + firstName + '<br>Last Name: ' + userInput + '<span class="terminal-cursor">' + cursor + '</span>';
                             }
                             
                             terminalText.innerHTML = displayText;
                         }
                         
                         function updateTerminalDisplayWithHash(hash) {
-                            const wrappedHash = '<span style="word-wrap: break-word; word-break: break-all; overflow-wrap: break-word; display: inline-block; max-width: 100%;">' + hash + '</span>';
-                            const displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash:<br>' + wrappedHash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
+                            const wrappedHash = '<span style="word-wrap: break-word; word-break: break-all; overflow-wrap: break-word; display: inline-block; width: calc(100% - 20px);">' + hash + '</span>';
+                            const displayText = '<span style="display: inline-block; width: calc(100% - 20px); word-wrap: break-word; overflow-wrap: break-word;">Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate</span><br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash:<br>' + wrappedHash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
                             terminalText.innerHTML = displayText;
                         }
                         
