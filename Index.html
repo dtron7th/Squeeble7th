@@ -35,7 +35,7 @@
 
 
 
-    <!--Book_Mark: UI_Build-->
+    <!--Book_Mark: Head : UI_Build-->
     <!-- UI -->
     <div aria-label="Build_UI">
 
@@ -44,9 +44,9 @@
             <div class="Header">
                 <p class="Title"></p>
                 <div class="Window_Manipulation">
-                    <button class="Minimize"></button>
-                    <button class="Maximize"></button>
-                    <button class="Close"></button>
+                    <button class="Window_Minimize"></button>
+                    <button class="Window_Maximize"></button>
+                    <button class="Window_Close"></button>
 
                     <style aria-label="Window_Manipulation - Style">
                         .Window_Manipulation {
@@ -61,15 +61,15 @@
                             height: 10px;
                             border-radius: 50%;
                         }
-                        .Window_Manipulation > .Minimize {
+                        .Window_Manipulation > .Window_Minimize {
                             background-color: rgb(255, 255, 0);
                         }
 
-                        .Window_Manipulation > .Maximize {
+                        .Window_Manipulation > .Window_Maximize {
                             background-color: rgb(0, 255, 0);
                         }
 
-                        .Window_Manipulation > .Close {
+                        .Window_Manipulation > .Window_Close {
                             background-color: rgb(255, 0, 0);
                         }
                     </style>
@@ -78,20 +78,39 @@
 
                     </script>
                 </div>
+
+                <style aria-label="Header - Style">
+                    
+                </style>
+
+                <script aria-label="Header - Script">
+
+                </script>
+
             </div>
             <div class="Content">
-                <style>
+                <style aria-label="Content - Style">
 
                 </style>
 
-                <script>
+                <script aria-label="Content - Script">
                     
                 </script>
             </div>
+
+            <style aria-label="Window - Style">
+
+            </style>
+
+            <script aria-label="Window - Script">
+
+            </script>
         </div>
 
         <!--Panel-->
-        <div class="Panel">
+        <div class="Panel" id="">
+            <p class="Title"></p>
+            <button class="Panel_Close"></button>
             <div class="Panel_Buttons">
 
                 <style aria-label="Panel_Buttons - Style">
@@ -102,30 +121,17 @@
 
                 </script>
             </div>
-            <style aria-label="Panel">
-                .Panel {
-                    position: absolute;
-                    background-color: var(--Main_UI_Color);
-                    backdrop-filter: blur(var(--Main_UI_Blur));
-                    border: var(--Main_UI_Border);
-                    border-radius: var(--Main_UI_Border_Radius_Window);
-                    box-shadow: var(--Box_Shadow);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                .Panel > .Title {
-                    position: absolute;
-                    top: 10px;
-                    color: var(--Main_Text_Color);
-                    font-size: var(--Main_Font_Size);
-                }
+            <style aria-label="Panel - Style">
+                
             </style>
+
+            <script aria-label="Panel - Script">
+
+            </script>
         </div>
     </div>
 
-    <!--Book_Mark: Main_Style-->
+    <!--Book_Mark: Head : Main_Style-->
         
     <!-- Main -->
     <style aria-label="Main">
@@ -142,6 +148,8 @@
     <style aria-label="UI">
 
         button {
+            width: auto;
+            height: auto;
             border: none;
             outline: none;
             background: none;
@@ -159,6 +167,38 @@
             background-color: var(--Main_UI_Color);
         }
 
+        .Panel {
+            position: absolute;
+            background-color: var(--Main_UI_Color);
+            backdrop-filter: blur(var(--Main_UI_Blur));
+            border: var(--Main_UI_Border);
+            border-radius: var(--Main_UI_Border_Radius_Window);
+            box-shadow: var(--Box_Shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Panel > .Title {
+            position: absolute;
+            top: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Font_Size);
+        }
+
+        .Panel > .Panel_Close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgb(255, 0, 0);
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Font_Size);
+        }
+        
+
         .Window {
             position: absolute;
             overflow: hidden;
@@ -169,7 +209,7 @@
             box-shadow: var(--Box_Shadow);
         }
 
-        .Window > .Header {
+        .Header {
             width: 100%;
             height: 30px;
             background-color: var(--Header_UI_Color);
@@ -177,29 +217,26 @@
             align-items: center;
         }
 
-        .Window > .Header > .Title {
+        .Header > .Title {
             position: absolute;
             left: 10px;
             color: var(--Main_Text_Color);
             font-size: var(--Main_Font_Size);
         }
 
-        .Window > .Header > .Window_Manipulation {
+        .Header > .Window_Manipulation {
             position: absolute;
             right: 10px;
             display: flex;
             gap: 10px;
         }
 
-        .Window > .Header > .Window_Manipulation > button {
+        .Header > .Window_Manipulation > button {
             width: 10px;
             height: 10px;
             border-radius: 50%;
         }
 
-
-
-        
     </style>
     
     <!-- Prefabs -->
@@ -215,9 +252,90 @@
         </Script>
     </div>
 
+    <div aria-label="Componets">
+
+        <!--Book_Mark: Clock-->
+        <div class="_Clock">
+            <p id="_Time">00:00:00:000</p>
+            <p id="_Date">00/00/0000</p>
+
+            <style aria-label="Login_Build_Clock - Style">
+                ._Clock {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    display: none;
+                }
+
+                ._Clock > p {
+                    font-size: var(--Main_Font_Size);
+                    color: rgb(255, 255, 255);
+                }
+                
+                ._Clock > #_Date {
+                    position: absolute;
+                    right: 0px;
+                }
+            </style>
+
+            <script aria-label="_Clock - Script">
+                function updateClock() {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+                    document.getElementById('_Time').textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+                    
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const year = now.getFullYear();
+                    document.getElementById('_Date').textContent = `${day}/${month}/${year}`;
+                }
+                updateClock();
+                setInterval(updateClock, 10);
+                
+            </script>
+        </div>
+
+        <!--Book_Mark:  Coponets-->
+
+        <div class="_Printable_Information">
+            <p class="_Printable_Information_Wifi_Conntected"></p>
+            
+            <style aria-label="_Printable_Information - Style">
+                ._Printable_Information {
+                    position: absolute;
+                    top: 60px;
+                    right: 10px;
+                    font-size: var(--Main_Font_Size);
+                    display: none;
+                }
+            </style>
+            <script aria-label="_Printable_Information - Script">
+
+                const _Printable_Information_wifiElement = document.querySelector('._Printable_Information_Wifi_Conntected');
+
+                    function updateWifiStatus() {
+                        if (navigator.onLine) {
+                            _Printable_Information_wifiElement.textContent = 'Wifi Connected';
+                            _Printable_Information_wifiElement.style.color = 'green';
+                        } else {
+                            _Printable_Information_wifiElement.textContent = 'Wifi Disconnected';
+                            _Printable_Information_wifiElement.style.color = 'red';
+                        }
+                    }
+
+                    updateWifiStatus();
+                    window.addEventListener('online', updateWifiStatus);
+                    window.addEventListener('offline', updateWifiStatus);
+            </script>
+        </div>
+    </div>
+
     <!--Book_Mark: Window_Manager-->
 
-    <Script aria-label="Window_Manager">
+    <Script aria-label="Element_Manager">
 
         //Dragging system (Desktop and mobile)        
 
@@ -299,6 +417,45 @@
                 currentWindow = null;
             });
         })();
+
+        // Ensure opening elements stay on top
+        (function() {
+            function ensureOnTop(element) {
+                const computedStyle = window.getComputedStyle(element);
+                const isVisible = computedStyle.display !== 'none';
+                const isOpening = element.classList.contains('element-opening');
+                
+                if (isVisible && isOpening) {
+                    // Get current max z-index
+                    const allElements = document.querySelectorAll('.Window, .Panel');
+                    let maxZ = 100;
+                    allElements.forEach(el => {
+                        if (el !== element) {
+                            const z = parseInt(window.getComputedStyle(el).zIndex) || 0;
+                            if (z > maxZ) maxZ = z;
+                        }
+                    });
+                    element.style.zIndex = Math.max(maxZ + 1, 2147483646);
+                }
+            }
+
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    const target = mutation.target;
+                    if (target.classList.contains('Window') || target.classList.contains('Panel')) {
+                        ensureOnTop(target);
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const elements = document.querySelectorAll('.Window, .Panel');
+                elements.forEach(el => {
+                    observer.observe(el, { attributes: true, attributeFilter: ['class', 'style'] });
+                });
+            });
+        })();
+
 
         //.Panel
 
@@ -442,9 +599,7 @@
             });
         })();
 
-        //Bring to front.
-
-        // Bring to front when clicking on Window or Panel
+        //Bring to front when clicking on Window or Panel
         (function() {
             let zIndex = 100;
 
@@ -465,14 +620,48 @@
             });
         })();
 
-        //Book_Mark: Window open animation.
+        //Book_Mark: Set Element Default Position.
+        
+        //Set default position for windows and panels when they open
+        (function() {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const element = mutation.target;
+                        if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                            const computedStyle = window.getComputedStyle(element);
+                            if (computedStyle.display !== 'none') {
+                                if (!element.dataset.positionSet) {
+                                    element.style.top = '10px';
+                                    element.style.left = '10px';
+                                    element.dataset.positionSet = 'true';
+                                }
+                            } else {
+                                delete element.dataset.positionSet;
+                            }
+                        }
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const elements = document.querySelectorAll('.Window, .Panel');
+                elements.forEach(el => {
+                    observer.observe(el, { attributes: true, attributeFilter: ['style'] });
+                });
+            });
+        })();
+
+
+
+        //Book_Mark: Element open animation.
                 
-        //Window open animation.
+        //Element open animation.
 
         (function() {
             const style = document.createElement('style');
             style.textContent = `
-                @keyframes windowOpenAnimation {
+                @keyframes elementOpenAnimation {
                     0% {
                         opacity: 0;
                         transform: scale(0.85) translateY(20px);
@@ -489,161 +678,163 @@
                     }
                 }
 
-                .Window.window-opening {
-                    animation: windowOpenAnimation 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+                .Window.element-opening,
+                .Panel.element-opening {
+                    animation: elementOpenAnimation 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
                 }
             `;
             document.head.appendChild(style);
 
-            const windowStates = new WeakMap();
+            const elementStates = new WeakMap();
 
             document.addEventListener('DOMContentLoaded', function() {
-                const windows = document.querySelectorAll('.Window');
-                windows.forEach(win => {
-                    const computedStyle = window.getComputedStyle(win);
-                    windowStates.set(win, computedStyle.display !== 'none');
+                const elements = document.querySelectorAll('.Window, .Panel');
+                elements.forEach(el => {
+                    const computedStyle = window.getComputedStyle(el);
+                    elementStates.set(el, computedStyle.display !== 'none');
                 });
             });
 
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                        const win = mutation.target;
-                        if (win.classList.contains('Window')) {
-                            const computedStyle = window.getComputedStyle(win);
+                        const el = mutation.target;
+                        if (el.classList.contains('Window') || el.classList.contains('Panel')) {
+                            const computedStyle = window.getComputedStyle(el);
                             const isVisible = computedStyle.display !== 'none';
-                            const wasVisible = windowStates.get(win) || false;
+                            const wasVisible = elementStates.get(el) || false;
 
-                            if (isVisible && !wasVisible && !win.classList.contains('window-opening')) {
-                                win.classList.add('window-opening');
-                                win.addEventListener('animationend', function handler() {
-                                    win.classList.remove('window-opening');
-                                    win.removeEventListener('animationend', handler);
+                            if (isVisible && !wasVisible && !el.classList.contains('element-opening')) {
+                                el.classList.add('element-opening');
+                                el.addEventListener('animationend', function handler() {
+                                    el.classList.remove('element-opening');
+                                    el.removeEventListener('animationend', handler);
                                 });
                             }
 
-                            windowStates.set(win, isVisible);
+                            elementStates.set(el, isVisible);
                         }
                     }
                 });
             });
 
             document.addEventListener('DOMContentLoaded', function() {
-                const windows = document.querySelectorAll('.Window');
-                windows.forEach(win => {
-                    observer.observe(win, { attributes: true, attributeFilter: ['style'] });
+                const elements = document.querySelectorAll('.Window, .Panel');
+                elements.forEach(el => {
+                    observer.observe(el, { attributes: true, attributeFilter: ['style'] });
                 });
             });
 
-            window.openWindow = function(win) {
-                if (typeof win === 'string') {
-                    win = document.querySelector(win);
+            window.openElement = function(el) {
+                if (typeof el === 'string') {
+                    el = document.querySelector(el);
                 }
-                if (!win) return;
+                if (!el) return;
                 
-                win.classList.remove('window-opening');
-                win.style.display = 'flex';
-                void win.offsetWidth;
-                win.classList.add('window-opening');
+                el.classList.remove('element-opening');
+                el.style.display = 'flex';
+                void el.offsetWidth;
+                el.classList.add('element-opening');
                 
-                win.addEventListener('animationend', function handler() {
-                    win.classList.remove('window-opening');
-                    win.removeEventListener('animationend', handler);
+                el.addEventListener('animationend', function handler() {
+                    el.classList.remove('element-opening');
+                    el.removeEventListener('animationend', handler);
                 });
 
-                windowStates.set(win, true);
+                elementStates.set(el, true);
             };
 
-            window.closeWindow = function(win) {
-                if (typeof win === 'string') {
-                    win = document.querySelector(win);
+            window.closeElement = function(el) {
+                if (typeof el === 'string') {
+                    el = document.querySelector(el);
                 }
-                if (!win) return;
+                if (!el) return;
                 
-                win.style.display = 'none';
-                windowStates.set(win, false);
+                el.style.display = 'none';
+                elementStates.set(el, false);
             };
         })();
 
-        //Book_Mark: Cursor
+
 
     </Script>
-    
 
 </head>
 <body>
 
     <!--Book_Mark: Cursor-->    
-    <div class="Cursor_Test">
-        <div class="Cursor">
-            <div class="Cursor_Build">
-                <span id="Cursor_Pointer"></span>
-            </div>
-            <style>
-                #Cursor_Pointer {
-                    position: absolute;
-                    width: 5px;
-                    height: 5px;
-                    border-radius: 50%;
-                    background-color: rgb(255, 255, 255);
-                    z-index: 100;
-                }
-            </style>
-            <Script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    const cursorPointer = document.getElementById('Cursor_Pointer');
-                    
-                    // Hide default cursor on all elements
-                    document.documentElement.style.cursor = 'none';
-                    document.body.style.cursor = 'none';
-                    
-                    // Apply cursor:none to all elements
-                    const style = document.createElement('style');
-                    style.textContent = '* { cursor: none !important; }';
-                    document.head.appendChild(style);
-                    
-                    // Make cursor non-interactive so clicks pass through
-                    cursorPointer.style.pointerEvents = 'none';
-                    cursorPointer.style.zIndex = '2147483647';
-                    cursorPointer.style.position = 'fixed';
-                    
-                    document.addEventListener('mousemove', function(e) {
-                        cursorPointer.style.left = e.clientX + 'px';
-                        cursorPointer.style.top = e.clientY + 'px';
-                    });
-                    
-                    // Hide custom cursor when mouse leaves window
-                    document.addEventListener('mouseleave', function() {
-                        cursorPointer.style.display = 'none';
-                    });
-                    
-                    // Show custom cursor when mouse enters window
-                    document.addEventListener('mouseenter', function() {
-                        cursorPointer.style.display = 'block';
-                    });
-                    
-                    // Touch support - cursor follows touch point during drag
-                    document.addEventListener('touchstart', function(e) {
-                        const touch = e.touches[0];
-                        cursorPointer.style.left = touch.clientX + 'px';
-                        cursorPointer.style.top = touch.clientY + 'px';
-                        cursorPointer.style.display = 'block';
-                    });
-                    
-                    document.addEventListener('touchmove', function(e) {
-                        const touch = e.touches[0];
-                        cursorPointer.style.left = touch.clientX + 'px';
-                        cursorPointer.style.top = touch.clientY + 'px';
-                    });
-                    
-                    document.addEventListener('touchend', function() {
-                        cursorPointer.style.display = 'flex';
-                    });
+    
+    <div class="Cursor">
+        <div class="Cursor_Build">
+            <span id="Cursor_Pointer"></span>
+        </div>
+        <style>
+            #Cursor_Pointer {
+                position: absolute;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background-color: rgb(255, 255, 255);
+                z-index: 100;
+            }
+        </style>
+        <Script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const cursorPointer = document.getElementById('Cursor_Pointer');
+                
+                // Hide default cursor on all elements
+                document.documentElement.style.cursor = 'none';
+                document.body.style.cursor = 'none';
+                
+                // Apply cursor:none to all elements
+                const style = document.createElement('style');
+                style.textContent = '* { cursor: none !important; }';
+                document.head.appendChild(style);
+                
+                // Make cursor non-interactive so clicks pass through
+                cursorPointer.style.pointerEvents = 'none';
+                cursorPointer.style.zIndex = '2147483647';
+                cursorPointer.style.position = 'fixed';
+                
+                document.addEventListener('mousemove', function(e) {
+                    cursorPointer.style.left = e.clientX + 'px';
+                    cursorPointer.style.top = e.clientY + 'px';
                 });
                 
-            </Script>
-        </div>
+                // Hide custom cursor when mouse leaves window
+                document.addEventListener('mouseleave', function() {
+                    cursorPointer.style.display = 'none';
+                });
+                
+                // Show custom cursor when mouse enters window
+                document.addEventListener('mouseenter', function() {
+                    cursorPointer.style.display = 'block';
+                });
+                
+                // Touch support - cursor follows touch point during drag
+                document.addEventListener('touchstart', function(e) {
+                    const touch = e.touches[0];
+                    cursorPointer.style.left = touch.clientX + 'px';
+                    cursorPointer.style.top = touch.clientY + 'px';
+                    cursorPointer.style.display = 'block';
+                });
+                
+                document.addEventListener('touchmove', function(e) {
+                    const touch = e.touches[0];
+                    cursorPointer.style.left = touch.clientX + 'px';
+                    cursorPointer.style.top = touch.clientY + 'px';
+                });
+                
+                document.addEventListener('touchend', function() {
+                    cursorPointer.style.display = 'flex';
+                });
+            });
+            
+        </Script>
     </div>
+
+    
+    
 
     <div class="Login">
         <div class="Login_Build">
@@ -653,31 +844,75 @@
                 <div class="Wallpapers_List">
                     <img src="/Images/Wallpaper/3d-render-gradient-1080x2160-9736.jpg" alt="">
                 </div>
+
+                <style aria-label="Wallpaper_Slide_Show - Style">
+                    .Wallpaper_Slide_Show > .Wallpapers_List > img {
+                        height: 100dvh;
+                        width: 100dvw;
+                        background-size: contain;
+                    }
+                </style>
+            </div>
+
+            <!--Book_Mark: Start_Button-->
+
+            <div class="Start_Button">
+                <button id="Start_Button">[ Start ]</button>
+
+                <style aria-label="Login_Build_Start_Button - Style">
+                    .Start_Button {
+                        position: absolute;
+                        bottom: 20px;
+                    }
+                    #Start_Button { 
+                        font-size: 14px;
+                        color: rgb(255, 255, 255);
+                    }
+                </style>
+                <script aria-label="Start_Button - Script">
+                    document.getElementById('Start_Button').addEventListener('click', function() {
+                        document.getElementById('Start_Menu_Panel').style.display = 'flex';
+                    });
+
+                    document.getElementById('Start_Button').addEventListener('click', function() {
+                        document.getElementById('Start_Button').style.display = 'none';
+                    });
+
+
+
+                </script>
             </div>
 
             <!--Book_Mark: Login_Builld - Start_Menu_Panel-->
             <div class="Panel" id="Start_Menu_Panel">
                 <p class="Title">Start Menu</p>
+                <button class="Panel_Close" id="Start_Menu_Panel_Close"></button>
                 <div class="Start_Menu_Panel_Buttons">
-                    <button id="Panel_Login">[ Login ]</button>
+                    <button id="Start_Menu_Panel_Login">[ Login ]</button>
                     <button>[ Character Index ]</button>
                     <button>[ About Vista D-Net ]</button>
                     <button>[ D-Wifi Connections ]</button>
                     <button>[ Reset to original OS ]</button>
                     <button>[ Load from disk ]</button>
                     <button>[ Author ]</button>
+
+                    <style aria-label="Start_Menu_Panel_Buttons - Style">
+
+                    </style>
+
+                    <script aria-label="Start_Menu_Panel_Buttons - Script">
+
+                        document.getElementById('Start_Menu_Panel_Login').addEventListener('click', function() {
+                            document.getElementById('Login_Window').style.display = 'flex';
+                        });
+
+                    </script>
                 </div>
                 
                         
                 <!--Book_Mark: Login_Builld - Start_Menu_Panel - Style-->
                 <style aria-label="Start_Menu_Panel - Style">
                     #Start_Menu_Panel {
-                        /*Default Position*/
-                        position: absolute;
-                        top: 10px;
-                        left: 10px;
-
-                        /*Style*/
                         width: auto;
                         height: auto;
                         display: flex;
@@ -687,6 +922,7 @@
                         gap: 10px;
                         padding-bottom: 10px;
                         padding-right: 50px;
+                        display: none;
                     }
 
                     #Start_Menu_Panel > .Start_Menu_Panel_Buttons {
@@ -699,43 +935,37 @@
                         flex-direction: column;
                         gap: 10px;
                     }
-
-                    #Start_Menu_Panel > .Start_Menu_Panel_Buttons > button {
-                        width: auto;
-                        height: auto;
-                        display: flex;
-                        flex-direction: column;
-                    }
-
-                    #Start_Menu_Panel > .Start_Panel_Buttons > button {
-                        width: auto;
-                        height: auto;
-                        display: flex;
-                        flex-direction: column;
-                    }
-
-
                 </style>
+
+                <script aria-label="Start_Menu_Panel - Script">
+                    document.getElementById('Start_Menu_Panel_Close').addEventListener('click', function() {
+                        document.getElementById('Start_Menu_Panel').style.display = 'none';
+                    });
+
+                    document.getElementById('Start_Menu_Panel_Close').addEventListener('click', function() {
+                        document.getElementById('Start_Button').style.display = 'flex';
+                    });
+                </script>
             </div>
 
+            
 
-
-            <!--Book_Mark: Lgoin_Builld - Login_Window-->
+            <!--Book_Mark: Login_Build - Login_Window-->
             <div class="Window" id="Login_Window">
                 <div class="Header" id="Login_Window-_Header">
                     <p class="Title">Login</p>
                     <div class="Window_Manipulation">
-                        <button class="Minimize" id="Login_Window_Minimize"></button>
-                        <button class="Maximize" id="Login_Window_Maximize"></button>
-                        <button class="Close" id="Login_Window_Close"></button>
+                        <button class="Window_Minimize" id="Login_Window_Minimize"></button>
+                        <button class="Window_Maximize" id="Login_Window_Maximize"></button>
+                        <button class="Window_Close" id="Login_Window_Close"></button>
                     </div>
                 </div>
-                <div class="Content" id="Login_Window-_Content">
-                    <div class="Login_Window-_Content-_Terminal">
+                <div class="Content" id="Login_Window_Content">
+                    <div class="Login_Window_Content_Terminal">
                         
                     </div>
 
-                    <style aria-label="Login_Window-_Content-_Terminal - Style"> 
+                    <style aria-label="Login_Window-_Content_Terminal - Style"> 
 
 
                     </style>
@@ -745,10 +975,10 @@
                     #Login_Window {
                         width: 260px;
                         height: 280px;
-                        
+                        display: none;
                     }
 
-                    #Login_Window > #Login_Window-_Content {
+                    #Login_Window > #Login_Window_Content {
                         position: absolute;
                         bottom: 10px;
                         right: 10px;
@@ -759,11 +989,106 @@
                         background-color: black;
                     }
                 </style>
+
+                <script aria-label="Login_Window - Script">
+                    document.getElementById('Login_Window_Close').addEventListener('click', function() {
+                        document.getElementById('Login_Window').style.display = 'none';
+                    });
+                </script>
             </div>
 
-            <div class="Clock">
+            <!--Book_Mark: Login_Build - Clock-->
 
+            <div class="Login_Build_Clock">
+                <p id="Login_Build_Clock_Time">00:00:00:000</p>
+                <p id="Login_Build_Clock_Date">00/00/0000</p>
+
+                <style aria-label="Login_Build_Clock - Style">
+                    .Login_Build_Clock {
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+
+                    }
+
+                    p {
+                        font-size: var(--Main_Font_Size);
+                        color: rgb(255, 255, 255);
+                    }
+                    
+                    #Login_Build_Clock_Date {
+                        position: absolute;
+                        right: 0px;
+                    }
+                </style>
+
+                <script aria-label="Login_Build_Clock - Script">
+                    function updateClock() {
+                        const now = new Date();
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+                        document.getElementById('Login_Build_Clock_Time').textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+                        
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const year = now.getFullYear();
+                        document.getElementById('Login_Build_Clock_Date').textContent = `${day}/${month}/${year}`;
+                    }
+                    updateClock();
+                    setInterval(updateClock, 10);
+                    
+                </script>
             </div>
+
+            <!--Book_Mark: Login_Build - Printable_Information-->
+
+            <div class="Login_Build_Printable_Information">
+                <p class="Login_Build_Printable_Information_Wifi_Conntected"></p>
+                
+                <style aria-label="Login_Build_Printable_Information - Style">
+                    .Login_Build_Printable_Information {
+                        position: absolute;
+                        top: 60px;
+                        right: 10px;
+                        font-size: var(--Main_Font_Size);
+                        color: var(--Main_Text_Color);
+                    }
+                </style>
+                <script aria-label="Login_Build_Printable_Information - Script">
+
+                    const Login_Build_Printable_Information_wifiElement = document.querySelector('.Login_Build_Printable_Information_Wifi_Conntected');
+
+                    function updateWifiStatus() {
+                        if (navigator.onLine) {
+                            Login_Build_Printable_Information_wifiElement.textContent = 'Wifi Connected';
+                            Login_Build_Printable_Information_wifiElement.style.color = 'green';
+                        } else {
+                            Login_Build_Printable_Information_wifiElement.textContent = 'Wifi Disconnected';
+                            Login_Build_Printable_Information_wifiElement.style.color = 'red';
+                        }
+                    }
+
+                    updateWifiStatus();
+                    window.addEventListener('online', updateWifiStatus);
+                    window.addEventListener('offline', updateWifiStatus);
+                    
+                </script>
+            </div>
+
+            <style aria-label=".Login_Build - Style">
+                .Login_Build {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    
+                }
+            </style>
+
+            <script aria-label="Login_Build - Script">
+                
+            </script>
 
             
         </div>
@@ -776,35 +1101,11 @@
                 overflow: hidden;
             }
 
-            .Login > .Login_Build {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
 
-            .Login > .Login_Build > .Wallpaper_Slide_Show > .Wallpapers_List > img {
-                height: 100dvh;
-                width: 100dvw;
-                background-size: contain;
-            }
 
         </style>
 
-        <!--Book_Mark: Login_Script-->
-        <Script>
 
-            document.getElementById('Panel_Login').addEventListener('click', function() {
-                const loginWindow = document.getElementById('Login_Window');
-                loginWindow.style.display = 'flex';
-                loginWindow.style.zIndex = Math.max(...Array.from(document.querySelectorAll('.Window, .Panel')).map(el => parseInt(el.style.zIndex) || 0)) + 1;
-            });
-
-            document.getElementById('Login_Window_Close').addEventListener('click', function() {
-                document.getElementById('Login_Window').style.display = 'none';
-            });
-            
-
-        </Script>
     </div>
 </body>
 </html>
