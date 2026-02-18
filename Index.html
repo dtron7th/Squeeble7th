@@ -16,12 +16,12 @@
     <style aria-label="Root">
         :root {
 
-            --Main_UI_Color: rgba(0, 0, 0, 0.2);
+            --Main_UI_Color: rgb(0, 0, 0);
             --Header_UI_Color: rgba(0, 0, 0, 0);
-            --Main_UI_Blur: 30px;
+            --Main_UI_Blur: 0px;
             --Main_UI_Border: 1px solid rgba(255, 255, 255, 0.178);
             
-            --Main_UI_Border_Radius_Window: 0px;
+            --Main_UI_Border_Radius_Window: 10px;
             --Main_UI_Border_Radius_Button: 0px;
 
             --Main_Text_Color: rgb(255, 255, 255);
@@ -143,6 +143,10 @@
             margin: 0px;
             font-family: "Inconsolata", monospace;
             
+        }
+
+        body {
+            background-color: rgb(0, 0, 0);
         }
     </style>
     
@@ -867,6 +871,7 @@
                         height: 100dvh;
                         width: 100dvw;
                         background-size: contain;
+                        display: none;
                     }
                 </style>
             </div>
