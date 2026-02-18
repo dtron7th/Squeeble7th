@@ -999,264 +999,260 @@
                     </style>
 
                     <script aria-label="Login_Window_Content_Terminal - Script">
-                        const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
-                        terminalText.style.position = 'absolute';
-                        terminalText.style.display = 'none';
-                        let firstName = '';
-                        let lastName = '';
-                        let currentField = 'welcome';
-                        let cursorVisible = true;
-                        let welcomeDisplayed = false;
-                        let terminalInitialized = false;
-                        let terminalReady = false;
-                        let welcomeTextReady = false;
-                        let welcomeText = 'Welcome to VISTA D-NET CORPORATION 2026, PRESS ENTER TO INITIATE.';
-                        let hashResult = '';
-                        
-                        // Hidden input for mobile keyboard support
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'text';
-                        hiddenInput.style.position = 'absolute';
-                        hiddenInput.style.opacity = '0';
-                        hiddenInput.style.pointerEvents = 'none';
-                        hiddenInput.style.left = '-9999px';
-                        hiddenInput.style.top = '0';
-                        hiddenInput.style.zIndex = '1';
-                        hiddenInput.setAttribute('inputmode', 'text');
-                        hiddenInput.setAttribute('autocomplete', 'off');
-                        hiddenInput.setAttribute('autocorrect', 'off');
-                        hiddenInput.setAttribute('autocapitalize', 'off');
-                        hiddenInput.setAttribute('spellcheck', 'false');
-                        document.body.appendChild(hiddenInput);
-                        
-                        async function generateHash(firstName, lastName) {
-                            try {
-                                const combined = (firstName + lastName);
-                                const encoder = new TextEncoder();
-                                const data = encoder.encode(combined);
-                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-                                return hashHex;
-                            } catch (error) {
-                                throw new Error('Error generating SHA-256 hash: ' + error.message);
-                            }
+                                            const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
+                    terminalText.style.position = 'absolute';
+                    terminalText.style.display = 'none';
+                    let firstName = '';
+                    let lastName = '';
+                    let currentField = 'welcome';
+                    let cursorVisible = true;
+                    let welcomeDisplayed = false;
+                    let terminalInitialized = false;
+                    let terminalReady = false;
+                    let welcomeTextReady = false;
+                    let welcomeText = 'Welcome to Vista D-Net Corporation 2026, press enter to initiate.';
+                    let hashResult = '';
+
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'text';
+                    hiddenInput.style.position = 'absolute';
+                    hiddenInput.style.opacity = '0';
+                    hiddenInput.style.pointerEvents = 'none';
+                    hiddenInput.style.left = '-9999px';
+                    hiddenInput.style.top = '0';
+                    hiddenInput.style.zIndex = '1';
+                    hiddenInput.setAttribute('inputmode', 'text');
+                    hiddenInput.setAttribute('autocomplete', 'off');
+                    hiddenInput.setAttribute('autocorrect', 'off');
+                    hiddenInput.setAttribute('autocapitalize', 'off');
+                    hiddenInput.setAttribute('spellcheck', 'false');
+                    document.body.appendChild(hiddenInput);
+
+                    async function generateHash(firstName, lastName) {
+                        try {
+                            const combined = firstName + lastName;
+                            const encoder = new TextEncoder();
+                            const data = encoder.encode(combined);
+                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                            return hashHex;
+                        } catch (error) {
+                            throw new Error('Error generating SHA-256 hash: ' + error.message);
                         }
-                        
-                        function updateTerminal() {
-                            if (!terminalReady || !welcomeTextReady) {
-                                terminalText.innerHTML = '';
-                                return;
-                            }
-                            const cursor = cursorVisible ? '<span style="position: absolute;">█</span>' : '<span style="position: absolute;"> </span>';
-                            let html = '<span style="position: absolute; top: 0; left: 0;">' + welcomeText;
-                            if (currentField === 'welcome') {
+                    }
+
+                    function updateTerminal() {
+                        if (!terminalReady || !welcomeTextReady) {
+                            terminalText.innerHTML = '';
+                            return;
+                        }
+                        const cursor = cursorVisible
+                            ? '<span style="position: absolute;">█</span>'
+                            : '<span style="position: absolute;"> </span>';
+                        let html = '<span style="position: absolute; top: 0; left: 0;">' + welcomeText;
+                        if (currentField === 'welcome') {
+                            html += cursor;
+                        }
+                        html += '</span>';
+                        if (currentField === 'firstName' || currentField === 'lastName' || currentField === 'complete') {
+                            html += '<span style="position: absolute; top: 3em; left: 0;">First name: ' + firstName;
+                            if (currentField === 'firstName') {
                                 html += cursor;
                             }
                             html += '</span>';
-                            if (currentField === 'firstName' || currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 3em; left: 0;">First name: ' + firstName;
-                                if (currentField === 'firstName') {
-                                    html += cursor;
-                                }
-                                html += '</span>';
-                            }
-                            if (currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 4em; left: 0;"> Last name: ' + lastName;
-                                if (currentField === 'lastName') {
-                                    html += cursor;
-                                }
-                                html += '</span>';
-                            }
-                            if (currentField === 'complete' && hashResult) {
-                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult + '</span>';
-                            }
-                            terminalText.innerHTML = html;
                         }
-                        
-                        async function completeLogin() {
-                            try {
-                                hashResult = await generateHash(firstName, lastName);
-                                currentField = 'complete';
-                                updateTerminal();
-                            } catch (error) {
-                                hashResult = 'Error: Unable to generate hash';
-                                currentField = 'complete';
-                                updateTerminal();
+                        if (currentField === 'lastName' || currentField === 'complete') {
+                            html += '<span style="position: absolute; top: 4em; left: 0;">Last name: ' + lastName;
+                            if (currentField === 'lastName') {
+                                html += cursor;
                             }
+                            html += '</span>';
                         }
-                        
-                        function focusHiddenInput() {
-                            hiddenInput.style.pointerEvents = 'auto';
-                            hiddenInput.style.left = '0';
-                            hiddenInput.focus();
-                            hiddenInput.click();
-                            setTimeout(function() {
-                                hiddenInput.style.pointerEvents = 'none';
-                                hiddenInput.style.left = '-9999px';
-                            }, 200);
+                        if (currentField === 'complete' && hashResult) {
+                            html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult + '</span>';
                         }
-                        
-                        function initializeTerminal() {
-                            if (!terminalInitialized) {
-                                terminalInitialized = true;
-                                setTimeout(function() {
-                                    terminalText.style.display = 'block';
-                                    terminalReady = true;
-                                    welcomeDisplayed = true;
-                                    setTimeout(function() {
-                                        welcomeTextReady = true;
-                                        updateTerminal();
-                                        // Automatically show Android keyboard when terminal is ready
-                                        focusHiddenInput();
-                                    }, 1000);
-                                }, 1000);
-                            }
-                        }
-                        
-                        // Watch for when the Login_Window becomes visible
-                        const loginWindow = document.getElementById('Login_Window');
-                        const observer = new MutationObserver(function(mutations) {
-                            mutations.forEach(function(mutation) {
-                                if (mutation.attributeName === 'style') {
-                                    if (loginWindow.style.display !== 'none') {
-                                        initializeTerminal();
-                                    }
-                                }
-                            });
-                        });
-                        observer.observe(loginWindow, { attributes: true });
-                        
-                        setInterval(function() {
-                            cursorVisible = !cursorVisible;
+                        terminalText.innerHTML = html;
+                    }
+
+                    async function completeLogin() {
+                        try {
+                            hashResult = await generateHash(firstName, lastName);
+                            currentField = 'complete';
                             updateTerminal();
-                        }, 500);
-                        
-                        // Focus hidden input when terminal is clicked (for mobile)
-                        document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function() {
-                            focusHiddenInput();
-                        });
-                        
-                        document.getElementById('Login_Window_Content_Terminal').addEventListener('touchend', function(e) {
-                            e.preventDefault();
-                            focusHiddenInput();
-                        });
-                        
-                        // Handle input from mobile keyboard
-                        hiddenInput.addEventListener('beforeinput', function(e) {
-                            if (e.data && (e.data.includes(' ') || e.data.includes('.'))) {
-                                e.preventDefault();
-                                return false;
-                            }
-                        });
-                        
-                        hiddenInput.addEventListener('input', function(e) {
-                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value;
-                                if (currentField === 'firstName') {
-                                    firstName = hiddenInput.value;
-                                } else if (currentField === 'lastName') {
-                                    lastName = hiddenInput.value;
-                                }
-                                updateTerminal();
-                            }
-                        });
-                        
-                        hiddenInput.addEventListener('keydown', function(e) {
-                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                e.stopImmediatePropagation();
-                                return false;
-                            }
-                            if (e.key === 'Enter' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                if (currentField === 'welcome') {
-                                    currentField = 'firstName';
-                                    hiddenInput.value = '';
+                        } catch (error) {
+                            hashResult = 'Error: Unable to generate hash';
+                            currentField = 'complete';
+                            updateTerminal();
+                        }
+                    }
+
+                    function focusHiddenInput() {
+                        hiddenInput.style.pointerEvents = 'auto';
+                        hiddenInput.style.left = '0';
+                        hiddenInput.focus();
+                        hiddenInput.click();
+                        setTimeout(function () {
+                            hiddenInput.style.pointerEvents = 'none';
+                            hiddenInput.style.left = '-9999px';
+                        }, 200);
+                    }
+
+                    function initializeTerminal() {
+                        if (!terminalInitialized) {
+                            terminalInitialized = true;
+                            setTimeout(function () {
+                                terminalText.style.display = 'block';
+                                terminalReady = true;
+                                welcomeDisplayed = true;
+                                setTimeout(function () {
+                                    welcomeTextReady = true;
                                     updateTerminal();
-                                    e.preventDefault();
-                                } else if (currentField === 'firstName' && firstName.length > 0) {
-                                    currentField = 'lastName';
-                                    hiddenInput.value = '';
-                                    updateTerminal();
-                                    e.preventDefault();
-                                } else if (currentField === 'lastName' && lastName.length > 0) {
-                                    completeLogin();
-                                    e.preventDefault();
+                                    focusHiddenInput();
+                                }, 1000);
+                            }, 1000);
+                        }
+                    }
+
+                    const loginWindow = document.getElementById('Login_Window');
+                    const observer = new MutationObserver(function (mutations) {
+                        mutations.forEach(function (mutation) {
+                            if (mutation.attributeName === 'style') {
+                                if (loginWindow.style.display !== 'none') {
+                                    initializeTerminal();
                                 }
                             }
-                        }, true);
-                        
-                        hiddenInput.addEventListener('keypress', function(e) {
-                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32 || e.charCode === 32) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                e.stopImmediatePropagation();
-                                return false;
-                            }
-                        }, true);
-                        
-                        hiddenInput.addEventListener('keyup', function(e) {
-                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                e.stopImmediatePropagation();
-                                const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value;
-                                if (currentField === 'firstName') {
-                                    firstName = hiddenInput.value;
-                                } else if (currentField === 'lastName') {
-                                    lastName = hiddenInput.value;
-                                }
-                                updateTerminal();
-                                return false;
-                            }
-                        }, true);
-                        
-                        // Desktop keyboard support
-                        document.addEventListener('keydown', function(e) {
-                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    e.stopImmediatePropagation();
-                                    return false;
-                                }
-                                if (document.activeElement !== hiddenInput) {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        if (currentField === 'welcome') {
-                                            currentField = 'firstName';
-                                            updateTerminal();
-                                        } else if (currentField === 'firstName' && firstName.length > 0) {
-                                            currentField = 'lastName';
-                                            updateTerminal();
-                                        } else if (currentField === 'lastName' && lastName.length > 0) {
-                                            completeLogin();
-                                        }
-                                    } else if (e.key === 'Backspace') {
-                                        e.preventDefault();
-                                        if (currentField === 'firstName') {
-                                            firstName = firstName.slice(0, -1);
-                                        } else if (currentField === 'lastName') {
-                                            lastName = lastName.slice(0, -1);
-                                        }
-                                        updateTerminal();
-                                    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== '.' && e.key !== ' ') {
-                                        e.preventDefault();
-                                        if (currentField === 'firstName') {
-                                            firstName = (firstName + e.key);
-                                        } else if (currentField === 'lastName') {
-                                            lastName = (lastName + e.key);
-                                        }
-                                        updateTerminal();
-                                    }
-                                }
-                            }
-                        }, true);
-                        
+                        });
+                    });
+                    observer.observe(loginWindow, { attributes: true });
+
+                    setInterval(function () {
+                        cursorVisible = !cursorVisible;
                         updateTerminal();
+                    }, 500);
+
+                    document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function () {
+                        focusHiddenInput();
+                    });
+
+                    document.getElementById('Login_Window_Content_Terminal').addEventListener('touchend', function (e) {
+                        e.preventDefault();
+                        focusHiddenInput();
+                    });
+
+                    hiddenInput.addEventListener('beforeinput', function (e) {
+                        if (e.data && (e.data.includes(' ') || e.data.includes('.'))) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+
+                    hiddenInput.addEventListener('input', function () {
+                        if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                            const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
+                            hiddenInput.value = value;
+                            if (currentField === 'firstName') {
+                                firstName = hiddenInput.value;
+                            } else if (currentField === 'lastName') {
+                                lastName = hiddenInput.value;
+                            }
+                            updateTerminal();
+                        }
+                    });
+
+                    hiddenInput.addEventListener('keydown', function (e) {
+                        if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return false;
+                        }
+                        if (e.key === 'Enter' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                            if (currentField === 'welcome') {
+                                currentField = 'firstName';
+                                hiddenInput.value = '';
+                                updateTerminal();
+                                e.preventDefault();
+                            } else if (currentField === 'firstName' && firstName.length > 0) {
+                                currentField = 'lastName';
+                                hiddenInput.value = '';
+                                updateTerminal();
+                                e.preventDefault();
+                            } else if (currentField === 'lastName' && lastName.length > 0) {
+                                completeLogin();
+                                e.preventDefault();
+                            }
+                        }
+                    }, true);
+
+                    hiddenInput.addEventListener('keypress', function (e) {
+                        if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32 || e.charCode === 32) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return false;
+                        }
+                    }, true);
+
+                    hiddenInput.addEventListener('keyup', function (e) {
+                        if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
+                            hiddenInput.value = value;
+                            if (currentField === 'firstName') {
+                                firstName = hiddenInput.value;
+                            } else if (currentField === 'lastName') {
+                                lastName = hiddenInput.value;
+                            }
+                            updateTerminal();
+                            return false;
+                        }
+                    }, true);
+
+                    document.addEventListener('keydown', function (e) {
+                        if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                return false;
+                            }
+                            if (document.activeElement !== hiddenInput) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (currentField === 'welcome') {
+                                        currentField = 'firstName';
+                                        updateTerminal();
+                                    } else if (currentField === 'firstName' && firstName.length > 0) {
+                                        currentField = 'lastName';
+                                        updateTerminal();
+                                    } else if (currentField === 'lastName' && lastName.length > 0) {
+                                        completeLogin();
+                                    }
+                                } else if (e.key === 'Backspace') {
+                                    e.preventDefault();
+                                    if (currentField === 'firstName') {
+                                        firstName = firstName.slice(0, -1);
+                                    } else if (currentField === 'lastName') {
+                                        lastName = lastName.slice(0, -1);
+                                    }
+                                    updateTerminal();
+                                } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== '.' && e.key !== ' ') {
+                                    e.preventDefault();
+                                    if (currentField === 'firstName') {
+                                        firstName = firstName + e.key;
+                                    } else if (currentField === 'lastName') {
+                                        lastName = lastName + e.key;
+                                    }
+                                    updateTerminal();
+                                }
+                            }
+                        }
+                    }, true);
+
+                    updateTerminal();
                         
                         
                     </script>
