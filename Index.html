@@ -978,9 +978,7 @@
                     </div>
                 </div>
                 <div class="Content" id="Login_Window_Content_Terminal">
-                    <div id="Login_Window_Content_Terminal">
-                        <p id="Login_Window_Content_Terminal_Main_Text"></p>
-                    </div>
+                    <p id="Login_Window_Content_Terminal_Main_Text"></p>
 
                     <!--Book_Mark: Login_Build - Login_Window_Content_Terminal - Style-->
                     <style aria-label="Login_Window_Content_Terminal - Style"> 
@@ -990,161 +988,286 @@
                         }
 
                         #Login_Window_Content_Terminal_Main_Text {
-                            position: absolute;                       
+                            position: absolute;  
+                            top: 10px;
+                            left: 10px;                     
                             width: calc(100% - 20px);
                             height: calc(100% - 20px);
                             color: var(--Terminal_Text_Color);
                             overflow: hidden;
-                            
                         }
                     </style>
 
                     <script aria-label="Login_Window_Content_Terminal - Script">
-
-                        const loginWindow = document.getElementById('Login_Window');
                         const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
-                        
-                        let cursorVisible = true;
-                        let cursorInterval = null;
-                        let userInput = '';
-                        let hiddenInput = null;
-                        let currentField = 'welcome';
+                        terminalText.style.position = 'absolute';
+                        terminalText.style.display = 'none';
                         let firstName = '';
                         let lastName = '';
+                        let currentField = 'welcome';
+                        let cursorVisible = true;
+                        let welcomeDisplayed = false;
+                        let terminalInitialized = false;
+                        let terminalReady = false;
+                        let welcomeTextReady = false;
+                        let welcomeText = 'Welcome to Vista D-Net Corporation 2026, Press enter to initiate.';
+                        let hashResult = '';
                         
-                        async function generateSHA256(text) {
-                            const encoder = new TextEncoder();
-                            const data = encoder.encode(text);
-                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                            return hashHex;
-                        }
+                        // Hidden input for mobile keyboard support
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'text';
+                        hiddenInput.style.position = 'absolute';
+                        hiddenInput.style.opacity = '0';
+                        hiddenInput.style.pointerEvents = 'none';
+                        hiddenInput.style.left = '-9999px';
+                        hiddenInput.style.top = '0';
+                        hiddenInput.style.zIndex = '-1';
+                        hiddenInput.setAttribute('inputmode', 'text');
+                        hiddenInput.setAttribute('autocomplete', 'off');
+                        hiddenInput.setAttribute('autocorrect', 'off');
+                        hiddenInput.setAttribute('autocapitalize', 'off');
+                        document.body.appendChild(hiddenInput);
                         
-                        function createHiddenInput() {
-                            if (hiddenInput) return;
-                            
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'text';
-                            hiddenInput.id = 'hidden-keyboard-input';
-                            hiddenInput.style.cssText = 'position: absolute; opacity: 0; width: 1px; height: 1px; top: 50%; left: 50%;';
-                            hiddenInput.setAttribute('autocomplete', 'off');
-                            hiddenInput.setAttribute('autocorrect', 'off');
-                            hiddenInput.setAttribute('autocapitalize', 'off');
-                            
-                            hiddenInput.addEventListener('input', function(e) {
-                                if (currentField !== 'welcome' && currentField !== 'complete') {
-                                    userInput = e.target.value;
-                                    cursorVisible = true;
-                                    updateTerminalDisplay();
-                                }
-                            });
-                            
-                            hiddenInput.addEventListener('keydown', async function(e) {
-                                if (e.key === 'Enter') {
-                                    if (currentField === 'welcome') {
-                                        currentField = 'firstName';
-                                        updateTerminalDisplay();
-                                    } else if (currentField === 'firstName' && userInput.trim() !== '') {
-                                        firstName = userInput.trim();
-                                        userInput = '';
-                                        hiddenInput.value = '';
-                                        currentField = 'lastName';
-                                        updateTerminalDisplay();
-                                    } else if (currentField === 'lastName' && userInput.trim() !== '') {
-                                        lastName = userInput.trim();
-                                        userInput = '';
-                                        hiddenInput.value = '';
-                                        currentField = 'complete';
-                                        stopCursorBlink();
-                                        const combinedName = firstName + lastName;
-                                        const hash = await generateSHA256(combinedName);
-                                        updateTerminalDisplayWithHash(hash);
-                                    }
-                                }
-                            });
-                            
-                            document.getElementById('Login_Window_Content_Terminal').appendChild(hiddenInput);
-                            hiddenInput.focus();
-                        }
-                        
-                        function removeHiddenInput() {
-                            if (hiddenInput) {
-                                hiddenInput.remove();
-                                hiddenInput = null;
+                        async function generateHash(firstName, lastName) {
+                            try {
+                                const combined = firstName + lastName;
+                                const encoder = new TextEncoder();
+                                const data = encoder.encode(combined);
+                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                                return hashHex;
+                            } catch (error) {
+                                throw new Error('Error generating SHA-256 hash: ' + error.message);
                             }
                         }
                         
-                        function updateTerminalDisplay() {
-                            const cursor = cursorVisible ? '█' : ' ';
-                            let displayText = '';
-                            
+                        function updateTerminal() {
+                            if (!terminalReady || !welcomeTextReady) {
+                                terminalText.innerHTML = '';
+                                return;
+                            }
+                            const cursor = cursorVisible ? '<span style="position: absolute;">█</span>' : '<span style="position: absolute;"> </span>';
+                            let html = '<span style="position: absolute; top: 0; left: 0;">' + welcomeText;
                             if (currentField === 'welcome') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<span class="terminal-cursor">' + cursor + '</span>';
-                            } else if (currentField === 'firstName') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + userInput + '<span class="terminal-cursor">' + cursor + '</span>';
-                            } else if (currentField === 'lastName') {
-                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + userInput + '<span class="terminal-cursor">' + cursor + '</span>';
+                                html += cursor;
                             }
-                            
-                            terminalText.innerHTML = displayText;
+                            html += '</span>';
+                            if (currentField === 'firstName' || currentField === 'lastName' || currentField === 'complete') {
+                                html += '<span style="position: absolute; top: 3em; left: 0;">First Name: ' + firstName;
+                                if (currentField === 'firstName') {
+                                    html += cursor;
+                                }
+                                html += '</span>';
+                            }
+                            if (currentField === 'lastName' || currentField === 'complete') {
+                                html += '<span style="position: absolute; top: 4em; left: 0;">Last Name: ' + lastName;
+                                if (currentField === 'lastName') {
+                                    html += cursor;
+                                }
+                                html += '</span>';
+                            }
+                            if (currentField === 'complete' && hashResult) {
+                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult + '</span>';
+                            }
+                            terminalText.innerHTML = html;
                         }
                         
-                        function updateTerminalDisplayWithHash(hash) {
-                            const displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash:<br>' + hash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
-                            terminalText.innerHTML = displayText;
-                        }
-                        
-                        function startCursorBlink() {
-                            if (cursorInterval) {
-                                clearInterval(cursorInterval);
-                            }
-                            cursorVisible = true;
-                            updateTerminalDisplay();
-                            cursorInterval = setInterval(function() {
-                                cursorVisible = !cursorVisible;
-                                const cursorEl = terminalText.querySelector('.terminal-cursor');
-                                if (cursorEl) cursorEl.textContent = cursorVisible ? '█' : ' ';
-                            }, 500);
-                        }
-                        
-                        function stopCursorBlink() {
-                            if (cursorInterval) {
-                                clearInterval(cursorInterval);
-                                cursorInterval = null;
+                        async function completeLogin() {
+                            try {
+                                hashResult = await generateHash(firstName, lastName);
+                                currentField = 'complete';
+                                updateTerminal();
+                            } catch (error) {
+                                hashResult = 'Error: Unable to generate hash';
+                                currentField = 'complete';
+                                updateTerminal();
                             }
                         }
                         
-                        // Allow tapping terminal area to focus input and show keyboard
-                        document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function() {
-                            if (hiddenInput) {
-                                hiddenInput.focus();
-                            }
-                        });
+                        function focusHiddenInput() {
+                            hiddenInput.style.pointerEvents = 'auto';
+                            hiddenInput.style.opacity = '0';
+                            hiddenInput.style.left = '0';
+                            hiddenInput.focus();
+                            hiddenInput.click();
+                            setTimeout(function() {
+                                hiddenInput.style.pointerEvents = 'none';
+                                hiddenInput.style.left = '-9999px';
+                            }, 100);
+                        }
                         
+                        function initializeTerminal() {
+                            if (!terminalInitialized) {
+                                terminalInitialized = true;
+                                setTimeout(function() {
+                                    terminalText.style.display = 'block';
+                                    terminalReady = true;
+                                    welcomeDisplayed = true;
+                                    // Delay the welcome text display by 1 second
+                                    setTimeout(function() {
+                                        welcomeTextReady = true;
+                                        updateTerminal();
+                                        // Automatically focus hidden input to trigger mobile keyboard
+                                        focusHiddenInput();
+                                    }, 1000);
+                                }, 1000);
+                            }
+                        }
+                        
+                        // Watch for when the Login_Window becomes visible
+                        const loginWindow = document.getElementById('Login_Window');
                         const observer = new MutationObserver(function(mutations) {
                             mutations.forEach(function(mutation) {
                                 if (mutation.attributeName === 'style') {
-                                    const display = window.getComputedStyle(loginWindow).display;
-                                    if (display !== 'none') {
-                                        setTimeout(function() {
-                                            userInput = '';
-                                            firstName = '';
-                                            lastName = '';
-                                            currentField = 'welcome';
-                                            updateTerminalDisplay();
-                                            startCursorBlink();
-                                            createHiddenInput();
-                                        }, 1000);
-                                    } else {
-                                        stopCursorBlink();
-                                        removeHiddenInput();
+                                    if (loginWindow.style.display !== 'none') {
+                                        initializeTerminal();
                                     }
                                 }
                             });
                         });
-    
                         observer.observe(loginWindow, { attributes: true });
+                        
+                        setInterval(function() {
+                            cursorVisible = !cursorVisible;
+                            updateTerminal();
+                        }, 500);
+                        
+                        // Focus hidden input when terminal is clicked to show keyboard
+                        document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function() {
+                            focusHiddenInput();
+                        });
+                        
+                        // Also handle touch events for mobile
+                        document.getElementById('Login_Window_Content_Terminal').addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            focusHiddenInput();
+                        });
+                        
+                        // Handle input from mobile keyboard
+                        hiddenInput.addEventListener('input', function(e) {
+                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                                // Remove all spaces and periods from the input
+                                const value = hiddenInput.value.replace(/[\s.]/g, '');
+                                hiddenInput.value = value;
+                                if (currentField === 'firstName') {
+                                    firstName = value;
+                                } else if (currentField === 'lastName') {
+                                    lastName = value;
+                                }
+                                updateTerminal();
+                            }
+                        });
+                        
+                        // Prevent spacebar in hidden input - block before it can affect anything
+                        hiddenInput.addEventListener('keydown', function(e) {
+                            if (e.key === ' ' || e.keyCode === 32) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                return false;
+                            }
+                            if (e.key === '.') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return false;
+                            }
+                            if (e.key === 'Enter' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                                if (currentField === 'welcome') {
+                                    currentField = 'firstName';
+                                    hiddenInput.value = '';
+                                    updateTerminal();
+                                    e.preventDefault();
+                                } else if (currentField === 'firstName' && firstName.length > 0) {
+                                    currentField = 'lastName';
+                                    hiddenInput.value = '';
+                                    updateTerminal();
+                                    e.preventDefault();
+                                } else if (currentField === 'lastName' && lastName.length > 0) {
+                                    completeLogin();
+                                    e.preventDefault();
+                                }
+                            }
+                        }, true);
+                        
+                        // Also block on keypress for hidden input
+                        hiddenInput.addEventListener('keypress', function(e) {
+                            if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                return false;
+                            }
+                        }, true);
+                        
+                        // Desktop keyboard support - capture phase to block spaces early
+                        document.addEventListener('keydown', function(e) {
+                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                                // Block spacebar and period completely
+                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    e.stopImmediatePropagation();
+                                    return false;
+                                }
+                                if (document.activeElement !== hiddenInput) {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        if (currentField === 'welcome') {
+                                            currentField = 'firstName';
+                                            updateTerminal();
+                                        } else if (currentField === 'firstName' && firstName.length > 0) {
+                                            currentField = 'lastName';
+                                            updateTerminal();
+                                        } else if (currentField === 'lastName' && lastName.length > 0) {
+                                            completeLogin();
+                                        }
+                                    } else if (e.key === 'Backspace') {
+                                        e.preventDefault();
+                                        if (currentField === 'firstName') {
+                                            firstName = firstName.slice(0, -1);
+                                        } else if (currentField === 'lastName') {
+                                            lastName = lastName.slice(0, -1);
+                                        }
+                                        updateTerminal();
+                                    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== ' ' && e.key !== '.') {
+                                        e.preventDefault();
+                                        if (currentField === 'firstName') {
+                                            firstName += e.key;
+                                        } else if (currentField === 'lastName') {
+                                            lastName += e.key;
+                                        }
+                                        updateTerminal();
+                                    }
+                                }
+                            }
+                        }, true);
+                        
+                        // Block spacebar on keypress as well - capture phase
+                        document.addEventListener('keypress', function(e) {
+                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    e.stopImmediatePropagation();
+                                    return false;
+                                }
+                            }
+                        }, true);
+                        
+                        // Block spacebar on keyup as well
+                        document.addEventListener('keyup', function(e) {
+                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
+                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return false;
+                                }
+                            }
+                        }, true);
+                        
+                        updateTerminal();
+                        
                         
                     </script>
                 </div>
