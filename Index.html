@@ -1089,7 +1089,8 @@
                         }
                         
                         function updateTerminalDisplayWithHash(hash) {
-                            const displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash: ' + hash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
+                            const wrappedHash = '<span style="word-wrap: break-word; word-break: break-all; overflow-wrap: break-word; display: inline-block; max-width: 100%;">' + hash + '</span>';
+                            const displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash:<br>' + wrappedHash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
                             terminalText.innerHTML = displayText;
                         }
                         
