@@ -1031,7 +1031,7 @@
                         
                         async function generateHash(firstName, lastName) {
                             try {
-                                const combined = (firstName + lastName).toUpperCase();
+                                const combined = (firstName + lastName);
                                 const encoder = new TextEncoder();
                                 const data = encoder.encode(combined);
                                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -1039,7 +1039,7 @@
                                 const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                 return hashHex;
                             } catch (error) {
-                                throw new Error('ERROR GENERATING SHA-256 HASH: ' + error.message.toUpperCase());
+                                throw new Error('Error generating SHA-256 hash: ' + error.message);
                             }
                         }
                         
@@ -1055,21 +1055,21 @@
                             }
                             html += '</span>';
                             if (currentField === 'firstName' || currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 3em; left: 0;">FIRST NAME: ' + firstName.toUpperCase();
+                                html += '<span style="position: absolute; top: 3em; left: 0;">First name: ' + firstName;
                                 if (currentField === 'firstName') {
                                     html += cursor;
                                 }
                                 html += '</span>';
                             }
                             if (currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 4em; left: 0;"> LAST NAME: ' + lastName.toUpperCase();
+                                html += '<span style="position: absolute; top: 4em; left: 0;"> Last name: ' + lastName;
                                 if (currentField === 'lastName') {
                                     html += cursor;
                                 }
                                 html += '</span>';
                             }
                             if (currentField === 'complete' && hashResult) {
-                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult.toUpperCase() + '</span>';
+                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult + '</span>';
                             }
                             terminalText.innerHTML = html;
                         }
@@ -1080,7 +1080,7 @@
                                 currentField = 'complete';
                                 updateTerminal();
                             } catch (error) {
-                                hashResult = 'ERROR: UNABLE TO GENERATE HASH';
+                                hashResult = 'Error: Unable to generate hash';
                                 currentField = 'complete';
                                 updateTerminal();
                             }
@@ -1153,7 +1153,7 @@
                         hiddenInput.addEventListener('input', function(e) {
                             if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
                                 const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value.toUpperCase();
+                                hiddenInput.value = value;
                                 if (currentField === 'firstName') {
                                     firstName = hiddenInput.value;
                                 } else if (currentField === 'lastName') {
@@ -1203,7 +1203,7 @@
                                 e.stopPropagation();
                                 e.stopImmediatePropagation();
                                 const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value.toUpperCase();
+                                hiddenInput.value = value;
                                 if (currentField === 'firstName') {
                                     firstName = hiddenInput.value;
                                 } else if (currentField === 'lastName') {
@@ -1238,17 +1238,17 @@
                                     } else if (e.key === 'Backspace') {
                                         e.preventDefault();
                                         if (currentField === 'firstName') {
-                                            firstName = firstName.slice(0, -1).toUpperCase();
+                                            firstName = firstName.slice(0, -1);
                                         } else if (currentField === 'lastName') {
-                                            lastName = lastName.slice(0, -1).toUpperCase();
+                                            lastName = lastName.slice(0, -1);
                                         }
                                         updateTerminal();
                                     } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== '.' && e.key !== ' ') {
                                         e.preventDefault();
                                         if (currentField === 'firstName') {
-                                            firstName = (firstName + e.key).toUpperCase();
+                                            firstName = (firstName + e.key);
                                         } else if (currentField === 'lastName') {
-                                            lastName = (lastName + e.key).toUpperCase();
+                                            lastName = (lastName + e.key);
                                         }
                                         updateTerminal();
                                     }
