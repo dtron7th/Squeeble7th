@@ -967,7 +967,7 @@
 
             
 
-            <!--: Login_Build - Login_Window-->
+            <!--Book_Mark: Login_Build - Login_Window-->
             <div class="Window" id="Login_Window">
                 <div class="Header" id="Login_Window-_Header">
                     <p class="Title">Login</p>
@@ -982,6 +982,7 @@
                         <p id="Login_Window_Content_Terminal_Main_Text"></p>
                     </div>
 
+                    <!--Book_Mark: Login_Build - Login_Window_Content_Terminal - Style-->
                     <style aria-label="Login_Window_Content_Terminal - Style"> 
                         #Login_Window_Content_Terminal {
                             background-color: var(--Terminal_Background_Color);
@@ -989,11 +990,12 @@
                         }
 
                         #Login_Window_Content_Terminal_Main_Text {
-                            position: absolute;
-                            top: 10px;
-                            left: 10px;
+                            position: absolute;                       
+                            width: calc(100% - 20px);
+                            height: calc(100% - 20px);
                             color: var(--Terminal_Text_Color);
-
+                            overflow: hidden;
+                            
                         }
                     </style>
 
