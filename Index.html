@@ -1010,7 +1010,7 @@
                         let terminalInitialized = false;
                         let terminalReady = false;
                         let welcomeTextReady = false;
-                        let welcomeText = 'Welcome to Vista D-Net Corporation 2026, Press enter to initiate.';
+                        let welcomeText = 'Welcome to VISTA D-NET CORPORATION 2026, PRESS ENTER TO INITIATE.';
                         let hashResult = '';
                         
                         // Hidden input for mobile keyboard support
@@ -1031,15 +1031,15 @@
                         
                         async function generateHash(firstName, lastName) {
                             try {
-                                const combined = firstName + lastName;
+                                const combined = (firstName + lastName).toUpperCase();
                                 const encoder = new TextEncoder();
                                 const data = encoder.encode(combined);
                                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                                 const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                 return hashHex;
                             } catch (error) {
-                                throw new Error('Error generating SHA-256 hash: ' + error.message);
+                                throw new Error('ERROR GENERATING SHA-256 HASH: ' + error.message.toUpperCase());
                             }
                         }
                         
@@ -1055,21 +1055,21 @@
                             }
                             html += '</span>';
                             if (currentField === 'firstName' || currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 3em; left: 0;">First Name: ' + firstName;
+                                html += '<span style="position: absolute; top: 3em; left: 0;">FIRST NAME: ' + firstName.toUpperCase();
                                 if (currentField === 'firstName') {
                                     html += cursor;
                                 }
                                 html += '</span>';
                             }
                             if (currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 4em; left: 0;"> Last Name: ' + lastName;
+                                html += '<span style="position: absolute; top: 4em; left: 0;"> LAST NAME: ' + lastName.toUpperCase();
                                 if (currentField === 'lastName') {
                                     html += cursor;
                                 }
                                 html += '</span>';
                             }
                             if (currentField === 'complete' && hashResult) {
-                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult + '</span>';
+                                html += '<span style="position: absolute; top: 6em; left: 0; word-break: break-all;">SHA-256: ' + hashResult.toUpperCase() + '</span>';
                             }
                             terminalText.innerHTML = html;
                         }
@@ -1080,7 +1080,7 @@
                                 currentField = 'complete';
                                 updateTerminal();
                             } catch (error) {
-                                hashResult = 'Error: Unable to generate hash';
+                                hashResult = 'ERROR: UNABLE TO GENERATE HASH';
                                 currentField = 'complete';
                                 updateTerminal();
                             }
@@ -1153,11 +1153,11 @@
                         hiddenInput.addEventListener('input', function(e) {
                             if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
                                 const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value;
+                                hiddenInput.value = value.toUpperCase();
                                 if (currentField === 'firstName') {
-                                    firstName = value;
+                                    firstName = hiddenInput.value;
                                 } else if (currentField === 'lastName') {
-                                    lastName = value;
+                                    lastName = hiddenInput.value;
                                 }
                                 updateTerminal();
                             }
@@ -1203,11 +1203,11 @@
                                 e.stopPropagation();
                                 e.stopImmediatePropagation();
                                 const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
-                                hiddenInput.value = value;
+                                hiddenInput.value = value.toUpperCase();
                                 if (currentField === 'firstName') {
-                                    firstName = value;
+                                    firstName = hiddenInput.value;
                                 } else if (currentField === 'lastName') {
-                                    lastName = value;
+                                    lastName = hiddenInput.value;
                                 }
                                 updateTerminal();
                                 return false;
@@ -1238,17 +1238,17 @@
                                     } else if (e.key === 'Backspace') {
                                         e.preventDefault();
                                         if (currentField === 'firstName') {
-                                            firstName = firstName.slice(0, -1);
+                                            firstName = firstName.slice(0, -1).toUpperCase();
                                         } else if (currentField === 'lastName') {
-                                            lastName = lastName.slice(0, -1);
+                                            lastName = lastName.slice(0, -1).toUpperCase();
                                         }
                                         updateTerminal();
                                     } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== '.' && e.key !== ' ') {
                                         e.preventDefault();
                                         if (currentField === 'firstName') {
-                                            firstName += e.key;
+                                            firstName = (firstName + e.key).toUpperCase();
                                         } else if (currentField === 'lastName') {
-                                            lastName += e.key;
+                                            lastName = (lastName + e.key).toUpperCase();
                                         }
                                         updateTerminal();
                                     }
