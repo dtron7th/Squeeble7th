@@ -29,6 +29,9 @@
             --Main_Font_Size: 11px;
 
             --Box_Shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
+
+            --Terminal_Background_Color: rgb(0, 0, 0);
+            --Terminal_Text_Color: rgb(255, 255, 255);
             
         }
     </style>
@@ -139,6 +142,7 @@
             padding: 0px;
             margin: 0px;
             font-family: "Inconsolata", monospace;
+            
         }
     </style>
     
@@ -207,9 +211,13 @@
             border: var(--Main_UI_Border);
             border-radius: var(--Main_UI_Border_Radius_Window);
             box-shadow: var(--Box_Shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            display: none;
         }
 
-        .Header {
+        .Window > .Header {
             width: 100%;
             height: 30px;
             background-color: var(--Header_UI_Color);
@@ -217,24 +225,33 @@
             align-items: center;
         }
 
-        .Header > .Title {
+        .Window > .Header > .Title {
             position: absolute;
             left: 10px;
             color: var(--Main_Text_Color);
             font-size: var(--Main_Font_Size);
         }
 
-        .Header > .Window_Manipulation {
+        .Window > .Header > .Window_Manipulation {
             position: absolute;
             right: 10px;
             display: flex;
             gap: 10px;
         }
 
-        .Header > .Window_Manipulation > button {
+        .Window > .Header > .Window_Manipulation > button {
             width: 10px;
             height: 10px;
             border-radius: 50%;
+        }
+
+        .Window > .Content {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            height: calc(100% - 30px);
+            display: flex;
+            justify-content: center;
         }
 
     </style>
@@ -298,10 +315,10 @@
             </script>
         </div>
 
-        <!--Book_Mark:  Coponets-->
+        <!--Book_Mark:  Components-->
 
         <div class="_Printable_Information">
-            <p class="_Printable_Information_Wifi_Conntected"></p>
+            <p id="_Printable_Information_Wifi_Conntected"></p>
             
             <style aria-label="_Printable_Information - Style">
                 ._Printable_Information {
@@ -314,7 +331,7 @@
             </style>
             <script aria-label="_Printable_Information - Script">
 
-                const _Printable_Information_wifiElement = document.querySelector('._Printable_Information_Wifi_Conntected');
+                const _Printable_Information_wifiElement = document.getElementById('_Printable_Information_Wifi_Conntected');
 
                     function updateWifiStatus() {
                         if (navigator.onLine) {
@@ -950,7 +967,7 @@
 
             
 
-            <!--Book_Mark: Login_Build - Login_Window-->
+            <!--: Login_Build - Login_Window-->
             <div class="Window" id="Login_Window">
                 <div class="Header" id="Login_Window-_Header">
                     <p class="Title">Login</p>
@@ -960,33 +977,183 @@
                         <button class="Window_Close" id="Login_Window_Close"></button>
                     </div>
                 </div>
-                <div class="Content" id="Login_Window_Content">
-                    <div class="Login_Window_Content_Terminal">
-                        
+                <div class="Content" id="Login_Window_Content_Terminal">
+                    <div id="Login_Window_Content_Terminal">
+                        <p id="Login_Window_Content_Terminal_Main_Text"></p>
                     </div>
 
-                    <style aria-label="Login_Window-_Content_Terminal - Style"> 
+                    <style aria-label="Login_Window_Content_Terminal - Style"> 
+                        #Login_Window_Content_Terminal {
+                            background-color: var(--Terminal_Background_Color);
+                            
+                        }
 
+                        #Login_Window_Content_Terminal_Main_Text {
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            color: var(--Terminal_Text_Color);
 
+                        }
                     </style>
+
+                    <script aria-label="Login_Window_Content_Terminal - Script">
+
+                        const loginWindow = document.getElementById('Login_Window');
+                        const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
+                        
+                        let cursorVisible = true;
+                        let cursorInterval = null;
+                        let userInput = '';
+                        let hiddenInput = null;
+                        let currentField = 'welcome';
+                        let firstName = '';
+                        let lastName = '';
+                        
+                        async function generateSHA256(text) {
+                            const encoder = new TextEncoder();
+                            const data = encoder.encode(text);
+                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                            return hashHex;
+                        }
+                        
+                        function createHiddenInput() {
+                            if (hiddenInput) return;
+                            
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'text';
+                            hiddenInput.id = 'hidden-keyboard-input';
+                            hiddenInput.style.cssText = 'position: absolute; opacity: 0; width: 1px; height: 1px; top: 50%; left: 50%;';
+                            hiddenInput.setAttribute('autocomplete', 'off');
+                            hiddenInput.setAttribute('autocorrect', 'off');
+                            hiddenInput.setAttribute('autocapitalize', 'off');
+                            
+                            hiddenInput.addEventListener('input', function(e) {
+                                if (currentField !== 'welcome' && currentField !== 'complete') {
+                                    userInput = e.target.value;
+                                    cursorVisible = true;
+                                    updateTerminalDisplay();
+                                }
+                            });
+                            
+                            hiddenInput.addEventListener('keydown', async function(e) {
+                                if (e.key === 'Enter') {
+                                    if (currentField === 'welcome') {
+                                        currentField = 'firstName';
+                                        updateTerminalDisplay();
+                                    } else if (currentField === 'firstName' && userInput.trim() !== '') {
+                                        firstName = userInput.trim();
+                                        userInput = '';
+                                        hiddenInput.value = '';
+                                        currentField = 'lastName';
+                                        updateTerminalDisplay();
+                                    } else if (currentField === 'lastName' && userInput.trim() !== '') {
+                                        lastName = userInput.trim();
+                                        userInput = '';
+                                        hiddenInput.value = '';
+                                        currentField = 'complete';
+                                        stopCursorBlink();
+                                        const combinedName = firstName + lastName;
+                                        const hash = await generateSHA256(combinedName);
+                                        updateTerminalDisplayWithHash(hash);
+                                    }
+                                }
+                            });
+                            
+                            document.getElementById('Login_Window_Content_Terminal').appendChild(hiddenInput);
+                            hiddenInput.focus();
+                        }
+                        
+                        function removeHiddenInput() {
+                            if (hiddenInput) {
+                                hiddenInput.remove();
+                                hiddenInput = null;
+                            }
+                        }
+                        
+                        function updateTerminalDisplay() {
+                            const cursor = cursorVisible ? '█' : ' ';
+                            let displayText = '';
+                            
+                            if (currentField === 'welcome') {
+                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                            } else if (currentField === 'firstName') {
+                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + userInput + '<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                            } else if (currentField === 'lastName') {
+                                displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + userInput + '<span class="terminal-cursor" style="position: absolute;">' + cursor + '</span>';
+                            }
+                            
+                            terminalText.innerHTML = displayText;
+                        }
+                        
+                        function updateTerminalDisplayWithHash(hash) {
+                            const displayText = 'Welcome to Vista D-Net Corp 2026, AI Agent Kimi K.25 - Press enter to Initiate<br><br>First Name: ' + firstName + '<br>Last Name: ' + lastName + '<br><br>SHA-256 Hash: ' + hash + '<br><br>Welcome, ' + firstName + ' ' + lastName + '!';
+                            terminalText.innerHTML = displayText;
+                        }
+                        
+                        function startCursorBlink() {
+                            if (cursorInterval) {
+                                clearInterval(cursorInterval);
+                            }
+                            cursorVisible = true;
+                            updateTerminalDisplay();
+                            cursorInterval = setInterval(function() {
+                                cursorVisible = !cursorVisible;
+                                const cursorEl = terminalText.querySelector('.terminal-cursor');
+                                if (cursorEl) cursorEl.textContent = cursorVisible ? '█' : ' ';
+                            }, 500);
+                        }
+                        
+                        function stopCursorBlink() {
+                            if (cursorInterval) {
+                                clearInterval(cursorInterval);
+                                cursorInterval = null;
+                            }
+                        }
+                        
+                        // Allow tapping terminal area to focus input and show keyboard
+                        document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function() {
+                            if (hiddenInput) {
+                                hiddenInput.focus();
+                            }
+                        });
+                        
+                        const observer = new MutationObserver(function(mutations) {
+                            mutations.forEach(function(mutation) {
+                                if (mutation.attributeName === 'style') {
+                                    const display = window.getComputedStyle(loginWindow).display;
+                                    if (display !== 'none') {
+                                        setTimeout(function() {
+                                            userInput = '';
+                                            firstName = '';
+                                            lastName = '';
+                                            currentField = 'welcome';
+                                            updateTerminalDisplay();
+                                            startCursorBlink();
+                                            createHiddenInput();
+                                        }, 1000);
+                                    } else {
+                                        stopCursorBlink();
+                                        removeHiddenInput();
+                                    }
+                                }
+                            });
+                        });
+    
+    observer.observe(loginWindow, { attributes: true });
+
+
+                        
+                    </script>
                 </div>
 
                 <style aria-label="Login_Window - Style">
                     #Login_Window {
                         width: 260px;
                         height: 280px;
-                        display: none;
-                    }
-
-                    #Login_Window > #Login_Window_Content {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        width: calc(100% - 20px);
-                        height: 240px;
-                        /*Specials*/
                         
-                        background-color: black;
                     }
                 </style>
 
@@ -1045,7 +1212,8 @@
             <!--Book_Mark: Login_Build - Printable_Information-->
 
             <div class="Login_Build_Printable_Information">
-                <p class="Login_Build_Printable_Information_Wifi_Conntected"></p>
+                <p id="Login_Build_Printable_Information_Wifi_Conntected"></p>
+                <p id="Login_Build_Printable_Information_Wifi_Name"></p>
                 
                 <style aria-label="Login_Build_Printable_Information - Style">
                     .Login_Build_Printable_Information {
@@ -1058,7 +1226,7 @@
                 </style>
                 <script aria-label="Login_Build_Printable_Information - Script">
 
-                    const Login_Build_Printable_Information_wifiElement = document.querySelector('.Login_Build_Printable_Information_Wifi_Conntected');
+                    const Login_Build_Printable_Information_wifiElement = document.getElementById('Login_Build_Printable_Information_Wifi_Conntected');
 
                     function updateWifiStatus() {
                         if (navigator.onLine) {
