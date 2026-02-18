@@ -1021,11 +1021,12 @@
                         hiddenInput.style.pointerEvents = 'none';
                         hiddenInput.style.left = '-9999px';
                         hiddenInput.style.top = '0';
-                        hiddenInput.style.zIndex = '-1';
+                        hiddenInput.style.zIndex = '1';
                         hiddenInput.setAttribute('inputmode', 'text');
                         hiddenInput.setAttribute('autocomplete', 'off');
                         hiddenInput.setAttribute('autocorrect', 'off');
                         hiddenInput.setAttribute('autocapitalize', 'off');
+                        hiddenInput.setAttribute('spellcheck', 'false');
                         document.body.appendChild(hiddenInput);
                         
                         async function generateHash(firstName, lastName) {
@@ -1061,7 +1062,7 @@
                                 html += '</span>';
                             }
                             if (currentField === 'lastName' || currentField === 'complete') {
-                                html += '<span style="position: absolute; top: 4em; left: 0;">Last Name: ' + lastName;
+                                html += '<span style="position: absolute; top: 4em; left: 0;"> Last Name: ' + lastName;
                                 if (currentField === 'lastName') {
                                     html += cursor;
                                 }
@@ -1087,14 +1088,13 @@
                         
                         function focusHiddenInput() {
                             hiddenInput.style.pointerEvents = 'auto';
-                            hiddenInput.style.opacity = '0';
                             hiddenInput.style.left = '0';
                             hiddenInput.focus();
                             hiddenInput.click();
                             setTimeout(function() {
                                 hiddenInput.style.pointerEvents = 'none';
                                 hiddenInput.style.left = '-9999px';
-                            }, 100);
+                            }, 200);
                         }
                         
                         function initializeTerminal() {
@@ -1104,11 +1104,10 @@
                                     terminalText.style.display = 'block';
                                     terminalReady = true;
                                     welcomeDisplayed = true;
-                                    // Delay the welcome text display by 1 second
                                     setTimeout(function() {
                                         welcomeTextReady = true;
                                         updateTerminal();
-                                        // Automatically focus hidden input to trigger mobile keyboard
+                                        // Automatically show Android keyboard when terminal is ready
                                         focusHiddenInput();
                                     }, 1000);
                                 }, 1000);
@@ -1133,22 +1132,27 @@
                             updateTerminal();
                         }, 500);
                         
-                        // Focus hidden input when terminal is clicked to show keyboard
+                        // Focus hidden input when terminal is clicked (for mobile)
                         document.getElementById('Login_Window_Content_Terminal').addEventListener('click', function() {
                             focusHiddenInput();
                         });
                         
-                        // Also handle touch events for mobile
                         document.getElementById('Login_Window_Content_Terminal').addEventListener('touchend', function(e) {
                             e.preventDefault();
                             focusHiddenInput();
                         });
                         
                         // Handle input from mobile keyboard
+                        hiddenInput.addEventListener('beforeinput', function(e) {
+                            if (e.data && (e.data.includes(' ') || e.data.includes('.'))) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                        
                         hiddenInput.addEventListener('input', function(e) {
                             if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                // Remove all spaces and periods from the input
-                                const value = hiddenInput.value.replace(/[\s.]/g, '');
+                                const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
                                 hiddenInput.value = value;
                                 if (currentField === 'firstName') {
                                     firstName = value;
@@ -1159,17 +1163,11 @@
                             }
                         });
                         
-                        // Prevent spacebar in hidden input - block before it can affect anything
                         hiddenInput.addEventListener('keydown', function(e) {
-                            if (e.key === ' ' || e.keyCode === 32) {
+                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 e.stopImmediatePropagation();
-                                return false;
-                            }
-                            if (e.key === '.') {
-                                e.preventDefault();
-                                e.stopPropagation();
                                 return false;
                             }
                             if (e.key === 'Enter' && welcomeDisplayed && terminalReady && welcomeTextReady) {
@@ -1190,9 +1188,8 @@
                             }
                         }, true);
                         
-                        // Also block on keypress for hidden input
                         hiddenInput.addEventListener('keypress', function(e) {
-                            if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32 || e.charCode === 32) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 e.stopImmediatePropagation();
@@ -1200,11 +1197,27 @@
                             }
                         }, true);
                         
-                        // Desktop keyboard support - capture phase to block spaces early
+                        hiddenInput.addEventListener('keyup', function(e) {
+                            if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                const value = hiddenInput.value.replace(/[.\s\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, '');
+                                hiddenInput.value = value;
+                                if (currentField === 'firstName') {
+                                    firstName = value;
+                                } else if (currentField === 'lastName') {
+                                    lastName = value;
+                                }
+                                updateTerminal();
+                                return false;
+                            }
+                        }, true);
+                        
+                        // Desktop keyboard support
                         document.addEventListener('keydown', function(e) {
                             if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                // Block spacebar and period completely
-                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
+                                if (e.key === '.' || e.key === ' ' || e.keyCode === 32 || e.which === 32) {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     e.stopImmediatePropagation();
@@ -1230,7 +1243,7 @@
                                             lastName = lastName.slice(0, -1);
                                         }
                                         updateTerminal();
-                                    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== ' ' && e.key !== '.') {
+                                    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && e.key !== '.' && e.key !== ' ') {
                                         e.preventDefault();
                                         if (currentField === 'firstName') {
                                             firstName += e.key;
@@ -1239,29 +1252,6 @@
                                         }
                                         updateTerminal();
                                     }
-                                }
-                            }
-                        }, true);
-                        
-                        // Block spacebar on keypress as well - capture phase
-                        document.addEventListener('keypress', function(e) {
-                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    e.stopImmediatePropagation();
-                                    return false;
-                                }
-                            }
-                        }, true);
-                        
-                        // Block spacebar on keyup as well
-                        document.addEventListener('keyup', function(e) {
-                            if (document.getElementById('Login_Window').style.display !== 'none' && welcomeDisplayed && terminalReady && welcomeTextReady) {
-                                if (e.key === ' ' || e.keyCode === 32 || e.key === '.') {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    return false;
                                 }
                             }
                         }, true);
