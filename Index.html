@@ -1400,6 +1400,7 @@
                 // ===== Suppress native keyboard =====
                 function suppressNative() {
                     document.querySelectorAll('input,textarea,[contenteditable="true"]').forEach(function(el) {
+                        if (el.id === 'Login_Window_Content_Terminal_Main_Text') return;
                         el.setAttribute('inputmode','none');
                         el.setAttribute('virtualkeyboardpolicy','manual');
                     });
