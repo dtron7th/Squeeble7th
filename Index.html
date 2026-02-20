@@ -2019,7 +2019,9 @@
                             height: calc(100% - 20px);
                             color: var(--Terminal_Text_Color);
                             overflow: auto;
+                            overflow-anchor: none;
                             white-space: pre-wrap;
+                            line-height: 1.45;
                             outline: none;
                         }
                     </style>
@@ -2028,6 +2030,7 @@
                         (function() {
                             const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
                             if (!terminalText) return;
+                            const isAndroid = /android/i.test(navigator.userAgent || '');
 
                             const PROMPT = '//User: ';
                             let transcriptHeader = 'Vista-D-NET Corporation 2026 - AI Agent : Kimi K2.5\n\n';
@@ -2037,6 +2040,7 @@
                             let loginMode = false;
                             let loginStep = '';
                             let loginData = { firstName: '', lastName: '', password: '' };
+                            let rendering = false;
 
                             const customCommands = {};
 
@@ -2053,94 +2057,138 @@
                                 transcript += line + '\n';
                             }
 
-                            function getPromptText() {
-                                if (loginMode && loginStep === 'firstName') {
-                                    return '\nFirst Name: ';
-                                }
-                                if (loginMode && loginStep === 'lastName') {
-                                    return '\nLast Name: ';
-                                }
-                                if (loginMode && loginStep === 'password') {
-                                    return '\nPassword: ';
-                                }
+                            function getPromptLabel() {
+                                if (loginMode && loginStep === 'firstName') return '\nFirst Name: ';
+                                if (loginMode && loginStep === 'lastName') return '\nLast Name: ';
+                                if (loginMode && loginStep === 'password') return '\nPassword: ';
                                 return PROMPT;
                             }
 
+                            function getDisplayInput() {
+                                if (loginMode && loginStep === 'password') return '*'.repeat(currentInput.length);
+                                return currentInput;
+                            }
+
                             function placeCaretAtEnd() {
-                                terminalText.focus();
-                                const range = document.createRange();
+                                if (isAndroid) return;
+                                try {
+                                    terminalText.focus({ preventScroll: true });
+                                } catch (err) {
+                                    terminalText.focus();
+                                }
+                                var range = document.createRange();
                                 range.selectNodeContents(terminalText);
                                 range.collapse(false);
-                                const sel = window.getSelection();
+                                var sel = window.getSelection();
                                 if (!sel) return;
                                 sel.removeAllRanges();
                                 sel.addRange(range);
                             }
 
+                            var shouldScrollToBottom = true;
+                            var terminalTextNode = document.createTextNode('');
+                            var terminalCursorNode = document.createElement('span');
+                            terminalCursorNode.className = 'terminal-cursor';
+                            terminalText.innerHTML = '';
+                            terminalText.appendChild(terminalTextNode);
+                            terminalText.appendChild(terminalCursorNode);
+
                             function render() {
-                                terminalText.innerHTML = '';
-                                const promptText = getPromptText();
-                                const textNode = document.createTextNode(transcriptHeader + transcriptInstructions + transcript + promptText + currentInput);
-                                terminalText.appendChild(textNode);
-                                const cursor = document.createElement('span');
-                                cursor.className = 'terminal-cursor';
-                                terminalText.appendChild(cursor);
+                                rendering = true;
+                                var scrollTop = terminalText.scrollTop;
+                                var wasAtBottom = (terminalText.scrollHeight - terminalText.scrollTop - terminalText.clientHeight) < 5;
+                                var prompt = getPromptLabel();
+                                var display = getDisplayInput();
+                                terminalTextNode.nodeValue = transcriptHeader + transcriptInstructions + transcript + prompt + display;
+                                if (terminalCursorNode.parentNode !== terminalText) {
+                                    terminalText.appendChild(terminalCursorNode);
+                                }
+                                if (shouldScrollToBottom || wasAtBottom) {
+                                    terminalText.scrollTop = terminalText.scrollHeight;
+                                } else {
+                                    terminalText.scrollTop = scrollTop;
+                                }
+                                shouldScrollToBottom = false;
                                 placeCaretAtEnd();
+                                setTimeout(function() { rendering = false; }, 0);
                             }
 
                             async function generateSHA256(text) {
-                                const encoder = new TextEncoder();
-                                const data = encoder.encode(text);
-                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                                return hashHex;
+                                try {
+                                    var encoder = new TextEncoder();
+                                    var data = encoder.encode(text);
+                                    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                    var hashArray = Array.from(new Uint8Array(hashBuffer));
+                                    var hashHex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+                                    return { success: true, hash: hashHex };
+                                } catch (err) {
+                                    return { success: false, error: err && err.message ? err.message : 'Unknown error generating SHA-256 hash' };
+                                }
                             }
 
                             async function executeCommand(raw) {
-                                const input = (raw || '').trim();
+                                var input = (raw || '').trim();
 
                                 if (loginMode && loginStep === 'firstName') {
-                                    loginData.firstName = raw;
-                                    transcript += '\nFirst Name: ' + raw + '\n';
+                                    if (!input) {
+                                        printLine('First Name is required.');
+                                        return;
+                                    }
+                                    loginData.firstName = input;
+                                    transcript += 'First Name: ' + input + '\n';
                                     loginStep = 'lastName';
+                                    printLine('Enter Last Name.');
                                     return;
                                 }
 
                                 if (loginMode && loginStep === 'lastName') {
-                                    loginData.lastName = raw;
-                                    transcript += '\nLast Name: ' + raw + '\n';
+                                    if (!input) {
+                                        printLine('Last Name is required.');
+                                        return;
+                                    }
+                                    loginData.lastName = input;
+                                    transcript += 'Last Name: ' + input + '\n';
                                     loginStep = 'password';
+                                    printLine('Enter Password.');
                                     return;
                                 }
 
                                 if (loginMode && loginStep === 'password') {
-                                    loginData.password = raw;
-                                    transcript += '\nPassword: ' + '*'.repeat(raw.length) + '\n\n';
-                                    
-                                    const combined = loginData.firstName + loginData.lastName + loginData.password;
-                                    const hash = await generateSHA256(combined);
-                                    
-                                    printLine('Login successful!');
-                                    printLine('SHA-256 Hash: ' + hash + '\n');
-                                    
+                                    if (!input) {
+                                        printLine('Password is required.');
+                                        return;
+                                    }
+                                    loginData.password = input;
+                                    transcript += 'Password: ' + '*'.repeat(input.length) + '\n\n';
+
+                                    var combined = loginData.firstName + loginData.lastName + loginData.password;
+                                    var result = await generateSHA256(combined);
+
+                                    if (result.success) {
+                                        printLine('Login successful!');
+                                        printLine('SHA-256 Hash: ' + result.hash + '\n');
+                                    } else {
+                                        printLine('Error: Failed to generate SHA-256 hash.');
+                                        printLine('Details: ' + result.error + '\n');
+                                    }
+
                                     loginMode = false;
                                     loginStep = '';
                                     loginData = { firstName: '', lastName: '', password: '' };
-                                    render();
                                     return;
                                 }
 
                                 transcript += PROMPT + raw + '\n';
                                 if (!input) return;
 
-                                const parts = input.split(/\s+/);
-                                const commandName = parts[0].toLowerCase();
-                                const args = parts.slice(1);
+                                var parts = input.split(/\s+/);
+                                var commandName = parts[0].toLowerCase();
+                                var args = parts.slice(1);
 
                                 if (commandName === 'login') {
                                     loginMode = true;
                                     loginStep = 'firstName';
+                                    printLine('Login started. Enter First Name.');
                                     return;
                                 }
 
@@ -2174,36 +2222,52 @@
                                 printLine('Unknown command: ' + commandName);
                             }
 
-                            function syncInputFromDom() {
-                                const full = terminalText.textContent || '';
-                                const promptText = getPromptText();
-                                const idx = full.lastIndexOf(promptText);
+                            async function syncInputFromDom() {
+                                var full = terminalText.textContent || '';
+                                var prompt = getPromptLabel();
+                                var baseText = transcriptHeader + transcriptInstructions + transcript + prompt;
 
-                                if (idx === -1) {
+                                if (full.slice(0, baseText.length) !== baseText) {
                                     render();
                                     return;
                                 }
 
-                                const domInput = full.slice(idx + promptText.length).replace(/\r/g, '');
+                                var domInput = full.slice(baseText.length).replace(/\r/g, '');
 
                                 if (domInput.indexOf('\n') !== -1) {
-                                    const firstLine = domInput.split('\n')[0];
-                                    currentInput = firstLine;
-                                    executeCommand(currentInput);
+                                    var firstLine = domInput.split('\n')[0];
+                                    if (loginMode && loginStep === 'password') {
+                                        currentInput = firstLine.replace(/\*/g, '');
+                                    } else {
+                                        currentInput = firstLine;
+                                    }
+                                    var toRun = currentInput;
                                     currentInput = '';
+                                    await executeCommand(toRun);
+                                    shouldScrollToBottom = true;
                                     render();
                                     return;
                                 }
 
-                                currentInput = domInput;
+                                if (loginMode && loginStep === 'password') {
+                                    var newLen = domInput.length;
+                                    if (newLen > currentInput.length) {
+                                        currentInput += domInput.slice(currentInput.length);
+                                    } else {
+                                        currentInput = currentInput.slice(0, newLen);
+                                    }
+                                } else {
+                                    currentInput = domInput;
+                                }
                             }
 
                             terminalText.addEventListener('keydown', async function(e) {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    const toRun = currentInput;
+                                    var toRun = currentInput;
                                     currentInput = '';
                                     await executeCommand(toRun);
+                                    shouldScrollToBottom = true;
                                     render();
                                     return;
                                 }
@@ -2226,6 +2290,7 @@
                             });
 
                             terminalText.addEventListener('input', function() {
+                                if (rendering) return;
                                 syncInputFromDom();
                             });
 
