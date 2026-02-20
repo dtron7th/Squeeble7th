@@ -1387,8 +1387,56 @@
                 // ===== Text helpers =====
                 function getText(el) { return el ? (el.isContentEditable ? (el.textContent||'') : (el.value||'')) : ''; }
                 function setText(el, v) { if(!el)return; el.isContentEditable ? (el.textContent=v) : (el.value=v); el.dispatchEvent(new Event('input',{bubbles:true})); }
-                function insertText(c) { if(!activeInput)return; var t=getText(activeInput),p=Math.min(cursorPos,t.length); setText(activeInput,t.slice(0,p)+c+t.slice(p)); cursorPos=p+c.length; }
-                function doBackspace() { if(!activeInput)return; var t=getText(activeInput),p=Math.min(cursorPos,t.length); if(p>0){setText(activeInput,t.slice(0,p-1)+t.slice(p));cursorPos=p-1;} }
+                function insertText(c) { 
+                    if(!activeInput)return;
+                    
+                    // Special handling for terminal
+                    if(activeInput.id === 'Login_Window_Content_Terminal_Main_Text') {
+                        // Use global bridge for terminal input
+                        if(c === '\n') {
+                            // Handle Enter key
+                            if(window.terminalExecuteCommand) {
+                                const cmd = window.terminalCurrentInput || '';
+                                console.log('[Enter] Executing command:', cmd);
+                                window.terminalCurrentInput = '';
+                                console.log('[Enter] After clear, currentInput:', window.terminalCurrentInput);
+                                window.terminalExecuteCommand(cmd);
+                                // Trigger render to show cleared input
+                                if(window.terminalRender) window.terminalRender();
+                            }
+                        } else {
+                            // Handle normal character
+                            if(window.terminalCurrentInput !== undefined) {
+                                window.terminalCurrentInput += c;
+                                console.log('[Type] Added char, currentInput:', window.terminalCurrentInput);
+                                if(window.terminalRender) window.terminalRender();
+                            }
+                        }
+                    } else {
+                        // Normal handling for other inputs
+                        var t=getText(activeInput),p=Math.min(cursorPos,t.length);
+                        setText(activeInput,t.slice(0,p)+c+t.slice(p));
+                        cursorPos=p+c.length;
+                    }
+                }
+                function doBackspace() { 
+                    if(!activeInput)return;
+                    
+                    // Special handling for terminal
+                    if(activeInput.id === 'Login_Window_Content_Terminal_Main_Text') {
+                        // Remove last character from terminal text content
+                        const currentText = activeInput.textContent || '';
+                        if(currentText.length > 0) {
+                            activeInput.textContent = currentText.slice(0, -1);
+                            const event = new Event('input', { bubbles: true });
+                            activeInput.dispatchEvent(event);
+                        }
+                    } else {
+                        // Normal handling for other inputs
+                        var t=getText(activeInput),p=Math.min(cursorPos,t.length);
+                        if(p>0){setText(activeInput,t.slice(0,p-1)+t.slice(p));cursorPos=p-1;}
+                    }
+                }
                 function updateKeyLabels() {
                     var upper = capsLock !== shiftActive;
                     keyboard.querySelectorAll('.key[data-key]').forEach(function(k) {
@@ -1400,7 +1448,6 @@
                 // ===== Suppress native keyboard =====
                 function suppressNative() {
                     document.querySelectorAll('input,textarea,[contenteditable="true"]').forEach(function(el) {
-                        if (el.id === 'Login_Window_Content_Terminal_Main_Text') return;
                         el.setAttribute('inputmode','none');
                         el.setAttribute('virtualkeyboardpolicy','manual');
                     });
@@ -2044,6 +2091,14 @@
     let rendering = false;
     let welcomeStarted = false;
 
+    // Global bridge for custom keyboard
+    Object.defineProperty(window, 'terminalCurrentInput', {
+        get: function() { return currentInput; },
+        set: function(value) { currentInput = value; }
+    });
+    window.terminalExecuteCommand = executeCommand;
+    window.terminalRender = render;
+
     const customCommands = {};
 
     function clearTerminalData() {
@@ -2275,47 +2330,7 @@
         }
     }
 
-    terminalText.addEventListener('keydown', async function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            var toRun = currentInput;
-            currentInput = '';
-            await executeCommand(toRun);
-            shouldScrollToBottom = true;
-            render();
-            return;
-        }
-
-        if (e.key === 'Backspace') {
-            e.preventDefault();
-            if (currentInput.length > 0) {
-                currentInput = currentInput.slice(0, -1);
-                render();
-            }
-            return;
-        }
-
-        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            e.preventDefault();
-            currentInput += e.key;
-            render();
-            return;
-        }
-    });
-
-    terminalText.addEventListener('beforeinput', function(e) {
-        if (e.inputType === 'insertLineBreak') {
-            e.preventDefault();
-            var toRun = currentInput;
-            currentInput = '';
-            (async function() {
-                await executeCommand(toRun);
-                shouldScrollToBottom = true;
-                render();
-            })();
-            return;
-        }
-    });
+    // Terminal now uses custom keyboard - no direct keyboard event listeners needed
 
     terminalText.addEventListener('input', function() {
         if (rendering) return;
@@ -2336,15 +2351,11 @@
     const loginWindow = document.getElementById('Login_Window');
     
     function startWelcomeMessages() {
-        console.log('[startWelcomeMessages] welcomeStarted:', welcomeStarted, 'transcript empty:', transcript === '');
         if (!welcomeStarted && transcript === '') {
             welcomeStarted = true;
-            console.log('[startWelcomeMessages] Starting 1s delay...');
             setTimeout(function() {
-                console.log('[startWelcomeMessages] 1s delay done, printing welcome');
                 printLine('\nWelcome to Vista-D-NET Corporation 2026 - AI Agent: Kimi K2.5\n');
                 setTimeout(function() {
-                    console.log('[startWelcomeMessages] 0.5s delay done, printing instructions');
                     printLine('\nVista-D-NET Login: To login, type [Login] - to sign-up, type [Signup] - to close window, type [Close].\n');
                 }, 500);
             }, 1000);
@@ -2352,9 +2363,7 @@
     }
     
     // Check if window is already visible on initial load
-    console.log('[Initial] Window display:', loginWindow.style.display);
     if (loginWindow.style.display !== 'none') {
-        console.log('[Initial] Window visible, starting messages');
         startWelcomeMessages();
     }
     
@@ -2362,9 +2371,7 @@
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                console.log('[Mutation] Window display changed to:', loginWindow.style.display);
                 if (loginWindow.style.display !== 'none') {
-                    console.log('[Mutation] Window now visible, starting messages');
                     startWelcomeMessages();
                 }
             }
