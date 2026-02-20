@@ -92,9 +92,7 @@
                             background-color: rgb(255, 0, 0);
                         }
 
-                        .Window_Close {
-                            background-color: rgb(255, 0, 0);
-                        }
+
                     </style>
 
                     <script aria-label="Window_Manipulation - Script">
@@ -2074,12 +2072,12 @@
                             }
 
                             function placeCaretAtEnd() {
-                                if (isAndroid) return;
                                 try {
                                     terminalText.focus({ preventScroll: true });
                                 } catch (err) {
                                     terminalText.focus();
                                 }
+                                if (isAndroid) return;
                                 var range = document.createRange();
                                 range.selectNodeContents(terminalText);
                                 range.collapse(false);
