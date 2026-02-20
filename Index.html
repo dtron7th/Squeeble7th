@@ -1424,12 +1424,11 @@
                     
                     // Special handling for terminal
                     if(activeInput.id === 'Login_Window_Content_Terminal_Main_Text') {
-                        // Remove last character from terminal text content
-                        const currentText = activeInput.textContent || '';
-                        if(currentText.length > 0) {
-                            activeInput.textContent = currentText.slice(0, -1);
-                            const event = new Event('input', { bubbles: true });
-                            activeInput.dispatchEvent(event);
+                        // Use bridge for terminal backspace
+                        if(window.terminalCurrentInput !== undefined && window.terminalCurrentInput.length > 0) {
+                            window.terminalCurrentInput = window.terminalCurrentInput.slice(0, -1);
+                            console.log('[Backspace] Removed char, currentInput:', window.terminalCurrentInput);
+                            if(window.terminalRender) window.terminalRender();
                         }
                     } else {
                         // Normal handling for other inputs
