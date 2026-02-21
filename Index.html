@@ -1397,9 +1397,7 @@
                             // Handle Enter key
                             if(window.terminalExecuteCommand) {
                                 const cmd = window.terminalCurrentInput || '';
-                                console.log('[Enter] Executing command:', cmd);
                                 window.terminalCurrentInput = '';
-                                console.log('[Enter] After clear, currentInput:', window.terminalCurrentInput);
                                 window.terminalExecuteCommand(cmd);
                                 // Trigger render to show cleared input
                                 if(window.terminalRender) window.terminalRender();
@@ -1408,7 +1406,6 @@
                             // Handle normal character
                             if(window.terminalCurrentInput !== undefined) {
                                 window.terminalCurrentInput += c;
-                                console.log('[Type] Added char, currentInput:', window.terminalCurrentInput);
                                 if(window.terminalRender) window.terminalRender();
                             }
                         }
@@ -1427,7 +1424,6 @@
                         // Use bridge for terminal backspace
                         if(window.terminalCurrentInput !== undefined && window.terminalCurrentInput.length > 0) {
                             window.terminalCurrentInput = window.terminalCurrentInput.slice(0, -1);
-                            console.log('[Backspace] Removed char, currentInput:', window.terminalCurrentInput);
                             if(window.terminalRender) window.terminalRender();
                         }
                     } else {
@@ -2076,322 +2072,322 @@
                     </style>
 
                     <script aria-label="Login_Window_Content_Terminal - Script">
-(function() {
-    const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
-    if (!terminalText) return;
-    const isAndroid = /android/i.test(navigator.userAgent || '');
+                        (function() {
+                            const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
+                            if (!terminalText) return;
+                            const isAndroid = /android/i.test(navigator.userAgent || '');
 
-    const PROMPT = '//User: ';
-    let transcript = '';
-    let currentInput = '';
-    let loginMode = false;
-    let loginStep = '';
-    let loginData = { firstName: '', lastName: '', password: '' };
-    let rendering = false;
-    let welcomeStarted = false;
+                            const PROMPT = '//User: ';
+                            let transcript = '';
+                            let currentInput = '';
+                            let loginMode = false;
+                            let loginStep = '';
+                            let loginData = { firstName: '', lastName: '', password: '' };
+                            let rendering = false;
+                            let welcomeStarted = false;
 
-    // Global bridge for custom keyboard
-    Object.defineProperty(window, 'terminalCurrentInput', {
-        get: function() { return currentInput; },
-        set: function(value) { currentInput = value; }
-    });
-    window.terminalExecuteCommand = executeCommand;
-    window.terminalRender = render;
+                            // Global bridge for custom keyboard
+                            Object.defineProperty(window, 'terminalCurrentInput', {
+                                get: function() { return currentInput; },
+                                set: function(value) { currentInput = value; }
+                            });
+                            window.terminalExecuteCommand = executeCommand;
+                            window.terminalRender = render;
 
-    const customCommands = {};
+                            const customCommands = {};
 
-    function clearTerminalData() {
-        transcript = '';
-        currentInput = '';
-        loginMode = false;
-        loginStep = '';
-        loginData = { firstName: '', lastName: '', password: '' };
-        welcomeStarted = false;
-    }
+                            function clearTerminalData() {
+                                transcript = '';
+                                currentInput = '';
+                                loginMode = false;
+                                loginStep = '';
+                                loginData = { firstName: '', lastName: '', password: '' };
+                                welcomeStarted = false;
+                            }
 
-    function printLine(text) {
-        const line = text == null ? '' : String(text);
-        transcript += line + '\n';
-        render();
-    }
+                            function printLine(text) {
+                                const line = text == null ? '' : String(text);
+                                transcript += line + '\n';
+                                render();
+                            }
 
-    function getPromptLabel() {
-        if (loginMode && loginStep === 'firstName') return '\nFirst Name: ';
-        if (loginMode && loginStep === 'lastName') return '\nLast Name: ';
-        if (loginMode && loginStep === 'password') return '\nPassword: ';
-        return PROMPT;
-    }
+                            function getPromptLabel() {
+                                if (loginMode && loginStep === 'firstName') return '\nFirst Name: ';
+                                if (loginMode && loginStep === 'lastName') return '\nLast Name: ';
+                                if (loginMode && loginStep === 'password') return '\nPassword: ';
+                                return PROMPT;
+                            }
 
-    function getDisplayInput() {
-        if (loginMode && loginStep === 'password') return '*'.repeat(currentInput.length);
-        return currentInput;
-    }
+                            function getDisplayInput() {
+                                if (loginMode && loginStep === 'password') return '*'.repeat(currentInput.length);
+                                return currentInput;
+                            }
 
-    function placeCaretAtEnd() {
-        try {
-            terminalText.focus({ preventScroll: true });
-        } catch (err) {
-            terminalText.focus();
-        }
-        if (isAndroid) return;
-        var range = document.createRange();
-        range.selectNodeContents(terminalText);
-        range.collapse(false);
-        var sel = window.getSelection();
-        if (!sel) return;
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }
+                            function placeCaretAtEnd() {
+                                try {
+                                    terminalText.focus({ preventScroll: true });
+                                } catch (err) {
+                                    terminalText.focus();
+                                }
+                                if (isAndroid) return;
+                                var range = document.createRange();
+                                range.selectNodeContents(terminalText);
+                                range.collapse(false);
+                                var sel = window.getSelection();
+                                if (!sel) return;
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            }
 
-    var shouldScrollToBottom = true;
-    var terminalTextNode = document.createTextNode('');
-    var terminalCursorNode = document.createElement('span');
-    terminalCursorNode.className = 'terminal-cursor';
-    terminalText.innerHTML = '';
-    terminalText.appendChild(terminalTextNode);
-    terminalText.appendChild(terminalCursorNode);
+                            var shouldScrollToBottom = true;
+                            var terminalTextNode = document.createTextNode('');
+                            var terminalCursorNode = document.createElement('span');
+                            terminalCursorNode.className = 'terminal-cursor';
+                            terminalText.innerHTML = '';
+                            terminalText.appendChild(terminalTextNode);
+                            terminalText.appendChild(terminalCursorNode);
 
-    function render() {
-        rendering = true;
-        var scrollTop = terminalText.scrollTop;
-        var wasAtBottom = (terminalText.scrollHeight - terminalText.scrollTop - terminalText.clientHeight) < 5;
-        var prompt = getPromptLabel();
-        var display = getDisplayInput();
-        terminalTextNode.nodeValue = transcript + prompt + display;
-        if (terminalCursorNode.parentNode !== terminalText) {
-            terminalText.appendChild(terminalCursorNode);
-        }
-        if (shouldScrollToBottom || wasAtBottom) {
-            terminalText.scrollTop = terminalText.scrollHeight;
-        } else {
-            terminalText.scrollTop = scrollTop;
-        }
-        shouldScrollToBottom = false;
-        placeCaretAtEnd();
-        setTimeout(function() { rendering = false; }, 0);
-    }
+                            function render() {
+                                rendering = true;
+                                var scrollTop = terminalText.scrollTop;
+                                var wasAtBottom = (terminalText.scrollHeight - terminalText.scrollTop - terminalText.clientHeight) < 5;
+                                var prompt = getPromptLabel();
+                                var display = getDisplayInput();
+                                terminalTextNode.nodeValue = transcript + prompt + display;
+                                if (terminalCursorNode.parentNode !== terminalText) {
+                                    terminalText.appendChild(terminalCursorNode);
+                                }
+                                if (shouldScrollToBottom || wasAtBottom) {
+                                    terminalText.scrollTop = terminalText.scrollHeight;
+                                } else {
+                                    terminalText.scrollTop = scrollTop;
+                                }
+                                shouldScrollToBottom = false;
+                                placeCaretAtEnd();
+                                setTimeout(function() { rendering = false; }, 0);
+                            }
 
-    async function generateSHA256(text) {
-        try {
-            var encoder = new TextEncoder();
-            var data = encoder.encode(text);
-            var hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            var hashArray = Array.from(new Uint8Array(hashBuffer));
-            var hashHex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-            return { success: true, hash: hashHex };
-        } catch (err) {
-            return { success: false, error: err && err.message ? err.message : 'Unknown error generating SHA-256 hash' };
-        }
-    }
+                            async function generateSHA256(text) {
+                                try {
+                                    var encoder = new TextEncoder();
+                                    var data = encoder.encode(text);
+                                    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                    var hashArray = Array.from(new Uint8Array(hashBuffer));
+                                    var hashHex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+                                    return { success: true, hash: hashHex };
+                                } catch (err) {
+                                    return { success: false, error: err && err.message ? err.message : 'Unknown error generating SHA-256 hash' };
+                                }
+                            }
 
-    async function executeCommand(raw) {
-        var input = (raw || '').trim();
+                            async function executeCommand(raw) {
+                                var input = (raw || '').trim();
 
-        if (loginMode && loginStep === 'firstName') {
-            if (!input) {
-                printLine('First Name is required.');
-                return;
-            }
-            loginData.firstName = input;
-            transcript += 'First Name: ' + input + '\n';
-            loginStep = 'lastName';
-            printLine('Enter Last Name.');
-            render();
-            return;
-        }
+                                if (loginMode && loginStep === 'firstName') {
+                                    if (!input) {
+                                        printLine('First Name is required.');
+                                        return;
+                                    }
+                                    loginData.firstName = input;
+                                    transcript += 'First Name: ' + input + '\n';
+                                    loginStep = 'lastName';
+                                    printLine('Enter Last Name.');
+                                    render();
+                                    return;
+                                }
 
-        if (loginMode && loginStep === 'lastName') {
-            if (!input) {
-                printLine('Last Name is required.');
-                return;
-            }
-            loginData.lastName = input;
-            transcript += 'Last Name: ' + input + '\n';
-            loginStep = 'password';
-            printLine('Enter Password.');
-            render();
-            return;
-        }
+                                if (loginMode && loginStep === 'lastName') {
+                                    if (!input) {
+                                        printLine('Last Name is required.');
+                                        return;
+                                    }
+                                    loginData.lastName = input;
+                                    transcript += 'Last Name: ' + input + '\n';
+                                    loginStep = 'password';
+                                    printLine('Enter Password.');
+                                    render();
+                                    return;
+                                }
 
-        if (loginMode && loginStep === 'password') {
-            if (!input) {
-                printLine('Password is required.');
-                return;
-            }
-            loginData.password = input;
-            transcript += 'Password: ' + '*'.repeat(input.length) + '\n\n';
+                                if (loginMode && loginStep === 'password') {
+                                    if (!input) {
+                                        printLine('Password is required.');
+                                        return;
+                                    }
+                                    loginData.password = input;
+                                    transcript += 'Password: ' + '*'.repeat(input.length) + '\n\n';
 
-            var combined = loginData.firstName + loginData.lastName + loginData.password;
-            var result = await generateSHA256(combined);
+                                    var combined = loginData.firstName + loginData.lastName + loginData.password;
+                                    var result = await generateSHA256(combined);
 
-            if (result.success) {
-                printLine('Login successful!');
-                printLine('SHA-256 Hash: ' + result.hash + '\n');
-            } else {
-                printLine('Error: Failed to generate SHA-256 hash.');
-                printLine('Details: ' + result.error + '\n');
-            }
+                                    if (result.success) {
+                                        printLine('Login successful!');
+                                        printLine('SHA-256 Hash: ' + result.hash + '\n');
+                                    } else {
+                                        printLine('Error: Failed to generate SHA-256 hash.');
+                                        printLine('Details: ' + result.error + '\n');
+                                    }
 
-            loginMode = false;
-            loginStep = '';
-            loginData = { firstName: '', lastName: '', password: '' };
-            render();
-            return;
-        }
+                                    loginMode = false;
+                                    loginStep = '';
+                                    loginData = { firstName: '', lastName: '', password: '' };
+                                    render();
+                                    return;
+                                }
 
-        transcript += PROMPT + raw + '\n';
-        if (!input) {
-            render();
-            return;
-        }
+                                transcript += PROMPT + raw + '\n';
+                                if (!input) {
+                                    render();
+                                    return;
+                                }
 
-        var parts = input.split(/\s+/);
-        var commandName = parts[0].toLowerCase();
-        var args = parts.slice(1);
+                                var parts = input.split(/\s+/);
+                                var commandName = parts[0].toLowerCase();
+                                var args = parts.slice(1);
 
-        if (commandName === 'login') {
-            loginMode = true;
-            loginStep = 'firstName';
-            printLine('Enter First Name.');
-            render();
-            return;
-        }
+                                if (commandName === 'login') {
+                                    loginMode = true;
+                                    loginStep = 'firstName';
+                                    printLine('Enter First Name.');
+                                    render();
+                                    return;
+                                }
 
-        if (commandName === 'signup') {
-            printLine('Signup command received.');
-            render();
-            return;
-        }
+                                if (commandName === 'signup') {
+                                    printLine('Signup command received.');
+                                    render();
+                                    return;
+                                }
 
-        if (commandName === 'close') {
-            clearTerminalData();
-            render();
-            document.getElementById('Login_Window').style.display = 'none';
-            return;
-        }
+                                if (commandName === 'close') {
+                                    clearTerminalData();
+                                    render();
+                                    document.getElementById('Login_Window').style.display = 'none';
+                                    return;
+                                }
 
-        if (customCommands[commandName]) {
-            try {
-                customCommands[commandName].run({
-                    args: args,
-                    print: printLine,
-                    clear: function() { transcript = ''; },
-                    terminal: terminalText,
-                    activeInput: terminalText
-                });
-            } catch (err) {
-                printLine('Custom command error: ' + (err && err.message ? err.message : err));
-            }
-            render();
-            return;
-        }
+                                if (customCommands[commandName]) {
+                                    try {
+                                        customCommands[commandName].run({
+                                            args: args,
+                                            print: printLine,
+                                            clear: function() { transcript = ''; },
+                                            terminal: terminalText,
+                                            activeInput: terminalText
+                                        });
+                                    } catch (err) {
+                                        printLine('Custom command error: ' + (err && err.message ? err.message : err));
+                                    }
+                                    render();
+                                    return;
+                                }
 
-        printLine('Unknown command: ' + commandName);
-        render();
-    }
+                                printLine('Unknown command: ' + commandName);
+                                render();
+                            }
 
-    async function syncInputFromDom() {
-        var full = terminalText.textContent || '';
-        var prompt = getPromptLabel();
-        var baseText = transcript + prompt;
+                            async function syncInputFromDom() {
+                                var full = terminalText.textContent || '';
+                                var prompt = getPromptLabel();
+                                var baseText = transcript + prompt;
 
-        if (full.slice(0, baseText.length) !== baseText) {
-            render();
-            return;
-        }
+                                if (full.slice(0, baseText.length) !== baseText) {
+                                    render();
+                                    return;
+                                }
 
-        var domInput = full.slice(baseText.length).replace(/\r/g, '');
+                                var domInput = full.slice(baseText.length).replace(/\r/g, '');
 
-        if (domInput.indexOf('\n') !== -1) {
-            var firstLine = domInput.split('\n')[0];
-            if (loginMode && loginStep === 'password') {
-                currentInput = firstLine.replace(/\*/g, '');
-            } else {
-                currentInput = firstLine;
-            }
-            var toRun = currentInput;
-            currentInput = '';
-            await executeCommand(toRun);
-            shouldScrollToBottom = true;
-            render();
-            return;
-        }
+                                if (domInput.indexOf('\n') !== -1) {
+                                    var firstLine = domInput.split('\n')[0];
+                                    if (loginMode && loginStep === 'password') {
+                                        currentInput = firstLine.replace(/\*/g, '');
+                                    } else {
+                                        currentInput = firstLine;
+                                    }
+                                    var toRun = currentInput;
+                                    currentInput = '';
+                                    await executeCommand(toRun);
+                                    shouldScrollToBottom = true;
+                                    render();
+                                    return;
+                                }
 
-        if (loginMode && loginStep === 'password') {
-            var newLen = domInput.length;
-            if (newLen > currentInput.length) {
-                currentInput += domInput.slice(currentInput.length);
-            } else {
-                currentInput = currentInput.slice(0, newLen);
-            }
-        } else {
-            currentInput = domInput;
-        }
-    }
+                                if (loginMode && loginStep === 'password') {
+                                    var newLen = domInput.length;
+                                    if (newLen > currentInput.length) {
+                                        currentInput += domInput.slice(currentInput.length);
+                                    } else {
+                                        currentInput = currentInput.slice(0, newLen);
+                                    }
+                                } else {
+                                    currentInput = domInput;
+                                }
+                            }
 
-    // Terminal now uses custom keyboard - no direct keyboard event listeners needed
+                            // Terminal uses custom keyboard - no direct keyboard event listeners needed
 
-    terminalText.addEventListener('input', function() {
-        if (rendering) return;
-        syncInputFromDom();
-    });
+                            terminalText.addEventListener('input', function() {
+                                if (rendering) return;
+                                syncInputFromDom();
+                            });
 
-    terminalText.addEventListener('pointerup', function() {
-        setTimeout(placeCaretAtEnd, 0);
-    });
+                            terminalText.addEventListener('pointerup', function() {
+                                setTimeout(placeCaretAtEnd, 0);
+                            });
 
-    document.getElementById('Login_Window_Close').addEventListener('click', function() {
-        clearTerminalData();
-        transcript = '';
-        render();
-    });
+                            document.getElementById('Login_Window_Close').addEventListener('click', function() {
+                                clearTerminalData();
+                                transcript = '';
+                                render();
+                            });
 
-    // Detect when window is opened to restart welcome messages
-    const loginWindow = document.getElementById('Login_Window');
-    
-    function startWelcomeMessages() {
-        if (!welcomeStarted && transcript === '') {
-            welcomeStarted = true;
-            setTimeout(function() {
-                printLine('\nWelcome to Vista-D-NET Corporation 2026 - AI Agent: Kimi K2.5\n');
-                setTimeout(function() {
-                    printLine('\nVista-D-NET Login: To login, type [Login] - to sign-up, type [Signup] - to close window, type [Close].\n');
-                }, 500);
-            }, 1000);
-        }
-    }
-    
-    // Check if window is already visible on initial load
-    if (loginWindow.style.display !== 'none') {
-        startWelcomeMessages();
-    }
-    
-    // Also watch for style changes (reopen)
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                if (loginWindow.style.display !== 'none') {
-                    startWelcomeMessages();
-                }
-            }
-        });
-    });
-    observer.observe(loginWindow, { attributes: true });
+                            // Detect when window is opened to restart welcome messages
+                            const loginWindow = document.getElementById('Login_Window');
+                            
+                            function startWelcomeMessages() {
+                                if (!welcomeStarted && transcript === '') {
+                                    welcomeStarted = true;
+                                    setTimeout(function() {
+                                        printLine('\nWelcome to Vista-D-NET Corporation 2026 - AI Agent: Kimi K2.5\n');
+                                        setTimeout(function() {
+                                            printLine('\nVista-D-NET Login: To login, type [Login] - to sign-up, type [Signup] - to close window, type [Close].\n');
+                                        }, 500);
+                                    }, 1000);
+                                }
+                            }
+                            
+                            // Check if window is already visible on initial load
+                            if (loginWindow.style.display !== 'none') {
+                                startWelcomeMessages();
+                            }
+                            
+                            // Also watch for style changes (reopen)
+                            const observer = new MutationObserver(function(mutations) {
+                                mutations.forEach(function(mutation) {
+                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                        if (loginWindow.style.display !== 'none') {
+                                            startWelcomeMessages();
+                                        }
+                                    }
+                                });
+                            });
+                            observer.observe(loginWindow, { attributes: true });
 
-    window.registerTerminalCommand = function(name, handler, description) {
-        if (!name || typeof handler !== 'function') return;
-        customCommands[String(name).toLowerCase()] = {
-            run: handler,
-            desc: description || 'Custom command'
-        };
-    };
+                            window.registerTerminalCommand = function(name, handler, description) {
+                                if (!name || typeof handler !== 'function') return;
+                                customCommands[String(name).toLowerCase()] = {
+                                    run: handler,
+                                    desc: description || 'Custom command'
+                                };
+                            };
 
-    window.unregisterTerminalCommand = function(name) {
-        if (!name) return;
-        delete customCommands[String(name).toLowerCase()];
-    };
+                            window.unregisterTerminalCommand = function(name) {
+                                if (!name) return;
+                                delete customCommands[String(name).toLowerCase()];
+                            };
 
-    })();
+                        })();
                     </script>
                 </div>
 
