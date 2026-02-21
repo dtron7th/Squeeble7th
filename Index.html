@@ -1027,7 +1027,9 @@
                         display = '*'.repeat(display.length);
                     }
                     
-                    terminal.textNode.nodeValue = terminal.transcript + prompt + display;
+                    // Add line spacing between transcript and prompt
+                    const spacing = terminal.transcript && terminal.transcript.trim() ? '\n' : '';
+                    terminal.textNode.nodeValue = terminal.transcript + spacing + prompt + display;
                     
                     if (terminal.cursorNode.parentNode !== terminal.element) {
                         terminal.element.appendChild(terminal.cursorNode);
@@ -1144,6 +1146,13 @@
                     if (terminal && name) {
                         delete terminal.customCommands[String(name).toLowerCase()];
                     }
+                },
+                
+                // Clear all terminal data
+                clearAllTerminalData: function() {
+                    this.terminals.forEach((terminal, terminalId) => {
+                        this.clearTerminalData(terminal);
+                    });
                 }
             };
             
@@ -1353,6 +1362,7 @@
 
                 <script aria-label="Start_Menu_Panel - Script">
                     document.getElementById('Start_Menu_Panel_Close').addEventListener('click', function() {
+
                         document.getElementById('Start_Menu_Panel').style.display = 'none';
                     });
 
@@ -1437,7 +1447,7 @@
                                 loginTerminal.prompt = 'First Name: ';
                                 loginTerminal.currentInput = '';
                                 context.print('');
-                                context.print('=== Login To Account ===');
+                                context.print('=== Login To Account (Hash is case sensitive)===');
                                 context.print('');
                                 context.print('Enter your first name:');
                             }, 'Start login process');
@@ -1510,9 +1520,8 @@
                                             const data = encoder.encode(combined);
                                             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                                             const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             
-                                            this.printLine('Login successful! Welcome ' + terminalData.firstName + ' ' + terminalData.lastName + '!', terminalData);
                                             this.printLine('', terminalData);
                                             this.printLine('SHA-256 Hash: ' + hashHex, terminalData);
                                         } catch (error) {
@@ -1620,7 +1629,195 @@
                     </style>
 
                     <script aria-label="Sign-Up_Window_Content_Terminal - Script">
-                        
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Register the signup terminal with TerminalManager
+                            const terminal = TerminalManager.registerTerminal('Sign-Up_Window_Content_Terminal_Main_Text', {
+                                windowId: 'Sign-Up_Window',
+                                prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
+                                welcomeMessages: [
+                                    'Vista-D-NET Sign-Up',
+                                    '',
+                                    'To sign up, type [Signup] - to close, type [Close]',
+                                    ''
+                                ]
+                            });
+                            
+                            // Add custom commands
+                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'signup', function(context) {
+                                const signupTerminal = context.terminalData;
+                                if (!signupTerminal) return;
+
+                                signupTerminal.awaitingSignupFirstName = true;
+                                signupTerminal.previousPrompt = signupTerminal.prompt;
+                                signupTerminal.prompt = 'First Name: ';
+                                signupTerminal.currentInput = '';
+                                context.print('');
+                                context.print('Enter your first name:');
+                            }, 'Start sign-up process');
+
+                            if (!TerminalManager._signupFirstNamePatched) {
+                                const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
+                                TerminalManager.executeCommand = async function(raw, terminalData) {
+                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupFirstName) {
+                                        const firstName = (raw || '').trim();
+                                        if (!firstName) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        terminalData.transcript += terminalData.prompt + firstName + '\n';
+                                        terminalData.awaitingSignupFirstName = false;
+                                        terminalData.signupFirstName = firstName;
+                                        terminalData.awaitingSignupLastName = true;
+                                        terminalData.prompt = 'Last Name: ';
+                                        terminalData.currentInput = '';
+                                        this.printLine('', terminalData);
+                                        this.printLine('Enter your last name:', terminalData);
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupLastName) {
+                                        const lastName = (raw || '').trim();
+                                        if (!lastName) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        terminalData.transcript += terminalData.prompt + lastName + '\n';
+                                        terminalData.awaitingSignupLastName = false;
+                                        terminalData.signupLastName = lastName;
+                                        terminalData.awaitingSignupDOB = true;
+                                        terminalData.prompt = 'Day (DD): ';
+                                        terminalData.currentInput = '';
+                                        this.printLine('', terminalData);
+                                        this.printLine('Enter your date of birth:', terminalData);
+                                        this.printLine('Day (numbers only):', terminalData);
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupDOB) {
+                                        const input = (raw || '').trim();
+                                        if (!input) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        // Check if input contains only numbers
+                                        if (!/^\d+$/.test(input)) {
+                                            this.printLine('Error: Please enter numbers only.', terminalData);
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        if (!terminalData.signupDOB) {
+                                            terminalData.signupDOB = {};
+                                        }
+
+                                        if (terminalData.prompt === 'Day (DD): ') {
+                                            const day = parseInt(input);
+                                            if (day < 1 || day > 31) {
+                                                this.printLine('Error: Day must be between 1 and 31.', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            terminalData.transcript += terminalData.prompt + input + '\n';
+                                            terminalData.signupDOB.day = input;
+                                            terminalData.prompt = 'Month (MM): ';
+                                            terminalData.currentInput = '';
+                                            this.printLine('Month (numbers only):', terminalData);
+                                        } else if (terminalData.prompt === 'Month (MM): ') {
+                                            const month = parseInt(input);
+                                            if (month < 1 || month > 12) {
+                                                this.printLine('Error: Month must be between 1 and 12.', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            terminalData.transcript += terminalData.prompt + input + '\n';
+                                            terminalData.signupDOB.month = input;
+                                            terminalData.prompt = 'Year (YYYY): ';
+                                            terminalData.currentInput = '';
+                                            this.printLine('Year (numbers only):', terminalData);
+                                        } else if (terminalData.prompt === 'Year (YYYY): ') {
+                                            const year = parseInt(input);
+                                            if (year < 1900 || year > 2025) {
+                                                this.printLine('Error: Year must be between 1900 and 2025.', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            terminalData.transcript += terminalData.prompt + input + '\n';
+                                            terminalData.signupDOB.year = input;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.currentInput = '';
+                                            this.printLine('', terminalData);
+                                            this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('Create your password:', terminalData);
+                                            terminalData.awaitingSignupPassword = true;
+                                            terminalData.prompt = 'Create password: ';
+                                            terminalData.passwordMode = true;
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
+                                        const password = (raw || '').trim();
+                                        if (!password) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        // Add masked password to transcript
+                                        terminalData.transcript += terminalData.prompt + '*'.repeat(password.length) + '\n';
+                                        terminalData.awaitingSignupPassword = false;
+                                        terminalData.signupPassword = password;
+                                        terminalData.passwordMode = false;
+                                        terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
+                                        terminalData.previousPrompt = null;
+                                        terminalData.currentInput = '';
+                                        this.printLine('', terminalData);
+                                        this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(password.length) + '/', terminalData);
+                                        
+                                        // Combine credentials and generate SHA-256
+                                        try {
+                                            const combined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPassword;
+                                            const encoder = new TextEncoder();
+                                            const data = encoder.encode(combined);
+                                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                            
+                                            this.printLine('SHA-256 Hash: ' + hashHex, terminalData);
+                                        } catch (error) {
+                                            this.printLine('Error generating hash: ' + error.message, terminalData);
+                                        }
+                                        
+                                        this.printLine('Account created successfully!', terminalData);
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    return previousExecuteCommand(raw, terminalData);
+                                };
+                                TerminalManager._signupFirstNamePatched = true;
+                            }
+                            
+                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'close', function(context) {
+                                // Clear terminal data before closing
+                                const signupTerminal = TerminalManager.getTerminal('Sign-Up_Window_Content_Terminal_Main_Text');
+                                if (signupTerminal) {
+                                    TerminalManager.clearTerminalData(signupTerminal);
+                                }
+                                document.getElementById('Sign-Up_Window').style.display = 'none';
+                            }, 'Close sign-up window');
+                        });
                     </script>
                 </div>
 
@@ -1633,6 +1830,23 @@
 
                 <script aria-label="Sign-Up_Window - Script">
                     document.getElementById('Sign-Up_Window_Close').addEventListener('click', function() {
+                        // Clear terminal data before closing
+                        const terminal = TerminalManager.getTerminal('Sign-Up_Window_Content_Terminal_Main_Text');
+                        if (terminal) {
+                            TerminalManager.clearTerminalData(terminal);
+                            // Reset signup-specific state variables to ensure default prompt on reopen
+                            terminal.awaitingSignupFirstName = false;
+                            terminal.awaitingSignupLastName = false;
+                            terminal.awaitingSignupDOB = false;
+                            terminal.awaitingSignupPassword = false;
+                            terminal.signupFirstName = null;
+                            terminal.signupLastName = null;
+                            terminal.signupDOB = null;
+                            terminal.signupPassword = null;
+                            terminal.previousPrompt = null;
+                            terminal.prompt = TerminalManager.defaultPrompt;
+                            terminal.passwordMode = false;
+                        }
                         document.getElementById('Sign-Up_Window').style.display = 'none';
                     });
                 </script>
