@@ -411,7 +411,7 @@
 
             document.addEventListener('mousedown', function(e) {
                 const win = e.target.closest('.Window');
-                if (win && !e.target.closest('.Window_Manipulation')) {
+                if (win && !e.target.closest('.Window_Manipulation') && !window.terminalScrolling) {
                     currentWindow = win;
                     isDragging = true;
                     const rect = currentWindow.getBoundingClientRect();
@@ -442,7 +442,7 @@
             // Touch support
             document.addEventListener('touchstart', function(e) {
                 const win = e.target.closest('.Window');
-                if (win && !e.target.closest('.Window_Manipulation')) {
+                if (win && !e.target.closest('.Window_Manipulation') && !window.terminalScrolling) {
                     currentWindow = win;
                     isDragging = true;
                     const rect = currentWindow.getBoundingClientRect();
@@ -676,6 +676,8 @@
         
         //Set default position for windows and panels when they open
         (function() {
+            let zIndex = 1000; // Higher z-index for opened windows
+            
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
@@ -687,6 +689,9 @@
                                     element.style.top = '10px';
                                     element.style.left = '10px';
                                     element.dataset.positionSet = 'true';
+                                    // Bring to front when opening
+                                    zIndex++;
+                                    element.style.zIndex = zIndex;
                                     // Enable native keyboard
                                     const inputs = element.querySelectorAll('input, textarea');
                                     inputs.forEach(input => {
@@ -710,6 +715,443 @@
         })();
 
     </Script>
+
+    <script aria-label="Terminal_Manager - Script">
+        (function() {
+            'use strict';
+            
+            // Terminal Manager - Centralized terminal management
+            const TerminalManager = {
+                terminals: new Map(),
+                defaultPrompt: '//User: ',
+                isAndroid: /android/i.test(navigator.userAgent || ''),
+                
+                // Register a new terminal
+                registerTerminal: function(terminalId, config) {
+                    const terminal = {
+                        id: terminalId,
+                        element: document.getElementById(terminalId),
+                        prompt: config.prompt || this.defaultPrompt,
+                        transcript: '',
+                        currentInput: '',
+                        rendering: false,
+                        welcomeStarted: false,
+                        customCommands: config.customCommands || {},
+                        welcomeMessages: config.welcomeMessages || [],
+                        ...config
+                    };
+                    
+                    this.terminals.set(terminalId, terminal);
+                    this.initializeTerminal(terminal);
+                    return terminal;
+                },
+                
+                // Initialize terminal DOM and events
+                initializeTerminal: function(terminal) {
+                    if (!terminal.element) return;
+                    
+                    // Create terminal nodes
+                    const terminalTextNode = document.createTextNode('');
+                    const terminalCursorNode = document.createElement('span');
+                    terminalCursorNode.className = 'terminal-cursor';
+                    terminalCursorNode.style.animation = 'terminal-blink 0.5s step-end infinite';
+                    
+                    terminal.element.innerHTML = '';
+                    terminal.element.appendChild(terminalTextNode);
+                    terminal.element.appendChild(terminalCursorNode);
+                    
+                    // Store references
+                    terminal.textNode = terminalTextNode;
+                    terminal.cursorNode = terminalCursorNode;
+                    
+                    // Setup event listeners
+                    this.setupEventListeners(terminal);
+                    
+                    // Start welcome messages if configured
+                    if (terminal.welcomeMessages.length > 0) {
+                        this.setupWelcomeMessages(terminal);
+                    }
+                    
+                    // Initial render
+                    this.render(terminal);
+                },
+                
+                // Setup event listeners for terminal
+                setupEventListeners: function(terminal) {
+                    const element = terminal.element;
+                    
+                    // Physical keyboard events
+                    element.addEventListener('keydown', (e) => this.handleKeyDown(e, terminal));
+                    element.addEventListener('beforeinput', (e) => this.handleBeforeInput(e, terminal));
+                    element.addEventListener('input', () => this.handleInput(terminal));
+                    element.addEventListener('pointerup', () => this.handlePointerUp(terminal));
+                    element.addEventListener('focus', () => this.handleFocus(terminal));
+                    element.addEventListener('blur', () => this.handleBlur(terminal));
+                    
+                    // Touch scrolling support
+                    element.addEventListener('touchstart', (e) => this.handleTouchStart(e, terminal), { passive: false });
+                    element.addEventListener('touchmove', (e) => this.handleTouchMove(e, terminal), { passive: false });
+                    element.addEventListener('touchend', (e) => this.handleTouchEnd(e, terminal), { passive: false });
+                    
+                    // Android-specific handling
+                    if (this.isAndroid) {
+                        element.addEventListener('compositionstart', () => terminal.rendering = true);
+                        element.addEventListener('compositionend', () => {
+                            terminal.rendering = false;
+                            this.syncInputFromDom(terminal);
+                        });
+                        element.addEventListener('textInput', (e) => {
+                            if (e.data && e.data !== '\n') {
+                                terminal.currentInput += e.data;
+                                this.render(terminal);
+                                e.preventDefault();
+                            }
+                        });
+                    }
+                },
+                
+                // Handle keyboard input
+                handleKeyDown: async function(e, terminal) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const toRun = terminal.currentInput;
+                        terminal.currentInput = '';
+                        await this.executeCommand(toRun, terminal);
+                        terminal.shouldScrollToBottom = true;
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    if (e.key === 'Backspace') {
+                        e.preventDefault();
+                        if (terminal.currentInput.length > 0) {
+                            terminal.currentInput = terminal.currentInput.slice(0, -1);
+                            this.render(terminal);
+                        }
+                        return;
+                    }
+                    
+                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                        e.preventDefault();
+                        terminal.currentInput += e.key;
+                        this.render(terminal);
+                        return;
+                    }
+                },
+                
+                // Handle before input events
+                handleBeforeInput: function(e, terminal) {
+                    if (e.inputType === 'insertLineBreak') {
+                        e.preventDefault();
+                        const toRun = terminal.currentInput;
+                        terminal.currentInput = '';
+                        (async () => {
+                            await this.executeCommand(toRun, terminal);
+                            terminal.shouldScrollToBottom = true;
+                            this.render(terminal);
+                        })();
+                        return;
+                    }
+                },
+                
+                // Handle input events
+                handleInput: function(terminal) {
+                    if (terminal.rendering) return;
+                    this.syncInputFromDom(terminal);
+                },
+                
+                // Handle pointer up events
+                handlePointerUp: function(terminal) {
+                    setTimeout(() => this.placeCaretAtEnd(terminal), 0);
+                    document.querySelectorAll('.terminal-cursor').forEach(cursor => {
+                        cursor.classList.add('hidden');
+                    });
+                    if (terminal.cursorNode) {
+                        terminal.cursorNode.classList.remove('hidden');
+                    }
+                },
+                
+                // Handle focus events
+                handleFocus: function(terminal) {
+                    document.querySelectorAll('.terminal-cursor').forEach(cursor => {
+                        cursor.classList.add('hidden');
+                    });
+                    if (terminal.cursorNode) {
+                        terminal.cursorNode.classList.remove('hidden');
+                    }
+                },
+                
+                // Handle blur events
+                handleBlur: function(terminal) {
+                    if (terminal.cursorNode) {
+                        terminal.cursorNode.classList.add('hidden');
+                    }
+                },
+                
+                // Touch scrolling support
+                handleTouchStart: function(e, terminal) {
+                    // Store initial touch position and scroll state
+                    terminal.touchStartY = e.touches[0].clientY;
+                    terminal.touchStartX = e.touches[0].clientX;
+                    terminal.startScrollTop = terminal.element.scrollTop;
+                    terminal.isTouchScrolling = false;
+                    
+                    // Find the parent window element
+                    terminal.parentWindow = terminal.element.closest('.Window');
+                    
+                    // Set global flag to prevent window dragging
+                    window.terminalScrolling = true;
+                },
+                
+                handleTouchMove: function(e, terminal) {
+                    // Prevent default only if we're scrolling vertically
+                    const touchY = e.touches[0].clientY;
+                    const touchX = e.touches[0].clientX;
+                    const deltaY = terminal.touchStartY - touchY;
+                    const deltaX = terminal.touchStartX - touchX;
+                    
+                    // Check if this is a vertical scroll gesture
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+                        terminal.isTouchScrolling = true;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Calculate new scroll position
+                        const newScrollTop = terminal.startScrollTop + deltaY;
+                        const maxScroll = terminal.element.scrollHeight - terminal.element.clientHeight;
+                        
+                        // Apply scroll bounds
+                        if (newScrollTop >= 0 && newScrollTop <= maxScroll) {
+                            terminal.element.scrollTop = newScrollTop;
+                        }
+                    }
+                },
+                
+                handleTouchEnd: function(e, terminal) {
+                    // Clear global flag to allow window dragging again
+                    window.terminalScrolling = false;
+                    
+                    // Reset touch scrolling state
+                    terminal.isTouchScrolling = false;
+                    terminal.touchStartY = null;
+                    terminal.touchStartX = null;
+                    terminal.startScrollTop = null;
+                    terminal.parentWindow = null;
+                },
+                
+                // Execute command with beep
+                executeCommand: async function(raw, terminal) {
+                    const input = (raw || '').trim();
+                    
+                    if (!input) {
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    // Add prompt to transcript for normal commands
+                    terminal.transcript += terminal.prompt + raw + '\n';
+                    
+                    const parts = input.split(/\s+/);
+                    const commandName = parts[0].toLowerCase();
+                    const args = parts.slice(1);
+                    
+                    // Check custom commands first
+                    if (terminal.customCommands[commandName]) {
+                        try {
+                            await terminal.customCommands[commandName].run({
+                                args: args,
+                                print: (text) => this.printLine(text, terminal),
+                                clear: () => { terminal.transcript = ''; },
+                                terminalData: terminal,
+                                terminal: terminal.element,
+                                activeInput: terminal.element
+                            });
+                        } catch (err) {
+                            this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
+                        }
+                    } else {
+                        // Default command handling
+                        await this.handleDefaultCommand(commandName, args, terminal);
+                    }
+                    
+                    // Beep after command execution
+                    this.playBeep();
+                    this.render(terminal);
+                },
+                
+                // Handle default commands
+                handleDefaultCommand: async function(commandName, args, terminal) {
+                    switch (commandName) {
+                        case 'close':
+                            // Clear terminal data before closing
+                            this.clearTerminalData(terminal);
+                            if (terminal.windowId) {
+                                document.getElementById(terminal.windowId).style.display = 'none';
+                            }
+                            break;
+                        default:
+                            this.printLine('Unknown command: ' + commandName, terminal);
+                            break;
+                    }
+                },
+                
+                // Clear terminal data
+                clearTerminalData: function(terminal) {
+                    terminal.transcript = '';
+                    terminal.currentInput = '';
+                    terminal.welcomeStarted = false;
+                    // Clear the terminal display immediately
+                    if (terminal.textNode) {
+                        terminal.textNode.nodeValue = '';
+                    }
+                    // Don't render here to prevent welcome messages from showing immediately
+                },
+                
+                // Print line to terminal
+                printLine: function(text, terminal) {
+                    const line = text == null ? '' : String(text);
+                    terminal.transcript += line + '\n';
+                    this.render(terminal);
+                },
+                
+                // Render terminal
+                render: function(terminal) {
+                    terminal.rendering = true;
+                    const scrollTop = terminal.element.scrollTop;
+                    const wasAtBottom = (terminal.element.scrollHeight - terminal.element.scrollTop - terminal.element.clientHeight) < 5;
+                    const prompt = terminal.prompt;
+                    let display = terminal.currentInput;
+                    
+                    // Handle password masking
+                    if (terminal.passwordMode && display) {
+                        display = '*'.repeat(display.length);
+                    }
+                    
+                    terminal.textNode.nodeValue = terminal.transcript + prompt + display;
+                    
+                    if (terminal.cursorNode.parentNode !== terminal.element) {
+                        terminal.element.appendChild(terminal.cursorNode);
+                    }
+                    
+                    if (terminal.shouldScrollToBottom || wasAtBottom) {
+                        terminal.element.scrollTop = terminal.element.scrollHeight;
+                    } else {
+                        terminal.element.scrollTop = scrollTop;
+                    }
+                    
+                    terminal.shouldScrollToBottom = false;
+                    this.placeCaretAtEnd(terminal);
+                    setTimeout(() => { terminal.rendering = false; }, 0);
+                },
+                
+                // Place caret at end
+                placeCaretAtEnd: function(terminal) {
+                    try {
+                        terminal.element.focus({ preventScroll: true });
+                    } catch (err) {
+                        terminal.element.focus();
+                    }
+                    if (this.isAndroid) return;
+                    const range = document.createRange();
+                    range.selectNodeContents(terminal.element);
+                    range.collapse(false);
+                    const sel = window.getSelection();
+                    if (!sel) return;
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                },
+                
+                // Sync input from DOM
+                syncInputFromDom: function(terminal) {
+                    const full = terminal.element.textContent || '';
+                    const prompt = terminal.prompt;
+                    const baseText = terminal.transcript + prompt;
+                     
+                    if (full.slice(0, baseText.length) !== baseText) {
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    const domInput = full.slice(baseText.length).replace(/\r/g, '');
+                    
+                    if (domInput.indexOf('\n') !== -1) {
+                        const firstLine = domInput.split('\n')[0];
+                        terminal.currentInput = firstLine;
+                        const toRun = terminal.currentInput;
+                        terminal.currentInput = '';
+                        this.executeCommand(toRun, terminal);
+                        terminal.shouldScrollToBottom = true;
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    terminal.currentInput = domInput;
+                },
+                
+                // Setup welcome messages
+                setupWelcomeMessages: function(terminal) {
+                    const startWelcomeMessages = () => {
+                        if (!terminal.welcomeStarted && terminal.transcript === '') {
+                            terminal.welcomeStarted = true;
+                            terminal.welcomeMessages.forEach((message, index) => {
+                                setTimeout(() => {
+                                    this.printLine(message, terminal);
+                                }, (index + 1) * 1000);
+                            });
+                        }
+                    };
+                    
+                    // Check if window is already visible
+                    const window = terminal.windowId ? document.getElementById(terminal.windowId) : null;
+                    if (window && window.style.display !== 'none') {
+                        startWelcomeMessages();
+                    }
+                    
+                    // Watch for style changes (reopen)
+                    if (window) {
+                        const observer = new MutationObserver((mutations) => {
+                            mutations.forEach((mutation) => {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                    if (window.style.display !== 'none') {
+                                        startWelcomeMessages();
+                                    }
+                                }
+                            });
+                        });
+                        observer.observe(window, { attributes: true });
+                    }
+                },
+                
+                // Get terminal by ID
+                getTerminal: function(terminalId) {
+                    return this.terminals.get(terminalId);
+                },
+                
+                // Add custom command to terminal
+                addCommand: function(terminalId, name, handler, description) {
+                    const terminal = this.terminals.get(terminalId);
+                    if (terminal && name && typeof handler === 'function') {
+                        terminal.customCommands[String(name).toLowerCase()] = {
+                            run: handler,
+                            desc: description || 'Custom command'
+                        };
+                    }
+                },
+                
+                // Remove command from terminal
+                removeCommand: function(terminalId, name) {
+                    const terminal = this.terminals.get(terminalId);
+                    if (terminal && name) {
+                        delete terminal.customCommands[String(name).toLowerCase()];
+                    }
+                }
+            };
+            
+            // Make TerminalManager globally available
+            window.TerminalManager = TerminalManager;
+            
+        })();
+    </script>
 </head>
 <body>
 
@@ -933,7 +1375,7 @@
                     </div>
                 </div>
                 <div class="Content" id="Login_Window_Content_Terminal">
-                    <p id="Login_Window_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false"></p>
+                    <p id="Login_Window_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
 
                     <!--Book_Mark: Login_Build - Login_Window_Content_Terminal - Style-->
                     <style aria-label="Login_Window_Content_Terminal - Style"> 
@@ -954,456 +1396,174 @@
                             white-space: pre-wrap;
                             line-height: 1.45;
                             outline: none;
+                            -webkit-user-modify: read-write-plaintext-only;
+                            -webkit-tap-highlight-color: transparent;
+                            -webkit-touch-callout: none;
+                            -webkit-user-select: text;
+                            user-select: text;
+                        }
+                        
+                        @media (max-width: 768px) {
+                            #Login_Window_Content_Terminal_Main_Text {
+                                font-size: 11px;
+                                line-height: 1.4;
+                            }
                         }
                     </style>
 
                     <script aria-label="Login_Window_Content_Terminal - Script">
-                        (function() {
-                            const terminalText = document.getElementById('Login_Window_Content_Terminal_Main_Text');
-                            if (!terminalText) return;
-                            const isAndroid = /android/i.test(navigator.userAgent || '');
-
-                            const PROMPT = '//User: ';
-                            let transcript = '';
-                            let currentInput = '';
-                            let loginMode = false;
-                            let loginStep = '';
-                            let loginData = { firstName: '', lastName: '', password: '' };
-                            let rendering = false;
-                            let welcomeStarted = false;
-
-                            // Beep function for command confirmation
-                            function playBeep() {
-                                try {
-                                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                                    const oscillator = audioContext.createOscillator();
-                                    const gainNode = audioContext.createGain();
-                                    
-                                    oscillator.connect(gainNode);
-                                    gainNode.connect(audioContext.destination);
-                                    
-                                    oscillator.frequency.value = 440; // 440 Hz (A4) - classic DOS beep frequency
-                                    oscillator.type = 'square'; // Square wave for that retro DOS sound
-                                    
-                                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                                    
-                                    oscillator.start(audioContext.currentTime);
-                                    oscillator.stop(audioContext.currentTime + 0.05); // 50ms duration
-                                } catch (err) {
-                                    // Fallback for browsers that don't support Web Audio API
-                                    console.log('Beep sound not supported');
-                                }
-                            }
-
-                            // Global bridge for custom keyboard
-                            Object.defineProperty(window, 'terminalCurrentInput', {
-                                get: function() { return currentInput; },
-                                set: function(value) { currentInput = value; }
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Register the login terminal with TerminalManager
+                            const terminal = TerminalManager.registerTerminal('Login_Window_Content_Terminal_Main_Text', {
+                                windowId: 'Login_Window',
+                                prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
+                                welcomeMessages: [
+                                    'Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT',
+                                    '',
+                                    'AI Agent - Kimi K2.5.',
+                                    '',
+                                    'To login, type [Login] - to Sign-up, type [Signup] - to view license, type [License] - to close window, type [Close]',
+                                    ''
+                                ]
                             });
-                            window.terminalExecuteCommand = executeCommand;
-                            window.terminalRender = render;
-
-                            // Global z-index counter for window management
-                            let windowZIndex = 1000;
-
-                            // Function to bring window to top
-                            function bringWindowToTop(windowId) {
-                                const window = document.getElementById(windowId);
-                                if (!window) return;
+                            
+                            // Add custom commands
+                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'login', function(context) {
+                                const loginTerminal = context.terminalData;
+                                if (!loginTerminal) return;
                                 
-                                // Increment global z-index and apply to window
-                                windowZIndex++;
-                                window.style.zIndex = windowZIndex;
-                            }
+                                loginTerminal.awaitingFirstName = true;
+                                loginTerminal.previousPrompt = loginTerminal.prompt;
+                                loginTerminal.prompt = 'First Name: ';
+                                loginTerminal.currentInput = '';
+                                context.print('');
+                                context.print('=== Login To Account ===');
+                                context.print('');
+                                context.print('Enter your first name:');
+                            }, 'Start login process');
 
-                            // Add click-to-focus for all windows
-                            document.addEventListener('DOMContentLoaded', function() {
-                                // Set initial z-index for all windows
-                                document.querySelectorAll('.Window').forEach(window => {
-                                    window.style.zIndex = windowZIndex++;
-                                    window.addEventListener('mousedown', function(e) {
-                                        // Bring to top when clicking anywhere in the window
-                                        console.log('Window clicked:', this.id, 'Current z-index:', this.style.zIndex);
-                                        bringWindowToTop(this.id);
-                                        console.log('New z-index:', this.style.zIndex);
-                                    });
-                                });
-                            });
-
-                            const customCommands = {};
-
-                            function clearTerminalData() {
-                                transcript = '';
-                                currentInput = '';
-                                loginMode = false;
-                                loginStep = '';
-                                loginData = { firstName: '', lastName: '', password: '' };
-                                welcomeStarted = false;
-                            }
-
-                            function printLine(text) {
-                                const line = text == null ? '' : String(text);
-                                transcript += line + '\n';
-                                render();
-                            }
-
-                            function getPromptLabel() {
-                                if (loginMode && loginStep === 'firstName') return '\nFirst Name: ';
-                                if (loginMode && loginStep === 'lastName') return '\nLast Name: ';
-                                if (loginMode && loginStep === 'password') return '\nPassword: ';
-                                return PROMPT;
-                            }
-
-                            function getDisplayInput() {
-                                if (loginMode && loginStep === 'password') return '*'.repeat(currentInput.length);
-                                return currentInput;
-                            }
-
-                            function placeCaretAtEnd() {
-                                try {
-                                    terminalText.focus({ preventScroll: true });
-                                } catch (err) {
-                                    terminalText.focus();
-                                }
-                                if (isAndroid) return;
-                                var range = document.createRange();
-                                range.selectNodeContents(terminalText);
-                                range.collapse(false);
-                                var sel = window.getSelection();
-                                if (!sel) return;
-                                sel.removeAllRanges();
-                                sel.addRange(range);
-                            }
-
-                            var shouldScrollToBottom = true;
-                            var terminalTextNode = document.createTextNode('');
-                            var terminalCursorNode = document.createElement('span');
-                            terminalCursorNode.className = 'terminal-cursor';
-                            // Force blinking animation
-                            terminalCursorNode.style.animation = 'terminal-blink 0.5s step-end infinite';
-                            terminalText.innerHTML = '';
-                            terminalText.appendChild(terminalTextNode);
-                            terminalText.appendChild(terminalCursorNode);
-
-                            function render() {
-                                rendering = true;
-                                var scrollTop = terminalText.scrollTop;
-                                var wasAtBottom = (terminalText.scrollHeight - terminalText.scrollTop - terminalText.clientHeight) < 5;
-                                var prompt = getPromptLabel();
-                                var display = getDisplayInput();
-                                terminalTextNode.nodeValue = transcript + prompt + display;
-                                if (terminalCursorNode.parentNode !== terminalText) {
-                                    terminalText.appendChild(terminalCursorNode);
-                                }
-                                if (shouldScrollToBottom || wasAtBottom) {
-                                    terminalText.scrollTop = terminalText.scrollHeight;
-                                } else {
-                                    terminalText.scrollTop = scrollTop;
-                                }
-                                shouldScrollToBottom = false;
-                                placeCaretAtEnd();
-                                setTimeout(function() { rendering = false; }, 0);
-                            }
-
-                            async function generateSHA256(text) {
-                                try {
-                                    var encoder = new TextEncoder();
-                                    var data = encoder.encode(text);
-                                    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                                    var hashArray = Array.from(new Uint8Array(hashBuffer));
-                                    var hashHex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-                                    return { success: true, hash: hashHex };
-                                } catch (err) {
-                                    return { success: false, error: err && err.message ? err.message : 'Unknown error generating SHA-256 hash' };
-                                }
-                            }
-
-                            async function executeCommand(raw) {
-                                var input = (raw || '').trim();
-
-                                if (loginMode && loginStep === 'firstName') {
-                                    if (!input) {
-                                        printLine('First Name is required.');
-                                        return;
-                                    }
-                                    loginData.firstName = input;
-                                    transcript += 'First Name: ' + input + '\n';
-                                    loginStep = 'lastName';
-                                    printLine('Enter Last Name.');
-                                    render();
-                                    return;
-                                }
-
-                                if (loginMode && loginStep === 'lastName') {
-                                    if (!input) {
-                                        printLine('Last Name is required.');
-                                        return;
-                                    }
-                                    loginData.lastName = input;
-                                    transcript += 'Last Name: ' + input + '\n';
-                                    loginStep = 'password';
-                                    printLine('Enter Password.');
-                                    render();
-                                    return;
-                                }
-
-                                if (loginMode && loginStep === 'password') {
-                                    if (!input) {
-                                        printLine('Password is required.');
-                                        return;
-                                    }
-                                    loginData.password = input;
-                                    transcript += 'Password: ' + '*'.repeat(input.length) + '\n\n';
-
-                                    var combined = loginData.firstName + loginData.lastName + loginData.password;
-                                    var result = await generateSHA256(combined);
-
-                                    if (result.success) {
-                                        printLine('Login successful!');
-                                        printLine('SHA-256 Hash: ' + result.hash + '\n');
-                                    } else {
-                                        printLine('Error: Failed to generate SHA-256 hash.');
-                                        printLine('Details: ' + result.error + '\n');
-                                    }
-
-                                    loginMode = false;
-                                    loginStep = '';
-                                    loginData = { firstName: '', lastName: '', password: '' };
-                                    render();
-                                    return;
-                                }
-
-                                transcript += PROMPT + raw + '\n';
-                                if (!input) {
-                                    render();
-                                    return;
-                                }
-
-                                var parts = input.split(/\s+/);
-                                var commandName = parts[0].toLowerCase();
-                                var args = parts.slice(1);
-
-                                if (commandName === 'login') {
-                                    loginMode = true;
-                                    loginStep = 'firstName';
-                                    printLine('Enter First Name.');
-                                    playBeep();
-                                    render();
-                                    return;
-                                }
-
-                                if (commandName === 'signup') {
-                                    printLine('Opening Sign-Up window...');
-                                    playBeep();
-                                    render();
-                                    // Keep login window open and open signup window
-                                    document.getElementById('Sign-Up_Window').style.display = 'flex';
-                                    bringWindowToTop('Sign-Up_Window');
-                                    return;
-                                }
-
-                                if (commandName === 'close') {
-                                    clearTerminalData();
-                                    playBeep();
-                                    render();
-                                    document.getElementById('Login_Window').style.display = 'none';
-                                    return;
-                                }
-
-                                if (customCommands[commandName]) {
-                                    try {
-                                        customCommands[commandName].run({
-                                            args: args,
-                                            print: printLine,
-                                            clear: function() { transcript = ''; },
-                                            terminal: terminalText,
-                                            activeInput: terminalText
-                                        });
-                                        playBeep();
-                                    } catch (err) {
-                                        printLine('Custom command error: ' + (err && err.message ? err.message : err));
-                                        playBeep();
-                                    }
-                                    render();
-                                    return;
-                                }
-
-                                printLine('Unknown command: ' + commandName);
-                                playBeep();
-                                render();
-                            }
-
-                            async function syncInputFromDom() {
-                                var full = terminalText.textContent || '';
-                                var prompt = getPromptLabel();
-                                var baseText = transcript + prompt;
-
-                                if (full.slice(0, baseText.length) !== baseText) {
-                                    render();
-                                    return;
-                                }
-
-                                var domInput = full.slice(baseText.length).replace(/\r/g, '');
-
-                                if (domInput.indexOf('\n') !== -1) {
-                                    var firstLine = domInput.split('\n')[0];
-                                    if (loginMode && loginStep === 'password') {
-                                        currentInput = firstLine.replace(/\*/g, '');
-                                    } else {
-                                        currentInput = firstLine;
-                                    }
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    await executeCommand(toRun);
-                                    playBeep();
-                                    shouldScrollToBottom = true;
-                                    render();
-                                    return;
-                                }
-
-                                if (loginMode && loginStep === 'password') {
-                                    var newLen = domInput.length;
-                                    if (newLen > currentInput.length) {
-                                        currentInput += domInput.slice(currentInput.length);
-                                    } else {
-                                        currentInput = currentInput.slice(0, newLen);
-                                    }
-                                } else {
-                                    currentInput = domInput;
-                                }
-                            }
-
-                            // Terminal supports both custom and physical keyboards
-
-                            // Physical keyboard event listeners
-                            terminalText.addEventListener('keydown', async function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    await executeCommand(toRun);
-                                    playBeep();
-                                    shouldScrollToBottom = true;
-                                    render();
-                                    return;
-                                }
-
-                                if (e.key === 'Backspace') {
-                                    e.preventDefault();
-                                    if (currentInput.length > 0) {
-                                        currentInput = currentInput.slice(0, -1);
-                                        render();
-                                    }
-                                    return;
-                                }
-
-                                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                                    e.preventDefault();
-                                    currentInput += e.key;
-                                    render();
-                                    return;
-                                }
-                            });
-
-                            terminalText.addEventListener('beforeinput', function(e) {
-                                if (e.inputType === 'insertLineBreak') {
-                                    e.preventDefault();
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    (async function() {
-                                        await executeCommand(toRun);
-                                        shouldScrollToBottom = true;
-                                        render();
-                                    })();
-                                    return;
-                                }
-                            });
-
-                            // Enable input sync for physical keyboard support
-                            terminalText.addEventListener('input', function() {
-                                if (rendering) return;
-                                syncInputFromDom();
-                            });
-
-                            terminalText.addEventListener('pointerup', function() {
-                                setTimeout(placeCaretAtEnd, 0);
-                                // Hide all cursors, show only this one
-                                document.querySelectorAll('.terminal-cursor').forEach(cursor => {
-                                    cursor.classList.add('hidden');
-                                });
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.remove('hidden');
-                                }
-                            });
-
-                            // Focus detection
-                            terminalText.addEventListener('focus', function() {
-                                document.querySelectorAll('.terminal-cursor').forEach(cursor => {
-                                    cursor.classList.add('hidden');
-                                });
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.remove('hidden');
-                                }
-                            });
-
-                            terminalText.addEventListener('blur', function() {
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.add('hidden');
-                                }
-                            });
-
-                            document.getElementById('Login_Window_Close').addEventListener('click', function() {
-                                clearTerminalData();
-                                transcript = '';
-                                render();
-                            });
-
-                            // Detect when window is opened to restart welcome messages
-                            const loginWindow = document.getElementById('Login_Window');
-                            
-                            function startWelcomeMessages() {
-                                if (!welcomeStarted && transcript === '') {
-                                    welcomeStarted = true;
-                                    setTimeout(function() {
-                                        printLine('\nWelcome to Vista-D-NET Corporation 2026 - AI Agent: Kimi K2.5\n');
-                                        setTimeout(function() {
-                                            printLine('\nVista-D-NET Login: To login, type [Login] - to sign-up, type [Signup] - to close window, type [Close].\n');
-                                        }, 500);
-                                    }, 1000);
-                                }
-                            }
-                            
-                            // Check if window is already visible on initial load
-                            if (loginWindow.style.display !== 'none') {
-                                startWelcomeMessages();
-                            }
-                            
-                            // Also watch for style changes (reopen)
-                            const observer = new MutationObserver(function(mutations) {
-                                mutations.forEach(function(mutation) {
-                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                        if (loginWindow.style.display !== 'none') {
-                                            startWelcomeMessages();
+                            // Terminal-scoped first-name input handling
+                            if (!TerminalManager._loginFirstNamePatched) {
+                                const originalExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
+                                TerminalManager.executeCommand = async function(raw, terminalData) {
+                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingFirstName) {
+                                        const firstName = (raw || '').trim();
+                                        if (!firstName) {
+                                            this.render(terminalData);
+                                            return;
                                         }
+
+                                        terminalData.transcript += terminalData.prompt + firstName + '\n';
+                                        terminalData.awaitingFirstName = false;
+                                        terminalData.firstName = firstName;
+                                        terminalData.awaitingLastName = true;
+                                        terminalData.prompt = 'Last Name: ';
+                                        terminalData.currentInput = '';
+                                        this.printLine('', terminalData);
+                                        this.printLine('Enter your last name:', terminalData);
+                                        this.render(terminalData);
+                                        return;
                                     }
-                                });
-                            });
-                            observer.observe(loginWindow, { attributes: true });
 
-                            window.registerTerminalCommand = function(name, handler, description) {
-                                if (!name || typeof handler !== 'function') return;
-                                customCommands[String(name).toLowerCase()] = {
-                                    run: handler,
-                                    desc: description || 'Custom command'
+                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingLastName) {
+                                        const lastName = (raw || '').trim();
+                                        if (!lastName) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        terminalData.transcript += terminalData.prompt + lastName + '\n';
+                                        terminalData.awaitingLastName = false;
+                                        terminalData.lastName = lastName;
+                                        terminalData.awaitingPassword = true;
+                                        terminalData.prompt = 'Password: ';
+                                        terminalData.currentInput = '';
+                                        terminalData.passwordMode = true;
+                                        this.printLine('', terminalData);
+                                        this.printLine('Enter your password:', terminalData);
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingPassword) {
+                                        const password = (raw || '').trim();
+                                        if (!password) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        // Add masked password to transcript
+                                        terminalData.transcript += terminalData.prompt + '*'.repeat(password.length) + '\n';
+                                        terminalData.awaitingPassword = false;
+                                        terminalData.password = password;
+                                        terminalData.passwordMode = false;
+                                        terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
+                                        terminalData.previousPrompt = null;
+                                        terminalData.currentInput = '';
+                                        this.printLine('', terminalData);
+                                        this.printLine('=== Processing Hash ===', terminalData);
+                                        
+                                        // Combine credentials and generate SHA-256
+                                        try {
+                                            const combined = terminalData.firstName + terminalData.lastName + terminalData.password;
+                                            const encoder = new TextEncoder();
+                                            const data = encoder.encode(combined);
+                                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                                            
+                                            this.printLine('Login successful! Welcome ' + terminalData.firstName + ' ' + terminalData.lastName + '!', terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('SHA-256 Hash: ' + hashHex, terminalData);
+                                        } catch (error) {
+                                            this.printLine('Error generating hash: ' + error.message, terminalData);
+                                        }
+                                        
+                                        this.printLine('', terminalData);
+                                        this.render(terminalData);
+                                        return;
+                                    }
+
+                                    return originalExecuteCommand(raw, terminalData);
                                 };
-                            };
-
-                            window.unregisterTerminalCommand = function(name) {
-                                if (!name) return;
-                                delete customCommands[String(name).toLowerCase()];
-                            };
-
-                        })();
+                                TerminalManager._loginFirstNamePatched = true;
+                            }
+                            
+                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'signup', function(context) {
+                                context.print('Opening sign-up window...');
+                                // Open signup window
+                                const signupWindow = document.getElementById('Sign-Up_Window');
+                                if (signupWindow) {
+                                    signupWindow.style.display = 'flex';
+                                }
+                            }, 'Open sign-up window');
+                            
+                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'license', function(context) {
+                                context.print('');
+                                context.print('MIT License');
+                                context.print('');
+                                context.print('Copyright (c) 2025 dtron7th');
+                                context.print('');
+                                context.print('Permission is hereby granted, free of charge, to any person obtaining a copy');
+                                context.print('of this software and associated documentation files (the "Software"), to deal');
+                                context.print('in the Software without restriction, including without limitation the rights');
+                                context.print('to use, copy, modify, merge, publish, distribute, sublicense, and/or sell');
+                                context.print('copies of the Software, and to permit persons to whom the Software is');
+                                context.print('furnished to do so, subject to the following conditions:');
+                                context.print('');
+                                context.print('The above copyright notice and this permission notice shall be included in all');
+                                context.print('copies or substantial portions of the Software.');
+                                context.print('');
+                                context.print('THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR');
+                                context.print('IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,');
+                                context.print('FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE');
+                                context.print('AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER');
+                                context.print('LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,');
+                                context.print('OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE');
+                                context.print('SOFTWARE.');
+                                context.print('');
+                            }, 'View MIT license');
+                        });
                     </script>
                 </div>
 
@@ -1417,6 +1577,11 @@
 
                 <script aria-label="Login_Window - Script">
                     document.getElementById('Login_Window_Close').addEventListener('click', function() {
+                        // Clear terminal data before closing
+                        const terminal = TerminalManager.getTerminal('Login_Window_Content_Terminal_Main_Text');
+                        if (terminal) {
+                            TerminalManager.clearTerminalData(terminal);
+                        }
                         document.getElementById('Login_Window').style.display = 'none';
                     });
                 </script>
@@ -1455,386 +1620,7 @@
                     </style>
 
                     <script aria-label="Sign-Up_Window_Content_Terminal - Script">
-                        (function() {
-                            const terminalText = document.getElementById('Sign-Up_Window_Content_Terminal_Main_Text');
-                            if (!terminalText) return;
-
-                            const PROMPT = '//User: ';
-                            let transcript = '';
-                            let currentInput = '';
-                            let signupStep = '';
-                            let signupData = { firstName: '', lastName: '', day: '', month: '', year: '', placeOfBirth: '' };
-                            let rendering = false;
-                            let welcomeStarted = false;
-                            var shouldScrollToBottom = true;
-                            var terminalTextNode = document.createTextNode('');
-                            var terminalCursorNode = document.createElement('span');
-                            terminalCursorNode.className = 'terminal-cursor';
-                            // Force blinking animation
-                            terminalCursorNode.style.animation = 'terminal-blink 0.5s step-end infinite';
-                            terminalText.innerHTML = '';
-                            terminalText.appendChild(terminalTextNode);
-                            terminalText.appendChild(terminalCursorNode);
-
-                            function placeCaretAtEnd() {
-                                try {
-                                    terminalText.focus({ preventScroll: true });
-                                } catch (err) {
-                                    terminalText.focus();
-                                }
-                                var range = document.createRange();
-                                range.selectNodeContents(terminalText);
-                                range.collapse(false);
-                                var sel = window.getSelection();
-                                if (!sel) return;
-                                sel.removeAllRanges();
-                                sel.addRange(range);
-                            }
-
-                            // Beep function for command confirmation
-                            function playBeep() {
-                                try {
-                                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                                    const oscillator = audioContext.createOscillator();
-                                    const gainNode = audioContext.createGain();
-                                    
-                                    oscillator.connect(gainNode);
-                                    gainNode.connect(audioContext.destination);
-                                    
-                                    oscillator.frequency.value = 440; // 440 Hz (A4) - classic DOS beep frequency
-                                    oscillator.type = 'square'; // Square wave for that retro DOS sound
-                                    
-                                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                                    
-                                    oscillator.start(audioContext.currentTime);
-                                    oscillator.stop(audioContext.currentTime + 0.05); // 50ms duration
-                                } catch (err) {
-                                    // Fallback for browsers that don't support Web Audio API
-                                    console.log('Beep sound not supported');
-                                }
-                            }
-
-                            function getPromptLabel() {
-                                if (signupStep === 'firstName') return '\nFirst Name: ';
-                                if (signupStep === 'lastName') return '\nLast Name: ';
-                                if (signupStep === 'day') return '\nDay (1-31): ';
-                                if (signupStep === 'month') return '\nMonth (1-12): ';
-                                if (signupStep === 'year') return '\nYear (YYYY): ';
-                                if (signupStep === 'placeOfBirth') return '\nPlace of Birth: ';
-                                return PROMPT;
-                            }
-
-                            function getDisplayInput() {
-                                return currentInput;
-                            }
-
-                            function render() {
-                                rendering = true;
-                                var scrollTop = terminalText.scrollTop;
-                                var wasAtBottom = (terminalText.scrollHeight - terminalText.scrollTop - terminalText.clientHeight) < 5;
-                                var prompt = getPromptLabel();
-                                var display = getDisplayInput();
-                                terminalTextNode.nodeValue = transcript + prompt + display;
-                                if (terminalCursorNode.parentNode !== terminalText) {
-                                    terminalText.appendChild(terminalCursorNode);
-                                }
-                                if (shouldScrollToBottom || wasAtBottom) {
-                                    terminalText.scrollTop = terminalText.scrollHeight;
-                                } else {
-                                    terminalText.scrollTop = scrollTop;
-                                }
-                                rendering = false;
-                            }
-
-                            function printLine(text) {
-                                const line = text == null ? '' : String(text);
-                                transcript += line + '\n';
-                                render();
-                            }
-
-                            function clearTerminalData() {
-                                transcript = '';
-                                currentInput = '';
-                                signupStep = '';
-                                signupData = { firstName: '', lastName: '', day: '', month: '', year: '', placeOfBirth: '' };
-                                welcomeStarted = false;
-                            }
-
-                            async function executeCommand(cmd) {
-                                var trimmed = cmd.trim();
-                                playBeep(); // Play beep at start of execution
-
-                                if (signupStep === 'firstName') {
-                                    if (!trimmed) {
-                                        printLine('First Name is required.');
-                                        return;
-                                    }
-                                    signupData.firstName = trimmed;
-                                    transcript += 'First Name: ' + trimmed + '\n';
-                                    signupStep = 'lastName';
-                                    printLine('Enter Last Name.');
-                                    return;
-                                }
-                                if (signupStep === 'lastName') {
-                                    if (!trimmed) {
-                                        printLine('Last Name is required.');
-                                        return;
-                                    }
-                                    signupData.lastName = trimmed;
-                                    transcript += 'Last Name: ' + trimmed + '\n';
-                                    signupStep = 'day';
-                                    printLine('\nPlease add your date of birth:');
-                                    printLine('Enter Day (1-31):');
-                                    return;
-                                }
-
-                                // Date of birth validation
-                                if (signupStep === 'day') {
-                                    if (!/^\d+$/.test(trimmed)) {
-                                        printLine('Error: Day must contain only numbers.');
-                                        return;
-                                    }
-                                    var day = parseInt(trimmed);
-                                    if (day < 1 || day > 31) {
-                                        printLine('Error: Day must be between 1 and 31.');
-                                        return;
-                                    }
-                                    signupData.day = trimmed;
-                                    transcript += 'Day: ' + trimmed + '\n';
-                                    signupStep = 'month';
-                                    printLine('Enter Month (1-12):');
-                                    return;
-                                }
-
-                                if (signupStep === 'month') {
-                                    if (!/^\d+$/.test(trimmed)) {
-                                        printLine('Error: Month must contain only numbers.');
-                                        return;
-                                    }
-                                    var month = parseInt(trimmed);
-                                    if (month < 1 || month > 12) {
-                                        printLine('Error: Month must be between 1 and 12.');
-                                        return;
-                                    }
-                                    signupData.month = trimmed;
-                                    transcript += 'Month: ' + trimmed + '\n';
-                                    signupStep = 'year';
-                                    printLine('Enter Year (YYYY):');
-                                    return;
-                                }
-
-                                if (signupStep === 'year') {
-                                    if (!/^\d+$/.test(trimmed)) {
-                                        printLine('Error: Year must contain only numbers.');
-                                        return;
-                                    }
-                                    if (trimmed.length !== 4) {
-                                        printLine('Error: Year must be 4 digits (YYYY).');
-                                        return;
-                                    }
-                                    var year = parseInt(trimmed);
-                                    if (year < 1900 || year > 2026) {
-                                        printLine('Error: Year must be between 1900 and 2026.');
-                                        return;
-                                    }
-                                    signupData.year = trimmed;
-                                    transcript += 'Year: ' + trimmed + '\n';
-                                    signupStep = 'placeOfBirth';
-                                    printLine('\nDate of Birth: ' + signupData.month + '/' + signupData.day + '/' + signupData.year);
-                                    printLine('\nWhat is your place of birth - Type [Maps] to open maps or type [Close] to close window');
-                                    return;
-                                }
-
-                                // Place of birth handling
-                                if (signupStep === 'placeOfBirth') {
-                                    var lower = trimmed.toLowerCase();
-                                    if (lower === 'maps') {
-                                        printLine('Opening maps...');
-                                        createMapPanel();
-                                        return;
-                                    }
-                                    if (lower === 'close') {
-                                        printLine('Closing signup window...');
-                                        document.getElementById('Sign-Up_Window').style.display = 'none';
-                                        clearTerminalData();
-                                        return;
-                                    }
-                                    // Store the place of birth and complete signup
-                                    signupData.placeOfBirth = trimmed;
-                                    transcript += 'Place of Birth: ' + trimmed + '\n';
-                                    signupStep = '';
-                                    printLine('\nAccount created successfully!');
-                                    printLine('Welcome, ' + signupData.firstName + ' ' + signupData.lastName + '!');
-                                    return;
-                                }
-
-                                var lower = trimmed.toLowerCase();
-                                if (lower === 'signup' || lower === 'register') {
-                                    signupStep = 'firstName';
-                                    printLine('Enter First Name.');
-                                    return;
-                                }
-                                if (lower === 'close') {
-                                    document.getElementById('Sign-Up_Window').style.display = 'none';
-                                    clearTerminalData();
-                                    return;
-                                }
-                                if (lower === 'clear') {
-                                    transcript = '';
-                                    render();
-                                    return;
-                                }
-                                                                if (trimmed !== '') {
-                                    printLine('Unknown command: ' + trimmed);
-                                }
-                            }
-
-                            // Physical keyboard event listeners
-                            terminalText.addEventListener('keydown', async function(e) {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    await executeCommand(toRun);
-                                    shouldScrollToBottom = true;
-                                    render();
-                                    return;
-                                }
-
-                                if (e.key === 'Backspace') {
-                                    e.preventDefault();
-                                    if (currentInput.length > 0) {
-                                        currentInput = currentInput.slice(0, -1);
-                                        render();
-                                    }
-                                    return;
-                                }
-
-                                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                                    // Validate numeric input for date fields
-                                    if (signupStep === 'day' || signupStep === 'month' || signupStep === 'year') {
-                                        if (!/^\d$/.test(e.key)) {
-                                            printLine('Error: Only numbers are allowed for this field.');
-                                            playBeep();
-                                            return;
-                                        }
-                                    }
-                                    e.preventDefault();
-                                    currentInput += e.key;
-                                    render();
-                                    return;
-                                }
-                            });
-
-                            terminalText.addEventListener('beforeinput', function(e) {
-                                if (e.inputType === 'insertLineBreak') {
-                                    e.preventDefault();
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    (async function() {
-                                        await executeCommand(toRun);
-                                        shouldScrollToBottom = true;
-                                        render();
-                                    })();
-                                    return;
-                                }
-                            });
-
-                            async function syncInputFromDom() {
-                                var full = terminalText.textContent || '';
-                                var prompt = getPromptLabel();
-                                var baseText = transcript + prompt;
-
-                                if (full.slice(0, baseText.length) !== baseText) {
-                                    render();
-                                    return;
-                                }
-
-                                var domInput = full.slice(baseText.length).replace(/\r/g, '');
-
-                                if (domInput.indexOf('\n') !== -1) {
-                                    var firstLine = domInput.split('\n')[0];
-                                    currentInput = firstLine;
-                                    var toRun = currentInput;
-                                    currentInput = '';
-                                    await executeCommand(toRun);
-                                    shouldScrollToBottom = true;
-                                    render();
-                                    return;
-                                }
-
-                                currentInput = domInput;
-                            }
-
-                            // Enable input sync for physical keyboard support
-                            terminalText.addEventListener('input', function() {
-                                if (rendering) return;
-                                syncInputFromDom();
-                            });
-
-                            terminalText.addEventListener('pointerup', function() {
-                                setTimeout(placeCaretAtEnd, 0);
-                                // Hide all cursors, show only this one
-                                document.querySelectorAll('.terminal-cursor').forEach(cursor => {
-                                    cursor.classList.add('hidden');
-                                });
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.remove('hidden');
-                                }
-                            });
-
-                            // Focus detection
-                            terminalText.addEventListener('focus', function() {
-                                document.querySelectorAll('.terminal-cursor').forEach(cursor => {
-                                    cursor.classList.add('hidden');
-                                });
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.remove('hidden');
-                                }
-                            });
-
-                            terminalText.addEventListener('blur', function() {
-                                if (terminalCursorNode) {
-                                    terminalCursorNode.classList.add('hidden');
-                                }
-                            });
-
-                            document.getElementById('Sign-Up_Window_Close').addEventListener('click', function() {
-                                clearTerminalData();
-                                transcript = '';
-                                render();
-                            });
-
-                            const signupWindow = document.getElementById('Sign-Up_Window');
-
-                            function startWelcomeMessages() {
-                                if (!welcomeStarted && transcript === '') {
-                                    welcomeStarted = true;
-                                    setTimeout(function() {
-                                        printLine('\nWelcome to Vista-D-NET Corporation - Sign Up Portal\n');
-                                        setTimeout(function() {
-                                            printLine('\nTo create an account, type [Signup] - to close window, type [Close].\n');
-                                        }, 500);
-                                    }, 1000);
-                                }
-                            }
-
-                            if (signupWindow.style.display !== 'none') {
-                                startWelcomeMessages();
-                            }
-
-                            const observer = new MutationObserver(function(mutations) {
-                                mutations.forEach(function(mutation) {
-                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                        if (signupWindow.style.display !== 'none') {
-                                            startWelcomeMessages();
-                                        }
-                                    }
-                                });
-                            });
-                            observer.observe(signupWindow, { attributes: true });
-
-                        })();
+                        
                     </script>
                 </div>
 
@@ -1863,40 +1649,40 @@
                     </div>
                 </div>
                 <div class="Content" id="Maps_Window_Content">
-                    <div style="padding: 15px; height: 100%; display: flex; flex-direction: column;">
-                        <h3 style="color: var(--Main_Text_Color); text-align: center; margin: 0 0 10px 0;">Select Your Place of Birth</h3>
-                        <p style="color: var(--Main_Text_Color); text-align: center; margin: 0 0 15px 0; font-size: var(--Main_Text_1);">Click on the map or type your location below</p>
-                        
-                        <div id="real-map" style="flex: 1; min-height: 300px; border: 2px solid var(--Main_Border); border-radius: 4px; margin-bottom: 15px;"></div>
-                        
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input 
-                                type="text" 
-                                id="location-input" 
-                                placeholder="Enter your location..." 
-                                style="flex: 1; padding: 8px; background: var(--Text_Input_Field); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border); border-radius: 4px;"
-                            />
-                            <button 
-                                id="select-location-btn"
-                                style="padding: 8px 20px; background: var(--UI-Buttons-Fields-Color-1); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border); border-radius: 4px; cursor: pointer; font-weight: bold;"
-                            >
-                                Select
-                            </button>
+                    <div id="map-container" style="width: 100%; height: 100%; position: relative; background-color: var(--Main_Window_Color-1);">
+                        <div style="position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;">
+                            <h3 style="color: var(--Main_Text_Color); text-align: center; margin-bottom: 10px;">Interactive Map</h3>
+                            <p style="color: var(--Main_Text_Color); text-align: center; margin-bottom: 10px;">Click on the map to select your place of birth</p>
+                            <div 
+                                id="real-map"
+                                style="width: 100%; height: 320px; border: 2px solid var(--Main_Border); border-radius: 4px;">
+                            </div>
+                            <div style="margin-top: 10px; text-align: center;">
+                                <input 
+                                    type="text" 
+                                    id="location-input" 
+                                    placeholder="Type your location or click on map" 
+                                    style="width: 70%; padding: 5px; margin-right: 10px; background: var(--Text_Input_Field); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border);"
+                                />
+                                <button 
+                                    id="select-location-btn"
+                                    style="padding: 5px 15px; background: var(--UI-Buttons-Fields-Color-1); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border); cursor: pointer;"
+                                >
+                                    Select
+                                </button>
+                            </div>
+                            <p style="margin-top: 10px; font-size: var(--Main_Text_1); color: var(--Main_Text_Color); text-align: center;">Type your location above or use the map to navigate</p>
                         </div>
                     </div>
                 </div>
 
                 <style aria-label="Maps_Window - Style">
                     #Maps_Window {
-                        width: 650px;
-                        height: 550px;
+                        width: 600px;
+                        height: 500px;
                     }
                     #real-map {
                         cursor: crosshair;
-                    }
-                    /* Hide Leaflet zoom buttons */
-                    .leaflet-control-zoom {
-                        display: none !important;
                     }
                     #location-input:focus {
                         outline: 2px solid var(--Main_Border);
@@ -1904,113 +1690,12 @@
                     }
                     #select-location-btn:hover {
                         background: var(--UI-Buttons-Fields-Color-2);
-                        transform: translateY(-1px);
-                    }
-                    #select-location-btn:active {
-                        transform: translateY(0);
                     }
                 </style>
 
-                <!-- Add Leaflet CSS -->
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                
                 <script aria-label="Maps_Window - Script">
-                    let map = null;
-                    
-                    function createMapPanel() {
-                        const mapWindow = document.getElementById('Maps_Window');
-                        if (mapWindow) {
-                            mapWindow.style.display = 'flex';
-                            bringWindowToTop('Maps_Window');
-                            
-                            // Clear and focus input
-                            const locationInput = document.getElementById('location-input');
-                            if (locationInput) {
-                                locationInput.value = '';
-                                locationInput.focus();
-                            }
-                            
-                            // Initialize map if not already done
-                            if (!map) {
-                                setTimeout(initializeMap, 200);
-                            } else {
-                                map.invalidateSize();
-                            }
-                        }
-                    }
-                    
-                    function initializeMap() {
-                        if (typeof L === 'undefined') {
-                            console.error('Leaflet not loaded');
-                            return;
-                        }
-                        
-                        try {
-                            // Create map
-                            map = L.map('real-map', {
-                                center: [20, 0],
-                                zoom: 2,
-                                zoomControl: false
-                            });
-                            
-                            // Add OpenStreetMap tiles
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: '© OpenStreetMap contributors',
-                                maxZoom: 18
-                            }).addTo(map);
-                            
-                            // Click handler
-                            map.on('click', function(e) {
-                                const lat = e.latlng.lat.toFixed(2);
-                                const lng = e.latlng.lng.toFixed(2);
-                                const locationName = `Location (${lat}, ${lng})`;
-                                document.getElementById('location-input').value = locationName;
-                            });
-                            
-                            console.log('Map initialized successfully');
-                        } catch (error) {
-                            console.error('Map initialization error:', error);
-                        }
-                    }
-
-                    function selectLocation() {
-                        const location = document.getElementById('location-input').value.trim();
-                        if (!location) return;
-                        
-                        // Get signup terminal
-                        const terminal = document.getElementById('Sign-Up_Window_Content_Terminal_Main_Text');
-                        if (terminal && terminal.currentInput !== undefined) {
-                            terminal.currentInput = location;
-                            if (terminal.executeCommand) {
-                                terminal.executeCommand(location);
-                            }
-                        }
-                        
-                        // Close maps window
-                        document.getElementById('Maps_Window').style.display = 'none';
-                    }
-
-                    // Event listeners
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Close button
-                        document.getElementById('Maps_Window_Close').addEventListener('click', function() {
-                            document.getElementById('Maps_Window').style.display = 'none';
-                        });
-                        
-                        // Select button
-                        document.getElementById('select-location-btn').addEventListener('click', selectLocation);
-                        
-                        // Enter key in input
-                        document.getElementById('location-input').addEventListener('keydown', function(e) {
-                            if (e.key === 'Enter') {
-                                selectLocation();
-                            }
-                        });
-                    });
+                   
                 </script>
-                
-                <!-- Add Leaflet JavaScript -->
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
             </div>
 
 
