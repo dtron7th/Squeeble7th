@@ -2254,8 +2254,10 @@
                                 }
 
                                 if (commandName === 'signup') {
-                                    printLine('Signup command received.');
+                                    printLine('Opening Sign-Up window...');
                                     render();
+                                    // Keep login window open and open signup window
+                                    document.getElementById('Sign-Up_Window').style.display = 'flex';
                                     return;
                                 }
 
@@ -2405,6 +2407,251 @@
                     });
                 </script>
             </div>
+
+            <div class="Window" id="Sign-Up_Window">
+                <div class="Header" id="Sign-Up_Window_Header">
+                    <p class="Title">Sign Up</p>
+                    <div class="Window_Manipulation">
+                        <button class="Window_Minimize" id="Sign-Up_Window_Minimize"></button>
+                        <button class="Window_Maximize" id="Sign-Up_Window_Maximize"></button>
+                        <button class="Window_Close" id="Sign-Up_Window_Close"></button>
+                    </div>
+                </div>
+                <div class="Content" id="Sign-Up_Window_Content_Terminal">
+                    <p id="Sign-Up_Window_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false"></p>
+
+                    <style aria-label="Sign-Up_Window_Content_Terminal - Style">
+                        #Sign-Up_Window_Content_Terminal {
+                            background-color: var(--Terminal_Background_Color);
+                        }
+
+                        #Sign-Up_Window_Content_Terminal_Main_Text {
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            width: calc(100% - 20px);
+                            height: calc(100% - 20px);
+                            color: var(--Terminal_Text_Color);
+                            overflow: auto;
+                            overflow-anchor: none;
+                            white-space: pre-wrap;
+                            line-height: 1.45;
+                            outline: none;
+                        }
+                    </style>
+
+                    <script aria-label="Sign-Up_Window_Content_Terminal - Script">
+                        (function() {
+                            const terminalText = document.getElementById('Sign-Up_Window_Content_Terminal_Main_Text');
+                            if (!terminalText) return;
+
+                            const PROMPT = '//User: ';
+                            let transcript = '';
+                            let currentInput = '';
+                            let signupStep = '';
+                            let signupData = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
+                            let rendering = false;
+                            let welcomeStarted = false;
+
+                            function getPromptLabel() {
+                                if (signupStep === 'firstName') return 'First Name: ';
+                                if (signupStep === 'lastName') return 'Last Name: ';
+                                if (signupStep === 'email') return 'Email: ';
+                                if (signupStep === 'password') return 'Password: ';
+                                if (signupStep === 'confirmPassword') return 'Confirm Password: ';
+                                return PROMPT;
+                            }
+
+                            function render() {
+                                rendering = true;
+                                var prompt = getPromptLabel();
+                                var displayInput = currentInput;
+                                if (signupStep === 'password' || signupStep === 'confirmPassword') {
+                                    displayInput = '*'.repeat(currentInput.length);
+                                }
+                                terminalText.innerHTML = transcript + prompt + displayInput + '<span class="terminal-cursor"></span>';
+                                rendering = false;
+                            }
+
+                            function printLine(text) {
+                                transcript += text + '\n';
+                                render();
+                            }
+
+                            function clearTerminalData() {
+                                transcript = '';
+                                currentInput = '';
+                                signupStep = '';
+                                signupData = { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' };
+                                welcomeStarted = false;
+                            }
+
+                            async function executeCommand(cmd) {
+                                var trimmed = cmd.trim();
+
+                                if (signupStep === 'firstName') {
+                                    signupData.firstName = trimmed;
+                                    printLine('First Name: ' + trimmed);
+                                    signupStep = 'lastName';
+                                    printLine('Enter your last name:');
+                                    return;
+                                }
+                                if (signupStep === 'lastName') {
+                                    signupData.lastName = trimmed;
+                                    printLine('Last Name: ' + trimmed);
+                                    signupStep = 'email';
+                                    printLine('Enter your email:');
+                                    return;
+                                }
+                                if (signupStep === 'email') {
+                                    signupData.email = trimmed;
+                                    printLine('Email: ' + trimmed);
+                                    signupStep = 'password';
+                                    printLine('Enter your password:');
+                                    return;
+                                }
+                                if (signupStep === 'password') {
+                                    signupData.password = trimmed;
+                                    printLine('Password: ' + '*'.repeat(trimmed.length));
+                                    signupStep = 'confirmPassword';
+                                    printLine('Confirm your password:');
+                                    return;
+                                }
+                                if (signupStep === 'confirmPassword') {
+                                    if (trimmed !== signupData.password) {
+                                        printLine('Passwords do not match. Please try again.');
+                                        signupStep = 'password';
+                                        printLine('Enter your password:');
+                                        return;
+                                    }
+                                    signupData.confirmPassword = trimmed;
+                                    printLine('Confirm Password: ' + '*'.repeat(trimmed.length));
+                                    printLine('\nAccount created successfully!');
+                                    printLine('Welcome, ' + signupData.firstName + ' ' + signupData.lastName + '!');
+                                    signupStep = '';
+                                    return;
+                                }
+
+                                var lower = trimmed.toLowerCase();
+                                if (lower === 'signup' || lower === 'register') {
+                                    signupStep = 'firstName';
+                                    printLine('Enter your first name:');
+                                    return;
+                                }
+                                if (lower === 'close') {
+                                    document.getElementById('Sign-Up_Window').style.display = 'none';
+                                    clearTerminalData();
+                                    return;
+                                }
+                                if (lower === 'clear') {
+                                    transcript = '';
+                                    render();
+                                    return;
+                                }
+                                if (lower === 'help') {
+                                    printLine('Available commands:');
+                                    printLine('  [Signup] - Create a new account');
+                                    printLine('  [Clear] - Clear terminal');
+                                    printLine('  [Close] - Close window');
+                                    return;
+                                }
+                                if (trimmed !== '') {
+                                    printLine('Unknown command: ' + trimmed);
+                                }
+                            }
+
+                            terminalText.addEventListener('input', function() {
+                                if (rendering) return;
+                                var full = terminalText.textContent || '';
+                                var prompt = getPromptLabel();
+                                var baseText = transcript + prompt;
+
+                                if (full.slice(0, baseText.length) !== baseText) {
+                                    render();
+                                    return;
+                                }
+
+                                var domInput = full.slice(baseText.length).replace(/\r/g, '');
+
+                                if (domInput.indexOf('\n') !== -1) {
+                                    var firstLine = domInput.split('\n')[0];
+                                    if (signupStep === 'password' || signupStep === 'confirmPassword') {
+                                        currentInput = firstLine.replace(/\*/g, '');
+                                    } else {
+                                        currentInput = firstLine;
+                                    }
+                                    var toRun = currentInput;
+                                    currentInput = '';
+                                    executeCommand(toRun);
+                                    render();
+                                    return;
+                                }
+
+                                if (signupStep === 'password' || signupStep === 'confirmPassword') {
+                                    var newLen = domInput.length;
+                                    if (newLen > currentInput.length) {
+                                        currentInput += domInput.slice(currentInput.length);
+                                    } else {
+                                        currentInput = currentInput.slice(0, newLen);
+                                    }
+                                } else {
+                                    currentInput = domInput;
+                                }
+                            });
+
+                            document.getElementById('Sign-Up_Window_Close').addEventListener('click', function() {
+                                clearTerminalData();
+                                transcript = '';
+                                render();
+                            });
+
+                            const signupWindow = document.getElementById('Sign-Up_Window');
+
+                            function startWelcomeMessages() {
+                                if (!welcomeStarted && transcript === '') {
+                                    welcomeStarted = true;
+                                    setTimeout(function() {
+                                        printLine('\nVista-D-NET Corporation - Sign Up Portal\n');
+                                        setTimeout(function() {
+                                            printLine('\nTo create an account, type [Signup] - for help, type [Help] - to close window, type [Close].\n');
+                                        }, 500);
+                                    }, 1000);
+                                }
+                            }
+
+                            if (signupWindow.style.display !== 'none') {
+                                startWelcomeMessages();
+                            }
+
+                            const observer = new MutationObserver(function(mutations) {
+                                mutations.forEach(function(mutation) {
+                                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                        if (signupWindow.style.display !== 'none') {
+                                            startWelcomeMessages();
+                                        }
+                                    }
+                                });
+                            });
+                            observer.observe(signupWindow, { attributes: true });
+
+                        })();
+                    </script>
+                </div>
+
+                <style aria-label="Sign-Up_Window - Style">
+                    #Sign-Up_Window {
+                        width: 320px;
+                        height: 420px;
+                    }
+                </style>
+
+                <script aria-label="Sign-Up_Window - Script">
+                    document.getElementById('Sign-Up_Window_Close').addEventListener('click', function() {
+                        document.getElementById('Sign-Up_Window').style.display = 'none';
+                    });
+                </script>
+            </div>
+
 
             <!--Book_Mark: Login_Build - Clock-->
 
