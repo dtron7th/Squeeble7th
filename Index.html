@@ -1620,6 +1620,16 @@
                         const terminal = TerminalManager.getTerminal('Login_Window_Content_Terminal_Main_Text');
                         if (terminal) {
                             TerminalManager.clearTerminalData(terminal);
+                            // Reset login-specific state variables to ensure default prompt on reopen
+                            terminal.awaitingFirstName = false;
+                            terminal.awaitingLastName = false;
+                            terminal.awaitingPassword = false;
+                            terminal.firstName = null;
+                            terminal.lastName = null;
+                            terminal.password = null;
+                            terminal.previousPrompt = null;
+                            terminal.prompt = TerminalManager.defaultPrompt;
+                            terminal.passwordMode = false;
                         }
                         document.getElementById('Login_Window').style.display = 'none';
                     });
