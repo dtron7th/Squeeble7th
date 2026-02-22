@@ -1552,7 +1552,7 @@
                                             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('SHA-256 Hash: ' + hashHex, terminalData);
+                                            this.printLine('Account SHA-256 Hash: ' + hashHex, terminalData);
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
@@ -1748,9 +1748,15 @@
                                         }
 
                                         if (terminalData.prompt === 'Day (DD): ') {
+                                            // Check if input is exactly 2 digits
+                                            if (input.length !== 2) {
+                                                this.printLine('Error: Day must be exactly 2 digits (e.g., 05, 12, 31).', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
                                             const day = parseInt(input);
                                             if (day < 1 || day > 31) {
-                                                this.printLine('Error: Day must be between 1 and 31.', terminalData);
+                                                this.printLine('Error: Day must be between 01 and 31.', terminalData);
                                                 this.render(terminalData);
                                                 return;
                                             }
@@ -1761,9 +1767,15 @@
                                             this.printLine('Month (numbers only):', terminalData);
                                             this.playBeep();
                                         } else if (terminalData.prompt === 'Month (MM): ') {
+                                            // Check if input is exactly 2 digits
+                                            if (input.length !== 2) {
+                                                this.printLine('Error: Month must be exactly 2 digits (e.g., 01, 05, 12).', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
                                             const month = parseInt(input);
                                             if (month < 1 || month > 12) {
-                                                this.printLine('Error: Month must be between 1 and 12.', terminalData);
+                                                this.printLine('Error: Month must be between 01 and 12.', terminalData);
                                                 this.render(terminalData);
                                                 return;
                                             }
@@ -1829,7 +1841,7 @@
                                             const hashArray = Array.from(new Uint8Array(hashBuffer));
                                             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             
-                                            this.printLine('SHA-256 Hash: ' + hashHex, terminalData);
+                                            this.printLine('Account SHA-256 Hash: ' + hashHex, terminalData);
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
