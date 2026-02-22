@@ -939,6 +939,33 @@
                     terminal.parentWindow = null;
                 },
                 
+                // Debug beep for command execution
+                playBeep: function() {
+                    try {
+                        // Create an authentic DOS-style beep sound using Web Audio API
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 440; // 440 Hz - classic DOS system beep frequency
+                        oscillator.type = 'square'; // Square wave for authentic DOS sound
+                        
+                        // Pure DOS beep - steady volume with abrupt start and stop
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // Immediate start
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.05); // Steady volume
+                        gainNode.gain.setValueAtTime(0, audioContext.currentTime + 0.1); // Abrupt stop
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.051); // 51ms duration - classic DOS beep length
+                    } catch (err) {
+                        // Fallback for browsers that don't support Web Audio API
+                        console.log('DOS beep not supported');
+                    }
+                },
+                
                 // Execute command with beep
                 executeCommand: async function(raw, terminal) {
                     const input = (raw || '').trim();
@@ -1471,6 +1498,7 @@
                                         terminalData.currentInput = '';
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your last name:', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
@@ -1491,6 +1519,7 @@
                                         terminalData.passwordMode = true;
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your password:', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
@@ -1529,6 +1558,7 @@
                                         }
                                         
                                         this.printLine('', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
@@ -1673,6 +1703,7 @@
                                         terminalData.currentInput = '';
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your last name:', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
@@ -1693,6 +1724,7 @@
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your date of birth:', terminalData);
                                         this.printLine('Day (numbers only):', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
@@ -1727,6 +1759,7 @@
                                             terminalData.prompt = 'Month (MM): ';
                                             terminalData.currentInput = '';
                                             this.printLine('Month (numbers only):', terminalData);
+                                            this.playBeep();
                                         } else if (terminalData.prompt === 'Month (MM): ') {
                                             const month = parseInt(input);
                                             if (month < 1 || month > 12) {
@@ -1739,6 +1772,7 @@
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
                                             this.printLine('Year (numbers only):', terminalData);
+                                            this.playBeep();
                                         } else if (terminalData.prompt === 'Year (YYYY): ') {
                                             const year = parseInt(input);
                                             if (year < 1900 || year > 2025) {
@@ -1759,6 +1793,7 @@
                                             terminalData.awaitingSignupPassword = true;
                                             terminalData.prompt = 'Create password: ';
                                             terminalData.passwordMode = true;
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -1800,6 +1835,7 @@
                                         }
                                         
                                         this.printLine('Account created successfully!', terminalData);
+                                        this.playBeep();
                                         this.render(terminalData);
                                         return;
                                     }
