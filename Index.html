@@ -1523,7 +1523,7 @@
                                             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('Account SHA-256 Hash: ' + hashHex, terminalData);
+                                            this.printLine('Account SHA-256 Primary Hash: ' + hashHex, terminalData);
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
