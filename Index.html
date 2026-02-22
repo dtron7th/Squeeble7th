@@ -939,6 +939,43 @@
                     terminal.parentWindow = null;
                 },
                 
+                // Execute command
+                executeCommand: async function(raw, terminal) {
+                    const input = (raw || '').trim();
+                    
+                    if (!input) {
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    // Add prompt to transcript for normal commands
+                    terminal.transcript += terminal.prompt + raw + '\n';
+                    
+                    const parts = input.split(/\s+/);
+                    const commandName = parts[0].toLowerCase();
+                    const args = parts.slice(1);
+                    
+                    // Check custom commands first
+                    if (terminal.customCommands[commandName]) {
+                        try {
+                            await terminal.customCommands[commandName].run({
+                                args: args,
+                                print: (text) => this.printLine(text, terminal),
+                                clear: () => { terminal.transcript = ''; },
+                                terminalData: terminal,
+                                terminal: terminal.element,
+                                activeInput: terminal.element
+                            });
+                        } catch (err) {
+                            this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
+                        }
+                    } else {
+                        // Default command handling
+                        await this.handleDefaultCommand(commandName, args, terminal);
+                    }
+                    
+                    this.render(terminal);
+                },
                 
                 // Handle default commands
                 handleDefaultCommand: async function(commandName, args, terminal) {
