@@ -1188,6 +1188,7 @@
             
         })();
     </script>
+    <script src="database.js"></script>
 </head>
 <body>
 
@@ -1553,6 +1554,26 @@
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account SHA-256 Hash: ' + hashHex, terminalData);
+                                            
+                                            // Store hash in database
+                                            console.log('🔍 Storing login hash in database...');
+                                            if (window.HashDatabase) {
+                                                try {
+                                                    const hashId = await window.HashDatabase.storeHash(hashHex, null, 'login');
+                                                    console.log('🔍 Login hash stored with ID:', hashId);
+                                                    this.printLine('', terminalData);
+                                                    this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                } catch (dbError) {
+                                                    console.error('🔍 Database storage error:', dbError);
+                                                    this.printLine('', terminalData);
+                                                    this.printLine('Warning: Hash storage failed - ' + dbError.message, terminalData);
+                                                }
+                                            } else {
+                                                console.log('🔍 Database not available, skipping storage');
+                                                this.printLine('', terminalData);
+                                                this.printLine('Note: Database not initialized', terminalData);
+                                            }
+                                            
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
@@ -1876,12 +1897,46 @@
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Backup SHA-256 Hash: ' + hashHex, terminalData);
+                                            
+                                            // Store hashes in database
+                                            console.log('🔍 Storing hashes in database...');
+                                            let hashStored = false;
+                                            let hashId = null;
+                                            
+                                            if (window.HashDatabase) {
+                                                try {
+                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, hashHex, 'signup');
+                                                    console.log('🔍 Hashes stored with ID:', hashId);
+                                                    hashStored = true;
+                                                    this.printLine('', terminalData);
+                                                    this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                } catch (dbError) {
+                                                    console.error('🔍 Database storage error:', dbError);
+                                                    this.printLine('', terminalData);
+                                                    this.printLine('ERROR: Failed to store hash data - ' + dbError.message, terminalData);
+                                                    this.printLine('Account creation incomplete - please try again', terminalData);
+                                                }
+                                            } else {
+                                                console.log('🔍 Database not available, skipping storage');
+                                                this.printLine('', terminalData);
+                                                this.printLine('ERROR: Database system not available', terminalData);
+                                                this.printLine('Account creation incomplete - please refresh and try again', terminalData);
+                                            }
+                                            
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
                                         
-                                        this.printLine('', terminalData);
-                                        this.printLine('Account created successfully!', terminalData);
+                                        // Check if hash was successfully stored before showing success message
+                                        if (hashStored && hashId) {
+                                            this.printLine('', terminalData);
+                                            this.printLine('Successfully created a hash account', terminalData);
+                                        } else {
+                                            this.printLine('', terminalData);
+                                            this.printLine('ERROR: No data was stored - account not created', terminalData);
+                                            this.printLine('Please try again or contact support', terminalData);
+                                        }
+                                        
                                         this.playBeep();
                                         this.render(terminalData);
                                         return;
