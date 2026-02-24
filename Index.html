@@ -1902,14 +1902,28 @@
                                             console.log('🔍 Storing hashes in database...');
                                             let hashStored = false;
                                             let hashId = null;
+                                            let hashExists = false;
                                             
                                             if (window.HashDatabase) {
                                                 try {
-                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, hashHex, 'signup');
-                                                    console.log('🔍 Hashes stored with ID:', hashId);
-                                                    hashStored = true;
-                                                    this.printLine('', terminalData);
-                                                    this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                    // First check if hash already exists
+                                                    console.log('🔍 Checking if hash already exists...');
+                                                    hashExists = await window.HashDatabase.hashExists(primaryHashHex);
+                                                    
+                                                    if (hashExists) {
+                                                        console.log('🔍 Hash already exists in database');
+                                                        this.printLine('', terminalData);
+                                                        this.printLine('Account already has been made', terminalData);
+                                                        this.printLine('This hash is already registered in the system', terminalData);
+                                                    } else {
+                                                        // Hash doesn't exist, proceed with storage
+                                                        console.log('🔍 Hash is unique, proceeding with storage...');
+                                                        hashId = await window.HashDatabase.storeHash(primaryHashHex, hashHex, 'signup');
+                                                        console.log('🔍 Hashes stored with ID:', hashId);
+                                                        hashStored = true;
+                                                        this.printLine('', terminalData);
+                                                        this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                    }
                                                 } catch (dbError) {
                                                     console.error('🔍 Database storage error:', dbError);
                                                     this.printLine('', terminalData);
@@ -1927,10 +1941,13 @@
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
                                         
-                                        // Check if hash was successfully stored before showing success message
+                                        // Check final status and show appropriate message
                                         if (hashStored && hashId) {
                                             this.printLine('', terminalData);
                                             this.printLine('Successfully created a hash account', terminalData);
+                                        } else if (hashExists) {
+                                            // Hash already exists case - no additional message needed
+                                            console.log('🔍 Duplicate hash attempt handled');
                                         } else {
                                             this.printLine('', terminalData);
                                             this.printLine('ERROR: No data was stored - account not created', terminalData);
