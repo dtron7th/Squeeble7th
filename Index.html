@@ -289,6 +289,24 @@
             justify-content: center;
         }
 
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);   
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+
     </style>
     
     <!-- Prefabs -->
@@ -941,22 +959,29 @@
                 
                 // Execute command
                 executeCommand: async function(raw, terminal) {
+                    console.log('🔍 executeCommand called with:', { raw, terminalId: terminal.id });
+                    
                     const input = (raw || '').trim();
+                    console.log('🔍 Input after trim:', input);
                     
                     if (!input) {
+                        console.log('🔍 Empty input, returning early');
                         this.render(terminal);
                         return;
                     }
                     
                     // Add prompt to transcript for normal commands
                     terminal.transcript += terminal.prompt + raw + '\n';
+                    console.log('🔍 Added to transcript:', terminal.prompt + raw);
                     
                     const parts = input.split(/\s+/);
                     const commandName = parts[0].toLowerCase();
                     const args = parts.slice(1);
+                    console.log('🔍 Parsed command:', { commandName, args });
                     
                     // Check custom commands first
                     if (terminal.customCommands[commandName]) {
+                        console.log('🔍 Found custom command:', commandName);
                         try {
                             await terminal.customCommands[commandName].run({
                                 args: args,
@@ -966,14 +991,18 @@
                                 terminal: terminal.element,
                                 activeInput: terminal.element
                             });
+                            console.log('🔍 Custom command executed successfully');
                         } catch (err) {
+                            console.error('🔍 Custom command error:', err);
                             this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
                         }
                     } else {
+                        console.log('🔍 No custom command found, using default handler');
                         // Default command handling
                         await this.handleDefaultCommand(commandName, args, terminal);
                     }
                     
+                    console.log('🔍 Command execution complete, rendering terminal');
                     this.render(terminal);
                 },
                 
@@ -1655,27 +1684,38 @@
                             
                             // Add custom commands
                             TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'signup', function(context) {
+                                console.log('🔍 Signup command called in Sign-Up terminal');
                                 const signupTerminal = context.terminalData;
-                                if (!signupTerminal) return;
+                                console.log('🔍 Signup terminal data:', signupTerminal);
+                                if (!signupTerminal) {
+                                    console.log('🔍 No signup terminal found, returning');
+                                    return;
+                                }
 
+                                console.log('🔍 Setting up signup flow state');
                                 signupTerminal.awaitingSignupFirstName = true;
                                 signupTerminal.previousPrompt = signupTerminal.prompt;
                                 signupTerminal.prompt = 'First Name: ';
                                 signupTerminal.currentInput = '';
                                 context.print('');
                                 context.print('Enter your first name:');
+                                console.log('🔍 Signup flow initiated, waiting for first name');
                             }, 'Start sign-up process');
 
                             if (!TerminalManager._signupFirstNamePatched) {
                                 const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupFirstName) {
+                                        console.log('🔍 Processing signup first name input');
                                         const firstName = (raw || '').trim();
+                                        console.log('🔍 First name entered:', firstName);
                                         if (!firstName) {
+                                            console.log('🔍 Empty first name, rendering and returning');
                                             this.render(terminalData);
                                             return;
                                         }
 
+                                        console.log('🔍 Storing first name and moving to last name');
                                         terminalData.transcript += terminalData.prompt + firstName + '\n';
                                         terminalData.awaitingSignupFirstName = false;
                                         terminalData.signupFirstName = firstName;
@@ -1685,6 +1725,7 @@
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your last name:', terminalData);
                                         this.playBeep();
+                                        console.log('🔍 First name processed, waiting for last name');
                                         this.render(terminalData);
                                         return;
                                     }
