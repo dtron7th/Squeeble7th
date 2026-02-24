@@ -1772,10 +1772,8 @@
                                         // Check if user wants to clear
                                         if (firstName.toLowerCase() === 'clear') {
                                             console.log('🔍 User requested clear during first name input');
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing signup process...', terminalData);
-                                            
                                             // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
                                             terminalData.awaitingSignupDOB = false;
                                             terminalData.awaitingSignupPassword = false;
@@ -1786,10 +1784,10 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
-                                            terminalData.awaitingSignupFirstName = true;
-                                            terminalData.prompt = 'First Name: ';
+                                            this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -1824,10 +1822,8 @@
                                         // Check if user wants to clear
                                         if (lastName.toLowerCase() === 'clear') {
                                             console.log('🔍 User requested clear during last name input');
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing signup process...', terminalData);
-                                            
                                             // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
                                             terminalData.awaitingSignupDOB = false;
                                             terminalData.awaitingSignupPassword = false;
@@ -1838,10 +1834,10 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
-                                            terminalData.awaitingSignupFirstName = true;
-                                            terminalData.prompt = 'First Name: ';
+                                            this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -1873,10 +1869,8 @@
                                         // Check if user wants to clear
                                         if (input.toLowerCase() === 'clear') {
                                             console.log('🔍 User requested clear during DOB input');
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing signup process...', terminalData);
-                                            
                                             // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
                                             terminalData.awaitingSignupDOB = false;
                                             terminalData.awaitingSignupPassword = false;
@@ -1887,10 +1881,10 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
-                                            terminalData.awaitingSignupFirstName = true;
-                                            terminalData.prompt = 'First Name: ';
+                                            this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -1986,10 +1980,8 @@
                                         // Check if user wants to clear
                                         if (password.toLowerCase() === 'clear') {
                                             console.log('🔍 User requested clear during password input');
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing signup process...', terminalData);
-                                            
                                             // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
                                             terminalData.awaitingSignupDOB = false;
                                             terminalData.awaitingSignupPassword = false;
@@ -2000,10 +1992,10 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
-                                            terminalData.awaitingSignupFirstName = true;
-                                            terminalData.prompt = 'First Name: ';
+                                            this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
