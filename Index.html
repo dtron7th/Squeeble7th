@@ -1698,7 +1698,7 @@
                                 welcomeMessages: [
                                     'Vista-D-NET Sign-Up',
                                     '',
-                                    'To sign up, type [Signup] - to close, type [Close]',
+                                    'To sign up, type [Signup] - to clear mistakes, type [Clear] - to close, type [Close]',
                                     ''
                                 ]
                             });
@@ -1723,6 +1723,44 @@
                                 console.log('🔍 Signup flow initiated, waiting for first name');
                             }, 'Start sign-up process');
 
+                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'clear', function(context) {
+                                console.log('🔍 Clear command called in Sign-Up terminal');
+                                const signupTerminal = context.terminalData;
+                                if (!signupTerminal) {
+                                    console.log('🔍 No signup terminal found, returning');
+                                    return;
+                                }
+
+                                console.log('🔍 Clearing all signup data and resetting to beginning');
+                                
+                                // Reset all signup state variables
+                                signupTerminal.awaitingSignupFirstName = false;
+                                signupTerminal.awaitingSignupLastName = false;
+                                signupTerminal.awaitingSignupDOB = false;
+                                signupTerminal.awaitingSignupPassword = false;
+                                signupTerminal.signupFirstName = null;
+                                signupTerminal.signupLastName = null;
+                                signupTerminal.signupDOB = null;
+                                signupTerminal.signupPassword = null;
+                                signupTerminal.previousPrompt = null;
+                                signupTerminal.prompt = TerminalManager.defaultPrompt;
+                                signupTerminal.passwordMode = false;
+                                signupTerminal.currentInput = '';
+                                
+                                // Clear the terminal display
+                                context.clear();
+                                
+                                // Show welcome messages again
+                                context.print('Vista-D-NET Sign-Up');
+                                context.print('');
+                                context.print('To sign up, type [Signup] - to close, type [Close]');
+                                context.print('');
+                                context.print('Signup process cleared. Ready to start fresh.');
+                                context.print('');
+                                
+                                console.log('🔍 Signup process completely reset');
+                            }, 'Clear signup process and start over');
+
                             if (!TerminalManager._signupFirstNamePatched) {
                                 const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
@@ -1730,6 +1768,35 @@
                                         console.log('🔍 Processing signup first name input');
                                         const firstName = (raw || '').trim();
                                         console.log('🔍 First name entered:', firstName);
+                                        
+                                        // Check if user wants to clear
+                                        if (firstName.toLowerCase() === 'clear') {
+                                            console.log('🔍 User requested clear during first name input');
+                                            this.printLine('Clearing signup process...', terminalData);
+                                            
+                                            // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Enter your first name:', terminalData);
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.prompt = 'First Name: ';
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!firstName) {
                                             console.log('🔍 Empty first name, rendering and returning');
                                             this.render(terminalData);
@@ -1752,7 +1819,38 @@
                                     }
 
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupLastName) {
+                                        console.log('🔍 Processing signup last name input');
                                         const lastName = (raw || '').trim();
+                                        console.log('🔍 Last name entered:', lastName);
+                                        
+                                        // Check if user wants to clear
+                                        if (lastName.toLowerCase() === 'clear') {
+                                            console.log('🔍 User requested clear during last name input');
+                                            this.printLine('Clearing signup process...', terminalData);
+                                            
+                                            // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Enter your first name:', terminalData);
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.prompt = 'First Name: ';
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!lastName) {
                                             this.render(terminalData);
                                             return;
@@ -1774,6 +1872,36 @@
 
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupDOB) {
                                         const input = (raw || '').trim();
+                                        console.log('🔍 DOB input entered:', input);
+                                        
+                                        // Check if user wants to clear
+                                        if (input.toLowerCase() === 'clear') {
+                                            console.log('🔍 User requested clear during DOB input');
+                                            this.printLine('Clearing signup process...', terminalData);
+                                            
+                                            // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Enter your first name:', terminalData);
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.prompt = 'First Name: ';
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!input) {
                                             this.render(terminalData);
                                             return;
@@ -1859,6 +1987,36 @@
 
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
                                         const password = (raw || '').trim();
+                                        console.log('🔍 Password input entered:', password);
+                                        
+                                        // Check if user wants to clear
+                                        if (password.toLowerCase() === 'clear') {
+                                            console.log('🔍 User requested clear during password input');
+                                            this.printLine('Clearing signup process...', terminalData);
+                                            
+                                            // Reset all signup state variables
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Enter your first name:', terminalData);
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.prompt = 'First Name: ';
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!password) {
                                             this.render(terminalData);
                                             return;
