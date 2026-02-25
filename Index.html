@@ -669,7 +669,43 @@
             });
         })();
 
-        //Bring to front when clicking on Window or Panel
+        //Book_Mark: Set Element Default Position.
+        
+        // OLD Z-INDEX SYSTEMS DISABLED - CONFLICTING WITH NEW SYSTEM
+        /*
+        //Set Element Default Position.
+        (function() {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    const element = mutation.target;
+                    const computedStyle = window.getComputedStyle(element);
+                    const isVisible = computedStyle.display !== 'none';
+                    const isOpening = element.classList.contains('element-opening');
+                    
+                    if (isVisible && isOpening) {
+                        // Get current max z-index
+                        const allElements = document.querySelectorAll('.Window, .Panel');
+                        let maxZ = 100;
+                        allElements.forEach(el => {
+                            if (el !== element) {
+                                const z = parseInt(window.getComputedStyle(el).zIndex) || 0;
+                                if (z > maxZ) maxZ = z;
+                            }
+                        });
+                        element.style.zIndex = Math.max(maxZ + 1, 2147483646);
+                    }
+                }
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const elements = document.querySelectorAll('.Window, .Panel');
+                elements.forEach(el => {
+                    observer.observe(el, { attributes: true, attributeFilter: ['class', 'style'] });
+                });
+            });
+        })();
+
+        //Set default position for windows and panels when they open
         (function() {
             let zIndex = 100;
 
@@ -689,46 +725,222 @@
                 }
             });
         })();
-
-        //Book_Mark: Set Element Default Position.
+        */
+        
+        // NEW UNIFIED Z-INDEX MANAGEMENT SYSTEM
         
         //Set default position for windows and panels when they open
         (function() {
-            let zIndex = 1000; // Higher z-index for opened windows
+            let highestZIndex = 10000; // Higher starting z-index to ensure windows are on top
             
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                        const element = mutation.target;
-                        if (element.classList.contains('Window') || element.classList.contains('Panel')) {
-                            const computedStyle = window.getComputedStyle(element);
-                            if (computedStyle.display !== 'none') {
-                                if (!element.dataset.positionSet) {
-                                    element.style.top = '10px';
-                                    element.style.left = '10px';
-                                    element.dataset.positionSet = 'true';
-                                    // Bring to front when opening
-                                    zIndex++;
-                                    element.style.zIndex = zIndex;
-                                    // Enable native keyboard
-                                    const inputs = element.querySelectorAll('input, textarea');
-                                    inputs.forEach(input => {
-                                        input.setAttribute('autofocus', 'autofocus');
-                                    });
-                                }
-                            } else {
-                                delete element.dataset.positionSet;
+            // Function to set default position for elements
+            function setDefaultPosition(element) {
+                if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                    const currentTop = element.style.top;
+                    const currentLeft = element.style.left;
+                    
+                    // Only set position if not already positioned or at default
+                    const needsPositioning = 
+                        (!currentTop || currentTop === 'auto' || currentTop === '') ||
+                        (!currentLeft || currentLeft === 'auto' || currentLeft === '') ||
+                        (currentTop === '0px' && currentLeft === '0px'); // Reset from browser default
+                    
+                    if (needsPositioning) {
+                        element.style.top = '10px';
+                        element.style.left = '10px';
+                    }
+                    
+                    // Also set position property to absolute if not already
+                    const currentPosition = window.getComputedStyle(element).position;
+                    if (currentPosition !== 'absolute' && currentPosition !== 'fixed') {
+                        element.style.position = 'absolute';
+                    }
+                }
+            }
+            
+            // Simple function to bring window to front without heavy observation
+            function bringToFront(element) {
+                if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                    highestZIndex++;
+                    element.style.zIndex = highestZIndex;
+                    
+                    // Set default position if not already positioned
+                    setDefaultPosition(element);
+                }
+            }
+            
+            // Auto-position elements when they become visible
+            function setupAutoPositioning() {
+                function syncVisibilityState(element) {
+                    const isVisible = window.getComputedStyle(element).display !== 'none';
+                    const wasVisible = !!element._wasVisible;
+
+                    // Hidden -> visible transition: bring to front
+                    if (isVisible && !wasVisible) {
+                        bringToFront(element);
+                    } else if (isVisible) {
+                        // Keep visible elements correctly positioned without changing z-order
+                        setDefaultPosition(element);
+                    }
+
+                    element._wasVisible = isVisible;
+                }
+
+                // Set up MutationObserver to watch for style changes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            const element = mutation.target;
+                            if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                                syncVisibilityState(element);
                             }
+                        }
+                    });
+                });
+                
+                // Observe all existing windows and panels
+                const allElements = document.querySelectorAll('.Window, .Panel');
+                allElements.forEach(el => {
+                    el._wasVisible = window.getComputedStyle(el).display !== 'none';
+                    observer.observe(el, { attributes: true, attributeFilter: ['style'] });
+                    
+                    // Also set position immediately if already visible
+                    if (el._wasVisible) {
+                        setDefaultPosition(el);
+                    }
+                });
+                
+                // Set up observer for dynamically added elements
+                const documentObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) { // Element node
+                                if (node.classList && (node.classList.contains('Window') || node.classList.contains('Panel'))) {
+                                    node._wasVisible = window.getComputedStyle(node).display !== 'none';
+                                    // New window/panel added, observe it
+                                    observer.observe(node, { attributes: true, attributeFilter: ['style'] });
+                                    
+                                    // Set position if visible
+                                    if (node._wasVisible) {
+                                        bringToFront(node);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                });
+                
+                // Observe document for new elements
+                documentObserver.observe(document.body, { childList: true, subtree: true });
+            }
+            
+            // Initialize auto-positioning when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupAutoPositioning);
+            } else {
+                setupAutoPositioning();
+            }
+            
+            // Aggressive positioning - run every 2 seconds to ensure all elements are positioned
+            setInterval(() => {
+                const allElements = document.querySelectorAll('.Window, .Panel');
+                allElements.forEach(el => {
+                    const display = window.getComputedStyle(el).display;
+                    if (display !== 'none') {
+                        const currentTop = el.style.top;
+                        const currentLeft = el.style.left;
+                        
+                        // Only force position if not positioned or at browser default (0px, 0px)
+                        const needsPositioning = 
+                            (!currentTop || currentTop === 'auto' || currentTop === '') ||
+                            (!currentLeft || currentLeft === 'auto' || currentLeft === '') ||
+                            (currentTop === '0px' && currentLeft === '0px');
+                        
+                        if (needsPositioning) {
+                            setDefaultPosition(el);
                         }
                     }
                 });
+            }, 2000);
+            
+            // Immediate positioning on button clicks
+            document.addEventListener('click', function(e) {
+                // Check if this is a button that opens a window
+                if (e.target.id === 'Start_Menu_Panel_Login') {
+                    const loginWindow = document.getElementById('Login_Window');
+                    if (loginWindow) {
+                        setTimeout(() => {
+                            setDefaultPosition(loginWindow);
+                        }, 50);
+                    }
+                }
+                
+                if (e.target.id === 'Start_Menu_Panel_Signup' || 
+                    (e.target.closest && e.target.closest('#Start_Menu_Panel_Signup'))) {
+                    const signupWindow = document.getElementById('Sign-Up_Window');
+                    if (signupWindow) {
+                        setTimeout(() => {
+                            setDefaultPosition(signupWindow);
+                        }, 50);
+                    }
+                }
+                
+                if (e.target.id === 'Start_Button') {
+                    const startMenu = document.getElementById('Start_Menu_Panel');
+                    if (startMenu) {
+                        setTimeout(() => {
+                            setDefaultPosition(startMenu);
+                        }, 50);
+                    }
+                }
+            });
+            
+            // Bring any interacted window/panel to front (header or content)
+            document.addEventListener('mousedown', function(e) {
+                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel');
+                if (windowElement) {
+                    bringToFront(windowElement);
+                }
             });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const elements = document.querySelectorAll('.Window, .Panel');
-                elements.forEach(el => {
-                    observer.observe(el, { attributes: true, attributeFilter: ['style'] });
-                });
+            document.addEventListener('touchstart', function(e) {
+                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel');
+                if (windowElement) {
+                    bringToFront(windowElement);
+                }
+            });
+            
+            // Apply z-index to windows when they're opened via button clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'Start_Menu_Panel_Login') {
+                    const loginWindow = document.getElementById('Login_Window');
+                    if (loginWindow) {
+                        setTimeout(() => {
+                            bringToFront(loginWindow);
+                        }, 10);
+                    }
+                }
+                if (e.target.id === 'Start_Menu_Panel_Signup' || 
+                    (e.target.closest && e.target.closest('#Start_Menu_Panel_Signup'))) {
+                    const signupWindow = document.getElementById('Sign-Up_Window');
+                    if (signupWindow) {
+                        setTimeout(() => {
+                            bringToFront(signupWindow);
+                        }, 10);
+                    }
+                }
+            });
+            
+            // Also bring start menu to front when opened
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'Start_Button') {
+                    const startMenu = document.getElementById('Start_Menu_Panel');
+                    if (startMenu) {
+                        setTimeout(() => {
+                            bringToFront(startMenu);
+                        }, 10);
+                    }
+                }
             });
         })();
 
@@ -782,6 +994,9 @@
                     terminal.textNode = terminalTextNode;
                     terminal.cursorNode = terminalCursorNode;
                     
+                    // Enable Android keyboard auto-capitalization
+                    this.enableAutoCapitalization(terminal);
+                    
                     // Setup event listeners
                     this.setupEventListeners(terminal);
                     
@@ -792,6 +1007,31 @@
                     
                     // Initial render
                     this.render(terminal);
+                },
+                
+                // Enable Android keyboard auto-capitalization
+                enableAutoCapitalization: function(terminal) {
+                    const element = terminal.element;
+                    
+                    // Set contenteditable attributes for auto-capitalization
+                    element.setAttribute('contenteditable', 'true');
+                    element.setAttribute('autocapitalize', 'sentences'); // Android auto-capitalization
+                    element.setAttribute('autocomplete', 'off');
+                    element.setAttribute('autocorrect', 'off');
+                    element.setAttribute('spellcheck', 'false');
+                    
+                    // Add input method attributes for better mobile keyboard support
+                    element.setAttribute('inputmode', 'text');
+                    element.setAttribute('enterkeyhint', 'send');
+                    
+                    // Set CSS properties for better mobile experience
+                    element.style.webkitTapHighlightColor = 'transparent';
+                    element.style.webkitUserSelect = 'text';
+                    element.style.userSelect = 'text';
+                    
+                    // Initialize capitalization state
+                    terminal.shouldCapitalizeNext = true;
+                    terminal.lastCharWasSentenceEnd = false;
                 },
                 
                 // Setup event listeners for terminal
@@ -820,7 +1060,15 @@
                         });
                         element.addEventListener('textInput', (e) => {
                             if (e.data && e.data !== '\n') {
-                                terminal.currentInput += e.data;
+                                // Apply capitalization for Android input
+                                let textToAdd = e.data;
+                                if (terminal.shouldCapitalizeNext && e.data.match(/^[a-z]/)) {
+                                    textToAdd = e.data.charAt(0).toUpperCase() + e.data.slice(1);
+                                    terminal.shouldCapitalizeNext = false;
+                                }
+                                
+                                terminal.currentInput += textToAdd;
+                                this.updateCapitalizationState(terminal, textToAdd, false);
                                 this.render(terminal);
                                 e.preventDefault();
                             }
@@ -837,24 +1085,104 @@
                         await this.executeCommand(toRun, terminal);
                         terminal.shouldScrollToBottom = true;
                         this.render(terminal);
+                        
+                        // Reset capitalization state after command execution
+                        terminal.shouldCapitalizeNext = true;
+                        terminal.lastCharWasSentenceEnd = false;
                         return;
                     }
                     
                     if (e.key === 'Backspace') {
                         e.preventDefault();
                         if (terminal.currentInput.length > 0) {
+                            const removedChar = terminal.currentInput.slice(-1);
                             terminal.currentInput = terminal.currentInput.slice(0, -1);
+                            
+                            // Update capitalization state after backspace
+                            this.updateCapitalizationState(terminal, removedChar, true);
                             this.render(terminal);
                         }
                         return;
                     }
                     
-                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    // Handle space key for capitalization tracking
+                    if (e.key === ' ') {
                         e.preventDefault();
-                        terminal.currentInput += e.key;
+                        terminal.currentInput += ' ';
+                        terminal.lastCharWasSentenceEnd = false;
                         this.render(terminal);
                         return;
                     }
+                    
+                    // Handle punctuation that ends sentences
+                    if (e.key === '.' || e.key === '!' || e.key === '?') {
+                        e.preventDefault();
+                        terminal.currentInput += e.key;
+                        terminal.lastCharWasSentenceEnd = true;
+                        terminal.shouldCapitalizeNext = true;
+                        this.render(terminal);
+                        return;
+                    }
+                    
+                    // Handle regular character input
+                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                        e.preventDefault();
+                        
+                        // Apply capitalization if needed
+                        let charToAdd = e.key;
+                        if (terminal.shouldCapitalizeNext && e.key.match(/[a-z]/)) {
+                            charToAdd = e.key.toUpperCase();
+                            terminal.shouldCapitalizeNext = false;
+                        }
+                        
+                        terminal.currentInput += charToAdd;
+                        this.updateCapitalizationState(terminal, charToAdd, false);
+                        this.render(terminal);
+                        return;
+                    }
+                },
+                
+                // Update capitalization state based on input changes
+                updateCapitalizationState: function(terminal, char, isBackspace = false) {
+                    if (isBackspace) {
+                        // Check if we removed a sentence-ending punctuation
+                        if (char === '.' || char === '!' || char === '?') {
+                            terminal.lastCharWasSentenceEnd = false;
+                            terminal.shouldCapitalizeNext = false;
+                        }
+                        // Check if we're now at the beginning or after a sentence end
+                        if (terminal.currentInput.length === 0) {
+                            terminal.shouldCapitalizeNext = true;
+                        } else if (terminal.currentInput.slice(-1) === '.' || 
+                                  terminal.currentInput.slice(-1) === '!' || 
+                                  terminal.currentInput.slice(-1) === '?') {
+                            terminal.lastCharWasSentenceEnd = true;
+                            terminal.shouldCapitalizeNext = true;
+                        }
+                    } else {
+                        // Regular input - update based on the character added
+                        if (char === '.' || char === '!' || char === '?') {
+                            terminal.lastCharWasSentenceEnd = true;
+                            terminal.shouldCapitalizeNext = true;
+                        } else if (char === ' ') {
+                            terminal.lastCharWasSentenceEnd = false;
+                        } else {
+                            terminal.lastCharWasSentenceEnd = false;
+                            terminal.shouldCapitalizeNext = false;
+                        }
+                    }
+                },
+                
+                // Apply smart capitalization to input
+                applyCapitalization: function(terminal, input) {
+                    if (!terminal.shouldCapitalizeNext || input.length === 0) {
+                        return input;
+                    }
+                    
+                    // Capitalize the first character
+                    const firstChar = input.charAt(0).toUpperCase();
+                    const rest = input.slice(1);
+                    return firstChar + rest;
                 },
                 
                 // Handle before input events
@@ -959,29 +1287,99 @@
                 
                 // Execute command
                 executeCommand: async function(raw, terminal) {
-                    console.log('🔍 executeCommand called with:', { raw, terminalId: terminal.id });
-                    
                     const input = (raw || '').trim();
-                    console.log('🔍 Input after trim:', input);
+                    
+                    // Check if user is in a process and pressed Enter twice (empty input)
+                    if (!input && this.isInProcess(terminal)) {
+                        // Check if this is the second consecutive empty Enter
+                        if (terminal.lastEmptyInput && (Date.now() - terminal.lastEmptyInput) < 1000) {
+                            // Save current process state
+                            terminal.savedProcessState = this.captureProcessState(terminal);
+                            
+                            // Escape to command prompt
+                            this.escapeToCommandPrompt(terminal);
+                            return;
+                        } else {
+                            // First empty Enter, record timestamp
+                            terminal.lastEmptyInput = Date.now();
+                            this.render(terminal);
+                            return;
+                        }
+                    }
+                    
+                    // Reset empty input tracking if non-empty input
+                    if (input) {
+                        terminal.lastEmptyInput = null;
+                    }
                     
                     if (!input) {
-                        console.log('🔍 Empty input, returning early');
                         this.render(terminal);
                         return;
                     }
                     
+                    // Check if user is trying to execute commands while in process
+                    if (this.isInProcess(terminal)) {
+                        const commandName = input.split(/\s+/)[0].toLowerCase();
+                        
+                        // Allow Reset and Clear commands during input processes
+                        if (commandName === 'reset') {
+                            // Check if we're in the first question of a data set
+                            const isFirstQuestion = 
+                                terminal.awaitingFirstName || 
+                                terminal.awaitingSignupFirstName;
+                            
+                            if (isFirstQuestion) {
+                                // Save current state before clearing
+                                this.saveState(terminal);
+                                
+                                // Clear the current data set completely
+                                this.clearCurrentDataSet(terminal);
+                                
+                                // Try to restore the previous data set (if available)
+                                if (terminal.stateHistory && terminal.stateHistory.length > 1) {
+                                    // Remove the current state we just saved
+                                    terminal.stateHistory.pop();
+                                    
+                                    // Restore the previous state
+                                    if (this.restoreState(terminal, -1)) {
+                                        this.printLine('Current data set cleared. Returned to previous data set.', terminal);
+                                        this.printLine('Use "undo" command to restore the cleared data set if needed.', terminal);
+                                    } else {
+                                        this.printLine('Current data set cleared. No previous data set available.', terminal);
+                                    }
+                                } else {
+                                    // No previous state, just show cleared state
+                                    this.printLine('Current data set cleared. No previous data set to restore.', terminal);
+                                }
+                            } else {
+                                this.printLine('Reset command executed. Use specific reset commands during input processes.', terminal);
+                            }
+                            this.render(terminal);
+                            return;
+                        }
+                        
+                        if (commandName === 'clear') {
+                            // Save current state
+                            this.saveState(terminal);
+                            
+                            // Clear the current process and return to default prompt
+                            this.clearCurrentDataSet(terminal);
+                            
+                            this.printLine('Process cleared. Returned to default prompt.', terminal);
+                            this.render(terminal);
+                            return;
+                        }
+                    }
+                    
                     // Add prompt to transcript for normal commands
                     terminal.transcript += terminal.prompt + raw + '\n';
-                    console.log('🔍 Added to transcript:', terminal.prompt + raw);
                     
                     const parts = input.split(/\s+/);
                     const commandName = parts[0].toLowerCase();
                     const args = parts.slice(1);
-                    console.log('🔍 Parsed command:', { commandName, args });
                     
                     // Check custom commands first
                     if (terminal.customCommands[commandName]) {
-                        console.log('🔍 Found custom command:', commandName);
                         try {
                             await terminal.customCommands[commandName].run({
                                 args: args,
@@ -991,24 +1389,110 @@
                                 terminal: terminal.element,
                                 activeInput: terminal.element
                             });
-                            console.log('🔍 Custom command executed successfully');
                         } catch (err) {
-                            console.error('🔍 Custom command error:', err);
                             this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
                         }
                     } else {
-                        console.log('🔍 No custom command found, using default handler');
                         // Default command handling
                         await this.handleDefaultCommand(commandName, args, terminal);
                     }
-                    
-                    console.log('🔍 Command execution complete, rendering terminal');
+
                     this.render(terminal);
                 },
                 
                 // Handle default commands
                 handleDefaultCommand: async function(commandName, args, terminal) {
                     switch (commandName) {
+                        case 'clear':
+                            this.printLine('', terminal);
+                            this.printLine('Clearing terminal...', terminal);
+                            this.printLine('', terminal);
+                            
+                            // Clear terminal data
+                            this.clearTerminalData(terminal);
+                            
+                            // Reset terminal state to defaults
+                            terminal.prompt = this.defaultPrompt;
+                            terminal.passwordMode = false;
+                            terminal.currentInput = '';
+                            terminal.previousPrompt = null;
+                            
+                            // Clear any custom state variables that might exist
+                            // Login state
+                            terminal.awaitingFirstName = false;
+                            terminal.awaitingLastName = false;
+                            terminal.awaitingPassword = false;
+                            terminal.firstName = null;
+                            terminal.lastName = null;
+                            terminal.password = null;
+                            
+                            // Signup state
+                            terminal.awaitingSignupFirstName = false;
+                            terminal.awaitingSignupLastName = false;
+                            terminal.awaitingSignupDOB = false;
+                            terminal.awaitingSignupPassword = false;
+                            terminal.signupFirstName = null;
+                            terminal.signupLastName = null;
+                            terminal.signupDOB = null;
+                            terminal.signupPassword = null;
+                            
+                            // Re-show welcome messages if they exist
+                            if (terminal.welcomeMessages && terminal.welcomeMessages.length > 0) {
+                                terminal.welcomeStarted = false;
+                                this.setupWelcomeMessages(terminal);
+                            }
+
+                            break;
+                        case 'reset':
+
+                            // Check if we're in the first question of a data set
+                            const isFirstQuestion = 
+                                terminal.awaitingFirstName || 
+                                terminal.awaitingSignupFirstName;
+                            
+                            if (isFirstQuestion && this.isInProcess(terminal)) {
+                                // Save current state before clearing
+                                this.saveState(terminal);
+                                
+                                // Clear the current data set completely
+                                this.clearCurrentDataSet(terminal);
+                                
+                                // Try to restore the previous data set (if available)
+                                if (terminal.stateHistory && terminal.stateHistory.length > 1) {
+                                    // Remove the current state we just saved
+                                    terminal.stateHistory.pop();
+                                    
+                                    // Restore the previous state
+                                    if (this.restoreState(terminal, -1)) {
+                                        this.printLine('Current data set cleared. Returned to previous data set.', terminal);
+                                    } else {
+                                        this.printLine('Current data set cleared. No previous data set available.', terminal);
+                                    }
+                                } else {
+                                    // No previous state, just show cleared state
+                                    this.printLine('Current data set cleared. No previous data set to restore.', terminal);
+                                }
+                            } else {
+                                this.printLine('Reset command executed. Use specific reset commands during input processes.', terminal);
+                            }
+                            this.render(terminal);
+                            break;
+                        case 'exit':
+
+                            if (this.isInProcess(terminal)) {
+
+                                // Save current state
+                                this.saveState(terminal);
+                                
+                                // Clear the current process and return to default prompt
+                                this.clearCurrentDataSet(terminal);
+                                
+                                this.printLine('Process exited. Returned to default prompt.', terminal);
+                            } else {
+                                this.printLine('Exit command executed. No active process to exit.', terminal);
+                            }
+                            this.render(terminal);
+                            break;
                         case 'close':
                             // Clear terminal data before closing
                             this.clearTerminalData(terminal);
@@ -1020,6 +1504,176 @@
                             this.printLine('Unknown command: ' + commandName, terminal);
                             break;
                     }
+                },
+                
+                // Display command list in column format
+                displayCommandList: function(terminal, commands) {
+                    this.printLine('Commands', terminal);
+                    this.printLine('─────────', terminal);
+                    
+                    commands.forEach(command => {
+                        const paddedName = command.name.padEnd(8, ' ');
+                        this.printLine(paddedName + ' - ' + command.description, terminal);
+                    });
+                    
+                    this.printLine('', terminal);
+                },
+                
+                // Get login-specific command list
+                getLoginCommandList: function() {
+                    return [
+                        { name: 'Login', description: 'Start login process' },
+                        { name: 'Signup', description: 'Start sign-up process' },
+                        { name: 'Clear', description: 'Clear terminal' },
+                        { name: 'Reset', description: 'Fix mistakes' },
+                        { name: 'License', description: 'View license' },
+                        { name: 'Exit', description: 'Exits out of a process' },
+                        { name: 'Close', description: 'Close window' }
+                    ];
+                },
+                
+                // Get signup-specific command list
+                getSignupCommandList: function() {
+                    return [
+                        { name: 'Signup', description: 'Start sign-up process' },
+                        { name: 'Clear', description: 'Clear terminal' },
+                        { name: 'Reset', description: 'Fix mistakes' },
+                        { name: 'Exit', description: 'Exits out of a process' },
+                        { name: 'Close', description: 'Close window' }
+                    ];
+                },
+                
+                // Get default command list for terminals
+                getDefaultCommandList: function() {
+                    return [
+                        { name: 'Clear', description: 'Clear terminal' },
+                        { name: 'Reset', description: 'Fix mistakes' },
+                        { name: 'Exit', description: 'Exits out of a process' },
+                        { name: 'Close', description: 'Close window' }
+                    ];
+                },
+                
+                // Save current terminal state for undo/restore functionality
+                saveState: function(terminal) {
+                    const state = {
+                        timestamp: Date.now(),
+                        prompt: terminal.prompt,
+                        passwordMode: terminal.passwordMode,
+                        currentInput: terminal.currentInput,
+                        transcript: terminal.transcript,
+                        welcomeStarted: terminal.welcomeStarted
+                    };
+                    
+                    // Save all process flags
+                    const processFlags = [
+                        'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
+                        'awaitingSignupFirstName', 'awaitingSignupLastName', 
+                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                    ];
+                    
+                    processFlags.forEach(flag => {
+                        state[flag] = terminal[flag];
+                    });
+                    
+                    // Save all data variables
+                    const dataVars = [
+                        'firstName', 'lastName', 'password',
+                        'signupFirstName', 'signupLastName', 
+                        'signupDOB', 'signupPassword'
+                    ];
+                    
+                    dataVars.forEach(variable => {
+                        state[variable] = terminal[variable];
+                    });
+                    
+                    // Store in terminal's state history
+                    if (!terminal.stateHistory) {
+                        terminal.stateHistory = [];
+                    }
+                    terminal.stateHistory.push(state);
+                    
+                    // Keep only last 5 states to prevent memory issues
+                    if (terminal.stateHistory.length > 5) {
+                        terminal.stateHistory.shift();
+                    }
+                },
+                
+                // Restore terminal state from history
+                restoreState: function(terminal, stateIndex = -1) {
+                    if (!terminal.stateHistory || terminal.stateHistory.length === 0) {
+                        return false;
+                    }
+                    
+                    const state = stateIndex === -1 ? 
+                        terminal.stateHistory[terminal.stateHistory.length - 1] : 
+                        terminal.stateHistory[stateIndex];
+                        
+                    if (!state) {
+                        return false;
+                    }
+                    
+                    // Restore basic terminal properties
+                    terminal.prompt = state.prompt;
+                    terminal.passwordMode = state.passwordMode;
+                    terminal.currentInput = state.currentInput;
+                    terminal.transcript = state.transcript;
+                    terminal.welcomeStarted = state.welcomeStarted;
+                    
+                    // Restore all process flags
+                    const processFlags = [
+                        'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
+                        'awaitingSignupFirstName', 'awaitingSignupLastName', 
+                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                    ];
+                    
+                    processFlags.forEach(flag => {
+                        terminal[flag] = state[flag];
+                    });
+                    
+                    // Restore all data variables
+                    const dataVars = [
+                        'firstName', 'lastName', 'password',
+                        'signupFirstName', 'signupLastName', 
+                        'signupDOB', 'signupPassword'
+                    ];
+                    
+                    dataVars.forEach(variable => {
+                        terminal[variable] = state[variable];
+                    });
+                    
+                    this.render(terminal);
+                    return true;
+                },
+                
+                // Clear current data set but keep state history
+                clearCurrentDataSet: function(terminal) {
+
+                    // Clear process flags
+                    const processFlags = [
+                        'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
+                        'awaitingSignupFirstName', 'awaitingSignupLastName', 
+                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                    ];
+                    
+                    processFlags.forEach(flag => {
+                        terminal[flag] = false;
+                    });
+                    
+                    // Clear data variables
+                    const dataVars = [
+                        'firstName', 'lastName', 'password',
+                        'signupFirstName', 'signupLastName', 
+                        'signupDOB', 'signupPassword'
+                    ];
+                    
+                    dataVars.forEach(variable => {
+                        terminal[variable] = null;
+                    });
+                    
+                    // Reset to default prompt
+                    terminal.prompt = this.defaultPrompt;
+                    terminal.passwordMode = false;
+                    terminal.currentInput = '';
                 },
                 
                 // Clear terminal data
@@ -1120,34 +1774,46 @@
                 // Setup welcome messages
                 setupWelcomeMessages: function(terminal) {
                     const startWelcomeMessages = () => {
+                        // Only start welcome messages if terminal is truly empty (fresh state)
                         if (!terminal.welcomeStarted && terminal.transcript === '') {
                             terminal.welcomeStarted = true;
                             terminal.welcomeMessages.forEach((message, index) => {
                                 setTimeout(() => {
-                                    this.printLine(message, terminal);
+                                    if (typeof message === 'function') {
+                                        message(terminal);
+                                    } else {
+                                        this.printLine(message, terminal);
+                                    }
                                 }, (index + 1) * 1000);
                             });
                         }
                     };
                     
                     // Check if window is already visible
-                    const window = terminal.windowId ? document.getElementById(terminal.windowId) : null;
-                    if (window && window.style.display !== 'none') {
-                        startWelcomeMessages();
-                    }
-                    
-                    // Watch for style changes (reopen)
-                    if (window) {
+                    const windowElement = terminal.windowId ? document.getElementById(terminal.windowId) : null;
+                    if (windowElement) {
+                        // Check current display state
+                        const currentDisplay = windowElement.style.display;
+                        const computedStyle = getComputedStyle(windowElement);
+                        const isVisible = currentDisplay !== 'none' && computedStyle.display !== 'none';
+                        
+                        if (isVisible) {
+                            // Window is already visible, start animation after a short delay if terminal is empty
+                            setTimeout(startWelcomeMessages, 100);
+                        }
+                        
+                        // Watch for style changes (reopen)
                         const observer = new MutationObserver((mutations) => {
                             mutations.forEach((mutation) => {
                                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    if (window.style.display !== 'none') {
-                                        startWelcomeMessages();
+                                    if (windowElement.style.display !== 'none') {
+                                        // Small delay to ensure window is fully visible
+                                        setTimeout(startWelcomeMessages, 100);
                                     }
                                 }
                             });
                         });
-                        observer.observe(window, { attributes: true });
+                        observer.observe(windowElement, { attributes: true });
                     }
                 },
                 
@@ -1180,6 +1846,256 @@
                     this.terminals.forEach((terminal, terminalId) => {
                         this.clearTerminalData(terminal);
                     });
+                },
+                
+                // Check if terminal is in a process (login/signup)
+                isInProcess: function(terminal) {
+                    return (
+                        // Login process states
+                        terminal.awaitingFirstName ||
+                        terminal.awaitingLastName ||
+                        terminal.awaitingPassword ||
+                        // Signup process states
+                        terminal.awaitingSignupFirstName ||
+                        terminal.awaitingSignupLastName ||
+                        terminal.awaitingSignupDOB ||
+                        terminal.awaitingSignupPassword ||
+                        // Any other custom process states
+                        (terminal.customProcessState && terminal.customProcessState.active)
+                    );
+                },
+                
+                // Capture current process state for undo
+                captureProcessState: function(terminal) {
+                    const state = {
+                        timestamp: Date.now(),
+                        terminalId: terminal.id,
+                        prompt: terminal.prompt,
+                        passwordMode: terminal.passwordMode,
+                        currentInput: terminal.currentInput,
+                        previousPrompt: terminal.previousPrompt
+                    };
+                    
+                    // Capture login process state
+                    if (terminal.awaitingFirstName || terminal.awaitingLastName || terminal.awaitingPassword) {
+                        state.processType = 'login';
+                        state.awaitingFirstName = terminal.awaitingFirstName;
+                        state.awaitingLastName = terminal.awaitingLastName;
+                        state.awaitingPassword = terminal.awaitingPassword;
+                        state.firstName = terminal.firstName;
+                        state.lastName = terminal.lastName;
+                        state.password = terminal.password;
+                    }
+                    
+                    // Capture signup process state
+                    if (terminal.awaitingSignupFirstName || terminal.awaitingSignupLastName || 
+                        terminal.awaitingSignupDOB || terminal.awaitingSignupPassword) {
+                        state.processType = 'signup';
+                        state.awaitingSignupFirstName = terminal.awaitingSignupFirstName;
+                        state.awaitingSignupLastName = terminal.awaitingSignupLastName;
+                        state.awaitingSignupDOB = terminal.awaitingSignupDOB;
+                        state.awaitingSignupPassword = terminal.awaitingSignupPassword;
+                        state.signupFirstName = terminal.signupFirstName;
+                        state.signupLastName = terminal.signupLastName;
+                        state.signupDOB = terminal.signupDOB;
+                        state.signupPassword = terminal.signupPassword;
+                    }
+                    
+                    // Capture any custom process state
+                    if (terminal.customProcessState) {
+                        state.customProcessState = { ...terminal.customProcessState };
+                    }
+                    
+                    return state;
+                },
+                
+                // Escape from process to command prompt
+                escapeToCommandPrompt: function(terminal) {
+
+                    // Add escape message to transcript
+                    this.printLine('', terminal);
+                    this.printLine('Press Enter twice to escape to command prompt', terminal);
+                    this.printLine('', terminal);
+                    
+                    // Reset to command prompt state
+                    terminal.prompt = this.defaultPrompt;
+                    terminal.passwordMode = false;
+                    terminal.currentInput = '';
+                    terminal.previousPrompt = null;
+                    
+                    // Clear process flags but keep data
+                    const processFlags = [
+                        'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
+                        'awaitingSignupFirstName', 'awaitingSignupLastName', 
+                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                    ];
+                    
+                    processFlags.forEach(flag => {
+                        if (terminal[flag]) {
+                            terminal[flag] = false;
+                        }
+                    });
+                    
+                    // Clear custom process state
+                    if (terminal.customProcessState) {
+                        terminal.customProcessState.active = false;
+                    }
+                },
+                
+                // Restore process state from saved state
+                restoreProcessState: function(terminal) {
+                    if (!terminal.savedProcessState) {
+                        this.printLine('No process state to restore.', terminal);
+                        return false;
+                    }
+                    
+                    const state = terminal.savedProcessState;
+
+                    // Restore basic terminal state
+                    terminal.prompt = state.prompt;
+                    terminal.passwordMode = state.passwordMode;
+                    terminal.currentInput = state.currentInput || '';
+                    terminal.previousPrompt = state.previousPrompt;
+                    
+                    // Restore login process state
+                    if (state.processType === 'login') {
+                        terminal.awaitingFirstName = state.awaitingFirstName;
+                        terminal.awaitingLastName = state.awaitingLastName;
+                        terminal.awaitingPassword = state.awaitingPassword;
+                        terminal.firstName = state.firstName;
+                        terminal.lastName = state.lastName;
+                        terminal.password = state.password;
+                        
+                        this.printLine('', terminal);
+                        this.printLine('Returning to login process...', terminal);
+                        this.printLine('', terminal);
+                    }
+                    
+                    // Restore signup process state
+                    if (state.processType === 'signup') {
+                        terminal.awaitingSignupFirstName = state.awaitingSignupFirstName;
+                        terminal.awaitingSignupLastName = state.awaitingSignupLastName;
+                        terminal.awaitingSignupDOB = state.awaitingSignupDOB;
+                        terminal.awaitingSignupPassword = state.awaitingSignupPassword;
+                        terminal.signupFirstName = state.signupFirstName;
+                        terminal.signupLastName = state.signupLastName;
+                        terminal.signupDOB = state.signupDOB;
+                        terminal.signupPassword = state.signupPassword;
+                        
+                        this.printLine('', terminal);
+                        this.printLine('Returning to signup process...', terminal);
+                        this.printLine('', terminal);
+                    }
+                    
+                    // Restore custom process state
+                    if (state.customProcessState) {
+                        terminal.customProcessState = { ...state.customProcessState };
+                        terminal.customProcessState.active = true;
+                    }
+                    
+                    // Clear saved state after restoration
+                    terminal.savedProcessState = null;
+
+                    return true;
+                },
+                
+                // Step back one step in the current process
+                stepBackInProcess: function(terminal) {
+
+                    // Login process step back
+                    if (terminal.awaitingPassword) {
+                        terminal.awaitingPassword = false;
+                        terminal.awaitingLastName = true;
+                        terminal.password = null;
+                        terminal.prompt = 'Last Name: ';
+                        terminal.passwordMode = false;
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to last name entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    if (terminal.awaitingLastName) {
+                        terminal.awaitingLastName = false;
+                        terminal.awaitingFirstName = true;
+                        terminal.lastName = null;
+                        terminal.prompt = 'First Name: ';
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to first name entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    // Signup process step back
+                    if (terminal.awaitingSignupPassword) {
+                        terminal.awaitingSignupPassword = false;
+                        terminal.awaitingSignupDOB = true;
+                        terminal.signupPassword = null;
+                        terminal.prompt = 'Year (YYYY): ';
+                        terminal.passwordMode = false;
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to year entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    if (terminal.awaitingSignupDOB && terminal.signupDOB && terminal.signupDOB.month) {
+                        terminal.awaitingSignupDOB = true;
+                        terminal.signupDOB.year = null;
+                        terminal.prompt = 'Month (MM): ';
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to month entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    if (terminal.awaitingSignupDOB && terminal.signupDOB && terminal.signupDOB.day) {
+                        terminal.awaitingSignupDOB = true;
+                        terminal.signupDOB.month = null;
+                        terminal.prompt = 'Day (DD): ';
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to day entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    if (terminal.awaitingSignupDOB) {
+                        terminal.awaitingSignupDOB = false;
+                        terminal.awaitingSignupLastName = true;
+                        terminal.signupDOB = null;
+                        terminal.prompt = 'Last Name: ';
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to last name entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+                    
+                    if (terminal.awaitingSignupLastName) {
+                        terminal.awaitingSignupLastName = false;
+                        terminal.awaitingSignupFirstName = true;
+                        terminal.signupLastName = null;
+                        terminal.prompt = 'First Name: ';
+                        terminal.currentInput = '';
+                        this.printLine('', terminal);
+                        this.printLine('Stepped back to first name entry.', terminal);
+                        this.playBeep();
+                        this.render(terminal);
+                        return true;
+                    }
+
+                    return false;
                 }
             };
             
@@ -1302,24 +2218,11 @@
                 </style>
                 <script aria-label="Start_Button - Script">
                     document.getElementById('Start_Button').addEventListener('click', function() {
+                        // Show the start menu panel
                         document.getElementById('Start_Menu_Panel').style.display = 'flex';
-                    });
-
-                    document.getElementById('Start_Button').addEventListener('click', function() {
+                        // Hide the start button
                         document.getElementById('Start_Button').style.display = 'none';
                     });
-
-                    document.getElementById('Start_Button').addEventListener('click', function() {
-                        if (document.documentElement.requestFullscreen) {
-                            document.documentElement.requestFullscreen();
-                        } else if (document.documentElement.webkitRequestFullscreen) {
-                            document.documentElement.webkitRequestFullscreen();
-                        } else if (document.documentElement.msRequestFullscreen) {
-                            document.documentElement.msRequestFullscreen();
-                        }
-                    });
-                    
-
                 </script>
             </div>
 
@@ -1460,7 +2363,9 @@
                                     '',
                                     'AI Agent - Kimi K2.5.',
                                     '',
-                                    'To login, type [Login] - to Sign-up, type [Signup] - to view license, type [License] - to close window, type [Close]',
+                                    function(terminal) {
+                                        TerminalManager.displayCommandList(terminal, TerminalManager.getLoginCommandList());
+                                    },
                                     ''
                                 ]
                             });
@@ -1480,12 +2385,116 @@
                                 context.print('Enter your first name:');
                             }, 'Start login process');
 
-                            // Terminal-scoped first-name input handling
+                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'clear', function(context) {
+                                const loginTerminal = context.terminalData;
+                                if (!loginTerminal) {
+                                    return;
+                                }
+                                
+                                // Reset all login state variables
+                                loginTerminal.awaitingFirstName = false;
+                                loginTerminal.awaitingLastName = false;
+                                loginTerminal.awaitingPassword = false;
+                                loginTerminal.firstName = null;
+                                loginTerminal.lastName = null;
+                                loginTerminal.password = null;
+                                loginTerminal.previousPrompt = null;
+                                loginTerminal.prompt = TerminalManager.defaultPrompt;
+                                loginTerminal.passwordMode = false;
+                                loginTerminal.currentInput = '';
+                                
+                                // Clear the terminal display
+                                context.clear();
+                                
+                                // Show welcome messages again
+                                context.print('Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT');
+                                context.print('');
+                                context.print('AI Agent - Kimi K2.5.');
+                                context.print('');
+                                TerminalManager.displayCommandList(loginTerminal, TerminalManager.getLoginCommandList());
+                                context.print('');
+                                context.print('Login process cleared. Ready to start fresh.');
+                                context.print('');
+                            }, 'Clear login process and start over');
+                            
+                            // Add Reset command
+                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'reset', function(context) {
+                                const loginTerminal = context.terminalData;
+                                if (!loginTerminal) {
+                                    return;
+                                }
+                                
+                                context.print('Reset command available during information process input to reset data entry.');
+                                context.print('Type [Login] to start the login process.');
+                                context.print('');
+                            }, 'Reset command for login process');
+                            
+                            // Terminal-scoped input handling
                             if (!TerminalManager._loginFirstNamePatched) {
                                 const originalExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
+                                    
+                                    // ==================== FIRST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingFirstName) {
                                         const firstName = (raw || '').trim();
+                                        
+                                        // Check if user wants to clear
+                                        if (firstName.toLowerCase() === 'clear') {
+                                            // Reset all login state variables
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Clearing login process...', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to reset
+                                        if (firstName.toLowerCase() === 'reset') {
+                                            // Reset to first name (same as clear for first name)
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (firstName.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!firstName) {
                                             this.render(terminalData);
                                             return;
@@ -1504,8 +2513,67 @@
                                         return;
                                     }
 
+                                    // ==================== LAST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingLastName) {
                                         const lastName = (raw || '').trim();
+                                        
+                                        // Check if user wants to clear
+                                        if (lastName.toLowerCase() === 'clear') {
+                                            // Reset all login state variables
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Clearing login process...', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to reset
+                                        if (lastName.toLowerCase() === 'reset') {
+                                            // Reset to first name
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (lastName.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!lastName) {
                                             this.render(terminalData);
                                             return;
@@ -1525,8 +2593,86 @@
                                         return;
                                     }
 
+                                    // ==================== PASSWORD INPUT ====================
                                     if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingPassword) {
                                         const password = (raw || '').trim();
+
+                                        // Check if user wants to undo
+                                        if (password.toLowerCase() === 'undo') {
+                                            // Step back to last name input
+                                            terminalData.awaitingFirstName = false;
+                                            terminalData.awaitingLastName = true;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.prompt = 'Last Name: ';
+                                            terminalData.currentInput = '';
+                                            terminalData.passwordMode = false;
+                                            terminalData.password = null;
+
+                                            this.printLine('', terminalData);
+                                            this.printLine('Stepped back to last name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to clear
+                                        if (password.toLowerCase() === 'clear') {
+                                            // Reset all login state variables
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Clearing login process...', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (password.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to reset
+                                        if (password.toLowerCase() === 'reset') {
+                                            
+                                            // Reset to first name
+                                            terminalData.awaitingFirstName = true;
+                                            terminalData.awaitingLastName = false;
+                                            terminalData.awaitingPassword = false;
+                                            terminalData.firstName = null;
+                                            terminalData.lastName = null;
+                                            terminalData.password = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!password) {
                                             this.render(terminalData);
                                             return;
@@ -1537,11 +2683,13 @@
                                         terminalData.awaitingPassword = false;
                                         terminalData.password = password;
                                         terminalData.passwordMode = false;
-                                        terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
+                                        terminalData.prompt = 'Password: ';
                                         terminalData.previousPrompt = null;
                                         terminalData.currentInput = '';
                                         this.printLine('', terminalData);
                                         this.printLine('=== Processing Hash ===', terminalData);
+                                        
+                                        // Keep password prompt during hash processing; reset to default after processing
                                         
                                         // Combine credentials and generate SHA-256
                                         try {
@@ -1555,28 +2703,45 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account SHA-256 Hash: ' + hashHex, terminalData);
                                             
+                                            // Keep password prompt while processing
+                                            terminalData.prompt = 'Password: ';
+                                            
                                             // Store hash in database
-                                            console.log('🔍 Storing login hash in database...');
                                             if (window.HashDatabase) {
                                                 try {
                                                     const hashId = await window.HashDatabase.storeHash(hashHex, null, 'login');
-                                                    console.log('🔍 Login hash stored with ID:', hashId);
                                                     this.printLine('', terminalData);
                                                     this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                    
+                                                    // Keep password prompt while processing
+                                                    terminalData.prompt = 'Password: ';
                                                 } catch (dbError) {
-                                                    console.error('🔍 Database storage error:', dbError);
                                                     this.printLine('', terminalData);
                                                     this.printLine('Warning: Hash storage failed - ' + dbError.message, terminalData);
+                                                    
+                                                    // Keep password prompt while processing
+                                                    terminalData.prompt = 'Password: ';
                                                 }
                                             } else {
-                                                console.log('🔍 Database not available, skipping storage');
                                                 this.printLine('', terminalData);
                                                 this.printLine('Note: Database not initialized', terminalData);
+                                                
+                                                // Keep password prompt while processing
+                                                terminalData.prompt = 'Password: ';
                                             }
                                             
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
+                                            
+                                            // Keep password prompt while processing
+                                            terminalData.prompt = 'Password: ';
                                         }
+                                        
+                                        // Return to default command prompt after hash processing
+                                        terminalData.prompt = this.defaultPrompt;
+                                        terminalData.previousPrompt = null;
+                                        terminalData.passwordMode = false;
+                                        terminalData.currentInput = '';
                                         
                                         this.printLine('', terminalData);
                                         this.playBeep();
@@ -1698,40 +2863,35 @@
                                 welcomeMessages: [
                                     'Vista-D-NET Sign-Up',
                                     '',
-                                    'To sign up, type [Signup] - to clear mistakes, type [Clear] - to close, type [Close]',
+                                    function(terminal) {
+                                        TerminalManager.displayCommandList(terminal, TerminalManager.getSignupCommandList());
+                                    },
                                     ''
                                 ]
                             });
                             
                             // Add custom commands
                             TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'signup', function(context) {
-                                console.log('🔍 Signup command called in Sign-Up terminal');
                                 const signupTerminal = context.terminalData;
-                                console.log('🔍 Signup terminal data:', signupTerminal);
                                 if (!signupTerminal) {
-                                    console.log('🔍 No signup terminal found, returning');
                                     return;
                                 }
 
-                                console.log('🔍 Setting up signup flow state');
                                 signupTerminal.awaitingSignupFirstName = true;
                                 signupTerminal.previousPrompt = signupTerminal.prompt;
                                 signupTerminal.prompt = 'First Name: ';
                                 signupTerminal.currentInput = '';
                                 context.print('');
+                                context.print('=== Sign Up For Account (Hash is case sensitive) ===');
+                                context.print('');
                                 context.print('Enter your first name:');
-                                console.log('🔍 Signup flow initiated, waiting for first name');
                             }, 'Start sign-up process');
 
                             TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'clear', function(context) {
-                                console.log('🔍 Clear command called in Sign-Up terminal');
                                 const signupTerminal = context.terminalData;
                                 if (!signupTerminal) {
-                                    console.log('🔍 No signup terminal found, returning');
                                     return;
                                 }
-
-                                console.log('🔍 Clearing all signup data and resetting to beginning');
                                 
                                 // Reset all signup state variables
                                 signupTerminal.awaitingSignupFirstName = false;
@@ -1753,25 +2913,34 @@
                                 // Show welcome messages again
                                 context.print('Vista-D-NET Sign-Up');
                                 context.print('');
-                                context.print('To sign up, type [Signup] - to close, type [Close]');
+                                TerminalManager.displayCommandList(signupTerminal, TerminalManager.getSignupCommandList());
                                 context.print('');
                                 context.print('Signup process cleared. Ready to start fresh.');
                                 context.print('');
-                                
-                                console.log('🔍 Signup process completely reset');
                             }, 'Clear signup process and start over');
+                            
+                            // Add Reset command
+                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'reset', function(context) {
+                                const signupTerminal = context.terminalData;
+                                if (!signupTerminal) {
+                                    return;
+                                }
+                                
+                                context.print('Reset command available during information process input to reset data entry.');
+                                context.print('Type [Signup] to start the sign-up process.');
+                                context.print('');
+                            }, 'Reset command for signup process');
 
                             if (!TerminalManager._signupFirstNamePatched) {
                                 const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
+                                    
+                                    // ==================== FIRST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupFirstName) {
-                                        console.log('🔍 Processing signup first name input');
                                         const firstName = (raw || '').trim();
-                                        console.log('🔍 First name entered:', firstName);
                                         
                                         // Check if user wants to clear
                                         if (firstName.toLowerCase() === 'clear') {
-                                            console.log('🔍 User requested clear during first name input');
                                             // Reset all signup state variables
                                             terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
@@ -1793,13 +2962,49 @@
                                             return;
                                         }
                                         
+                                        // Check if user wants to reset
+                                        if (firstName.toLowerCase() === 'reset') {
+                                            // Reset to first name (same as clear for first name)
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (firstName.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!firstName) {
-                                            console.log('🔍 Empty first name, rendering and returning');
                                             this.render(terminalData);
                                             return;
                                         }
 
-                                        console.log('🔍 Storing first name and moving to last name');
                                         terminalData.transcript += terminalData.prompt + firstName + '\n';
                                         terminalData.awaitingSignupFirstName = false;
                                         terminalData.signupFirstName = firstName;
@@ -1809,19 +3014,16 @@
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your last name:', terminalData);
                                         this.playBeep();
-                                        console.log('🔍 First name processed, waiting for last name');
                                         this.render(terminalData);
                                         return;
                                     }
 
+                                    // ==================== LAST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupLastName) {
-                                        console.log('🔍 Processing signup last name input');
                                         const lastName = (raw || '').trim();
-                                        console.log('🔍 Last name entered:', lastName);
                                         
                                         // Check if user wants to clear
                                         if (lastName.toLowerCase() === 'clear') {
-                                            console.log('🔍 User requested clear during last name input');
                                             // Reset all signup state variables
                                             terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
@@ -1839,6 +3041,44 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to reset
+                                        if (lastName.toLowerCase() === 'reset') {
+                                            // Reset to first name
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (lastName.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -1862,13 +3102,12 @@
                                         return;
                                     }
 
+                                    // ==================== DATE OF BIRTH INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupDOB) {
                                         const input = (raw || '').trim();
-                                        console.log('🔍 DOB input entered:', input);
                                         
                                         // Check if user wants to clear
                                         if (input.toLowerCase() === 'clear') {
-                                            console.log('🔍 User requested clear during DOB input');
                                             // Reset all signup state variables
                                             terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
@@ -1890,14 +3129,47 @@
                                             return;
                                         }
                                         
+                                        // Check if user wants to exit
+                                        if (input.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
                                         if (!input) {
                                             this.render(terminalData);
                                             return;
                                         }
 
-                                        // Check if input contains only numbers
-                                        if (!/^\d+$/.test(input)) {
-                                            this.printLine('Error: Please enter numbers only.', terminalData);
+                                        // Check if input contains only numbers or is Reset command
+                                        if (!/^\d+$/.test(input) && input.toLowerCase() !== 'reset') {
+                                            this.printLine('Error: Please enter numbers only or type "Reset" to reset DOB.', terminalData);
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Handle Reset command
+                                        if (input.toLowerCase() === 'reset') {
+                                            // Reset DOB completely
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = true;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupDOB = null;
+                                            terminalData.prompt = 'Day (DD): ';
+                                            terminalData.currentInput = '';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('DOB reset. Starting fresh:', terminalData);
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -1909,10 +3181,11 @@
                                         if (terminalData.prompt === 'Day (DD): ') {
                                             // Check if input is exactly 2 digits
                                             if (input.length !== 2) {
-                                                this.printLine('Error: Day must be exactly 2 digits (e.g., 05, 12, 31).', terminalData);
+                                                this.printLine('Error: Day must be exactly 2 digits (e.g., 01, 05, 15).', terminalData);
                                                 this.render(terminalData);
                                                 return;
                                             }
+                                            
                                             const day = parseInt(input);
                                             if (day < 1 || day > 31) {
                                                 this.printLine('Error: Day must be between 01 and 31.', terminalData);
@@ -1923,12 +3196,32 @@
                                             terminalData.signupDOB.day = input;
                                             terminalData.prompt = 'Month (MM): ';
                                             terminalData.currentInput = '';
+                                            this.printLine('', terminalData);
                                             this.printLine('Month (numbers only):', terminalData);
                                             this.playBeep();
+                                            this.render(terminalData);
                                         } else if (terminalData.prompt === 'Month (MM): ') {
-                                            // Check if input is exactly 2 digits
-                                            if (input.length !== 2) {
-                                                this.printLine('Error: Month must be exactly 2 digits (e.g., 01, 05, 12).', terminalData);
+                                            // Check if input is exactly 2 digits or is Reset command
+                                            if (input.length !== 2 && input.toLowerCase() !== 'reset') {
+                                                this.printLine('Error: Month must be exactly 2 digits (e.g., 01, 05, 12) or type "Reset" to reset DOB.', terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            
+                                            // Handle Reset command
+                                            if (input.toLowerCase() === 'reset') {
+                                                // Reset DOB completely
+                                                terminalData.awaitingSignupFirstName = false;
+                                                terminalData.awaitingSignupLastName = false;
+                                                terminalData.awaitingSignupDOB = true;
+                                                terminalData.awaitingSignupPassword = false;
+                                                terminalData.signupDOB = null;
+                                                terminalData.prompt = 'Day (DD): ';
+                                                terminalData.currentInput = '';
+                                                
+                                                this.printLine('', terminalData);
+                                                this.printLine('DOB reset. Starting fresh:', terminalData);
+                                                this.playBeep();
                                                 this.render(terminalData);
                                                 return;
                                             }
@@ -1942,30 +3235,50 @@
                                             terminalData.signupDOB.month = input;
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
+                                            this.printLine('', terminalData);
                                             this.printLine('Year (numbers only):', terminalData);
                                             this.playBeep();
+                                            this.render(terminalData);
                                         } else if (terminalData.prompt === 'Year (YYYY): ') {
+                                            // Handle Reset command
+                                            if (input.toLowerCase() === 'reset') {
+                                                // Reset DOB completely
+                                                terminalData.awaitingSignupFirstName = false;
+                                                terminalData.awaitingSignupLastName = false;
+                                                terminalData.awaitingSignupDOB = true;
+                                                terminalData.awaitingSignupPassword = false;
+                                                terminalData.signupDOB = null;
+                                                terminalData.prompt = 'Day (DD): ';
+                                                terminalData.currentInput = '';
+                                                
+                                                this.printLine('', terminalData);
+                                                this.printLine('DOB reset. Starting fresh:', terminalData);
+                                                this.playBeep();
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            
                                             const year = parseInt(input);
                                             if (year < 1900 || year > 2025) {
-                                                this.printLine('Error: Year must be between 1900 and 2025.', terminalData);
+                                                this.printLine('Error: Year must be between 1900 and 2025 or type "Reset" to reset DOB.', terminalData);
                                                 this.render(terminalData);
                                                 return;
                                             }
                                             terminalData.transcript += terminalData.prompt + input + '\n';
                                             terminalData.signupDOB.year = input;
                                             terminalData.awaitingSignupDOB = false;
-                                            terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
                                             terminalData.previousPrompt = null;
+                                            terminalData.awaitingSignupPassword = true;
+                                            terminalData.prompt = 'Password: ';
                                             terminalData.currentInput = '';
+                                            terminalData.passwordMode = true;
                                             this.printLine('', terminalData);
                                             this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             this.printLine('', terminalData);
-                                            this.printLine('Create your password:', terminalData);
-                                            terminalData.awaitingSignupPassword = true;
-                                            terminalData.prompt = 'Create password: ';
-                                            terminalData.passwordMode = true;
+                                            this.printLine('Enter your password:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
+                                            
                                             return;
                                         }
 
@@ -1973,13 +3286,34 @@
                                         return;
                                     }
 
+                                    // ==================== PASSWORD INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
                                         const password = (raw || '').trim();
-                                        console.log('🔍 Password input entered:', password);
+                                        
+                                        // Check if user wants to undo
+                                        if (password.toLowerCase() === 'undo') {
+                                            // Step back to year input
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = true;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.prompt = 'Year (YYYY): ';
+                                            terminalData.currentInput = '';
+                                            terminalData.passwordMode = false;
+                                            // Remove the stored year value but keep day and month
+                                            if (terminalData.signupDOB) {
+                                                terminalData.signupDOB.year = null;
+                                            }
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Stepped back to year entry:', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
                                         
                                         // Check if user wants to clear
                                         if (password.toLowerCase() === 'clear') {
-                                            console.log('🔍 User requested clear during password input');
                                             // Reset all signup state variables
                                             terminalData.awaitingSignupFirstName = true;
                                             terminalData.awaitingSignupLastName = false;
@@ -1996,6 +3330,45 @@
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Clearing signup process...', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to exit
+                                        if (password.toLowerCase() === 'exit') {
+                                            
+                                            // Save current state
+                                            this.saveState(terminalData);
+                                            
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
+                                                                                        this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to reset
+                                        if (password.toLowerCase() === 'reset') {
+                                            
+                                            // Reset to first name
+                                            terminalData.awaitingSignupFirstName = true;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPassword = false;
+                                            terminalData.signupFirstName = null;
+                                            terminalData.signupLastName = null;
+                                            terminalData.signupDOB = null;
+                                            terminalData.signupPassword = null;
+                                            terminalData.previousPrompt = null;
+                                            terminalData.passwordMode = false;
+                                            terminalData.currentInput = '';
+                                            terminalData.prompt = 'First Name: ';
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Reset to first name entry:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -2011,69 +3384,47 @@
                                         terminalData.awaitingSignupPassword = false;
                                         terminalData.signupPassword = password;
                                         terminalData.passwordMode = false;
-                                        terminalData.prompt = terminalData.previousPrompt || this.defaultPrompt;
+                                        terminalData.prompt = 'Password: ';
                                         terminalData.previousPrompt = null;
                                         terminalData.currentInput = '';
                                         this.printLine('', terminalData);
                                         this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(password.length) + '/', terminalData);
+                                        
+                                        // Keep password prompt during hash processing; reset to default after processing
+                                        terminalData.prompt = 'Password: ';
                                         
                                         // Combine credentials and generate SHA-256
                                         try {
                                             // Primary SHA-256 Hash (First Name + Last Name + Password)
                                             const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupPassword;
                                             const encoder = new TextEncoder();
-                                            const primaryData = encoder.encode(primaryCombined);
-                                            const primaryHashBuffer = await crypto.subtle.digest('SHA-256', primaryData);
-                                            const primaryHashArray = Array.from(new Uint8Array(primaryHashBuffer));
-                                            const primaryHashHex = primaryHashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-                                            
-                                            this.printLine('', terminalData);
-                                            this.printLine('Primary SHA-256 Hash: ' + primaryHashHex, terminalData);
-                                            
-                                            // Secondary SHA-256 Hash (includes Date of Birth)
-                                            const combined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPassword;
-                                            const data = encoder.encode(combined);
+                                            const data = encoder.encode(primaryCombined);
                                             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                                             const hashArray = Array.from(new Uint8Array(hashBuffer));
                                             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('Backup SHA-256 Hash: ' + hashHex, terminalData);
+                                            this.printLine('Primary Account SHA-256 Hash: ' + hashHex, terminalData);
                                             
-                                            // Store hashes in database
-                                            console.log('🔍 Storing hashes in database...');
-                                            let hashStored = false;
-                                            let hashId = null;
-                                            let hashExists = false;
+                                            // Keep password prompt while processing
+                                            terminalData.prompt = 'Password: ';
                                             
+                                            // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    // First check if hash already exists
-                                                    console.log('🔍 Checking if hash already exists...');
-                                                    hashExists = await window.HashDatabase.hashExists(primaryHashHex);
+                                                    const hashId = await window.HashDatabase.storeHash(hashHex, null, 'signup');
+                                                    hashStored = true;
+                                                    this.printLine('', terminalData);
+                                                    this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
                                                     
-                                                    if (hashExists) {
-                                                        console.log('🔍 Hash already exists in database');
-                                                        this.printLine('', terminalData);
-                                                        this.printLine('Account already has been made', terminalData);
-                                                        this.printLine('This hash is already registered in the system', terminalData);
-                                                    } else {
-                                                        // Hash doesn't exist, proceed with storage
-                                                        console.log('🔍 Hash is unique, proceeding with storage...');
-                                                        hashId = await window.HashDatabase.storeHash(primaryHashHex, hashHex, 'signup');
-                                                        console.log('🔍 Hashes stored with ID:', hashId);
-                                                        hashStored = true;
-                                                        this.printLine('', terminalData);
-                                                        this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
-                                                    }
+                                                    // Keep password prompt while processing
+                                                    terminalData.prompt = 'Password: ';
                                                 } catch (dbError) {
-                                                    console.error('🔍 Database storage error:', dbError);
                                                     this.printLine('', terminalData);
                                                     this.printLine('ERROR: Failed to store hash data - ' + dbError.message, terminalData);
                                                     this.printLine('Account creation incomplete - please try again', terminalData);
                                                 }
                                             } else {
-                                                console.log('🔍 Database not available, skipping storage');
                                                 this.printLine('', terminalData);
                                                 this.printLine('ERROR: Database system not available', terminalData);
                                                 this.printLine('Account creation incomplete - please refresh and try again', terminalData);
@@ -2081,6 +3432,7 @@
                                             
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
+                                            terminalData.prompt = 'Password: ';
                                         }
                                         
                                         // Check final status and show appropriate message
@@ -2089,12 +3441,17 @@
                                             this.printLine('Successfully created a hash account', terminalData);
                                         } else if (hashExists) {
                                             // Hash already exists case - no additional message needed
-                                            console.log('🔍 Duplicate hash attempt handled');
                                         } else {
                                             this.printLine('', terminalData);
                                             this.printLine('ERROR: No data was stored - account not created', terminalData);
                                             this.printLine('Please try again or contact support', terminalData);
                                         }
+                                        
+                                        // Return to default command prompt after hash processing
+                                        terminalData.prompt = this.defaultPrompt;
+                                        terminalData.previousPrompt = null;
+                                        terminalData.passwordMode = false;
+                                        terminalData.currentInput = '';
                                         
                                         this.playBeep();
                                         this.render(terminalData);
