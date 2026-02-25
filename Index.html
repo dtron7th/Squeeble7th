@@ -2218,13 +2218,28 @@
                 </style>
                 <script aria-label="Start_Button - Script">
                     document.getElementById('Start_Button').addEventListener('click', function() {
-                        // Request fullscreen
-                        if (document.documentElement.requestFullscreen) {
-                            document.documentElement.requestFullscreen();
-                        } else if (document.documentElement.webkitRequestFullscreen) {
-                            document.documentElement.webkitRequestFullscreen();
-                        } else if (document.documentElement.msRequestFullscreen) {
-                            document.documentElement.msRequestFullscreen();
+                        // Request fullscreen (with robust browser fallbacks)
+                        const requestFullscreen = (element) => {
+                            if (!element) {
+                                return false;
+                            }
+                            const request = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+                            if (!request) {
+                                return false;
+                            }
+                            try {
+                                const maybePromise = request.call(element);
+                                if (maybePromise && typeof maybePromise.catch === 'function') {
+                                    maybePromise.catch(() => {});
+                                }
+                                return true;
+                            } catch (error) {
+                                return false;
+                            }
+                        };
+
+                        if (!requestFullscreen(document.documentElement)) {
+                            requestFullscreen(document.body);
                         }
                         // Show the start menu panel
                         document.getElementById('Start_Menu_Panel').style.display = 'flex';
@@ -3407,16 +3422,27 @@
                                         
                                         // Combine credentials and generate SHA-256
                                         try {
-                                            // Primary SHA-256 Hash (First Name + Last Name + Password)
-                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupPassword;
                                             const encoder = new TextEncoder();
-                                            const data = encoder.encode(primaryCombined);
-                                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                            const toSha256Hex = async (inputValue) => {
+                                                const data = encoder.encode(inputValue);
+                                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                            };
+
+                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupPassword;
+                                            const primaryHashHex = await toSha256Hex(primaryCombined);
+                                            const backupCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year;
+                                            const backupHashHex = await toSha256Hex(backupCombined);
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('Primary Account SHA-256 Hash: ' + hashHex, terminalData);
+                                            this.printLine('Primary Account Hash:', terminalData);
+                                            this.printLine('Hash "' + primaryHashHex + '"', terminalData);
+                                            this.printLine('including First Name, Last Name, Password,', terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('Backup Account Hash', terminalData);
+                                            this.printLine('Hash "' + backupHashHex + '"', terminalData);
+                                            this.printLine('Including First Name, Last Name, Date of birth', terminalData);
                                             
                                             // Keep password prompt while processing
                                             terminalData.prompt = 'Password: ';
@@ -3424,7 +3450,7 @@
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    hashId = await window.HashDatabase.storeHash(hashHex, null, 'signup');
+                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
