@@ -3271,7 +3271,7 @@
                                             terminalData.awaitingSignupPassword = true;
                                             terminalData.prompt = 'Password: ';
                                             terminalData.currentInput = '';
-                                            terminalData.passwordMode = true;
+                                            terminalData.passwordMode = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             this.printLine('', terminalData);
@@ -3447,8 +3447,8 @@
                                             // Hash already exists case - no additional message needed
                                         } else {
                                             this.printLine('', terminalData);
-                                            this.printLine('ERROR: No data was stored - account not created', terminalData);
-                                            this.printLine('Please try again or contact support', terminalData);
+                                            this.printLine('ERROR: No data was stored - account not created.', terminalData);
+                                            this.printLine('Please try again', terminalData);
                                         }
                                         
                                         // Return to default command prompt after hash processing
@@ -3457,6 +3457,7 @@
                                         terminalData.passwordMode = false;
                                         terminalData.currentInput = '';
                                         
+                                        this.printLine('', terminalData);
                                         this.playBeep();
                                         this.render(terminalData);
                                         return;
