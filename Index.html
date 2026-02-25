@@ -3389,6 +3389,10 @@
                                         terminalData.currentInput = '';
                                         this.printLine('', terminalData);
                                         this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(password.length) + '/', terminalData);
+
+                                        let hashStored = false;
+                                        let hashId = null;
+                                        let hashExists = false;
                                         
                                         // Keep password prompt during hash processing; reset to default after processing
                                         terminalData.prompt = 'Password: ';
@@ -3412,7 +3416,7 @@
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    const hashId = await window.HashDatabase.storeHash(hashHex, null, 'signup');
+                                                    hashId = await window.HashDatabase.storeHash(hashHex, null, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
