@@ -2218,6 +2218,14 @@
                 </style>
                 <script aria-label="Start_Button - Script">
                     document.getElementById('Start_Button').addEventListener('click', function() {
+                        // Request fullscreen
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen();
+                        } else if (document.documentElement.webkitRequestFullscreen) {
+                            document.documentElement.webkitRequestFullscreen();
+                        } else if (document.documentElement.msRequestFullscreen) {
+                            document.documentElement.msRequestFullscreen();
+                        }
                         // Show the start menu panel
                         document.getElementById('Start_Menu_Panel').style.display = 'flex';
                         // Hide the start button
