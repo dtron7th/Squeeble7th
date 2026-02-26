@@ -1724,11 +1724,13 @@
                         terminal.element.appendChild(terminal.cursorNode);
                     }
                     
-                    // Force scroll to bottom and ensure cursor jumps to prompt
-                    terminal.element.scrollTop = terminal.element.scrollHeight;
-                    terminal.shouldScrollToBottom = false;
+                    if (terminal.shouldScrollToBottom || wasAtBottom) {
+                        terminal.element.scrollTop = terminal.element.scrollHeight;
+                    } else {
+                        terminal.element.scrollTop = scrollTop;
+                    }
                     
-                    // Place cursor at end (prompt position)
+                    terminal.shouldScrollToBottom = false;
                     this.placeCaretAtEnd(terminal);
                     setTimeout(() => { terminal.rendering = false; }, 0);
                 },
@@ -1740,12 +1742,13 @@
                     } catch (err) {
                         terminal.element.focus();
                     }
-                    if (this.isAndroid) return;
+                    const sel = window.getSelection();
+                    if (!sel) {
+                        return;
+                    }
                     const range = document.createRange();
                     range.selectNodeContents(terminal.element);
                     range.collapse(false);
-                    const sel = window.getSelection();
-                    if (!sel) return;
                     sel.removeAllRanges();
                     sel.addRange(range);
                 },
@@ -2830,12 +2833,8 @@
 
                 <style aria-label="Login_Window - Style">
                     #Login_Window {
-                        width: 440px;
-                        min-width: 440px;
-                        max-width: 440px;
-                        height: 240px;
-                        min-height: 240px;
-                        max-height: 240px;
+                        width: 260px;
+                        height: 280px;
                         
                     }
                 </style>
@@ -3533,12 +3532,8 @@
 
                 <style aria-label="Sign-Up_Window - Style">
                     #Sign-Up_Window {
-                        width: 440px;
-                        min-width: 440px;
-                        max-width: 440px;
-                        height: 240px;
-                        min-height: 240px;
-                        max-height: 240px;
+                        width: 320px;
+                        height: 420px;
                     }
                 </style>
 
