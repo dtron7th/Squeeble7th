@@ -53,8 +53,16 @@
         @keyframes terminal-blink {
             50% { opacity: 0; }
         }
+        @keyframes terminal-prompt-jump {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+            100% { transform: translateY(0); }
+        }
         .terminal-cursor {
             transition: none !important;
+        }
+        .terminal-cursor.prompt-jump {
+            animation: terminal-prompt-jump 0.18s ease-out, terminal-blink 0.5s step-end infinite;
         }
         
         /* Allow all animations to work normally */
@@ -1877,7 +1885,18 @@
                     const line = text == null ? '' : String(text);
                     terminal.transcript += line + '\n';
                     terminal.shouldScrollToBottom = true;
+                    this.triggerPromptJump(terminal);
                     this.render(terminal);
+                },
+
+                // Trigger prompt jump animation
+                triggerPromptJump: function(terminal) {
+                    if (!terminal || !terminal.cursorNode) {
+                        return;
+                    }
+                    terminal.cursorNode.classList.remove('prompt-jump');
+                    void terminal.cursorNode.offsetWidth;
+                    terminal.cursorNode.classList.add('prompt-jump');
                 },
                 
                 // Render terminal
