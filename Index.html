@@ -139,6 +139,76 @@
             </script>
         </div>
 
+
+         <div class="Terminal">
+            <div class="Header">
+                <p class="Title"></p>
+                <div class="Terminal_Manipulation">
+                    <button class="Terminal_Minimize"></button>
+                    <button class="Terminal_Maximize"></button>
+                    <button class="Terminal_Close"></button>
+
+                    <style aria-label="Terminal_Manipulation - Style">
+                        .Terminal_Manipulation {
+                            position: absolute;
+                            right: 10px;
+                            display: flex;
+                            gap: 10px;
+                        }
+
+                        .Terminal_Manipulation > button {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                        }
+                        .Terminal_Manipulation > .Terminal_Minimize {
+                            background-color: rgb(255, 255, 0);
+                        }
+
+                        .Terminal_Manipulation > .Terminal_Maximize {
+                            background-color: rgb(0, 255, 0);
+                        }
+
+                        .Terminal_Manipulation > .Terminal_Close {
+                            background-color: rgb(255, 0, 0);
+                        }
+
+
+                    </style>
+
+                    <script aria-label="Terminal_Manipulation - Script">
+
+                    </script>
+                </div>
+
+                <style aria-label="Header - Style">
+                    
+                </style>
+
+                <script aria-label="Header - Script">
+
+                </script>
+
+            </div>
+            <div class="Content">
+                <style aria-label="Content - Style">
+
+                </style>
+
+                <script aria-label="Content - Script">
+                    
+                </script>
+            </div>
+
+            <style aria-label="Terminal - Style">
+
+            </style>
+
+            <script aria-label="Terminal - Script">
+
+            </script>
+        </div>
+
         <!--Panel-->
         <div class="Panel" id="">
             <p class="Title"></p>
@@ -305,6 +375,62 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
         }
+
+        .Terminal {
+            position: absolute;
+            overflow: hidden;
+            top: 10px;
+            left: 10px;
+            width: 400px;
+            height: 200px;
+            background-color: var(--Main_UI_Color);
+            backdrop-filter: blur(var(--Main_UI_Blur));
+            border: var(--Main_UI_Border);
+            border-radius: var(--Main_UI_Border_Radius_Window);
+            box-shadow: var(--Box_Shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            display: none;
+        }
+
+        .Terminal > .Header {
+            width: 100%;
+            height: 30px;
+            background-color: var(--Header_UI_Color);
+            display: flex;
+            align-items: center;
+        }
+
+        .Terminal > .Header > .Title {
+            position: absolute;
+            left: 10px;
+            color: var(--Main_Text_Color);
+            font-size: var(--Main_Font_Size);
+        }
+
+        .Terminal > .Header > .Terminal_Manipulation {
+            position: absolute;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .Terminal > .Header > .Terminal_Manipulation > button {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .Terminal > .Content {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            height: calc(100% - 30px);
+            display: flex;
+            justify-content: center;
+        }
+
 
 
     </style>
@@ -497,7 +623,7 @@
                 
                 if (isVisible && isOpening) {
                     // Get current max z-index
-                    const allElements = document.querySelectorAll('.Window, .Panel');
+                    const allElements = document.querySelectorAll('.Window, .Panel, .Terminal');
                     let maxZ = 100;
                     allElements.forEach(el => {
                         if (el !== element) {
@@ -512,14 +638,14 @@
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     const target = mutation.target;
-                    if (target.classList.contains('Window') || target.classList.contains('Panel')) {
+                    if (target.classList.contains('Window') || target.classList.contains('Panel') || target.classList.contains('Terminal')) {
                         ensureOnTop(target);
                     }
                 });
             });
 
             document.addEventListener('DOMContentLoaded', function() {
-                const elements = document.querySelectorAll('.Window, .Panel');
+                const elements = document.querySelectorAll('.Window, .Panel, .Terminal');
                 elements.forEach(el => {
                     observer.observe(el, { attributes: true, attributeFilter: ['class', 'style'] });
                 });
@@ -605,6 +731,86 @@
                 currentPanel = null;
             });
         })();
+
+
+        //.Terminal
+
+        (function() {
+            let isDragging = false;
+            let currentTerminal = null;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            function clampPosition(x, y, element) {
+                const rect = element.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                return {
+                    x: Math.max(0, Math.min(x, maxX)),
+                    y: Math.max(0, Math.min(y, maxY))
+                };
+            }
+
+            document.addEventListener('mousedown', function(e) {
+                const terminal = e.target.closest('.Terminal');
+                if (terminal && !e.target.closest('.Terminal_Manipulation') && !e.target.closest('.Content') && !window.terminalScrolling) {
+                    currentTerminal = terminal;
+                    isDragging = true;
+                    const rect = currentTerminal.getBoundingClientRect();
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                    currentTerminal.style.cursor = 'grabbing';
+                }
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging && currentTerminal) {
+                    const newX = e.clientX - offsetX;
+                    const newY = e.clientY - offsetY;
+                    const clamped = clampPosition(newX, newY, currentTerminal);
+                    currentTerminal.style.left = clamped.x + 'px';
+                    currentTerminal.style.top = clamped.y + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (currentTerminal) {
+                    currentTerminal.style.cursor = '';
+                }
+                isDragging = false;
+                currentTerminal = null;
+            });
+
+            // Touch support
+            document.addEventListener('touchstart', function(e) {
+                const terminal = e.target.closest('.Terminal');
+                if (terminal && !e.target.closest('.Terminal_Manipulation') && !e.target.closest('.Content') && !window.terminalScrolling) {
+                    currentTerminal = terminal;
+                    isDragging = true;
+                    const rect = currentTerminal.getBoundingClientRect();
+                    const touch = e.touches[0];
+                    offsetX = touch.clientX - rect.left;
+                    offsetY = touch.clientY - rect.top;
+                }
+            });
+
+            document.addEventListener('touchmove', function(e) {
+                if (isDragging && currentTerminal) {
+                    const touch = e.touches[0];
+                    const newX = touch.clientX - offsetX;
+                    const newY = touch.clientY - offsetY;
+                    const clamped = clampPosition(newX, newY, currentTerminal);
+                    currentTerminal.style.left = clamped.x + 'px';
+                    currentTerminal.style.top = clamped.y + 'px';
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', function() {
+                isDragging = false;
+                currentTerminal = null;
+            });
+        })();
         
 
 
@@ -669,63 +875,33 @@
             });
         })();
 
-        //Book_Mark: Set Element Default Position.
-        
-        // OLD Z-INDEX SYSTEMS DISABLED - CONFLICTING WITH NEW SYSTEM
-        /*
-        //Set Element Default Position.
+        //.Terminal
+
         (function() {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    const element = mutation.target;
-                    const computedStyle = window.getComputedStyle(element);
-                    const isVisible = computedStyle.display !== 'none';
-                    const isOpening = element.classList.contains('element-opening');
-                    
-                    if (isVisible && isOpening) {
-                        // Get current max z-index
-                        const allElements = document.querySelectorAll('.Window, .Panel');
-                        let maxZ = 100;
-                        allElements.forEach(el => {
-                            if (el !== element) {
-                                const z = parseInt(window.getComputedStyle(el).zIndex) || 0;
-                                if (z > maxZ) maxZ = z;
-                            }
-                        });
-                        element.style.zIndex = Math.max(maxZ + 1, 2147483646);
-                    }
-                }
+            const SNAP_SIZE = 10;
+
+            function snapToGrid(value) {
+                return Math.round(value / SNAP_SIZE) * SNAP_SIZE;
+            }
+
+            document.addEventListener('mouseup', function(e) {
+                const terminals = document.querySelectorAll('.Terminal');
+                terminals.forEach(terminal => {
+                    const rect = terminal.getBoundingClientRect();
+                    terminal.style.left = snapToGrid(rect.left) + 'px';
+                    terminal.style.top = snapToGrid(rect.top) + 'px';
+                });
             });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const elements = document.querySelectorAll('.Window, .Panel');
-                elements.forEach(el => {
-                    observer.observe(el, { attributes: true, attributeFilter: ['class', 'style'] });
+            document.addEventListener('touchend', function(e) {
+                const terminals = document.querySelectorAll('.Terminal');
+                terminals.forEach(terminal => {
+                    const rect = terminal.getBoundingClientRect();
+                    terminal.style.left = snapToGrid(rect.left) + 'px';
+                    terminal.style.top = snapToGrid(rect.top) + 'px';
                 });
             });
         })();
-
-        //Set default position for windows and panels when they open
-        (function() {
-            let zIndex = 100;
-
-            document.addEventListener('mousedown', function(e) {
-                const element = e.target.closest('.Window') || e.target.closest('.Panel');
-                if (element) {
-                    zIndex++;
-                    element.style.zIndex = zIndex;
-                }
-            });
-
-            document.addEventListener('touchstart', function(e) {
-                const element = e.target.closest('.Window') || e.target.closest('.Panel');
-                if (element) {
-                    zIndex++;
-                    element.style.zIndex = zIndex;
-                }
-            });
-        })();
-        */
         
         // NEW UNIFIED Z-INDEX MANAGEMENT SYSTEM
         
@@ -760,7 +936,7 @@
             
             // Simple function to bring window to front without heavy observation
             function bringToFront(element) {
-                if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                if (element.classList.contains('Window') || element.classList.contains('Panel') || element.classList.contains('Terminal')) {
                     highestZIndex++;
                     element.style.zIndex = highestZIndex;
                     
@@ -791,15 +967,15 @@
                     mutations.forEach((mutation) => {
                         if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                             const element = mutation.target;
-                            if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                            if (element.classList.contains('Window') || element.classList.contains('Panel') || element.classList.contains('Terminal')) {
                                 syncVisibilityState(element);
                             }
                         }
                     });
                 });
                 
-                // Observe all existing windows and panels
-                const allElements = document.querySelectorAll('.Window, .Panel');
+                // Observe all existing windows, panels, and terminals
+                const allElements = document.querySelectorAll('.Window, .Panel, .Terminal');
                 allElements.forEach(el => {
                     el._wasVisible = window.getComputedStyle(el).display !== 'none';
                     observer.observe(el, { attributes: true, attributeFilter: ['style'] });
@@ -815,9 +991,9 @@
                     mutations.forEach((mutation) => {
                         mutation.addedNodes.forEach((node) => {
                             if (node.nodeType === 1) { // Element node
-                                if (node.classList && (node.classList.contains('Window') || node.classList.contains('Panel'))) {
+                                if (node.classList && (node.classList.contains('Window') || node.classList.contains('Panel') || node.classList.contains('Terminal'))) {
                                     node._wasVisible = window.getComputedStyle(node).display !== 'none';
-                                    // New window/panel added, observe it
+                                    // New window/panel/terminal added, observe it
                                     observer.observe(node, { attributes: true, attributeFilter: ['style'] });
                                     
                                     // Set position if visible
@@ -843,7 +1019,7 @@
             
             // Aggressive positioning - run every 2 seconds to ensure all elements are positioned
             setInterval(() => {
-                const allElements = document.querySelectorAll('.Window, .Panel');
+                const allElements = document.querySelectorAll('.Window, .Panel, .Terminal');
                 allElements.forEach(el => {
                     const display = window.getComputedStyle(el).display;
                     if (display !== 'none') {
@@ -867,7 +1043,7 @@
             document.addEventListener('click', function(e) {
                 // Check if this is a button that opens a window
                 if (e.target.id === 'Start_Menu_Panel_Login') {
-                    const loginWindow = document.getElementById('Login_Window');
+                    const loginWindow = document.getElementById('Login_Terminal');
                     if (loginWindow) {
                         setTimeout(() => {
                             setDefaultPosition(loginWindow);
@@ -877,7 +1053,7 @@
                 
                 if (e.target.id === 'Start_Menu_Panel_Signup' || 
                     (e.target.closest && e.target.closest('#Start_Menu_Panel_Signup'))) {
-                    const signupWindow = document.getElementById('Sign-Up_Window');
+                    const signupWindow = document.getElementById('Sign-Up_Terminal');
                     if (signupWindow) {
                         setTimeout(() => {
                             setDefaultPosition(signupWindow);
@@ -895,16 +1071,16 @@
                 }
             });
             
-            // Bring any interacted window/panel to front (header or content)
+            // Bring any interacted window/panel/terminal to front (header or content)
             document.addEventListener('mousedown', function(e) {
-                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel');
+                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel') || e.target.closest('.Terminal');
                 if (windowElement) {
                     bringToFront(windowElement);
                 }
             });
 
             document.addEventListener('touchstart', function(e) {
-                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel');
+                const windowElement = e.target.closest('.Window') || e.target.closest('.Panel') || e.target.closest('.Terminal');
                 if (windowElement) {
                     bringToFront(windowElement);
                 }
@@ -913,7 +1089,7 @@
             // Apply z-index to windows when they're opened via button clicks
             document.addEventListener('click', function(e) {
                 if (e.target.id === 'Start_Menu_Panel_Login') {
-                    const loginWindow = document.getElementById('Login_Window');
+                    const loginWindow = document.getElementById('Login_Terminal');
                     if (loginWindow) {
                         setTimeout(() => {
                             bringToFront(loginWindow);
@@ -922,7 +1098,7 @@
                 }
                 if (e.target.id === 'Start_Menu_Panel_Signup' || 
                     (e.target.closest && e.target.closest('#Start_Menu_Panel_Signup'))) {
-                    const signupWindow = document.getElementById('Sign-Up_Window');
+                    const signupWindow = document.getElementById('Sign-Up_Terminal');
                     if (signupWindow) {
                         setTimeout(() => {
                             bringToFront(signupWindow);
@@ -2287,7 +2463,7 @@
                     <script aria-label="Start_Menu_Panel_Buttons - Script">
 
                         document.getElementById('Start_Menu_Panel_Login').addEventListener('click', function() {
-                            document.getElementById('Login_Window').style.display = 'flex';
+                            document.getElementById('Login_Terminal').style.display = 'flex';
                         });
 
                         document.getElementById('Start_Menu_Panel_Exit').addEventListener('click', function() {
@@ -2344,27 +2520,27 @@
 
             
 
-            <!--Book_Mark: Login_Build - Login_Window-->
-            <div class="Window" id="Login_Window">
-                <div class="Header" id="Login_Window-_Header">
+            <!--Book_Mark: Login_Build - Login_Terminal-->
+            <div class="Terminal" id="Login_Terminal">
+                <div class="Header" id="Login_Terminal_Header">
                     <p class="Title">Login</p>
-                    <div class="Window_Manipulation">
-                        <button class="Window_Minimize" id="Login_Window_Minimize"></button>
-                        <button class="Window_Maximize" id="Login_Window_Maximize"></button>
-                        <button class="Window_Close" id="Login_Window_Close"></button>
+                    <div class="Terminal_Manipulation">
+                        <button class="Terminal_Minimize" id="Login_Terminal_Minimize"></button>
+                        <button class="Terminal_Maximize" id="Login_Terminal_Maximize"></button>
+                        <button class="Terminal_Close" id="Login_Terminal_Close"></button>
                     </div>
                 </div>
-                <div class="Content" id="Login_Window_Content_Terminal">
-                    <p id="Login_Window_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+                <div class="Content" id="Login_Terminal_Content_Terminal">
+                    <p id="Login_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
 
-                    <!--Book_Mark: Login_Build - Login_Window_Content_Terminal - Style-->
-                    <style aria-label="Login_Window_Content_Terminal - Style"> 
-                        #Login_Window_Content_Terminal {
+                    <!--Book_Mark: Login_Build - Login_Terminal_Content_Terminal - Style-->
+                    <style aria-label="Login_Terminal_Content_Terminal - Style"> 
+                        #Login_Terminal_Content_Terminal {
                             background-color: var(--Terminal_Background_Color);
                             
                         }
 
-                        #Login_Window_Content_Terminal_Main_Text {
+                        #Login_Terminal_Content_Terminal_Main_Text {
                             position: absolute;  
                             top: 10px;
                             left: 10px;                     
@@ -2384,18 +2560,18 @@
                         }
                         
                         @media (max-width: 768px) {
-                            #Login_Window_Content_Terminal_Main_Text {
+                            #Login_Terminal_Content_Terminal_Main_Text {
                                 font-size: 11px;
                                 line-height: 1.4;
                             }
                         }
                     </style>
 
-                    <script aria-label="Login_Window_Content_Terminal - Script">
+                    <script aria-label="Login_Terminal_Content_Terminal - Script">
                         document.addEventListener('DOMContentLoaded', function() {
                             // Register the login terminal with TerminalManager
-                            const terminal = TerminalManager.registerTerminal('Login_Window_Content_Terminal_Main_Text', {
-                                windowId: 'Login_Window',
+                            const terminal = TerminalManager.registerTerminal('Login_Terminal_Content_Terminal_Main_Text', {
+                                windowId: 'Login_Terminal',
                                 prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
                                 welcomeMessages: [
                                     'Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT',
@@ -2410,7 +2586,7 @@
                             });
                             
                             // Add custom commands
-                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'login', function(context) {
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'login', function(context) {
                                 const loginTerminal = context.terminalData;
                                 if (!loginTerminal) return;
                                 
@@ -2424,7 +2600,7 @@
                                 context.print('Enter your first name:');
                             }, 'Start login process');
 
-                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'clear', function(context) {
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
                                 const loginTerminal = context.terminalData;
                                 if (!loginTerminal) {
                                     return;
@@ -2457,7 +2633,7 @@
                             }, 'Clear login process and start over');
                             
                             // Add Reset command
-                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'reset', function(context) {
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'reset', function(context) {
                                 const loginTerminal = context.terminalData;
                                 if (!loginTerminal) {
                                     return;
@@ -2474,7 +2650,7 @@
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
                                     
                                     // ==================== FIRST NAME INPUT ====================
-                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingFirstName) {
+                                    if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingFirstName) {
                                         const firstName = (raw || '').trim();
                                         
                                         // Check if user wants to clear
@@ -2553,7 +2729,7 @@
                                     }
 
                                     // ==================== LAST NAME INPUT ====================
-                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingLastName) {
+                                    if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingLastName) {
                                         const lastName = (raw || '').trim();
                                         
                                         // Check if user wants to clear
@@ -2633,7 +2809,7 @@
                                     }
 
                                     // ==================== PASSWORD INPUT ====================
-                                    if (terminalData && terminalData.id === 'Login_Window_Content_Terminal_Main_Text' && terminalData.awaitingPassword) {
+                                    if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingPassword) {
                                         const password = (raw || '').trim();
 
                                         // Check if user wants to undo
@@ -2793,16 +2969,16 @@
                                 TerminalManager._loginFirstNamePatched = true;
                             }
                             
-                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'signup', function(context) {
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'signup', function(context) {
                                 context.print('Opening sign-up window...');
                                 // Open signup window
-                                const signupWindow = document.getElementById('Sign-Up_Window');
+                                const signupWindow = document.getElementById('Sign-Up_Terminal');
                                 if (signupWindow) {
                                     signupWindow.style.display = 'flex';
                                 }
                             }, 'Open sign-up window');
                             
-                            TerminalManager.addCommand('Login_Window_Content_Terminal_Main_Text', 'license', function(context) {
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'license', function(context) {
                                 context.print('');
                                 context.print('MIT License');
                                 context.print('');
@@ -2831,18 +3007,14 @@
                     </script>
                 </div>
 
-                <style aria-label="Login_Window - Style">
-                    #Login_Window {
-                        width: 260px;
-                        height: 280px;
-                        
-                    }
+                <style aria-label="Login_Terminal - Style">
+                   
                 </style>
 
-                <script aria-label="Login_Window - Script">
-                    document.getElementById('Login_Window_Close').addEventListener('click', function() {
+                <script aria-label="Login_Terminal - Script">
+                    document.getElementById('Login_Terminal_Close').addEventListener('click', function() {
                         // Clear terminal data before closing
-                        const terminal = TerminalManager.getTerminal('Login_Window_Content_Terminal_Main_Text');
+                        const terminal = TerminalManager.getTerminal('Login_Terminal_Content_Terminal_Main_Text');
                         if (terminal) {
                             TerminalManager.clearTerminalData(terminal);
                             // Reset login-specific state variables to ensure default prompt on reopen
@@ -2856,29 +3028,29 @@
                             terminal.prompt = TerminalManager.defaultPrompt;
                             terminal.passwordMode = false;
                         }
-                        document.getElementById('Login_Window').style.display = 'none';
+                        document.getElementById('Login_Terminal').style.display = 'none';
                     });
                 </script>
             </div>
 
-            <div class="Window" id="Sign-Up_Window">
-                <div class="Header" id="Sign-Up_Window_Header">
+            <div class="Terminal" id="Sign-Up_Terminal">
+                <div class="Header" id="Sign-Up_Terminal_Header">
                     <p class="Title">Sign Up</p>
-                    <div class="Window_Manipulation">
-                        <button class="Window_Minimize" id="Sign-Up_Window_Minimize"></button>
-                        <button class="Window_Maximize" id="Sign-Up_Window_Maximize"></button>
-                        <button class="Window_Close" id="Sign-Up_Window_Close"></button>
+                    <div class="Terminal_Manipulation">
+                        <button class="Terminal_Minimize" id="Sign-Up_Terminal_Minimize"></button>
+                        <button class="Terminal_Maximize" id="Sign-Up_Terminal_Maximize"></button>
+                        <button class="Terminal_Close" id="Sign-Up_Terminal_Close"></button>
                     </div>
                 </div>
-                <div class="Content" id="Sign-Up_Window_Content_Terminal">
-                    <p id="Sign-Up_Window_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false"></p>
+                <div class="Content" id="Sign-Up_Terminal_Content_Terminal">
+                    <p id="Sign-Up_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false"></p>
 
-                    <style aria-label="Sign-Up_Window_Content_Terminal - Style">
-                        #Sign-Up_Window_Content_Terminal {
+                    <style aria-label="Sign-Up_Terminal_Content_Terminal - Style">
+                        #Sign-Up_Terminal_Content_Terminal {
                             background-color: var(--Terminal_Background_Color);
                         }
 
-                        #Sign-Up_Window_Content_Terminal_Main_Text {
+                        #Sign-Up_Terminal_Content_Terminal_Main_Text {
                             position: absolute;
                             top: 10px;
                             left: 10px;
@@ -2893,11 +3065,11 @@
                         }
                     </style>
 
-                    <script aria-label="Sign-Up_Window_Content_Terminal - Script">
+                    <script aria-label="Sign-Up_Terminal_Content_Terminal - Script">
                         document.addEventListener('DOMContentLoaded', function() {
                             // Register the signup terminal with TerminalManager
-                            const terminal = TerminalManager.registerTerminal('Sign-Up_Window_Content_Terminal_Main_Text', {
-                                windowId: 'Sign-Up_Window',
+                            const terminal = TerminalManager.registerTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text', {
+                                windowId: 'Sign-Up_Terminal',
                                 prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
                                 welcomeMessages: [
                                     'Vista-D-NET Sign-Up',
@@ -2910,7 +3082,7 @@
                             });
                             
                             // Add custom commands
-                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'signup', function(context) {
+                            TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'signup', function(context) {
                                 const signupTerminal = context.terminalData;
                                 if (!signupTerminal) {
                                     return;
@@ -2926,7 +3098,7 @@
                                 context.print('Enter your first name:');
                             }, 'Start sign-up process');
 
-                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'clear', function(context) {
+                            TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
                                 const signupTerminal = context.terminalData;
                                 if (!signupTerminal) {
                                     return;
@@ -2959,7 +3131,7 @@
                             }, 'Clear signup process and start over');
                             
                             // Add Reset command
-                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'reset', function(context) {
+                            TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'reset', function(context) {
                                 const signupTerminal = context.terminalData;
                                 if (!signupTerminal) {
                                     return;
@@ -2975,7 +3147,7 @@
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
                                     
                                     // ==================== FIRST NAME INPUT ====================
-                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupFirstName) {
+                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupFirstName) {
                                         const firstName = (raw || '').trim();
                                         
                                         // Check if user wants to clear
@@ -3058,7 +3230,7 @@
                                     }
 
                                     // ==================== LAST NAME INPUT ====================
-                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupLastName) {
+                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupLastName) {
                                         const lastName = (raw || '').trim();
                                         
                                         // Check if user wants to clear
@@ -3142,7 +3314,7 @@
                                     }
 
                                     // ==================== DATE OF BIRTH INPUT ====================
-                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupDOB) {
+                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupDOB) {
                                         const input = (raw || '').trim();
                                         
                                         // Check if user wants to clear
@@ -3326,7 +3498,7 @@
                                     }
 
                                     // ==================== PASSWORD INPUT ====================
-                                    if (terminalData && terminalData.id === 'Sign-Up_Window_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
+                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
                                         const password = (raw || '').trim();
                                         
                                         // Check if user wants to undo
@@ -3518,29 +3690,26 @@
                                 TerminalManager._signupFirstNamePatched = true;
                             }
                             
-                            TerminalManager.addCommand('Sign-Up_Window_Content_Terminal_Main_Text', 'close', function(context) {
+                            TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
                                 // Clear terminal data before closing
-                                const signupTerminal = TerminalManager.getTerminal('Sign-Up_Window_Content_Terminal_Main_Text');
+                                const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
                                 if (signupTerminal) {
                                     TerminalManager.clearTerminalData(signupTerminal);
                                 }
-                                document.getElementById('Sign-Up_Window').style.display = 'none';
+                                document.getElementById('Sign-Up_Terminal').style.display = 'none';
                             }, 'Close sign-up window');
                         });
                     </script>
                 </div>
 
-                <style aria-label="Sign-Up_Window - Style">
-                    #Sign-Up_Window {
-                        width: 320px;
-                        height: 420px;
-                    }
+                <style aria-label="Sign-Up_Terminal - Style">
+                   
                 </style>
 
-                <script aria-label="Sign-Up_Window - Script">
-                    document.getElementById('Sign-Up_Window_Close').addEventListener('click', function() {
+                <script aria-label="Sign-Up_Terminal - Script">
+                    document.getElementById('Sign-Up_Terminal_Close').addEventListener('click', function() {
                         // Clear terminal data before closing
-                        const terminal = TerminalManager.getTerminal('Sign-Up_Window_Content_Terminal_Main_Text');
+                        const terminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
                         if (terminal) {
                             TerminalManager.clearTerminalData(terminal);
                             // Reset signup-specific state variables to ensure default prompt on reopen
@@ -3556,70 +3725,12 @@
                             terminal.prompt = TerminalManager.defaultPrompt;
                             terminal.passwordMode = false;
                         }
-                        document.getElementById('Sign-Up_Window').style.display = 'none';
+                        document.getElementById('Sign-Up_Terminal').style.display = 'none';
                     });
                 </script>
             </div>
 
-            <!--Book_Mark: Maps_Window-->
-            <div class="Window" id="Maps_Window">
-                <div class="Header" id="Maps_Window_Header">
-                    <p class="Title">Maps</p>
-                    <div class="Window_Manipulation">
-                        <button class="Window_Minimize" id="Maps_Window_Minimize"></button>
-                        <button class="Window_Maximize" id="Maps_Window_Maximize"></button>
-                        <button class="Window_Close" id="Maps_Window_Close"></button>
-                    </div>
-                </div>
-                <div class="Content" id="Maps_Window_Content">
-                    <div id="map-container" style="width: 100%; height: 100%; position: relative; background-color: var(--Main_Window_Color-1);">
-                        <div style="position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;">
-                            <h3 style="color: var(--Main_Text_Color); text-align: center; margin-bottom: 10px;">Interactive Map</h3>
-                            <p style="color: var(--Main_Text_Color); text-align: center; margin-bottom: 10px;">Click on the map to select your place of birth</p>
-                            <div 
-                                id="real-map"
-                                style="width: 100%; height: 320px; border: 2px solid var(--Main_Border); border-radius: 4px;">
-                            </div>
-                            <div style="margin-top: 10px; text-align: center;">
-                                <input 
-                                    type="text" 
-                                    id="location-input" 
-                                    placeholder="Type your location or click on map" 
-                                    style="width: 70%; padding: 5px; margin-right: 10px; background: var(--Text_Input_Field); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border);"
-                                />
-                                <button 
-                                    id="select-location-btn"
-                                    style="padding: 5px 15px; background: var(--UI-Buttons-Fields-Color-1); color: var(--Main_Text_Color); border: 1px solid var(--Main_Border); cursor: pointer;"
-                                >
-                                    Select
-                                </button>
-                            </div>
-                            <p style="margin-top: 10px; font-size: var(--Main_Text_1); color: var(--Main_Text_Color); text-align: center;">Type your location above or use the map to navigate</p>
-                        </div>
-                    </div>
-                </div>
-
-                <style aria-label="Maps_Window - Style">
-                    #Maps_Window {
-                        width: 600px;
-                        height: 500px;
-                    }
-                    #real-map {
-                        cursor: crosshair;
-                    }
-                    #location-input:focus {
-                        outline: 2px solid var(--Main_Border);
-                        outline-offset: 2px;
-                    }
-                    #select-location-btn:hover {
-                        background: var(--UI-Buttons-Fields-Color-2);
-                    }
-                </style>
-
-                <script aria-label="Maps_Window - Script">
-                   
-                </script>
-            </div>
+           
 
 
             <!--Book_Mark: Login_Build - Clock-->
