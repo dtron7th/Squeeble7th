@@ -2461,6 +2461,11 @@
 
                         document.getElementById('Start_Menu_Panel_Login').addEventListener('click', function() {
                             document.getElementById('Login_Terminal').style.display = 'flex';
+                            const loginTerminal = TerminalManager.getTerminal('Login_Terminal_Content_Terminal_Main_Text');
+                            if (loginTerminal) {
+                                loginTerminal.shouldScrollToBottom = true;
+                                TerminalManager.render(loginTerminal);
+                            }
                         });
 
                         document.getElementById('Start_Menu_Panel_Exit').addEventListener('click', function() {
@@ -2972,6 +2977,11 @@
                                 const signupWindow = document.getElementById('Sign-Up_Terminal');
                                 if (signupWindow) {
                                     signupWindow.style.display = 'flex';
+                                    const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
+                                    if (signupTerminal) {
+                                        signupTerminal.shouldScrollToBottom = true;
+                                        TerminalManager.render(signupTerminal);
+                                    }
                                 }
                             }, 'Open sign-up window');
                             
