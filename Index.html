@@ -1060,6 +1060,10 @@
                         });
                         element.addEventListener('textInput', (e) => {
                             if (e.data && e.data !== '\n') {
+                                if (/[ \u00A0]/.test(e.data)) {
+                                    e.preventDefault();
+                                    return;
+                                }
                                 // Apply capitalization for Android input
                                 let textToAdd = e.data;
                                 if (terminal.shouldCapitalizeNext && e.data.match(/^[a-z]/)) {
@@ -1106,7 +1110,7 @@
                     }
                     
                     // Block space key - no spaces allowed in terminals
-                    if (e.key === ' ') {
+                    if (e.key === ' ' || e.key === 'Spacebar' || e.code === 'Space') {
                         e.preventDefault();
                         return;
                     }
@@ -1197,7 +1201,7 @@
                     }
                     
                     // Block space input on all platforms including Android
-                    if (e.inputType === 'insertText' && e.data === ' ') {
+                    if (e.data && /[ \u00A0]/.test(e.data)) {
                         e.preventDefault();
                         return;
                     }
@@ -1759,9 +1763,16 @@
                     }
                     
                     const domInput = full.slice(baseText.length).replace(/\r/g, '');
+                    const sanitizedInput = domInput.replace(/[ \u00A0]/g, '');
+
+                    if (sanitizedInput !== domInput) {
+                        terminal.currentInput = sanitizedInput;
+                        this.render(terminal);
+                        return;
+                    }
                     
-                    if (domInput.indexOf('\n') !== -1) {
-                        const firstLine = domInput.split('\n')[0];
+                    if (sanitizedInput.indexOf('\n') !== -1) {
+                        const firstLine = sanitizedInput.split('\n')[0];
                         terminal.currentInput = firstLine;
                         const toRun = terminal.currentInput;
                         terminal.currentInput = '';
@@ -1771,7 +1782,7 @@
                         return;
                     }
                     
-                    terminal.currentInput = domInput;
+                    terminal.currentInput = sanitizedInput;
                 },
                 
                 // Setup welcome messages
