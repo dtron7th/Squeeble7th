@@ -1876,6 +1876,7 @@
                 printLine: function(text, terminal) {
                     const line = text == null ? '' : String(text);
                     terminal.transcript += line + '\n';
+                    terminal.shouldScrollToBottom = true;
                     this.render(terminal);
                 },
                 
@@ -1900,11 +1901,7 @@
                         terminal.element.appendChild(terminal.cursorNode);
                     }
                     
-                    if (terminal.shouldScrollToBottom || wasAtBottom) {
-                        terminal.element.scrollTop = terminal.element.scrollHeight;
-                    } else {
-                        terminal.element.scrollTop = scrollTop;
-                    }
+                    terminal.element.scrollTop = terminal.element.scrollHeight;
                     
                     terminal.shouldScrollToBottom = false;
                     this.placeCaretAtEnd(terminal);
@@ -3043,7 +3040,7 @@
                     </div>
                 </div>
                 <div class="Content" id="Sign-Up_Terminal_Content_Terminal">
-                    <p id="Sign-Up_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false"></p>
+                    <p id="Sign-Up_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
 
                     <style aria-label="Sign-Up_Terminal_Content_Terminal - Style">
                         #Sign-Up_Terminal_Content_Terminal {
@@ -3062,6 +3059,18 @@
                             white-space: pre-wrap;
                             line-height: 1.45;
                             outline: none;
+                            -webkit-user-modify: read-write-plaintext-only;
+                            -webkit-tap-highlight-color: transparent;
+                            -webkit-touch-callout: none;
+                            -webkit-user-select: text;
+                            user-select: text;
+                        }
+
+                        @media (max-width: 768px) {
+                            #Sign-Up_Terminal_Content_Terminal_Main_Text {
+                                font-size: 11px;
+                                line-height: 1.4;
+                            }
                         }
                     </style>
 
