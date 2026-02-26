@@ -3452,11 +3452,11 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
-                                            this.printLine('including First Name/Last Name/Password,', terminalData);
+                                            this.printLine('including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + ',', terminalData);
                                             this.printLine('', terminalData);
                                             this.printLine('Backup Account Hash', terminalData);
                                             this.printLine('Hash "' + backupHashHex + '"', terminalData);
-                                            this.printLine('Including First Name/Last Name/Date of birth', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             
                                             // Keep password prompt while processing
                                             terminalData.prompt = 'Password: ';
