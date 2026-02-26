@@ -951,6 +951,7 @@
             'use strict';
             
             // Terminal Manager - Centralized terminal management
+            // ALWAYS VIEW AND FOLLOW THE DEFAULT PROMPT: //User: 
             const TerminalManager = {
                 terminals: new Map(),
                 defaultPrompt: '//User: ',
@@ -2831,8 +2832,8 @@
 
                 <style aria-label="Login_Window - Style">
                     #Login_Window {
-                        width: 440px;
-                        height: 240px;
+                        width: 260px;
+                        height: 280px;
                         
                     }
                 </style>
@@ -3452,7 +3453,7 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
-                                            this.printLine('including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + ',', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + ',', terminalData);
                                             this.printLine('', terminalData);
                                             this.printLine('Backup Account Hash', terminalData);
                                             this.printLine('Hash "' + backupHashHex + '"', terminalData);
@@ -3530,8 +3531,8 @@
 
                 <style aria-label="Sign-Up_Window - Style">
                     #Sign-Up_Window {
-                        width: 440px;
-                        height: 240px;
+                        width: 320px;
+                        height: 420px;
                     }
                 </style>
 
@@ -3599,8 +3600,8 @@
 
                 <style aria-label="Maps_Window - Style">
                     #Maps_Window {
-                        width: 440px;
-                        height: 240px;
+                        width: 600px;
+                        height: 500px;
                     }
                     #real-map {
                         cursor: crosshair;
