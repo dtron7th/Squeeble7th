@@ -1724,13 +1724,11 @@
                         terminal.element.appendChild(terminal.cursorNode);
                     }
                     
-                    if (terminal.shouldScrollToBottom || wasAtBottom) {
-                        terminal.element.scrollTop = terminal.element.scrollHeight;
-                    } else {
-                        terminal.element.scrollTop = scrollTop;
-                    }
-                    
+                    // Force scroll to bottom and ensure cursor jumps to prompt
+                    terminal.element.scrollTop = terminal.element.scrollHeight;
                     terminal.shouldScrollToBottom = false;
+                    
+                    // Place cursor at end (prompt position)
                     this.placeCaretAtEnd(terminal);
                     setTimeout(() => { terminal.rendering = false; }, 0);
                 },
