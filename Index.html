@@ -1105,12 +1105,9 @@
                         return;
                     }
                     
-                    // Handle space key for capitalization tracking
+                    // Block space key - no spaces allowed in terminals
                     if (e.key === ' ') {
                         e.preventDefault();
-                        terminal.currentInput += ' ';
-                        terminal.lastCharWasSentenceEnd = false;
-                        this.render(terminal);
                         return;
                     }
                     
@@ -1196,6 +1193,12 @@
                             terminal.shouldScrollToBottom = true;
                             this.render(terminal);
                         })();
+                        return;
+                    }
+                    
+                    // Block space input on all platforms including Android
+                    if (e.inputType === 'insertText' && e.data === ' ') {
+                        e.preventDefault();
                         return;
                     }
                 },
