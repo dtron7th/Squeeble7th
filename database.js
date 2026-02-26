@@ -196,6 +196,42 @@ class HashDatabase {
         });
     }
 
+    // Clear database and reinitialize (for testing/reset purposes)
+    async clearDatabase() {
+        console.log('🔍 Clearing database and reinitializing...');
+        
+        if (this.db) {
+            this.db.close();
+        }
+        
+        // Delete the database
+        return new Promise((resolve, reject) => {
+            const deleteRequest = indexedDB.deleteDatabase(this.dbName);
+            
+            deleteRequest.onsuccess = async () => {
+                console.log('🔍 Database deleted successfully');
+                // Reinitialize the database
+                try {
+                    await this.init();
+                    console.log('🔍 Database reinitialized after clear');
+                    resolve();
+                } catch (error) {
+                    console.error('🔍 Error reinitializing database:', error);
+                    reject(error);
+                }
+            };
+            
+            deleteRequest.onerror = (event) => {
+                console.error('🔍 Error deleting database:', event.target.error);
+                reject(event.target.error);
+            };
+            
+            deleteRequest.onblocked = () => {
+                console.log('🔍 Database deletion blocked - waiting...');
+            };
+        });
+    }
+
     // Close database connection
     close() {
         if (this.db) {
@@ -212,11 +248,15 @@ let hashDatabase = null;
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         hashDatabase = new HashDatabase();
-        await hashDatabase.init();
-        console.log('🔍 Hash database ready for use');
+        
+        // Clear any existing database and start fresh
+        await hashDatabase.clearDatabase();
+        
+        console.log('🔍 Hash database ready for use (fresh instance)');
         
         // Make database globally available
         window.HashDatabase = hashDatabase;
+        window.clearDatabase = () => hashDatabase.clearDatabase();
         
     } catch (error) {
         console.error('🔍 Failed to initialize hash database:', error);
