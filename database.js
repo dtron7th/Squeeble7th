@@ -232,6 +232,39 @@ class HashDatabase {
         });
     }
 
+    // Find account by backup hash and retrieve primary hash (password)
+    async findAccountByBackupHash(backupHash) {
+        console.log('🔍 Finding account by backup hash:', backupHash);
+        
+        if (!this.db) {
+            throw new Error('Database not initialized');
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.objectStoreName], 'readonly');
+            const objectStore = transaction.objectStore(this.objectStoreName);
+            const index = objectStore.index('backupHash');
+            
+            const request = index.get(backupHash);
+            
+            request.onsuccess = () => {
+                const result = request.result;
+                if (result) {
+                    console.log('🔍 Account found:', result.primaryHash);
+                    resolve(result.primaryHash); // Return the password (primary hash)
+                } else {
+                    console.log('🔍 No account found with backup hash');
+                    resolve(null);
+                }
+            };
+            
+            request.onerror = (event) => {
+                console.error('🔍 Error finding account by backup hash:', event.target.error);
+                reject(event.target.error);
+            };
+        });
+    }
+
     // Close database connection
     close() {
         if (this.db) {
