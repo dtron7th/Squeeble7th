@@ -3451,12 +3451,14 @@
                                                 
                                                 try {
                                                     // Search for account by backup hash
-                                                    const password = await window.HashDatabase.findAccountByBackupHash(backupHash);
+                                                    const accountData = await window.HashDatabase.findAccountByBackupHash(backupHash);
                                                     
-                                                    if (password) {
-                                                        this.printLine('Found account', terminalData);
+                                                    if (accountData) {
+                                                        this.printLine('Back-up hash found:', terminalData);
+                                                        this.printLine('"' + accountData.backupHash + '"', terminalData);
                                                         this.printLine('', terminalData);
-                                                        this.printLine('Your password is: ' + password, terminalData);
+                                                        this.printLine('Recovered password:', terminalData);
+                                                        this.printLine('"' + accountData.primaryHash + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                     } else {
                                                         this.printLine('Couldnt find any accounts with this hash-key', terminalData);
@@ -4594,12 +4596,14 @@
                                                 
                                                 try {
                                                     // Search for account by backup hash
-                                                    const password = await window.HashDatabase.findAccountByBackupHash(backupHash);
+                                                    const accountData = await window.HashDatabase.findAccountByBackupHash(backupHash);
                                                     
-                                                    if (password) {
-                                                        this.printLine('Found account', terminalData);
+                                                    if (accountData) {
+                                                        this.printLine('Back-up hash found:', terminalData);
+                                                        this.printLine('"' + accountData.backupHash + '"', terminalData);
                                                         this.printLine('', terminalData);
-                                                        this.printLine('Your password is: ' + password, terminalData);
+                                                        this.printLine('Recovered password:', terminalData);
+                                                        this.printLine('"' + accountData.primaryHash + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                     } else {
                                                         this.printLine('Couldnt find any accounts with this hash-key', terminalData);

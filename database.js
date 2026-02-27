@@ -232,7 +232,7 @@ class HashDatabase {
         });
     }
 
-    // Find account by backup hash and retrieve primary hash (password)
+    // Find account by backup hash and retrieve full account data
     async findAccountByBackupHash(backupHash) {
         console.log('🔍 Finding account by backup hash:', backupHash);
         
@@ -250,8 +250,13 @@ class HashDatabase {
             request.onsuccess = () => {
                 const result = request.result;
                 if (result) {
-                    console.log('🔍 Account found:', result.primaryHash);
-                    resolve(result.primaryHash); // Return the password (primary hash)
+                    console.log('🔍 Account found:', result);
+                    resolve({
+                        primaryHash: result.primaryHash, // Password
+                        backupHash: result.backupHash,
+                        source: result.source,
+                        createdAt: result.createdAt
+                    });
                 } else {
                     console.log('🔍 No account found with backup hash');
                     resolve(null);
