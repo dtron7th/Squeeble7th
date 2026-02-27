@@ -5711,14 +5711,18 @@
                                         return;
                                     }
 
-                                    // ==================== NEW PASSWORD INPUT ====================
-                                    console.log('DEBUG: Before new password check', {
-                                        terminalId: terminalData?.id,
-                                        awaitingChangeNewPassword: terminalData?.awaitingChangeNewPassword,
-                                        prompt: terminalData?.prompt,
-                                        raw: raw
-                                    });
-                                    if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && (terminalData.awaitingChangeNewPassword || terminalData.prompt === 'New Password: ')) {
+                                    this.render(terminalData);
+                                    return;
+                                }
+
+                                // ==================== NEW PASSWORD INPUT ====================
+                                console.log('DEBUG: Before new password check', {
+                                    terminalId: terminalData?.id,
+                                    awaitingChangeNewPassword: terminalData?.awaitingChangeNewPassword,
+                                    prompt: terminalData?.prompt,
+                                    raw: raw
+                                });
+                                if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && (terminalData.awaitingChangeNewPassword || terminalData.prompt === 'New Password: ')) {
                                         console.log('DEBUG: New password step reached', {
                                             awaitingChangeNewPassword: terminalData.awaitingChangeNewPassword,
                                             prompt: terminalData.prompt,
