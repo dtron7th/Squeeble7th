@@ -2005,6 +2005,7 @@
                     terminal.rendering = true;
                     const scrollTop = terminal.element.scrollTop;
                     const wasAtBottom = (terminal.element.scrollHeight - terminal.element.scrollTop - terminal.element.clientHeight) < 5;
+                    terminal.element.setAttribute('autocapitalize', terminal.passwordMode ? 'off' : 'sentences');
                     const prompt = terminal.prompt;
                     let display = terminal.currentInput;
                     
@@ -2978,7 +2979,7 @@
                                         terminalData.awaitingPassword = true;
                                         terminalData.prompt = 'Password: ';
                                         terminalData.currentInput = '';
-                                        terminalData.shouldCapitalizeNext = true;
+                                        terminalData.shouldCapitalizeNext = false;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         terminalData.passwordMode = true;
                                         this.printLine('', terminalData);
@@ -4162,9 +4163,9 @@
                                             terminalData.awaitingSignupPassword = true;
                                             terminalData.prompt = 'Password: ';
                                             terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.shouldCapitalizeNext = false;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.passwordMode = false;
+                                            terminalData.passwordMode = true;
                                             this.printLine('', terminalData);
                                             this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             this.printLine('', terminalData);
