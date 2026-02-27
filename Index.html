@@ -2016,9 +2016,10 @@
                     terminal.element.setAttribute('autocapitalize', terminal.passwordMode ? 'off' : 'sentences');
                     const prompt = terminal.prompt;
                     let display = terminal.currentInput;
+                    const isSignupPasswordInput = terminal.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminal.awaitingSignupPassword;
                     
                     // Handle password masking
-                    if (terminal.passwordMode && display) {
+                    if (terminal.passwordMode && display && !isSignupPasswordInput) {
                         display = '*'.repeat(display.length);
                     }
                     
