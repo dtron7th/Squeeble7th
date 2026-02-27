@@ -5296,6 +5296,18 @@
                                 const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
                                     
+                                    // Debug: Log every command in change password terminal
+                                    if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text') {
+                                        console.log('DEBUG: Change password terminal command received', {
+                                            raw: raw,
+                                            awaitingChangeFirstName: terminalData.awaitingChangeFirstName,
+                                            awaitingChangeLastName: terminalData.awaitingChangeLastName,
+                                            awaitingChangeDOB: terminalData.awaitingChangeDOB,
+                                            awaitingChangeNewPassword: terminalData.awaitingChangeNewPassword,
+                                            prompt: terminalData.prompt
+                                        });
+                                    }
+                                    
                                     // ==================== FIRST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingChangeFirstName) {
                                     const firstName = (raw || '').trim();
@@ -5700,7 +5712,18 @@
                                     }
 
                                     // ==================== NEW PASSWORD INPUT ====================
+                                    console.log('DEBUG: Before new password check', {
+                                        terminalId: terminalData?.id,
+                                        awaitingChangeNewPassword: terminalData?.awaitingChangeNewPassword,
+                                        prompt: terminalData?.prompt,
+                                        raw: raw
+                                    });
                                     if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && (terminalData.awaitingChangeNewPassword || terminalData.prompt === 'New Password: ')) {
+                                        console.log('DEBUG: New password step reached', {
+                                            awaitingChangeNewPassword: terminalData.awaitingChangeNewPassword,
+                                            prompt: terminalData.prompt,
+                                            raw: raw
+                                        });
                                         const newPassword = raw || '';
                                         const newPasswordTrimmed = newPassword.trim();
 
