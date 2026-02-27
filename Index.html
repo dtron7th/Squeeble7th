@@ -5183,9 +5183,11 @@
                                 prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
                                 welcomeMessages: [
                                     'Vista-D-NET Change Password.',
-                                    'Type "Change" to change your password.',
-                                    'Type "Clear" to clear the terminal.',
-                                    'Type "Close" to close the terminal.'
+                                    '',
+                                    function(terminal) {
+                                        TerminalManager.displayCommandList(terminal, TerminalManager.getChangeCommandList());
+                                    },
+                                    ''
                                 ]
                             });
                             
