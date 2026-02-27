@@ -432,9 +432,9 @@
 
         .Terminal > .Content {
             position: absolute;
-            bottom: 0px;
+            bottom: 10px;
             width: 100%;
-            height: calc(100% - 30px);
+            height: calc(100% - 40px);
             display: flex;
             justify-content: center;
         }
@@ -1198,21 +1198,35 @@
                 enableAutoCapitalization: function(terminal) {
                     const element = terminal.element;
                     
-                    // Set contenteditable attributes for auto-capitalization
+                    // Add input method attributes for better mobile keyboard support
                     element.setAttribute('contenteditable', 'true');
                     element.setAttribute('autocapitalize', 'sentences'); // Android auto-capitalization
                     element.setAttribute('autocomplete', 'off');
                     element.setAttribute('autocorrect', 'off');
                     element.setAttribute('spellcheck', 'false');
                     
-                    // Add input method attributes for better mobile keyboard support
-                    element.setAttribute('inputmode', 'text');
-                    element.setAttribute('enterkeyhint', 'send');
-                    
                     // Set CSS properties for better mobile experience
                     element.style.webkitTapHighlightColor = 'transparent';
                     element.style.webkitUserSelect = 'text';
                     element.style.userSelect = 'text';
+                    
+                    // Android-specific optimizations
+                    if (this.isAndroid) {
+                        // Use CSS variable for font size
+                        element.style.fontSize = 'var(--Main_Font_Size)';
+                        element.style.lineHeight = '1.4';
+                        element.style.padding = '8px';
+                        element.style.minHeight = '44px'; // Minimum touch target size
+                        
+                        // Disable long-press menu
+                        element.style.webkitTouchCallout = 'none';
+                        element.style.webkitUserSelect = 'text';
+                        element.style.userSelect = 'text';
+                        
+                        // Enable better touch scrolling
+                        element.style.webkitOverflowScrolling = 'touch';
+                        element.style.overflowY = 'auto';
+                    }
                     
                     // Initialize capitalization state
                     terminal.shouldCapitalizeNext = true;
@@ -1434,11 +1448,25 @@
                     terminal.startScrollTop = terminal.element.scrollTop;
                     terminal.isTouchScrolling = false;
                     
+                    // Android-specific touch handling
+                    if (this.isAndroid) {
+                        // Set touch-action for better scrolling
+                        terminal.element.style.touchAction = 'pan-y';
+                        
+                        // Allow native focus/tap so Android keyboard can open
+                        terminal.element.style.webkitUserSelect = 'text';
+                        terminal.element.style.userSelect = 'text';
+
+                        terminal.touchStartTime = Date.now();
+                    }
+                    
                     // Find the parent window element
                     terminal.parentWindow = terminal.element.closest('.Window');
                     
-                    // Set global flag to prevent window dragging
-                    window.terminalScrolling = true;
+                    // If inside a draggable window, prevent window drag during terminal touch
+                    if (terminal.parentWindow && !this.isAndroid) {
+                        terminal.parentWindow.style.pointerEvents = 'none';
+                    }
                 },
                 
                 handleTouchMove: function(e, terminal) {
@@ -1466,11 +1494,35 @@
                 },
                 
                 handleTouchEnd: function(e, terminal) {
-                    // Clear global flag to allow window dragging again
-                    window.terminalScrolling = false;
+                    // Restore window pointer events
+                    if (terminal.parentWindow) {
+                        terminal.parentWindow.style.pointerEvents = '';
+                    }
+                    
+                    // Android-specific touch end handling
+                    if (this.isAndroid) {
+                        // Re-enable text selection after touch
+                        setTimeout(() => {
+                            terminal.element.style.webkitUserSelect = 'text';
+                            terminal.element.style.userSelect = 'text';
+                        }, 100);
+                        
+                        // Check if this was a tap (short touch duration)
+                        const touchDuration = Date.now() - terminal.touchStartTime;
+                        if (touchDuration < 200 && Math.abs(terminal.touchStartY - e.changedTouches[0].clientY) < 10) {
+                            // This was a tap - place cursor at end
+                            this.placeCaretAtEnd(terminal);
+                        }
+                    }
                     
                     // Reset touch scrolling state
                     terminal.isTouchScrolling = false;
+                    terminal.touchStartTime = 0;
+                    
+                    // Clear global flag to allow window dragging again
+                    window.terminalScrolling = false;
+                    
+                    // Reset touch tracking variables
                     terminal.touchStartY = null;
                     terminal.touchStartX = null;
                     terminal.startScrollTop = null;
@@ -1920,7 +1972,13 @@
                         terminal.element.appendChild(terminal.cursorNode);
                     }
                     
-                    terminal.element.scrollTop = terminal.element.scrollHeight;
+                    // Only auto-scroll to bottom if user was already at bottom or if shouldScrollToBottom is true
+                    if (wasAtBottom || terminal.shouldScrollToBottom) {
+                        terminal.element.scrollTop = terminal.element.scrollHeight;
+                    } else {
+                        // Preserve user's scroll position when they scrolled up
+                        terminal.element.scrollTop = scrollTop;
+                    }
                     
                     terminal.shouldScrollToBottom = false;
                     this.placeCaretAtEnd(terminal);
@@ -1930,10 +1988,30 @@
                 // Place caret at end
                 placeCaretAtEnd: function(terminal) {
                     try {
+                        // Android-specific caret placement
+                        if (this.isAndroid) {
+                            // Force focus and caret placement for Android
+                            terminal.element.focus({ preventScroll: true });
+                            
+                            // Use a more reliable method for Android
+                            const range = document.createRange();
+                            range.selectNodeContents(terminal.element);
+                            range.collapse(false);
+                            
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                            
+                            // Don't force scroll to bottom - preserve user's scroll position
+                            
+                            return;
+                        }
+                        
                         terminal.element.focus({ preventScroll: true });
                     } catch (err) {
                         terminal.element.focus();
                     }
+                    
                     const sel = window.getSelection();
                     if (!sel) {
                         return;
@@ -2999,6 +3077,9 @@
                                     const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
                                     if (signupTerminal) {
                                         signupTerminal.shouldScrollToBottom = true;
+                                        // Reset welcomeStarted and transcript to trigger animations on open
+                                        signupTerminal.welcomeStarted = false;
+                                        signupTerminal.transcript = '';
                                         TerminalManager.render(signupTerminal);
                                     }
                                 }
@@ -3110,7 +3191,7 @@
                                 windowId: 'Sign-Up_Terminal',
                                 prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
                                 welcomeMessages: [
-                                    'Vista-D-NET Sign-Up',
+                                    'Vista-D-NET Sign-Up.',
                                     '',
                                     function(terminal) {
                                         TerminalManager.displayCommandList(terminal, TerminalManager.getSignupCommandList());
@@ -3134,6 +3215,7 @@
                                 context.print('=== Sign Up For Account (Hash is case sensitive) ===');
                                 context.print('');
                                 context.print('Enter your first name:');
+                                TerminalManager.triggerPromptJump(signupTerminal);
                             }, 'Start sign-up process');
 
                             TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
@@ -3160,12 +3242,11 @@
                                 context.clear();
                                 
                                 // Show welcome messages again
-                                context.print('Vista-D-NET Sign-Up');
+                                context.print('Vista-D-NET Sign-Up.');
                                 context.print('');
                                 TerminalManager.displayCommandList(signupTerminal, TerminalManager.getSignupCommandList());
                                 context.print('');
-                                context.print('Signup process cleared. Ready to start fresh.');
-                                context.print('');
+                                TerminalManager.triggerPromptJump(signupTerminal);
                             }, 'Clear signup process and start over');
                             
                             // Add Reset command
@@ -3178,6 +3259,7 @@
                                 context.print('Reset command available during information process input to reset data entry.');
                                 context.print('Type [Signup] to start the sign-up process.');
                                 context.print('');
+                                TerminalManager.triggerPromptJump(signupTerminal);
                             }, 'Reset command for signup process');
 
                             if (!TerminalManager._signupFirstNamePatched) {
@@ -3208,6 +3290,7 @@
                                             this.printLine('Clearing signup process...', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
+                                            this.triggerPromptJump(terminalData);
                                             return;
                                         }
                                         
@@ -3231,6 +3314,7 @@
                                             this.printLine('Reset to first name entry:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
+                                            this.triggerPromptJump(terminalData);
                                             return;
                                         }
                                         
@@ -3246,6 +3330,7 @@
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
                                                                                         this.playBeep();
                                             this.render(terminalData);
+                                            this.triggerPromptJump(terminalData);
                                             return;
                                         }
                                         
@@ -3264,6 +3349,7 @@
                                         this.printLine('Enter your last name:', terminalData);
                                         this.playBeep();
                                         this.render(terminalData);
+                                        this.triggerPromptJump(terminalData);
                                         return;
                                     }
 
