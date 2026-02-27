@@ -272,10 +272,10 @@ class HashDatabase {
         });
     }
 
-    // Update account password and primary hash using backup hash
-    async updateAccountPasswordByBackupHash(backupHash, newPrimaryHash, newPlainPassword) {
-        console.log('🔍 Updating account password by backup hash:', backupHash);
-
+    // Delete a hash entry by primary hash
+    async deleteHash(primaryHash) {
+        console.log('🔍 Deleting hash:', primaryHash);
+        
         if (!this.db) {
             throw new Error('Database not initialized');
         }
@@ -283,42 +283,32 @@ class HashDatabase {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([this.objectStoreName], 'readwrite');
             const objectStore = transaction.objectStore(this.objectStoreName);
-            const backupIndex = objectStore.index('backupHash');
-
-            const findRequest = backupIndex.get(backupHash);
-
-            findRequest.onsuccess = () => {
-                const existing = findRequest.result;
-                if (!existing) {
-                    resolve(null);
-                    return;
+            const index = objectStore.index('primaryHash');
+            
+            const request = index.openCursor(primaryHash);
+            
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    // Delete the record
+                    const deleteRequest = cursor.delete();
+                    deleteRequest.onsuccess = () => {
+                        console.log('🔍 Hash deleted successfully');
+                        resolve(true);
+                    };
+                    deleteRequest.onerror = (event) => {
+                        console.error('🔍 Error deleting hash:', event.target.error);
+                        reject(event.target.error);
+                    };
+                } else {
+                    // Hash not found
+                    console.log('🔍 Hash not found for deletion');
+                    resolve(false);
                 }
-
-                const updated = {
-                    ...existing,
-                    primaryHash: newPrimaryHash,
-                    plainPassword: newPlainPassword,
-                    source: 'password-change',
-                    createdAt: new Date().toISOString()
-                };
-
-                const putRequest = objectStore.put(updated);
-                putRequest.onsuccess = () => {
-                    resolve({
-                        primaryHash: updated.primaryHash,
-                        backupHash: updated.backupHash,
-                        plainPassword: updated.plainPassword,
-                        source: updated.source,
-                        createdAt: updated.createdAt
-                    });
-                };
-
-                putRequest.onerror = (event) => {
-                    reject(event.target.error);
-                };
             };
-
-            findRequest.onerror = (event) => {
+            
+            request.onerror = (event) => {
+                console.error('🔍 Error finding hash for deletion:', event.target.error);
                 reject(event.target.error);
             };
         });
