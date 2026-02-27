@@ -1839,6 +1839,17 @@
                     ];
                 },
                 
+                // Get change-specific command list
+                getChangeCommandList: function() {
+                    return [
+                        { name: 'Change', description: 'Start change password process' },
+                        { name: 'Clear', description: 'Clear terminal' },
+                        { name: 'Reset', description: 'Fix mistakes' },
+                        { name: 'Exit', description: 'Exits out of a process' },
+                        { name: 'Close', description: 'Close window' }
+                    ];
+                },
+                
                 // Get default command list for terminals
                 getDefaultCommandList: function() {
                     return [
@@ -5202,12 +5213,49 @@
                                     return;
                                 }
                                 
-                                // Clear terminal data
-                                TerminalManager.clearTerminalData(changeTerminal);
+                                // Reset all change password state variables
+                                changeTerminal.awaitingChangeFirstName = false;
+                                changeTerminal.awaitingChangeLastName = false;
+                                changeTerminal.awaitingChangeDOB = false;
+                                changeTerminal.awaitingChangePassword = false;
+                                changeTerminal.awaitingChangeNewPassword = false;
+                                changeTerminal.changeFirstName = null;
+                                changeTerminal.changeLastName = null;
+                                changeTerminal.changeDOB = null;
+                                changeTerminal.changePassword = null;
+                                changeTerminal.changeNewPassword = null;
+                                changeTerminal.previousPrompt = null;
+                                changeTerminal.prompt = TerminalManager.defaultPrompt;
+                                changeTerminal.passwordMode = false;
+                                changeTerminal.currentInput = '';
                                 
-                                context.print('Terminal cleared.');
-                                TerminalManager.triggerPromptJump(changeTerminal);
+                                // Clear the terminal display
+                                context.clear();
+                                
+                                // Show welcome messages again
+                                context.print('Welcome to Vista-D-NET Change Password.');
+                                context.print('');
+                                context.print('Type "Change" to change your password.');
+                                context.print('Type "Clear" to clear the terminal.');
+                                context.print('Type "Close" to close the terminal.');
+                                context.print('');
+                                TerminalManager.displayCommandList(changeTerminal, TerminalManager.getChangeCommandList());
+                                context.print('');
+                                context.print('Change password process cleared. Ready to start fresh.');
+                                context.print('');
                             }, 'Clear change password terminal and start over');
+                            
+                            // Add Reset command
+                            TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'reset', function(context) {
+                                const changeTerminal = context.terminalData;
+                                if (!changeTerminal) {
+                                    return;
+                                }
+                                
+                                context.print('Reset command available during information process input to reset data entry.');
+                                context.print('');
+                                TerminalManager.triggerPromptJump(changeTerminal);
+                            }, 'Reset command for change process');
                             
                             TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
                                 // Clear terminal data before closing
