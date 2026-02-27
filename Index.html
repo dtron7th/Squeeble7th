@@ -1265,7 +1265,7 @@
                                 }
                                 // Apply capitalization for Android input
                                 let textToAdd = e.data;
-                                if (terminal.shouldCapitalizeNext && e.data.match(/^[a-z]/)) {
+                                if (!terminal.passwordMode && terminal.shouldCapitalizeNext && e.data.match(/^[a-z]/)) {
                                     textToAdd = e.data.charAt(0).toUpperCase() + e.data.slice(1);
                                     terminal.shouldCapitalizeNext = false;
                                 }
@@ -1318,8 +1318,10 @@
                     if (e.key === '.' || e.key === '!' || e.key === '?') {
                         e.preventDefault();
                         terminal.currentInput += e.key;
-                        terminal.lastCharWasSentenceEnd = true;
-                        terminal.shouldCapitalizeNext = true;
+                        if (!terminal.passwordMode) {
+                            terminal.lastCharWasSentenceEnd = true;
+                            terminal.shouldCapitalizeNext = true;
+                        }
                         this.render(terminal);
                         return;
                     }
@@ -1330,7 +1332,7 @@
                         
                         // Apply capitalization if needed
                         let charToAdd = e.key;
-                        if (terminal.shouldCapitalizeNext && e.key.match(/[a-z]/)) {
+                        if (!terminal.passwordMode && terminal.shouldCapitalizeNext && e.key.match(/[a-z]/)) {
                             charToAdd = e.key.toUpperCase();
                             terminal.shouldCapitalizeNext = false;
                         }
@@ -1344,6 +1346,12 @@
                 
                 // Update capitalization state based on input changes
                 updateCapitalizationState: function(terminal, char, isBackspace = false) {
+                    if (terminal.passwordMode) {
+                        terminal.shouldCapitalizeNext = false;
+                        terminal.lastCharWasSentenceEnd = false;
+                        return;
+                    }
+
                     if (isBackspace) {
                         // Check if we removed a sentence-ending punctuation
                         if (char === '.' || char === '!' || char === '?') {
