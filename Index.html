@@ -4337,7 +4337,6 @@
                                                     hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
-                                                    // Hash stored silently
                                                     
                                                     // Keep password prompt while processing
                                                     terminalData.prompt = 'Password: ';
@@ -4360,7 +4359,7 @@
                                         // Check final status and show appropriate message
                                         if (hashStored && hashId) {
                                             this.printLine('', terminalData);
-                                            this.printLine('Successfully created an account', terminalData);
+                                            this.printLine('Successfully created an account!', terminalData);
                                         } else if (hashExists) {
                                             // Hash already exists case - no additional message needed
                                         } else {
