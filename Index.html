@@ -5638,7 +5638,7 @@
                                                     const hashData = await window.HashDatabase.getHash(backupHashHex);
                                                     accountFound = !!hashData;
                                                 } catch (dbError) {
-                                                    this.printLine('ERROR: Failed to lookup account - ' + dbError.message, terminalData);
+                                                    this.printLine('ERROR: Failed to lookup account.', terminalData);
                                                     terminalData.prompt = TerminalManager.defaultPrompt;
                                                     this.render(terminalData);
                                                     return;
