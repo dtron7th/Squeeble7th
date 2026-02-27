@@ -1615,12 +1615,8 @@
                             return;
                         }
                         
-                        // If in forgot password process, don't treat input as commands
-                        if (terminal.awaitingForgotFirstName || terminal.awaitingForgotLastName || terminal.awaitingForgotDOB) {
-                            // Let the process handle the input through syncInputFromDom
-                            // Don't execute as a command
-                            return;
-                        }
+                        // If in forgot password process, let the process handle commands through its own logic
+                        // Don't block commands here as they're handled in the executeCommand overrides
                     }
                     
                     // Add prompt to transcript for normal commands
