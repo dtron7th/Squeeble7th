@@ -5631,16 +5631,40 @@
                                             const backupCombined = terminalData.changeFirstName + terminalData.changeLastName + terminalData.changeDOB.month + terminalData.changeDOB.day + terminalData.changeDOB.year;
                                             const backupHashHex = await toSha256Hex(backupCombined);
                                             
-                                            this.printLine('Backup hash found', terminalData);
-                                            this.printLine('"' + backupHashHex + '"', terminalData);
-                                            this.printLine('', terminalData);
+                                            // Look up the backup hash in the database
+                                            let accountFound = false;
+                                            if (window.HashDatabase) {
+                                                try {
+                                                    const hashData = await window.HashDatabase.getHash(backupHashHex);
+                                                    accountFound = !!hashData;
+                                                } catch (dbError) {
+                                                    this.printLine('ERROR: Failed to lookup account - ' + dbError.message, terminalData);
+                                                    terminalData.prompt = TerminalManager.defaultPrompt;
+                                                    this.render(terminalData);
+                                                    return;
+                                                }
+                                            } else {
+                                                this.printLine('ERROR: Database system not available', terminalData);
+                                                terminalData.prompt = TerminalManager.defaultPrompt;
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                            
+                                            if (accountFound) {
+                                                this.printLine('Backup hash found', terminalData);
+                                                this.printLine('"' + backupHashHex + '"', terminalData);
+                                                this.printLine('', terminalData);
+                                            } else {
+                                                this.printLine('ERROR: No account found with matching information', terminalData);
+                                                this.printLine('Please check your name and date of birth', terminalData);
+                                                this.printLine('', terminalData);
+                                            }
                                             
                                             // Return to default prompt
                                             terminalData.prompt = TerminalManager.defaultPrompt;
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            this.playBeep();
                                             this.render(terminalData);
                                             
                                         } catch (error) {
