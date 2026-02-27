@@ -3321,7 +3321,7 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+                                            const isDayPrompt = (terminalData.prompt || '').trim().startsWith('Day (DD):');
 
                                             if (isDayPrompt) {
                                                 // Reset to first-name entry when reset is executed on day prompt
@@ -4024,7 +4024,7 @@
                                         
                                         // Handle Reset command
                                         if (input.toLowerCase() === 'reset') {
-                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+                                            const isDayPrompt = (terminalData.prompt || '').trim().startsWith('Day (DD):');
 
                                             if (isDayPrompt) {
                                                 // Reset to first-name entry when reset is executed on day prompt
@@ -4542,7 +4542,7 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+                                            const isDayPrompt = (terminalData.prompt || '').trim().startsWith('Day (DD):');
 
                                             if (isDayPrompt) {
                                                 // Reset to first-name entry when reset is executed on day prompt
