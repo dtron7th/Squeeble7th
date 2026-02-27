@@ -3142,31 +3142,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotFirstName) {
                                         const firstName = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (firstName.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = firstName.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (firstName.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
@@ -3203,31 +3222,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotLastName) {
                                         const lastName = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (lastName.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = lastName.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (lastName.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
@@ -3265,31 +3303,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotDOB) {
                                         const input = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (input.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = input.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (input.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
@@ -4287,31 +4344,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotFirstName) {
                                         const firstName = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (firstName.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = firstName.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (firstName.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
@@ -4348,31 +4424,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotLastName) {
                                         const lastName = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (lastName.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = lastName.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (lastName.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
@@ -4410,31 +4505,50 @@
                                     if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotDOB) {
                                         const input = (raw || '').trim();
                                         
-                                        // Check if user wants to clear
-                                        if (input.toLowerCase() === 'clear') {
-                                            // Reset all forgot state variables
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                        // Check for terminal commands first
+                                        const commandName = input.toLowerCase();
+                                        if (commandName === 'reset') {
+                                            // Save current state before clearing
+                                            this.saveState(terminalData);
                                             
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing forgot password process...', terminalData);
+                                            // Clear the current data set completely
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            // Try to restore the previous data set (if available)
+                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                // Remove the current state we just saved
+                                                terminalData.stateHistory.pop();
+                                                
+                                                // Restore the previous state
+                                                if (this.restoreState(terminalData, -1)) {
+                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                } else {
+                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                }
+                                            } else {
+                                                // No previous state, just show cleared state
+                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                            }
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
                                         
-                                        // Check if user wants to exit
-                                        if (input.toLowerCase() === 'exit') {
+                                        if (commandName === 'clear') {
+                                            // Save current state
+                                            this.saveState(terminalData);
                                             
+                                            // Clear the current process and return to default prompt
+                                            this.clearCurrentDataSet(terminalData);
+                                            
+                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        if (commandName === 'exit') {
                                             // Save current state
                                             this.saveState(terminalData);
                                             
