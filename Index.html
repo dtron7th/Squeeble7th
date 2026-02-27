@@ -3303,22 +3303,20 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Reset to first name entry
-                                            terminalData.awaitingForgotFirstName = true;
+                                            // Reset DOB entry back to day input
+                                            terminalData.awaitingForgotFirstName = false;
                                             terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
+                                            terminalData.awaitingForgotDOB = true;
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                            terminalData.prompt = 'Day (DD): ';
 
                                             this.printLine('', terminalData);
-                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.printLine('DOB reset. Starting fresh:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -4500,22 +4498,20 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Reset to first name entry
-                                            terminalData.awaitingForgotFirstName = true;
+                                            // Reset DOB entry back to day input
+                                            terminalData.awaitingForgotFirstName = false;
                                             terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
+                                            terminalData.awaitingForgotDOB = true;
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
+                                            terminalData.prompt = 'Day (DD): ';
 
                                             this.printLine('', terminalData);
-                                            this.printLine('Reset to first name entry:', terminalData);
+                                            this.printLine('DOB reset. Starting fresh:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
