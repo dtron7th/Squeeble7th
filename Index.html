@@ -5633,9 +5633,10 @@
                                             
                                             // Look up the backup hash in the database
                                             let accountFound = false;
+                                            let hashData = null;
                                             if (window.HashDatabase) {
                                                 try {
-                                                    const hashData = await window.HashDatabase.getHash(backupHashHex);
+                                                    hashData = await window.HashDatabase.getHash(backupHashHex);
                                                     accountFound = !!hashData;
                                                 } catch (dbError) {
                                                     this.printLine('ERROR: Failed to lookup account.', terminalData);
@@ -5650,9 +5651,10 @@
                                                 return;
                                             }
                                             
-                                            if (accountFound) {
-                                                this.printLine('Backup hash found', terminalData);
+                                            if (accountFound && hashData) {
+                                                this.printLine('Account found:', terminalData);
                                                 this.printLine('"' + backupHashHex + '"', terminalData);
+                                                this.printLine('Password associated with account: ' + hashData.password, terminalData);
                                                 this.printLine('', terminalData);
                                             } else {
                                                 this.printLine('ERROR: No account found with matching information', terminalData);
