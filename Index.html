@@ -5257,6 +5257,23 @@
                                 TerminalManager.triggerPromptJump(changeTerminal);
                             }, 'Reset command for change process');
                             
+                            TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'exit', function(context) {
+                                const changeTerminal = context.terminalData;
+                                if (!changeTerminal) {
+                                    return;
+                                }
+                                
+                                // Save current state
+                                this.saveState(changeTerminal);
+                                
+                                // Clear the current process and return to default prompt
+                                this.clearCurrentDataSet(changeTerminal);
+                                
+                                context.print('Process exited. Returned to default prompt.', changeTerminal);
+                                this.playBeep();
+                                this.render(changeTerminal);
+                            }, 'Exit change password process');
+                            
                             TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
                                 // Clear terminal data before closing
                                 const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
