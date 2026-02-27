@@ -4337,7 +4337,7 @@
                                                     hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
-                                                    this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
+                                                    // Hash stored silently
                                                     
                                                     // Keep password prompt while processing
                                                     terminalData.prompt = 'Password: ';
@@ -4360,7 +4360,7 @@
                                         // Check final status and show appropriate message
                                         if (hashStored && hashId) {
                                             this.printLine('', terminalData);
-                                            this.printLine('Successfully created a hash account', terminalData);
+                                            this.printLine('Successfully created an account', terminalData);
                                         } else if (hashExists) {
                                             // Hash already exists case - no additional message needed
                                         } else {
@@ -5060,7 +5060,9 @@
                                 if (!forgotTerminal) {
                                     return;
                                 }
-
+                                
+                                context.print('Reset command available during information process input to reset data entry.');
+                                context.print('');
                                 TerminalManager.triggerPromptJump(forgotTerminal);
                             }, 'Reset command for forgot process');
                             
