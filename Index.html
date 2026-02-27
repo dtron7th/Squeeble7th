@@ -2089,7 +2089,13 @@
                         return;
                     }
                     
-                    terminal.currentInput = sanitizedInput;
+                    let nextInput = sanitizedInput;
+                    if (!terminal.passwordMode && terminal.shouldCapitalizeNext && nextInput.length > 0 && /^[a-z]/.test(nextInput.charAt(0))) {
+                        nextInput = nextInput.charAt(0).toUpperCase() + nextInput.slice(1);
+                        terminal.shouldCapitalizeNext = false;
+                    }
+
+                    terminal.currentInput = nextInput;
                 },
                 
                 // Setup welcome messages
@@ -2817,9 +2823,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -2841,9 +2844,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -2863,7 +2863,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -2879,7 +2879,6 @@
                                         terminalData.awaitingLastName = true;
                                         terminalData.prompt = 'Last Name: ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -2905,9 +2904,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -2929,9 +2927,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -2951,7 +2948,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -2967,7 +2964,6 @@
                                         terminalData.awaitingPassword = true;
                                         terminalData.prompt = 'Password: ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         terminalData.passwordMode = true;
@@ -2990,9 +2986,8 @@
                                             terminalData.awaitingPassword = false;
                                             terminalData.prompt = 'Last Name: ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.passwordMode = false;
                                             terminalData.password = null;
 
@@ -3015,9 +3010,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3037,7 +3031,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -3055,9 +3049,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3080,9 +3073,6 @@
                                         terminalData.prompt = 'Password: ';
                                         terminalData.previousPrompt = null;
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
                                         this.printLine('=== Processing Hash ===', terminalData);
                                         
@@ -3139,7 +3129,6 @@
                                         terminalData.previousPrompt = null;
                                         terminalData.passwordMode = false;
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         
@@ -3164,9 +3153,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3202,7 +3190,6 @@
                                         terminalData.awaitingForgotLastName = true;
                                         terminalData.prompt = 'Last Name: ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -3227,9 +3214,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3265,7 +3251,6 @@
                                         terminalData.awaitingForgotDOB = true;
                                         terminalData.prompt = 'Day (DD): ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -3291,9 +3276,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3339,9 +3323,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.prompt = 'Day (DD): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -3372,9 +3355,8 @@
                                             terminalData.forgotDOB.day = input;
                                             terminalData.prompt = 'Month (MM): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Month (numbers only):', terminalData);
                                             this.playBeep();
@@ -3396,9 +3378,8 @@
                                                 terminalData.forgotDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -3416,9 +3397,8 @@
                                             terminalData.forgotDOB.month = input;
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Year (numbers only):', terminalData);
                                             this.playBeep();
@@ -3433,9 +3413,8 @@
                                                 terminalData.forgotDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -3503,9 +3482,8 @@
                                             terminalData.prompt = this.defaultPrompt;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('Process completed.', terminalData);
                                             this.playBeep();
@@ -3752,9 +3730,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3779,9 +3754,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3802,7 +3774,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             this.triggerPromptJump(terminalData);
                                             return;
@@ -3819,7 +3791,6 @@
                                         terminalData.awaitingSignupLastName = true;
                                         terminalData.prompt = 'Last Name: ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -3848,9 +3819,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3874,9 +3842,6 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3896,7 +3861,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -3912,7 +3877,6 @@
                                         terminalData.awaitingSignupDOB = true;
                                         terminalData.prompt = 'Day (DD): ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -3941,9 +3905,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -3963,7 +3926,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -3990,9 +3953,8 @@
                                             terminalData.signupDOB = null;
                                             terminalData.prompt = 'Day (DD): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4023,9 +3985,8 @@
                                             terminalData.signupDOB.day = input;
                                             terminalData.prompt = 'Month (MM): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Month (numbers only):', terminalData);
                                             this.playBeep();
@@ -4048,9 +4009,8 @@
                                                 terminalData.signupDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4068,9 +4028,8 @@
                                             terminalData.signupDOB.month = input;
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Year (numbers only):', terminalData);
                                             this.playBeep();
@@ -4086,9 +4045,8 @@
                                                 terminalData.signupDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4110,9 +4068,8 @@
                                             terminalData.awaitingSignupPassword = true;
                                             terminalData.prompt = 'Password: ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.passwordMode = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
@@ -4141,9 +4098,8 @@
                                             terminalData.awaitingSignupPassword = false;
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.passwordMode = false;
                                             // Remove the stored year value but keep day and month
                                             if (terminalData.signupDOB) {
@@ -4171,9 +4127,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -4193,7 +4148,7 @@
                                             this.clearCurrentDataSet(terminalData);
                                             
                                             this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.playBeep();
+                                            this.playBeep();
                                             this.render(terminalData);
                                             return;
                                         }
@@ -4213,9 +4168,8 @@
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -4238,9 +4192,6 @@
                                         terminalData.prompt = 'Password: ';
                                         terminalData.previousPrompt = null;
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
                                         this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(password.length) + '/', terminalData);
 
@@ -4321,7 +4272,6 @@
                                         terminalData.previousPrompt = null;
                                         terminalData.passwordMode = false;
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         
@@ -4346,9 +4296,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -4384,7 +4333,6 @@
                                         terminalData.awaitingForgotLastName = true;
                                         terminalData.prompt = 'Last Name: ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -4409,9 +4357,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -4447,7 +4394,6 @@
                                         terminalData.awaitingForgotDOB = true;
                                         terminalData.prompt = 'Day (DD): ';
                                         terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
                                         terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
                                         this.printLine('', terminalData);
@@ -4473,9 +4419,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.prompt = 'First Name: ';
                                             
                                             this.printLine('', terminalData);
@@ -4521,9 +4466,8 @@
                                             terminalData.forgotDOB = null;
                                             terminalData.prompt = 'Day (DD): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4554,9 +4498,8 @@
                                             terminalData.forgotDOB.day = input;
                                             terminalData.prompt = 'Month (MM): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Month (numbers only):', terminalData);
                                             this.playBeep();
@@ -4578,9 +4521,8 @@
                                                 terminalData.forgotDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4598,9 +4540,8 @@
                                             terminalData.forgotDOB.month = input;
                                             terminalData.prompt = 'Year (YYYY): ';
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Year (numbers only):', terminalData);
                                             this.playBeep();
@@ -4615,9 +4556,8 @@
                                                 terminalData.forgotDOB = null;
                                                 terminalData.prompt = 'Day (DD): ';
                                                 terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                                terminalData.shouldCapitalizeNext = true;
+                                                terminalData.lastCharWasSentenceEnd = false;
                                                 
                                                 this.printLine('', terminalData);
                                                 this.printLine('DOB reset. Starting fresh:', terminalData);
@@ -4685,9 +4625,8 @@
                                             terminalData.prompt = this.defaultPrompt;
                                             terminalData.previousPrompt = null;
                                             terminalData.currentInput = '';
-                                        // Reset capitalization state for next input
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('Process completed.', terminalData);
                                             this.playBeep();
