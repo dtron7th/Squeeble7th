@@ -1567,6 +1567,24 @@
                         
                         // Allow Reset and Clear commands during input processes
                         if (commandName === 'reset') {
+                            // In signup password step, reset should return to DOB entry
+                            if (terminal.awaitingSignupPassword) {
+                                terminal.awaitingSignupFirstName = false;
+                                terminal.awaitingSignupLastName = false;
+                                terminal.awaitingSignupDOB = true;
+                                terminal.awaitingSignupPassword = false;
+                                terminal.signupDOB = null;
+                                terminal.signupPassword = null;
+                                terminal.prompt = 'Day (DD): ';
+                                terminal.passwordMode = false;
+                                terminal.currentInput = '';
+                                terminal.shouldCapitalizeNext = true;
+                                terminal.lastCharWasSentenceEnd = false;
+                                this.printLine('Reset to DOB entry.', terminal);
+                                this.render(terminal);
+                                return;
+                            }
+
                             // Check if we're in the first question of a data set
                             const isFirstQuestion = 
                                 terminal.awaitingFirstName || 
