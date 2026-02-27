@@ -5664,6 +5664,10 @@
 
                                                 terminalData.changeBackupHash = backupHashHex;
                                                 terminalData.changeOldPassword = hashData.plainPassword;
+                                                terminalData.awaitingChangeFirstName = false;
+                                                terminalData.awaitingChangeLastName = false;
+                                                terminalData.awaitingChangeDOB = false;
+                                                terminalData.awaitingChangePassword = false;
                                                 terminalData.awaitingChangeNewPassword = true;
                                                 terminalData.prompt = 'New Password: ';
                                                 terminalData.currentInput = '';
@@ -5696,7 +5700,7 @@
                                     }
 
                                     // ==================== NEW PASSWORD INPUT ====================
-                                    if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingChangeNewPassword) {
+                                    if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && (terminalData.awaitingChangeNewPassword || terminalData.prompt === 'New Password: ')) {
                                         const newPassword = raw || '';
                                         const newPasswordTrimmed = newPassword.trim();
 
