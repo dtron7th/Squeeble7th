@@ -3321,20 +3321,33 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Reset DOB entry back to day input
-                                            terminalData.awaitingForgotFirstName = false;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = true;
-                                            terminalData.forgotDOB = null;
+                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+
+                                            if (isDayPrompt) {
+                                                // Reset to first-name entry when reset is executed on day prompt
+                                                terminalData.awaitingForgotFirstName = true;
+                                                terminalData.awaitingForgotLastName = false;
+                                                terminalData.awaitingForgotDOB = false;
+                                                terminalData.forgotFirstName = null;
+                                                terminalData.forgotLastName = null;
+                                                terminalData.forgotDOB = null;
+                                                terminalData.prompt = 'First Name: ';
+                                            } else {
+                                                // Reset DOB entry back to day prompt for month/year
+                                                terminalData.awaitingForgotFirstName = false;
+                                                terminalData.awaitingForgotLastName = false;
+                                                terminalData.awaitingForgotDOB = true;
+                                                terminalData.forgotDOB = null;
+                                                terminalData.prompt = 'Day (DD): ';
+                                            }
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'Day (DD): ';
 
                                             this.printLine('', terminalData);
-                                            this.printLine('DOB reset. Starting fresh:', terminalData);
+                                            this.printLine(isDayPrompt ? 'Reset to first name entry:' : 'DOB reset. Starting fresh:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -4011,19 +4024,34 @@
                                         
                                         // Handle Reset command
                                         if (input.toLowerCase() === 'reset') {
-                                            // Reset DOB completely
-                                            terminalData.awaitingSignupFirstName = false;
-                                            terminalData.awaitingSignupLastName = false;
-                                            terminalData.awaitingSignupDOB = true;
-                                            terminalData.awaitingSignupPassword = false;
-                                            terminalData.signupDOB = null;
-                                            terminalData.prompt = 'Day (DD): ';
+                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+
+                                            if (isDayPrompt) {
+                                                // Reset to first-name entry when reset is executed on day prompt
+                                                terminalData.awaitingSignupFirstName = true;
+                                                terminalData.awaitingSignupLastName = false;
+                                                terminalData.awaitingSignupDOB = false;
+                                                terminalData.awaitingSignupPassword = false;
+                                                terminalData.signupFirstName = null;
+                                                terminalData.signupLastName = null;
+                                                terminalData.signupDOB = null;
+                                                terminalData.signupPassword = null;
+                                                terminalData.prompt = 'First Name: ';
+                                            } else {
+                                                // Reset DOB entry back to day prompt for month/year
+                                                terminalData.awaitingSignupFirstName = false;
+                                                terminalData.awaitingSignupLastName = false;
+                                                terminalData.awaitingSignupDOB = true;
+                                                terminalData.awaitingSignupPassword = false;
+                                                terminalData.signupDOB = null;
+                                                terminalData.prompt = 'Day (DD): ';
+                                            }
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('DOB reset. Starting fresh:', terminalData);
+                                            this.printLine(isDayPrompt ? 'Reset to first name entry:' : 'DOB reset. Starting fresh:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -4514,20 +4542,33 @@
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Reset DOB entry back to day input
-                                            terminalData.awaitingForgotFirstName = false;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = true;
-                                            terminalData.forgotDOB = null;
+                                            const isDayPrompt = terminalData.prompt === 'Day (DD): ';
+
+                                            if (isDayPrompt) {
+                                                // Reset to first-name entry when reset is executed on day prompt
+                                                terminalData.awaitingForgotFirstName = true;
+                                                terminalData.awaitingForgotLastName = false;
+                                                terminalData.awaitingForgotDOB = false;
+                                                terminalData.forgotFirstName = null;
+                                                terminalData.forgotLastName = null;
+                                                terminalData.forgotDOB = null;
+                                                terminalData.prompt = 'First Name: ';
+                                            } else {
+                                                // Reset DOB entry back to day prompt for month/year
+                                                terminalData.awaitingForgotFirstName = false;
+                                                terminalData.awaitingForgotLastName = false;
+                                                terminalData.awaitingForgotDOB = true;
+                                                terminalData.forgotDOB = null;
+                                                terminalData.prompt = 'Day (DD): ';
+                                            }
                                             terminalData.previousPrompt = null;
                                             terminalData.passwordMode = false;
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = true;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'Day (DD): ';
 
                                             this.printLine('', terminalData);
-                                            this.printLine('DOB reset. Starting fresh:', terminalData);
+                                            this.printLine(isDayPrompt ? 'Reset to first name entry:' : 'DOB reset. Starting fresh:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
