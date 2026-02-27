@@ -272,9 +272,9 @@ class HashDatabase {
         });
     }
 
-    // Update account credentials using backup hash
-    async updateAccountByBackupHash(backupHash, newPrimaryHash, newPlainPassword) {
-        console.log('🔍 Updating account by backup hash:', backupHash);
+    // Update account password and primary hash using backup hash
+    async updateAccountPasswordByBackupHash(backupHash, newPrimaryHash, newPlainPassword) {
+        console.log('🔍 Updating account password by backup hash:', backupHash);
 
         if (!this.db) {
             throw new Error('Database not initialized');
@@ -283,31 +283,42 @@ class HashDatabase {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([this.objectStoreName], 'readwrite');
             const objectStore = transaction.objectStore(this.objectStoreName);
-            const index = objectStore.index('backupHash');
+            const backupIndex = objectStore.index('backupHash');
 
-            const request = index.openCursor(backupHash);
+            const findRequest = backupIndex.get(backupHash);
 
-            request.onsuccess = (event) => {
-                const cursor = event.target.result;
-                if (!cursor) {
+            findRequest.onsuccess = () => {
+                const existing = findRequest.result;
+                if (!existing) {
                     resolve(null);
                     return;
                 }
 
-                const updatedRecord = {
-                    ...cursor.value,
+                const updated = {
+                    ...existing,
                     primaryHash: newPrimaryHash,
                     plainPassword: newPlainPassword,
-                    updatedAt: new Date().toISOString()
+                    source: 'password-change',
+                    createdAt: new Date().toISOString()
                 };
 
-                const updateRequest = cursor.update(updatedRecord);
-                updateRequest.onsuccess = () => resolve(updatedRecord);
-                updateRequest.onerror = (updateEvent) => reject(updateEvent.target.error);
+                const putRequest = objectStore.put(updated);
+                putRequest.onsuccess = () => {
+                    resolve({
+                        primaryHash: updated.primaryHash,
+                        backupHash: updated.backupHash,
+                        plainPassword: updated.plainPassword,
+                        source: updated.source,
+                        createdAt: updated.createdAt
+                    });
+                };
+
+                putRequest.onerror = (event) => {
+                    reject(event.target.error);
+                };
             };
 
-            request.onerror = (event) => {
-                console.error('🔍 Error updating account by backup hash:', event.target.error);
+            findRequest.onerror = (event) => {
                 reject(event.target.error);
             };
         });
