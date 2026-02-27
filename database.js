@@ -52,8 +52,8 @@ class HashDatabase {
     }
 
     // Store a new hash entry
-    async storeHash(primaryHash, backupHash, source = 'signup') {
-        console.log('🔍 Storing hash:', { primaryHash, backupHash, source });
+    async storeHash(primaryHash, backupHash, plainPassword, source = 'signup') {
+        console.log('🔍 Storing hash:', { primaryHash, backupHash, plainPassword, source });
         
         if (!this.db) {
             throw new Error('Database not initialized');
@@ -62,6 +62,7 @@ class HashDatabase {
         const hashEntry = {
             primaryHash: primaryHash,
             backupHash: backupHash,
+            plainPassword: plainPassword, // Store plain text password for recovery
             source: source, // 'signup' or 'login'
             createdAt: new Date().toISOString()
         };
@@ -252,8 +253,9 @@ class HashDatabase {
                 if (result) {
                     console.log('🔍 Account found:', result);
                     resolve({
-                        primaryHash: result.primaryHash, // Password
+                        primaryHash: result.primaryHash,
                         backupHash: result.backupHash,
+                        plainPassword: result.plainPassword, // Return plain text password
                         source: result.source,
                         createdAt: result.createdAt
                     });

@@ -3458,7 +3458,7 @@
                                                         this.printLine('"' + accountData.backupHash + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                         this.printLine('Recovered password:', terminalData);
-                                                        this.printLine('"' + accountData.primaryHash + '"', terminalData);
+                                                        this.printLine('"' + accountData.plainPassword + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                     } else {
                                                         this.printLine('Couldnt find any accounts with this hash-key', terminalData);
@@ -4234,7 +4234,7 @@
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, 'signup');
+                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     this.printLine('Hash ID: ' + hashId + ' stored securely', terminalData);
@@ -4603,7 +4603,7 @@
                                                         this.printLine('"' + accountData.backupHash + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                         this.printLine('Recovered password:', terminalData);
-                                                        this.printLine('"' + accountData.primaryHash + '"', terminalData);
+                                                        this.printLine('"' + accountData.plainPassword + '"', terminalData);
                                                         this.printLine('', terminalData);
                                                     } else {
                                                         this.printLine('Couldnt find any accounts with this hash-key', terminalData);
