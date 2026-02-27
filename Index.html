@@ -3141,27 +3141,34 @@
                                         // Check for terminal commands first
                                         const commandName = firstName.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
+                                            // Check if we're in the first question of a data set
+                                            const isFirstQuestion = terminalData.awaitingForgotFirstName;
                                             
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
+                                            if (isFirstQuestion) {
+                                                // Save current state before clearing
+                                                this.saveState(terminalData);
                                                 
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                // Clear the current data set completely
+                                                this.clearCurrentDataSet(terminalData);
+                                                
+                                                // Try to restore the previous data set (if available)
+                                                if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                    // Remove the current state we just saved
+                                                    terminalData.stateHistory.pop();
+                                                    
+                                                    // Restore the previous state
+                                                    if (this.restoreState(terminalData, -1)) {
+                                                        this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                        this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                    } else {
+                                                        this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                    }
                                                 } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                    // No previous state, just show cleared state
+                                                    this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
                                                 }
                                             } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                                this.printLine('Reset command executed. Use specific reset commands during input processes.', terminalData);
                                             }
                                             this.playBeep();
                                             this.render(terminalData);
@@ -3220,34 +3227,6 @@
                                         
                                         // Check for terminal commands first
                                         const commandName = lastName.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
-                                                
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
-                                                } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
-                                                }
-                                            } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
-                                            }
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
                                         if (commandName === 'clear') {
                                             // Save current state
                                             this.saveState(terminalData);
@@ -3301,34 +3280,6 @@
                                         
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
-                                                
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
-                                                } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
-                                                }
-                                            } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
-                                            }
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
                                         if (commandName === 'clear') {
                                             // Save current state
                                             this.saveState(terminalData);
@@ -4343,27 +4294,34 @@
                                         // Check for terminal commands first
                                         const commandName = firstName.toLowerCase();
                                         if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
+                                            // Check if we're in the first question of a data set
+                                            const isFirstQuestion = terminalData.awaitingForgotFirstName;
                                             
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
+                                            if (isFirstQuestion) {
+                                                // Save current state before clearing
+                                                this.saveState(terminalData);
                                                 
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                // Clear the current data set completely
+                                                this.clearCurrentDataSet(terminalData);
+                                                
+                                                // Try to restore the previous data set (if available)
+                                                if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
+                                                    // Remove the current state we just saved
+                                                    terminalData.stateHistory.pop();
+                                                    
+                                                    // Restore the previous state
+                                                    if (this.restoreState(terminalData, -1)) {
+                                                        this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
+                                                        this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
+                                                    } else {
+                                                        this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                    }
                                                 } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
+                                                    // No previous state, just show cleared state
+                                                    this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
                                                 }
                                             } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
+                                                this.printLine('Reset command executed. Use specific reset commands during input processes.', terminalData);
                                             }
                                             this.playBeep();
                                             this.render(terminalData);
@@ -4422,34 +4380,6 @@
                                         
                                         // Check for terminal commands first
                                         const commandName = lastName.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
-                                                
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
-                                                } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
-                                                }
-                                            } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
-                                            }
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
                                         if (commandName === 'clear') {
                                             // Save current state
                                             this.saveState(terminalData);
@@ -4503,34 +4433,6 @@
                                         
                                         // Check for terminal commands first
                                         const commandName = input.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Save current state before clearing
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current data set completely
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            // Try to restore the previous data set (if available)
-                                            if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                // Remove the current state we just saved
-                                                terminalData.stateHistory.pop();
-                                                
-                                                // Restore the previous state
-                                                if (this.restoreState(terminalData, -1)) {
-                                                    this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                    this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
-                                                } else {
-                                                    this.printLine('Current data set cleared. No previous data set available.', terminalData);
-                                                }
-                                            } else {
-                                                // No previous state, just show cleared state
-                                                this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
-                                            }
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
                                         if (commandName === 'clear') {
                                             // Save current state
                                             this.saveState(terminalData);
