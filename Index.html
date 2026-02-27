@@ -5199,9 +5199,13 @@
                                 }
 
                                 changeTerminal.awaitingChangeFirstName = true;
+                                changeTerminal.awaitingChangeNewPassword = false;
                                 changeTerminal.previousPrompt = changeTerminal.prompt;
                                 changeTerminal.prompt = 'First Name: ';
                                 changeTerminal.currentInput = '';
+                                changeTerminal.passwordMode = false;
+                                changeTerminal.changeFoundAccount = null;
+                                changeTerminal.changeBackupHash = null;
                                 context.print('');
                                 context.print('=== Change password. (Hash is case sensitive) ===');
                                 context.print('');
@@ -5293,6 +5297,90 @@
                             if (!TerminalManager._changeFirstNamePatched) {
                                 const previousExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
                                 TerminalManager.executeCommand = async function(raw, terminalData) {
+
+                                    // ==================== NEW PASSWORD INPUT ====================
+                                    if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingChangeNewPassword) {
+                                        const newPassword = (raw || '').trim();
+
+                                        if (!newPassword) {
+                                            this.render(terminalData);
+                                            return;
+                                        }
+
+                                        try {
+                                            const encoder = new TextEncoder();
+                                            const toSha256Hex = async (inputValue) => {
+                                                const data = encoder.encode(inputValue);
+                                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                            };
+
+                                            const oldPassword = (terminalData.changeFoundAccount && terminalData.changeFoundAccount.plainPassword) ? terminalData.changeFoundAccount.plainPassword : '';
+                                            const oldPasswordDisplay = terminalData.changeFirstName + '/' + terminalData.changeLastName + '/' + oldPassword;
+                                            const newPasswordDisplay = terminalData.changeFirstName + '/' + terminalData.changeLastName + '/' + newPassword;
+                                            const newPrimaryCombined = terminalData.changeFirstName + terminalData.changeLastName + newPassword;
+                                            const newPrimaryHashHex = await toSha256Hex(newPrimaryCombined);
+
+                                            if (!window.HashDatabase || !terminalData.changeBackupHash) {
+                                                this.printLine('ERROR: Failed to update account.', terminalData);
+                                                terminalData.awaitingChangeNewPassword = false;
+                                                terminalData.passwordMode = false;
+                                                terminalData.prompt = TerminalManager.defaultPrompt;
+                                                terminalData.currentInput = '';
+                                                this.render(terminalData);
+                                                return;
+                                            }
+
+                                            const updatedAccount = await window.HashDatabase.updateAccountByBackupHash(
+                                                terminalData.changeBackupHash,
+                                                newPrimaryHashHex,
+                                                newPassword
+                                            );
+
+                                            if (!updatedAccount) {
+                                                this.printLine('ERROR: Failed to update account.', terminalData);
+                                                terminalData.awaitingChangeNewPassword = false;
+                                                terminalData.passwordMode = false;
+                                                terminalData.prompt = TerminalManager.defaultPrompt;
+                                                terminalData.currentInput = '';
+                                                this.render(terminalData);
+                                                return;
+                                            }
+
+                                            terminalData.transcript += terminalData.prompt + '*'.repeat(newPassword.length) + '\n';
+                                            terminalData.awaitingChangeNewPassword = false;
+                                            terminalData.changeNewPassword = newPassword;
+                                            terminalData.passwordMode = false;
+
+                                            this.printLine('', terminalData);
+                                            this.printLine('Old password: ' + oldPasswordDisplay, terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('New password: ' + newPasswordDisplay, terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('New primary account hash:', terminalData);
+                                            this.printLine('Hash "' + newPrimaryHashHex + '"', terminalData);
+                                            this.printLine('Including ' + terminalData.changeFirstName + '/' + terminalData.changeLastName + '/"' + newPassword + '"', terminalData);
+                                            this.printLine('', terminalData);
+
+                                            terminalData.changeFoundAccount = null;
+                                            terminalData.changeBackupHash = null;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.currentInput = '';
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
+                                            this.render(terminalData);
+                                            return;
+                                        } catch (error) {
+                                            this.printLine('ERROR: Failed to update account.', terminalData);
+                                            terminalData.awaitingChangeNewPassword = false;
+                                            terminalData.passwordMode = false;
+                                            terminalData.prompt = TerminalManager.defaultPrompt;
+                                            terminalData.currentInput = '';
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                    }
                                     
                                     // ==================== FIRST NAME INPUT ====================
                                     if (terminalData && terminalData.id === 'Change_Password_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingChangeFirstName) {
@@ -5657,6 +5745,18 @@
                                                 this.printLine('', terminalData);
                                                 this.printLine('Password associated with account: ' + hashData.plainPassword, terminalData);
                                                 this.printLine('', terminalData);
+
+                                                terminalData.changeFoundAccount = hashData;
+                                                terminalData.changeBackupHash = backupHashHex;
+                                                terminalData.awaitingChangeNewPassword = true;
+                                                terminalData.prompt = 'New Password: ';
+                                                terminalData.currentInput = '';
+                                                terminalData.passwordMode = true;
+                                                terminalData.shouldCapitalizeNext = false;
+                                                terminalData.lastCharWasSentenceEnd = false;
+                                                this.printLine('Enter your new password:', terminalData);
+                                                this.render(terminalData);
+                                                return;
                                             } else {
                                                 this.printLine('ERROR: No account found with matching information', terminalData);
                                                 this.printLine('Please check your name and date of birth', terminalData);

@@ -272,6 +272,47 @@ class HashDatabase {
         });
     }
 
+    // Update account credentials using backup hash
+    async updateAccountByBackupHash(backupHash, newPrimaryHash, newPlainPassword) {
+        console.log('🔍 Updating account by backup hash:', backupHash);
+
+        if (!this.db) {
+            throw new Error('Database not initialized');
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.objectStoreName], 'readwrite');
+            const objectStore = transaction.objectStore(this.objectStoreName);
+            const index = objectStore.index('backupHash');
+
+            const request = index.openCursor(backupHash);
+
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (!cursor) {
+                    resolve(null);
+                    return;
+                }
+
+                const updatedRecord = {
+                    ...cursor.value,
+                    primaryHash: newPrimaryHash,
+                    plainPassword: newPlainPassword,
+                    updatedAt: new Date().toISOString()
+                };
+
+                const updateRequest = cursor.update(updatedRecord);
+                updateRequest.onsuccess = () => resolve(updatedRecord);
+                updateRequest.onerror = (updateEvent) => reject(updateEvent.target.error);
+            };
+
+            request.onerror = (event) => {
+                console.error('🔍 Error updating account by backup hash:', event.target.error);
+                reject(event.target.error);
+            };
+        });
+    }
+
     // Close database connection
     close() {
         if (this.db) {
