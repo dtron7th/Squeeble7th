@@ -5060,9 +5060,7 @@
                                 if (!forgotTerminal) {
                                     return;
                                 }
-                                
-                                context.print('Reset command available during information process input to reset data entry.');
-                                context.print('');
+
                                 TerminalManager.triggerPromptJump(forgotTerminal);
                             }, 'Reset command for forgot process');
                             
