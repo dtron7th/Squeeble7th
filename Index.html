@@ -3620,6 +3620,23 @@
                                 }
                             }, 'Open forgot password terminal');
                             
+                            TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'change', function(context) {
+                                context.print('Opening change password terminal...');
+                                // Open change password window
+                                const changeWindow = document.getElementById('Change_Password_Terminal');
+                                if (changeWindow) {
+                                    changeWindow.style.display = 'flex';
+                                    const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
+                                    if (changeTerminal) {
+                                        changeTerminal.shouldScrollToBottom = true;
+                                        // Reset welcomeStarted and transcript to trigger animations on open
+                                        changeTerminal.welcomeStarted = false;
+                                        changeTerminal.transcript = '';
+                                        TerminalManager.render(changeTerminal);
+                                    }
+                                }
+                            }, 'Open change password terminal');
+                            
                             TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'license', function(context) {
                                 context.print('');
                                 context.print('MIT License');
@@ -5098,6 +5115,131 @@
                             forgotTerminal.passwordMode = false;
                         }
                         document.getElementById('Forgot_Terminal').style.display = 'none';
+                    });
+                </script>
+            </div>
+
+            <div class="Terminal" id="Change_Password_Terminal">
+                <div class="Header" id="Change_Password_Terminal_Header">
+                    <p class="Title">Change Password</p>
+                    <div class="Terminal_Manipulation">
+                        <button class="Terminal_Minimize" id="Change_Password_Terminal_Minimize"></button>
+                        <button class="Terminal_Maximize" id="Change_Password_Terminal_Maximize"></button>
+                        <button class="Terminal_Close" id="Change_Password_Terminal_Close"></button>
+                    </div>
+                </div>
+                <div class="Content" id="Change_Password_Terminal_Content_Terminal">
+                    <p id="Change_Password_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+
+                    <style aria-label="Change_Password_Terminal_Content_Terminal - Style">
+                        #Change_Password_Terminal_Content_Terminal {
+                            background-color: var(--Terminal_Background_Color);
+                        }
+
+                        #Change_Password_Terminal_Content_Terminal_Main_Text {
+                            position: absolute;
+                            top: 10px;
+                            left: 10px;
+                            width: calc(100% - 20px);
+                            height: calc(100% - 20px);
+                            color: var(--Terminal_Text_Color);
+                            overflow: auto;
+                            overflow-anchor: none;
+                            white-space: pre-wrap;
+                            line-height: 1.45;
+                            outline: none;
+                            -webkit-user-modify: read-write-plaintext-only;
+                            -webkit-tap-highlight-color: transparent;
+                            -webkit-touch-callout: none;
+                            -webkit-user-select: text;
+                            user-select: text;
+                        }
+
+                        @media (max-width: 768px) {
+                            #Change_Password_Terminal_Content_Terminal_Main_Text {
+                                font-size: 11px;
+                                line-height: 1.4;
+                            }
+                        }
+                    </style>
+
+                    <script aria-label="Change_Password_Terminal_Content_Terminal - Script">
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Register the change password terminal with TerminalManager
+                            const terminal = TerminalManager.registerTerminal('Change_Password_Terminal_Content_Terminal_Main_Text', {
+                                windowId: 'Change_Password_Terminal',
+                                prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
+                                welcomeMessages: [
+                                    'Vista-D-NET Change Password.',
+                                    'Type "Change" to change your password.',
+                                    'Type "Clear" to clear the terminal.',
+                                    'Type "Close" to close the terminal.'
+                                ]
+                            });
+                            
+                            // Add custom commands
+                            TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'change', function(context) {
+                                const changeTerminal = context.terminalData;
+                                if (!changeTerminal) {
+                                    return;
+                                }
+
+                                changeTerminal.awaitingChangeFirstName = true;
+                                changeTerminal.previousPrompt = changeTerminal.prompt;
+                                changeTerminal.prompt = 'First Name: ';
+                                changeTerminal.currentInput = '';
+                                context.print('');
+                                context.print('=== Change password. (Hash is case sensitive) ===');
+                                context.print('');
+                                context.print('Enter your first name:');
+                                TerminalManager.triggerPromptJump(changeTerminal);
+                            }, 'Start change password process');
+
+                            TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
+                                const changeTerminal = context.terminalData;
+                                if (!changeTerminal) {
+                                    return;
+                                }
+                                
+                                // Clear terminal data
+                                TerminalManager.clearTerminalData(changeTerminal);
+                                
+                                context.print('Terminal cleared.');
+                                TerminalManager.triggerPromptJump(changeTerminal);
+                            }, 'Clear change password terminal and start over');
+                            
+                            TerminalManager.addCommand('Change_Password_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
+                                // Clear terminal data before closing
+                                const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
+                                if (changeTerminal) {
+                                    TerminalManager.clearTerminalData(changeTerminal);
+                                    // Reset change-specific state variables to ensure default prompt on reopen
+                                    changeTerminal.previousPrompt = null;
+                                    changeTerminal.prompt = TerminalManager.defaultPrompt;
+                                    changeTerminal.passwordMode = false;
+                                }
+                                document.getElementById('Change_Password_Terminal').style.display = 'none';
+                            }, 'Close change password terminal');
+                        });
+                    </script>
+                </div>
+
+                <style aria-label="Change_Password_Terminal - Style">
+                   
+                </style>
+
+                <script aria-label="Change_Password_Terminal - Script">
+                    document.getElementById('Change_Password_Terminal_Close').addEventListener('click', function() {
+                        // Clear terminal data before closing
+                        const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
+                        if (changeTerminal) {
+                            TerminalManager.clearTerminalData(changeTerminal);
+                            // Reset change-specific state variables to ensure default prompt on reopen
+                            changeTerminal.previousPrompt = null;
+                            changeTerminal.prompt = TerminalManager.defaultPrompt;
+                            changeTerminal.passwordMode = false;
+                        }
+                        document.getElementById('Change_Password_Terminal').style.display = 'none';
                     });
                 </script>
             </div>
