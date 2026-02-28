@@ -60,15 +60,13 @@
         }
         .terminal-cursor {
             transition: none !important;
+            animation: terminal-blink 0.5s step-end infinite;
         }
         .terminal-cursor.prompt-jump {
             animation: terminal-prompt-jump 0.18s ease-out, terminal-blink 0.5s step-end infinite;
         }
         
         /* Allow all animations to work normally */
-        .terminal-cursor {
-            animation: terminal-blink 0.5s step-end infinite;
-        }
     </style>
 
 
@@ -1176,7 +1174,7 @@
                     const terminalTextNode = document.createTextNode('');
                     const terminalCursorNode = document.createElement('span');
                     terminalCursorNode.className = 'terminal-cursor';
-                    terminalCursorNode.style.animation = 'terminal-blink 0.5s step-end infinite';
+                    // Don't set inline animation - let CSS handle it
                     
                     terminal.element.innerHTML = '';
                     terminal.element.appendChild(terminalTextNode);
@@ -2182,9 +2180,22 @@
                     if (!terminal || !terminal.cursorNode) {
                         return;
                     }
+                    
+                    // Remove the prompt jump class if it exists
                     terminal.cursorNode.classList.remove('prompt-jump');
+                    
+                    // Force a reflow to ensure the class removal takes effect
                     void terminal.cursorNode.offsetWidth;
+                    
+                    // Add the prompt jump class to trigger the animation
                     terminal.cursorNode.classList.add('prompt-jump');
+                    
+                    // Remove the class after animation completes to allow re-triggering
+                    setTimeout(() => {
+                        if (terminal.cursorNode) {
+                            terminal.cursorNode.classList.remove('prompt-jump');
+                        }
+                    }, 200);
                 },
                 
                 // Render terminal
