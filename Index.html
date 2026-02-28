@@ -4198,16 +4198,16 @@
                                             terminalData.signupDOB.year = input;
                                             terminalData.awaitingSignupDOB = false;
                                             terminalData.previousPrompt = null;
-                                            terminalData.awaitingSignupPassword = true;
-                                            terminalData.prompt = 'Password: ';
+                                            terminalData.awaitingSignupPIN = true;
+                                            terminalData.prompt = 'PIN: ';
                                             terminalData.currentInput = '';
                                             terminalData.shouldCapitalizeNext = false;
                                             terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.passwordMode = true;
+                                            terminalData.passwordMode = false;
                                             this.printLine('', terminalData);
                                             this.printLine('Date of birth: ' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             this.printLine('', terminalData);
-                                            this.printLine('Enter your password:', terminalData);
+                                            this.printLine('Enter your 4-digit PIN:', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             
@@ -4218,29 +4218,87 @@
                                         return;
                                     }
 
+                                    // ==================== PIN INPUT ====================
+                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPIN) {
+                                        const pin = (raw || '').trim();
+                                        
+                                        // Check if user wants to undo
+                                        if (pin.toLowerCase() === 'undo') {
+                                            // Step back to year input
+                                            terminalData.awaitingSignupFirstName = false;
+                                            terminalData.awaitingSignupLastName = false;
+                                            terminalData.awaitingSignupDOB = true;
+                                            terminalData.awaitingSignupPIN = false;
+                                            terminalData.signupDOB = { day: terminalData.signupDOB.day, month: terminalData.signupDOB.month };
+                                            terminalData.signupPIN = null;
+                                            terminalData.prompt = 'Year (YYYY): ';
+                                            terminalData.currentInput = '';
+                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.lastCharWasSentenceEnd = false;
+                                            terminalData.passwordMode = false;
+                                            
+                                            this.printLine('', terminalData);
+                                            this.printLine('Undo: Returning to year entry', terminalData);
+                                            this.playBeep();
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Check if user wants to clear
+                                        if (pin.toLowerCase() === 'clear') {
+                                            terminalData.currentInput = '';
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        // Validate PIN - must be exactly 4 digits and numeric only
+                                        if (!/^\d{4}$/.test(pin)) {
+                                            this.printLine('Error: PIN must be exactly 4 digits (numbers only).', terminalData);
+                                            this.render(terminalData);
+                                            return;
+                                        }
+                                        
+                                        terminalData.transcript += terminalData.prompt + pin + '\n';
+                                        terminalData.signupPIN = pin;
+                                        terminalData.awaitingSignupPIN = false;
+                                        terminalData.previousPrompt = null;
+                                        terminalData.awaitingSignupPassword = true;
+                                        terminalData.prompt = 'Password: ';
+                                        terminalData.currentInput = '';
+                                        terminalData.shouldCapitalizeNext = false;
+                                        terminalData.lastCharWasSentenceEnd = false;
+                                        terminalData.passwordMode = true;
+                                        this.printLine('', terminalData);
+                                        this.printLine('PIN: ****', terminalData);
+                                        this.printLine('', terminalData);
+                                        this.printLine('Enter your password:', terminalData);
+                                        this.playBeep();
+                                        this.render(terminalData);
+                                        
+                                        return;
+                                    }
+
                                     // ==================== PASSWORD INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
                                         const password = (raw || '').trim();
                                         
                                         // Check if user wants to undo
                                         if (password.toLowerCase() === 'undo') {
-                                            // Step back to year input
+                                            // Step back to PIN input
                                             terminalData.awaitingSignupFirstName = false;
                                             terminalData.awaitingSignupLastName = false;
-                                            terminalData.awaitingSignupDOB = true;
+                                            terminalData.awaitingSignupDOB = false;
+                                            terminalData.awaitingSignupPIN = true;
                                             terminalData.awaitingSignupPassword = false;
-                                            terminalData.prompt = 'Year (YYYY): ';
+                                            terminalData.prompt = 'PIN: ';
                                             terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
+                                            terminalData.shouldCapitalizeNext = false;
                                             terminalData.lastCharWasSentenceEnd = false;
                                             terminalData.passwordMode = false;
-                                            // Remove the stored year value but keep day and month
-                                            if (terminalData.signupDOB) {
-                                                terminalData.signupDOB.year = null;
-                                            }
+                                            terminalData.signupPIN = null;
                                             
                                             this.printLine('', terminalData);
-                                            this.printLine('Stepped back to year entry:', terminalData);
+                                            this.printLine('Undo: Returning to PIN entry', terminalData);
                                             this.playBeep();
                                             this.render(terminalData);
                                             return;
@@ -4343,19 +4401,19 @@
                                                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             };
 
-                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupPassword;
+                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupPassword + terminalData.signupPIN;
                                             const primaryHashHex = await toSha256Hex(primaryCombined);
-                                            const backupCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year;
+                                            const backupCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPIN;
                                             const backupHashHex = await toSha256Hex(backupCombined);
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
-                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + ',', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + '/' + '****,', terminalData);
                                             this.printLine('', terminalData);
                                             this.printLine('Backup Account Hash', terminalData);
                                             this.printLine('Hash "' + backupHashHex + '"', terminalData);
-                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '****', terminalData);
                                             
                                             // Keep password prompt while processing
                                             terminalData.prompt = 'Password: ';
@@ -4363,7 +4421,7 @@
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, 'signup');
+                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, terminalData.signupPIN, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     
@@ -4862,10 +4920,12 @@
                             terminal.awaitingSignupFirstName = false;
                             terminal.awaitingSignupLastName = false;
                             terminal.awaitingSignupDOB = false;
+                            terminal.awaitingSignupPIN = false;
                             terminal.awaitingSignupPassword = false;
                             terminal.signupFirstName = null;
                             terminal.signupLastName = null;
                             terminal.signupDOB = null;
+                            terminal.signupPIN = null;
                             terminal.signupPassword = null;
                             terminal.previousPrompt = null;
                             terminal.prompt = TerminalManager.defaultPrompt;

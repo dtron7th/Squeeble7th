@@ -52,8 +52,8 @@ class HashDatabase {
     }
 
     // Store a new hash entry
-    async storeHash(primaryHash, backupHash, plainPassword, source = 'signup') {
-        console.log('🔍 Storing hash:', { primaryHash, backupHash, plainPassword, source });
+    async storeHash(primaryHash, backupHash, plainPassword, pin, source = 'signup') {
+        console.log('🔍 Storing hash:', { primaryHash, backupHash, plainPassword, pin, source });
         
         if (!this.db) {
             throw new Error('Database not initialized');
@@ -63,6 +63,7 @@ class HashDatabase {
             primaryHash: primaryHash,
             backupHash: backupHash,
             plainPassword: plainPassword, // Store plain text password for recovery
+            pin: pin, // Store 4-digit PIN
             source: source, // 'signup' or 'login'
             createdAt: new Date().toISOString()
         };
@@ -256,11 +257,12 @@ class HashDatabase {
                         primaryHash: result.primaryHash,
                         backupHash: result.backupHash,
                         plainPassword: result.plainPassword, // Return plain text password
+                        pin: result.pin, // Return PIN
                         source: result.source,
                         createdAt: result.createdAt
                     });
                 } else {
-                    console.log('🔍 No account found with backup hash');
+                    console.log('🔍 No account found with backup hash:', backupHash);
                     resolve(null);
                 }
             };
