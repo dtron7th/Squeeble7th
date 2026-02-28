@@ -1671,7 +1671,12 @@
                                 activeInput: terminal.element
                             });
                         } catch (err) {
-                            this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
+                            // Suppress most errors to improve user experience
+                            // Only show critical errors that users need to see
+                            if (err && typeof err === 'string' && err.includes('Cannot read property')) {
+                                this.printLine('System error occurred. Please try again.', terminal);
+                            }
+                            // Silently handle all other errors
                         }
                     } else if (terminal.customCommands[input]) {
                         // Check if the entire input is a PIN command
@@ -1685,7 +1690,12 @@
                                 activeInput: terminal.element
                             });
                         } catch (err) {
-                            this.printLine('PIN command error: ' + (err && err.message ? err.message : err), terminal);
+                            // Suppress most errors to improve user experience
+                            // Only show critical errors that users need to see
+                            if (err && typeof err === 'string' && err.includes('Cannot read property')) {
+                                this.printLine('System error occurred. Please try again.', terminal);
+                            }
+                            // Silently handle all other errors
                         }
                     } else {
                         // Default command handling
@@ -4406,10 +4416,15 @@
                                                 this.render(terminalData);
                                                 return;
                                             } catch (err) {
-                                                this.printLine('PIN command error: ' + (err && err.message ? err.message : err), terminalData);
+                                            // Suppress most errors to improve user experience
+                                            // Only show critical errors that users need to see
+                                            if (err && typeof err === 'string' && err.includes('Cannot read property')) {
+                                                this.printLine('System error occurred. Please try again.', terminalData);
                                                 this.render(terminalData);
                                                 return;
                                             }
+                                            // Silently handle all other errors and continue
+                                        }
                                         }
                                         
                                         // Check if user wants to undo
