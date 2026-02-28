@@ -4269,7 +4269,7 @@
                                         terminalData.lastCharWasSentenceEnd = false;
                                         terminalData.passwordMode = true;
                                         this.printLine('', terminalData);
-                                        this.printLine('PIN: ****', terminalData);
+                                        this.printLine('PIN: ' + pin, terminalData);
                                         this.printLine('', terminalData);
                                         this.printLine('Enter your password:', terminalData);
                                         this.playBeep();
@@ -4409,11 +4409,11 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
-                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + '/' + '****,', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + '*'.repeat(terminalData.signupPassword.length) + '/' + terminalData.signupPIN + ',', terminalData);
                                             this.printLine('', terminalData);
                                             this.printLine('Backup Account Hash', terminalData);
                                             this.printLine('Hash "' + backupHashHex + '"', terminalData);
-                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '****', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + terminalData.signupPIN, terminalData);
                                             
                                             // Keep password prompt while processing
                                             terminalData.prompt = 'Password: ';
