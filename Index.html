@@ -284,6 +284,8 @@
 
         .Panel {
             position: absolute;
+            top: 10px;
+            left: 10px;
             background-color: var(--Main_UI_Color);
             backdrop-filter: blur(var(--Main_UI_Blur));
             
@@ -319,6 +321,8 @@
         .Window {
             position: absolute;
             overflow: hidden;
+            top: 10px;
+            left: 10px;
             background-color: var(--Main_UI_Color);
             backdrop-filter: blur(var(--Main_UI_Blur));
             border: var(--Main_UI_Border);
@@ -922,7 +926,7 @@
             
             // Function to set default position for elements
             function setDefaultPosition(element) {
-                if (element.classList.contains('Window') || element.classList.contains('Panel')) {
+                if (element.classList.contains('Window') || element.classList.contains('Panel') || element.classList.contains('Terminal')) {
                     const currentTop = element.style.top;
                     const currentLeft = element.style.left;
                     
@@ -2699,7 +2703,7 @@
             <!--Book_Mark: Wallpaper_Slide_Show-->
             <div class="Wallpaper_Slide_Show">
                 <div class="Wallpapers_List">
-                    <img src="/Images/Wallpaper/abstract-art-dark-1080x2160-17261.jpg" alt="">
+                    <img src="/Images/Wallpaper/os-x-mavericks-tide-1080x2160-24077.jpg" alt="">
                 </div>
 
                 <style aria-label="Wallpaper_Slide_Show - Style">
@@ -2753,7 +2757,9 @@
                             requestFullscreen(document.body);
                         }
                         // Show the start menu panel
-                        document.getElementById('Start_Menu_Panel').style.display = 'flex';
+                        const startMenuPanel = document.getElementById('Start_Menu_Panel');
+                        startMenuPanel.style.display = 'flex';
+                        setDefaultPosition(startMenuPanel);
                         // Hide the start button
                         document.getElementById('Start_Button').style.display = 'none';
                     });
