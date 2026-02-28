@@ -42,7 +42,7 @@ class HashDatabase {
                     // Create indexes for efficient querying
                     objectStore.createIndex('primaryHash', 'primaryHash', { unique: true });
                     objectStore.createIndex('backupHash', 'backupHash', { unique: true });
-                    objectStore.createIndex('pinRecoveryHash', 'pinRecoveryHash', { unique: true });
+                    objectStore.createIndex('pinRecoveryHash', 'pinRecoveryHash', { unique: false });
                     objectStore.createIndex('createdAt', 'createdAt', { unique: false });
                     objectStore.createIndex('source', 'source', { unique: false });
                     
@@ -230,6 +230,46 @@ class HashDatabase {
             
             deleteRequest.onblocked = () => {
                 console.log('🔍 Database deletion blocked - waiting...');
+            };
+        });
+    }
+
+    // Find all accounts by PIN recovery hash (for multiple accounts with same personal info)
+    async findAllAccountsByPinRecoveryHash(pinRecoveryHash) {
+        console.log('🔍 Finding all accounts by PIN recovery hash:', pinRecoveryHash);
+        
+        if (!this.db) {
+            throw new Error('Database not initialized');
+        }
+
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.objectStoreName], 'readonly');
+            const objectStore = transaction.objectStore(this.objectStoreName);
+            const index = objectStore.index('pinRecoveryHash');
+            
+            const request = index.getAll(pinRecoveryHash);
+            
+            request.onsuccess = () => {
+                const results = request.result;
+                if (results && results.length > 0) {
+                    console.log('🔍 Found', results.length, 'accounts with PIN recovery hash');
+                    const accounts = results.map(result => ({
+                        primaryHash: result.primaryHash,
+                        backupHash: result.backupHash,
+                        pinRecoveryHash: result.pinRecoveryHash,
+                        source: result.source,
+                        createdAt: result.createdAt
+                    }));
+                    resolve(accounts);
+                } else {
+                    console.log('🔍 No accounts found with PIN recovery hash:', pinRecoveryHash);
+                    resolve([]);
+                }
+            };
+            
+            request.onerror = (event) => {
+                console.error('🔍 Error finding accounts by PIN recovery hash:', event.target.error);
+                reject(event.target.error);
             };
         });
     }

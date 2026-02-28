@@ -2053,14 +2053,6 @@
                                 progressBar.querySelector('div').style.width = '30%';
                             }
                             
-                            // Get all accounts from database
-                            const allAccounts = await window.HashDatabase.getAllHashes();
-                            
-                            // Update progress to 70%
-                            if (progressBar) {
-                                progressBar.querySelector('div').style.width = '70%';
-                            }
-                            
                             // Generate PIN recovery hash from user input for comparison
                             const encoder = new TextEncoder();
                             const toSha256Hex = async (inputValue) => {
@@ -2073,10 +2065,13 @@
                             const pinRecoveryInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
                             const searchPinRecoveryHash = await toSha256Hex(pinRecoveryInfo);
                             
-                            // Filter accounts by comparing PIN recovery hashes directly
-                            const matchingAccounts = allAccounts.filter(account => {
-                                return account.pinRecoveryHash && account.pinRecoveryHash === searchPinRecoveryHash;
-                            });
+                            // Update progress to 70%
+                            if (progressBar) {
+                                progressBar.querySelector('div').style.width = '70%';
+                            }
+                            
+                            // Get all accounts from database
+                            const allAccounts = await window.HashDatabase.findAllAccountsByPinRecoveryHash(searchPinRecoveryHash);
                             
                             // Update progress to 100%
                             if (progressBar) {
@@ -2093,11 +2088,11 @@
                             
                             // Display results
                             self.printLine('', terminalData);
-                            if (matchingAccounts.length > 0) {
-                                self.printLine('Found ' + matchingAccounts.length + ' matching account(s):', terminalData);
+                            if (allAccounts.length > 0) {
+                                self.printLine('Found ' + allAccounts.length + ' matching account(s):', terminalData);
                                 self.printLine('', terminalData);
                                 
-                                matchingAccounts.forEach(account => {
+                                allAccounts.forEach(account => {
                                     // Extract PIN from backup hash (last 4 characters)
                                     const extractedPIN = account.backupHash ? account.backupHash.slice(-4) : 'N/A';
                                     
