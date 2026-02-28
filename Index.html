@@ -2098,14 +2098,17 @@
                                 self.printLine('', terminalData);
                                 
                                 matchingAccounts.forEach(account => {
-                                    // Mask everything since PIN is no longer stored
+                                    // Extract PIN from backup hash (last 4 characters)
+                                    const extractedPIN = account.backupHash ? account.backupHash.slice(-4) : 'N/A';
+                                    
+                                    // Mask everything except PIN
                                     const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
                                     const maskedLastName = '*'.repeat(terminalData.forgotLastName.length);
                                     const maskedDOB = '*'.repeat(terminalData.forgotDOB.month.length) + '/' + 
                                                     '*'.repeat(terminalData.forgotDOB.day.length) + '/' + 
                                                     '*'.repeat(terminalData.forgotDOB.year.length);
                                     
-                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - PIN not stored';
+                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + extractedPIN;
                                     self.printLine(displayName, terminalData);
                                 });
                             } else {
