@@ -2086,13 +2086,13 @@
                                 }
                             }, 500);
                             
-                            // Display results
+                            // Display results with step-by-step loading
                             self.printLine('', terminalData);
                             if (allAccounts.length > 0) {
                                 self.printLine('Found ' + allAccounts.length + ' account(s):', terminalData);
                                 self.printLine('', terminalData);
                                 
-                                // For each account, find the PIN by testing all possibilities
+                                // Process each account one by one
                                 for (const account of allAccounts) {
                                     const encoder = new TextEncoder();
                                     const toSha256Hex = async (inputValue) => {
@@ -2102,53 +2102,44 @@
                                         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                     };
                                     
-                                    // Create progress bar for PIN generation
-                                    const pinProgressBarId = 'pin-progress-' + Date.now();
-                                    const pinProgressBar = document.createElement('div');
-                                    pinProgressBar.id = pinProgressBarId;
-                                    pinProgressBar.style.cssText = 'width: 100%; height: 10px; background-color: #333; border-radius: 5px; margin: 10px 0; overflow: hidden;';
-                                    const pinProgressFill = document.createElement('div');
-                                    pinProgressFill.style.cssText = 'height: 100%; background-color: #4CAF50; width: 0%; transition: width 0.1s ease;';
-                                    pinProgressBar.appendChild(pinProgressFill);
-                                    
-                                    // Insert progress bar after terminal content
-                                    const terminalElement = document.getElementById(terminalData.terminalId + '_Main_Text');
-                                    if (terminalElement) {
-                                        terminalElement.appendChild(pinProgressBar);
-                                        // Scroll to bottom to show progress bar
-                                        terminalElement.scrollTop = terminalElement.scrollHeight;
-                                    }
-                                    
                                     // Test all possible PINs (0000-9999)
                                     const personalInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
                                     let foundPIN = 'N/A';
                                     const totalPins = 10000;
+                                    
+                                    // Show initial progress bar
+                                    self.printLine('[Progress Bar] [          ] 0%', terminalData);
                                     
                                     for (let pin = 0; pin <= 9999; pin++) {
                                         const pinStr = pin.toString().padStart(4, '0');
                                         const testCombined = personalInfo + pinStr;
                                         const testHash = await toSha256Hex(testCombined);
                                         
-                                        // Update progress bar every 100 pins to avoid too frequent updates
+                                        // Update progress bar every 100 pins
                                         if (pin % 100 === 0) {
-                                            const progress = (pin / totalPins) * 100;
-                                            pinProgressFill.style.width = progress + '%';
+                                            const progress = Math.round((pin / totalPins) * 100);
+                                            const barLength = Math.round((progress / 100) * 10);
+                                            const bar = '[' + '='.repeat(barLength) + ' '.repeat(10 - barLength) + ']';
+                                            
+                                            // Clear current line and update progress
+                                            const terminalElement = document.getElementById(terminalData.terminalId + '_Main_Text');
+                                            if (terminalElement) {
+                                                const lines = terminalElement.innerText.split('\n');
+                                                lines.pop(); // Remove last line (progress bar)
+                                                terminalElement.innerText = lines.join('\n');
+                                            }
+                                            
+                                            self.printLine('[Progress Bar] ' + bar + ' ' + progress + '%', terminalData);
                                         }
                                         
                                         if (testHash === account.backupHash) {
                                             foundPIN = pinStr;
-                                            pinProgressFill.style.width = '100%';
                                             break;
                                         }
                                     }
                                     
-                                    // Remove progress bar after a short delay
-                                    setTimeout(() => {
-                                        const progressElement = document.getElementById(pinProgressBarId);
-                                        if (progressElement) {
-                                            progressElement.remove();
-                                        }
-                                    }, 500);
+                                    // Show 100% completion
+                                    self.printLine('[Progress Bar] [==========] 100%', terminalData);
                                     
                                     // Mask everything except PIN
                                     const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
@@ -2159,6 +2150,11 @@
                                     
                                     const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + foundPIN;
                                     self.printLine(displayName, terminalData);
+                                    
+                                    // Small delay between accounts for better UX
+                                    if (account !== allAccounts[allAccounts.length - 1]) {
+                                        await new Promise(resolve => setTimeout(resolve, 500));
+                                    }
                                 }
                             } else {
                                 self.printLine('No accounts found with matching information.', terminalData);
