@@ -2092,9 +2092,61 @@
                                 self.printLine('Found ' + allAccounts.length + ' account(s):', terminalData);
                                 self.printLine('', terminalData);
                                 
-                                allAccounts.forEach(account => {
-                                    // Extract PIN from backup hash (last 4 characters)
-                                    const extractedPIN = account.backupHash ? account.backupHash.slice(-4) : 'N/A';
+                                // For each account, find the PIN by testing all possibilities
+                                for (const account of allAccounts) {
+                                    const encoder = new TextEncoder();
+                                    const toSha256Hex = async (inputValue) => {
+                                        const data = encoder.encode(inputValue);
+                                        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                    };
+                                    
+                                    // Create progress bar for PIN generation
+                                    const pinProgressBarId = 'pin-progress-' + Date.now();
+                                    const pinProgressBar = document.createElement('div');
+                                    pinProgressBar.id = pinProgressBarId;
+                                    pinProgressBar.style.cssText = 'width: 100%; height: 10px; background-color: #333; border-radius: 5px; margin: 10px 0; overflow: hidden;';
+                                    const pinProgressFill = document.createElement('div');
+                                    pinProgressFill.style.cssText = 'height: 100%; background-color: #4CAF50; width: 0%; transition: width 0.1s ease;';
+                                    pinProgressBar.appendChild(pinProgressFill);
+                                    
+                                    // Insert progress bar after the "Found X account(s)" message
+                                    const terminalElement = document.getElementById(terminalData.terminalId + '_Main_Text');
+                                    if (terminalElement) {
+                                        terminalElement.appendChild(pinProgressBar);
+                                    }
+                                    
+                                    // Test all possible PINs (0000-9999)
+                                    const personalInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
+                                    let foundPIN = 'N/A';
+                                    const totalPins = 10000;
+                                    
+                                    for (let pin = 0; pin <= 9999; pin++) {
+                                        const pinStr = pin.toString().padStart(4, '0');
+                                        const testCombined = personalInfo + pinStr;
+                                        const testHash = await toSha256Hex(testCombined);
+                                        
+                                        // Update progress bar every 100 pins to avoid too frequent updates
+                                        if (pin % 100 === 0) {
+                                            const progress = (pin / totalPins) * 100;
+                                            pinProgressFill.style.width = progress + '%';
+                                        }
+                                        
+                                        if (testHash === account.backupHash) {
+                                            foundPIN = pinStr;
+                                            pinProgressFill.style.width = '100%';
+                                            break;
+                                        }
+                                    }
+                                    
+                                    // Remove progress bar after a short delay
+                                    setTimeout(() => {
+                                        const progressElement = document.getElementById(pinProgressBarId);
+                                        if (progressElement) {
+                                            progressElement.remove();
+                                        }
+                                    }, 500);
                                     
                                     // Mask everything except PIN
                                     const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
@@ -2103,9 +2155,9 @@
                                                     '*'.repeat(terminalData.forgotDOB.day.length) + '/' + 
                                                     '*'.repeat(terminalData.forgotDOB.year.length);
                                     
-                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + extractedPIN;
+                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + foundPIN;
                                     self.printLine(displayName, terminalData);
-                                });
+                                }
                             } else {
                                 self.printLine('No accounts found with matching information.', terminalData);
                             }
