@@ -2041,13 +2041,21 @@
                     const progressFillId = progressBarId + '-fill';
                     self.printHTML('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #000; border: 1px solid #00AA00; margin: 5px 0;"><div id="' + progressFillId + '" style="width: 0%; height: 100%; background-color: #00AA00; transition: width 0.08s linear;"></div></div>', terminalData);
                     
+                    // Get element references immediately after creation
+                    let progressFill = null;
+                    setTimeout(() => {
+                        progressFill = document.getElementById(progressFillId);
+                        if (progressFill) {
+                            progressFill.style.width = '10%';
+                        }
+                    }, 50);
+                    
                     // Simulate progress and search for accounts
                     setTimeout(async () => {
                         try {
-                            // Update progress to 30%
-                            const progressFill = document.getElementById(progressFillId);
+                            // Update progress to 20%
                             if (progressFill) {
-                                progressFill.style.width = '10%';
+                                progressFill.style.width = '20%';
                             }
                             
                             // Generate PIN recovery hash from user input for comparison
