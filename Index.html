@@ -16,9 +16,9 @@
     <style aria-label="Root">
         :root {
 
-            --Main_UI_Color: rgba(49, 49, 49, 0.1);
+            --Main_UI_Color: rgba(0, 0, 0, 0.1);
             --Header_UI_Color: rgba(0, 0, 0, 0);
-            --Main_UI_Blur: 20px;
+            --Main_UI_Blur: 30px;
             --Main_UI_Border: 1px solid rgba(255, 255, 255, 0.178);
             
             --Main_UI_Border_Radius_Window: 0px;
@@ -30,7 +30,7 @@
 
             --Box_Shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 
-            --Terminal_Background_Color: rgb(0, 0, 0);
+            --Terminal_Background_Color: rgb(0, 0, 0, 0.1);
             --Terminal_Text_Color: rgb(255, 255, 255);
             
         }
@@ -394,7 +394,7 @@
             height: 200px;
             background-color: var(--Main_UI_Color);
             backdrop-filter: blur(var(--Main_UI_Blur));
-            
+            color: var(--Terminal_Text_Color);
             border-radius: var(--Main_UI_Border_Radius_Window);
             box-shadow: var(--Box_Shadow);
             display: flex;
