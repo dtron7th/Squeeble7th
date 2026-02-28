@@ -1831,7 +1831,8 @@
                 // Get forgot-specific command list
                 getForgotCommandList: function() {
                     return [
-                        { name: 'Forgot', description: 'Start password recovery process' },
+                        { name: 'Password', description: 'Start password recovery process' },
+                        { name: 'PIN', description: 'Start PIN recovery process' },
                         { name: 'Clear', description: 'Clear terminal' },
                         { name: 'Reset', description: 'Fix mistakes' },
                         { name: 'Exit', description: 'Exits out of a process' },
@@ -5109,7 +5110,7 @@
                             });
                             
                             // Add custom commands
-                            TerminalManager.addCommand('Forgot_Terminal_Content_Terminal_Main_Text', 'forgot', function(context) {
+                            TerminalManager.addCommand('Forgot_Terminal_Content_Terminal_Main_Text', 'password', function(context) {
                                 const forgotTerminal = context.terminalData;
                                 if (!forgotTerminal) {
                                     return;
@@ -5125,6 +5126,23 @@
                                 context.print('Enter your first name:');
                                 TerminalManager.triggerPromptJump(forgotTerminal);
                             }, 'Start password recovery process');
+                            
+                            TerminalManager.addCommand('Forgot_Terminal_Content_Terminal_Main_Text', 'pin', function(context) {
+                                const forgotTerminal = context.terminalData;
+                                if (!forgotTerminal) {
+                                    return;
+                                }
+
+                                forgotTerminal.awaitingForgotFirstName = true;
+                                forgotTerminal.previousPrompt = forgotTerminal.prompt;
+                                forgotTerminal.prompt = 'First Name: ';
+                                forgotTerminal.currentInput = '';
+                                context.print('');
+                                context.print('=== PIN Recovery Process ===');
+                                context.print('');
+                                context.print('Enter your first name:');
+                                TerminalManager.triggerPromptJump(forgotTerminal);
+                            }, 'Start PIN recovery process');
                             
                             TerminalManager.addCommand('Forgot_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
                                 const forgotTerminal = context.terminalData;
