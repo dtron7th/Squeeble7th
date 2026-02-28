@@ -2705,7 +2705,7 @@
                         height: 100dvh;
                         width: 100dvw;
                         background-size: contain;
-                        display: none;
+                    
                     }
                 </style>
             </div>
@@ -2780,7 +2780,9 @@
                     <script aria-label="Start_Menu_Panel_Buttons - Script">
 
                         document.getElementById('Start_Menu_Panel_Login').addEventListener('click', function() {
-                            document.getElementById('Login_Terminal').style.display = 'flex';
+                            const loginWindow = document.getElementById('Login_Terminal');
+                            loginWindow.style.display = 'flex';
+                            setDefaultPosition(loginWindow);
                             const loginTerminal = TerminalManager.getTerminal('Login_Terminal_Content_Terminal_Main_Text');
                             if (loginTerminal) {
                                 loginTerminal.shouldScrollToBottom = true;
@@ -3738,6 +3740,7 @@
                                 const signupWindow = document.getElementById('Sign-Up_Terminal');
                                 if (signupWindow) {
                                     signupWindow.style.display = 'flex';
+                                    setDefaultPosition(signupWindow);
                                     const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
                                     if (signupTerminal) {
                                         signupTerminal.shouldScrollToBottom = true;
@@ -3755,6 +3758,7 @@
                                 const forgotWindow = document.getElementById('Forgot_Terminal');
                                 if (forgotWindow) {
                                     forgotWindow.style.display = 'flex';
+                                    setDefaultPosition(forgotWindow);
                                     const forgotTerminal = TerminalManager.getTerminal('Forgot_Terminal_Content_Terminal_Main_Text');
                                     if (forgotTerminal) {
                                         forgotTerminal.shouldScrollToBottom = true;
@@ -3772,6 +3776,7 @@
                                 const changeWindow = document.getElementById('Change_Password_Terminal');
                                 if (changeWindow) {
                                     changeWindow.style.display = 'flex';
+                                    setDefaultPosition(changeWindow);
                                     const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
                                     if (changeTerminal) {
                                         changeTerminal.shouldScrollToBottom = true;
