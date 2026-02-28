@@ -2037,8 +2037,7 @@
                     
                     // Create progress bar
                     const progressBarId = 'pin-search-progress-' + Date.now();
-                    self.printLine('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666;"><div style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.3s ease;"></div></div>', terminalData);
-                    self.render(terminalData);
+                    self.printHTML('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666; margin: 5px 0;"><div style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.3s ease;"></div></div>', terminalData);
                     
                     // Simulate progress and search for accounts
                     setTimeout(async () => {
@@ -2133,6 +2132,30 @@
                 // Remove PIN command
                 removePINCommand: function(terminalId, pin) {
                     return this.removeCommand(terminalId, pin);
+                },
+                
+                // Print HTML directly to terminal (for progress bars, etc.)
+                printHTML: function(html, terminal) {
+                    if (!terminal || !terminal.element) return;
+                    
+                    // Create a temporary div to hold the HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Find the terminal text element
+                    const terminalText = terminal.element.querySelector('.terminal');
+                    if (terminalText) {
+                        // Insert the HTML before the cursor
+                        const cursor = terminal.element.querySelector('.cursor');
+                        if (cursor) {
+                            terminalText.insertBefore(tempDiv.firstChild, cursor);
+                        } else {
+                            terminalText.appendChild(tempDiv.firstChild);
+                        }
+                        
+                        // Scroll to bottom
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
                 },
                 
                 // Print line to terminal
