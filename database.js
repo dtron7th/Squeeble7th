@@ -42,6 +42,7 @@ class HashDatabase {
                     // Create indexes for efficient querying
                     objectStore.createIndex('primaryHash', 'primaryHash', { unique: true });
                     objectStore.createIndex('backupHash', 'backupHash', { unique: true });
+                    objectStore.createIndex('pinRecoveryHash', 'pinRecoveryHash', { unique: true });
                     objectStore.createIndex('createdAt', 'createdAt', { unique: false });
                     objectStore.createIndex('source', 'source', { unique: false });
                     
@@ -52,8 +53,8 @@ class HashDatabase {
     }
 
     // Store a new hash entry
-    async storeHash(primaryHash, backupHash, plainPassword, pin, source = 'signup') {
-        console.log('🔍 Storing hash:', { primaryHash, backupHash, plainPassword, pin, source });
+    async storeHash(primaryHash, backupHash, pinRecoveryHash, source = 'signup') {
+        console.log('🔍 Storing hash:', { primaryHash, backupHash, pinRecoveryHash, source });
         
         if (!this.db) {
             throw new Error('Database not initialized');
@@ -62,8 +63,7 @@ class HashDatabase {
         const hashEntry = {
             primaryHash: primaryHash,
             backupHash: backupHash,
-            plainPassword: plainPassword, // Store plain text password for recovery
-            pin: pin, // Store 4-digit PIN
+            pinRecoveryHash: pinRecoveryHash,
             source: source, // 'signup' or 'login'
             createdAt: new Date().toISOString()
         };
@@ -234,7 +234,7 @@ class HashDatabase {
         });
     }
 
-    // Find account by backup hash and retrieve full account data
+    // Find account by backup hash and retrieve hash data
     async findAccountByBackupHash(backupHash) {
         console.log('🔍 Finding account by backup hash:', backupHash);
         
@@ -256,8 +256,7 @@ class HashDatabase {
                     resolve({
                         primaryHash: result.primaryHash,
                         backupHash: result.backupHash,
-                        plainPassword: result.plainPassword, // Return plain text password
-                        pin: result.pin, // Return PIN
+                        pinRecoveryHash: result.pinRecoveryHash,
                         source: result.source,
                         createdAt: result.createdAt
                     });

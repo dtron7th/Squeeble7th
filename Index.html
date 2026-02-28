@@ -2061,14 +2061,21 @@
                                 progressBar.querySelector('div').style.width = '70%';
                             }
                             
-                            // Filter accounts by matching personal information directly
+                            // Generate PIN recovery hash from user input for comparison
+                            const encoder = new TextEncoder();
+                            const toSha256Hex = async (inputValue) => {
+                                const data = encoder.encode(inputValue);
+                                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                            };
+                            
+                            const pinRecoveryInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
+                            const searchPinRecoveryHash = await toSha256Hex(pinRecoveryInfo);
+                            
+                            // Filter accounts by comparing PIN recovery hashes directly
                             const matchingAccounts = allAccounts.filter(account => {
-                                return account.backupHash && 
-                                       account.firstName === terminalData.forgotFirstName &&
-                                       account.lastName === terminalData.forgotLastName &&
-                                       account.dobMonth === terminalData.forgotDOB.month &&
-                                       account.dobDay === terminalData.forgotDOB.day &&
-                                       account.dobYear === terminalData.forgotDOB.year;
+                                return account.pinRecoveryHash && account.pinRecoveryHash === searchPinRecoveryHash;
                             });
                             
                             // Update progress to 100%
@@ -2091,14 +2098,14 @@
                                 self.printLine('', terminalData);
                                 
                                 matchingAccounts.forEach(account => {
-                                    // Mask everything except PIN
+                                    // Mask everything since PIN is no longer stored
                                     const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
                                     const maskedLastName = '*'.repeat(terminalData.forgotLastName.length);
                                     const maskedDOB = '*'.repeat(terminalData.forgotDOB.month.length) + '/' + 
                                                     '*'.repeat(terminalData.forgotDOB.day.length) + '/' + 
                                                     '*'.repeat(terminalData.forgotDOB.year.length);
                                     
-                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + (account.pin || 'N/A');
+                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - PIN not stored';
                                     self.printLine(displayName, terminalData);
                                 });
                             } else {
@@ -4660,6 +4667,8 @@
                                             const primaryHashHex = await toSha256Hex(primaryCombined);
                                             const backupCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPIN;
                                             const backupHashHex = await toSha256Hex(backupCombined);
+                                            const pinRecoveryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year;
+                                            const pinRecoveryHashHex = await toSha256Hex(pinRecoveryCombined);
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
@@ -4669,6 +4678,10 @@
                                             this.printLine('Backup Account Hash', terminalData);
                                             this.printLine('Hash "' + backupHashHex + '"', terminalData);
                                             this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + terminalData.signupPIN, terminalData);
+                                            this.printLine('', terminalData);
+                                            this.printLine('PIN Recovery Hash', terminalData);
+                                            this.printLine('Hash "' + pinRecoveryHashHex + '"', terminalData);
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year, terminalData);
                                             
                                             // Keep password prompt while processing
                                             terminalData.prompt = 'Password: ';
@@ -4676,7 +4689,7 @@
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
-                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, terminalData.signupPassword, terminalData.signupPIN, 'signup');
+                                                    hashId = await window.HashDatabase.storeHash(primaryHashHex, backupHashHex, pinRecoveryHashHex, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     
