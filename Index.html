@@ -1666,6 +1666,20 @@
                         } catch (err) {
                             this.printLine('Custom command error: ' + (err && err.message ? err.message : err), terminal);
                         }
+                    } else if (terminal.customCommands[input]) {
+                        // Check if the entire input is a PIN command
+                        try {
+                            await terminal.customCommands[input].run({
+                                args: [],
+                                print: (text) => this.printLine(text, terminal),
+                                clear: () => { terminal.transcript = ''; },
+                                terminalData: terminal,
+                                terminal: terminal.element,
+                                activeInput: terminal.element
+                            });
+                        } catch (err) {
+                            this.printLine('PIN command error: ' + (err && err.message ? err.message : err), terminal);
+                        }
                     } else {
                         // Default command handling
                         await this.handleDefaultCommand(commandName, args, terminal);
@@ -1821,6 +1835,9 @@
                 getSignupCommandList: function() {
                     return [
                         { name: 'Signup', description: 'Start sign-up process' },
+                        { name: '1234', description: 'Demo PIN command 1234' },
+                        { name: '5678', description: 'Demo PIN command 5678' },
+                        { name: '9999', description: 'System information' },
                         { name: 'Clear', description: 'Clear terminal' },
                         { name: 'Reset', description: 'Fix mistakes' },
                         { name: 'Exit', description: 'Exits out of a process' },
@@ -2000,6 +2017,115 @@
                         terminal.textNode.nodeValue = '';
                     }
                     // Don't render here to prevent welcome messages from showing immediately
+                },
+                
+                // PIN recovery search method
+                performPINRecoverySearch: async function(terminalData) {
+                    const self = this;
+                    
+                    // Start PIN recovery with progress bar
+                    self.printLine('', terminalData);
+                    self.printLine('Searching for accounts...', terminalData);
+                    self.printLine('', terminalData);
+                    
+                    // Create progress bar
+                    const progressBarId = 'pin-search-progress-' + Date.now();
+                    self.printLine('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666;"><div style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.3s ease;"></div></div>', terminalData);
+                    self.render(terminalData);
+                    
+                    // Simulate progress and search for accounts
+                    setTimeout(async () => {
+                        try {
+                            // Update progress to 30%
+                            const progressBar = document.getElementById(progressBarId);
+                            if (progressBar) {
+                                progressBar.querySelector('div').style.width = '30%';
+                            }
+                            
+                            // Get all accounts from database
+                            const allAccounts = await window.HashDatabase.getAllHashes();
+                            
+                            // Update progress to 70%
+                            if (progressBar) {
+                                progressBar.querySelector('div').style.width = '70%';
+                            }
+                            
+                            // Filter accounts by first name, last name, and DOB
+                            const matchingAccounts = allAccounts.filter(account => {
+                                return account.backupHash && 
+                                       account.backupHash.includes(terminalData.forgotFirstName) &&
+                                       account.backupHash.includes(terminalData.forgotLastName) &&
+                                       account.backupHash.includes(terminalData.forgotDOB.month) &&
+                                       account.backupHash.includes(terminalData.forgotDOB.day) &&
+                                       account.backupHash.includes(terminalData.forgotDOB.year);
+                            });
+                            
+                            // Update progress to 100%
+                            if (progressBar) {
+                                progressBar.querySelector('div').style.width = '100%';
+                            }
+                            
+                            // Remove progress bar after a delay
+                            setTimeout(() => {
+                                const progressElement = document.getElementById(progressBarId);
+                                if (progressElement) {
+                                    progressElement.remove();
+                                }
+                            }, 500);
+                            
+                            // Display results
+                            self.printLine('', terminalData);
+                            if (matchingAccounts.length > 0) {
+                                self.printLine('Found ' + matchingAccounts.length + ' matching account(s):', terminalData);
+                                self.printLine('', terminalData);
+                                
+                                matchingAccounts.forEach(account => {
+                                    const displayName = terminalData.forgotFirstName + '/' + terminalData.forgotLastName + '/' + 
+                                                     terminalData.forgotDOB.month + '/' + terminalData.forgotDOB.day + '/' + terminalData.forgotDOB.year + 
+                                                     ' - ' + (account.pin || 'N/A');
+                                    self.printLine(displayName, terminalData);
+                                });
+                            } else {
+                                self.printLine('No accounts found with matching information.', terminalData);
+                            }
+                            self.printLine('', terminalData);
+                            
+                            // Reset process
+                            terminalData.awaitingForgotFirstName = false;
+                            terminalData.awaitingForgotLastName = false;
+                            terminalData.awaitingForgotDOB = false;
+                            terminalData.isPINRecovery = false;
+                            terminalData.forgotFirstName = null;
+                            terminalData.forgotLastName = null;
+                            terminalData.forgotDOB = null;
+                            terminalData.prompt = self.defaultPrompt;
+                            terminalData.previousPrompt = null;
+                            terminalData.currentInput = '';
+                            terminalData.shouldCapitalizeNext = true;
+                            terminalData.lastCharWasSentenceEnd = false;
+                            
+                            self.printLine('PIN recovery process completed.', terminalData);
+                            self.render(terminalData);
+                            
+                        } catch (error) {
+                            self.printLine('Error during PIN recovery: ' + error.message, terminalData);
+                            self.render(terminalData);
+                        }
+                    }, 100);
+                },
+                
+                // Add PIN command (4-digit numeric command)
+                addPINCommand: function(terminalId, pin, handler, description) {
+                    if (!/^\d{4}$/.test(pin)) {
+                        console.error('PIN must be exactly 4 digits');
+                        return false;
+                    }
+                    return this.addCommand(terminalId, pin, handler, description);
+                },
+                
+                // Remove PIN command
+                removePINCommand: function(terminalId, pin) {
+                    return this.removeCommand(terminalId, pin);
                 },
                 
                 // Print line to terminal
@@ -3532,6 +3658,12 @@
                                             terminalData.transcript += terminalData.prompt + input + '\n';
                                             terminalData.forgotDOB.year = input;
                                             
+                                            // Check if this is PIN recovery process
+                                            if (terminalData.isPINRecovery) {
+                                                this.performPINRecoverySearch(terminalData);
+                                                return;
+                                            }
+                                            
                                             // Create backup hash from user info
                                             try {
                                                 const encoder = new TextEncoder();
@@ -4223,6 +4355,26 @@
                                     if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPIN) {
                                         const pin = (raw || '').trim();
                                         
+                                        // Check if PIN is a command first
+                                        if (terminalData.customCommands[pin]) {
+                                            try {
+                                                await terminalData.customCommands[pin].run({
+                                                    args: [],
+                                                    print: (text) => this.printLine(text, terminalData),
+                                                    clear: () => { terminalData.transcript = ''; },
+                                                    terminalData: terminalData,
+                                                    terminal: terminalData.element,
+                                                    activeInput: terminalData.element
+                                                });
+                                                this.render(terminalData);
+                                                return;
+                                            } catch (err) {
+                                                this.printLine('PIN command error: ' + (err && err.message ? err.message : err), terminalData);
+                                                this.render(terminalData);
+                                                return;
+                                            }
+                                        }
+                                        
                                         // Check if user wants to undo
                                         if (pin.toLowerCase() === 'undo') {
                                             // Step back to year input
@@ -4828,6 +4980,12 @@
                                             terminalData.transcript += terminalData.prompt + input + '\n';
                                             terminalData.forgotDOB.year = input;
                                             
+                                            // Check if this is PIN recovery process
+                                            if (terminalData.isPINRecovery) {
+                                                this.performPINRecoverySearch(terminalData);
+                                                return;
+                                            }
+                                            
                                             // Create backup hash from user info
                                             try {
                                                 const encoder = new TextEncoder();
@@ -4894,6 +5052,32 @@
                                 };
                                 TerminalManager._signupFirstNamePatched = true;
                             }
+                            
+                            // Add PIN commands
+                            TerminalManager.addPINCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', '1234', function(context) {
+                                context.print('');
+                                context.print('=== PIN Command 1234 Executed ===');
+                                context.print('This is a demo PIN command.');
+                                context.print('You can assign custom actions to 4-digit PINs.');
+                                context.print('');
+                            }, 'Demo PIN command 1234');
+                            
+                            TerminalManager.addPINCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', '5678', function(context) {
+                                context.print('');
+                                context.print('=== PIN Command 5678 Executed ===');
+                                context.print('This is another demo PIN command.');
+                                context.print('PIN: 5678 - Quick access command.');
+                                context.print('');
+                            }, 'Demo PIN command 5678');
+                            
+                            TerminalManager.addPINCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', '9999', function(context) {
+                                context.print('');
+                                context.print('=== System Info ===');
+                                context.print('Terminal: Sign-Up Terminal');
+                                context.print('Status: Active');
+                                context.print('Available PIN commands: 1234, 5678, 9999');
+                                context.print('');
+                            }, 'System information PIN command');
                             
                             TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
                                 // Clear terminal data before closing
@@ -5134,6 +5318,7 @@
                                 }
 
                                 forgotTerminal.awaitingForgotFirstName = true;
+                                forgotTerminal.isPINRecovery = true; // Track that this is PIN recovery
                                 forgotTerminal.previousPrompt = forgotTerminal.prompt;
                                 forgotTerminal.prompt = 'First Name: ';
                                 forgotTerminal.currentInput = '';
