@@ -1850,9 +1850,6 @@
                 getSignupCommandList: function() {
                     return [
                         { name: 'Signup', description: 'Start sign-up process' },
-                        { name: '1234', description: 'Demo PIN command 1234' },
-                        { name: '5678', description: 'Demo PIN command 5678' },
-                        { name: '9999', description: 'System information' },
                         { name: 'Clear', description: 'Clear terminal' },
                         { name: 'Reset', description: 'Fix mistakes' },
                         { name: 'Exit', description: 'Exits out of a process' },
@@ -2315,8 +2312,8 @@
                 // Setup welcome messages
                 setupWelcomeMessages: function(terminal) {
                     const startWelcomeMessages = () => {
-                        // Only start welcome messages if terminal is truly empty (fresh state)
-                        if (!terminal.welcomeStarted && terminal.transcript === '') {
+                        // Start welcome messages if terminal is fresh or has minimal content
+                        if (!terminal.welcomeStarted && (terminal.transcript === '' || terminal.transcript.trim() === '')) {
                             terminal.welcomeStarted = true;
                             terminal.welcomeMessages.forEach((message, index) => {
                                 setTimeout(() => {
@@ -2333,10 +2330,15 @@
                     // Check if window is already visible
                     const windowElement = terminal.windowId ? document.getElementById(terminal.windowId) : null;
                     if (windowElement) {
+                        const isElementVisible = () => {
+                            const currentDisplay = windowElement.style.display;
+                            const computedStyle = getComputedStyle(windowElement);
+                            return currentDisplay !== 'none' && computedStyle.display !== 'none';
+                        };
+
                         // Check current display state
-                        const currentDisplay = windowElement.style.display;
-                        const computedStyle = getComputedStyle(windowElement);
-                        const isVisible = currentDisplay !== 'none' && computedStyle.display !== 'none';
+                        const isVisible = isElementVisible();
+                        terminal._wasVisible = isVisible;
                         
                         if (isVisible) {
                             // Window is already visible, start animation after a short delay if terminal is empty
@@ -2347,15 +2349,56 @@
                         const observer = new MutationObserver((mutations) => {
                             mutations.forEach((mutation) => {
                                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                    if (windowElement.style.display !== 'none') {
+                                    const nowVisible = isElementVisible();
+                                    if (!terminal._wasVisible && nowVisible) {
                                         // Small delay to ensure window is fully visible
-                                        setTimeout(startWelcomeMessages, 100);
+                                        setTimeout(() => {
+                                            this.replayWelcomeSequence(terminal);
+                                        }, 100);
                                     }
+                                    terminal._wasVisible = nowVisible;
                                 }
                             });
                         });
                         observer.observe(windowElement, { attributes: true });
                     }
+                },
+
+                // Deterministically replay a terminal's welcome sequence on demand
+                replayWelcomeSequence: function(terminal) {
+                    if (!terminal) {
+                        return;
+                    }
+
+                    // Reset process + transcript state before replaying welcome output
+                    this.clearCurrentDataSet(terminal);
+                    this.clearTerminalData(terminal);
+                    terminal.previousPrompt = null;
+                    terminal.prompt = this.defaultPrompt;
+                    terminal.passwordMode = false;
+                    terminal.currentInput = '';
+                    terminal.shouldScrollToBottom = true;
+                    terminal.isPINRecovery = false;
+
+                    const messages = Array.isArray(terminal.welcomeMessages) ? terminal.welcomeMessages : [];
+                    if (messages.length === 0) {
+                        this.render(terminal);
+                        return;
+                    }
+
+                    // Avoid observer-driven auto-start races; we are explicitly replaying now.
+                    terminal.welcomeStarted = true;
+                    this.render(terminal);
+
+                    messages.forEach((message, index) => {
+                        setTimeout(() => {
+                            if (typeof message === 'function') {
+                                message(terminal);
+                            } else {
+                                this.printLine(message, terminal);
+                            }
+                        }, (index + 1) * 1000);
+                    });
                 },
                 
                 // Get terminal by ID
@@ -3796,9 +3839,6 @@
                                     const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
                                     if (signupTerminal) {
                                         signupTerminal.shouldScrollToBottom = true;
-                                        // Reset welcomeStarted and transcript to trigger animations on open
-                                        signupTerminal.welcomeStarted = false;
-                                        signupTerminal.transcript = '';
                                         TerminalManager.render(signupTerminal);
                                     }
                                 }
@@ -3814,9 +3854,6 @@
                                     const forgotTerminal = TerminalManager.getTerminal('Forgot_Terminal_Content_Terminal_Main_Text');
                                     if (forgotTerminal) {
                                         forgotTerminal.shouldScrollToBottom = true;
-                                        // Reset welcomeStarted and transcript to trigger animations on open
-                                        forgotTerminal.welcomeStarted = false;
-                                        forgotTerminal.transcript = '';
                                         TerminalManager.render(forgotTerminal);
                                     }
                                 }
@@ -3832,9 +3869,6 @@
                                     const changeTerminal = TerminalManager.getTerminal('Change_Password_Terminal_Content_Terminal_Main_Text');
                                     if (changeTerminal) {
                                         changeTerminal.shouldScrollToBottom = true;
-                                        // Reset welcomeStarted and transcript to trigger animations on open
-                                        changeTerminal.welcomeStarted = false;
-                                        changeTerminal.transcript = '';
                                         TerminalManager.render(changeTerminal);
                                     }
                                 }
