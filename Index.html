@@ -2111,10 +2111,12 @@
                                     pinProgressFill.style.cssText = 'height: 100%; background-color: #4CAF50; width: 0%; transition: width 0.1s ease;';
                                     pinProgressBar.appendChild(pinProgressFill);
                                     
-                                    // Insert progress bar after the "Found X account(s)" message
+                                    // Insert progress bar after terminal content
                                     const terminalElement = document.getElementById(terminalData.terminalId + '_Main_Text');
                                     if (terminalElement) {
                                         terminalElement.appendChild(pinProgressBar);
+                                        // Scroll to bottom to show progress bar
+                                        terminalElement.scrollTop = terminalElement.scrollHeight;
                                     }
                                     
                                     // Test all possible PINs (0000-9999)
