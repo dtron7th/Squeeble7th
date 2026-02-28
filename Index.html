@@ -2035,22 +2035,19 @@
                 performPINRecoverySearch: async function(terminalData) {
                     const self = this;
                     
-                    // Start PIN recovery with progress bar
+                    // Start PIN recovery with one always-visible DOS-style progress bar
                     self.printLine('', terminalData);
-                    self.printLine('Searching for accounts...', terminalData);
-                    self.printLine('', terminalData);
-                    
-                    // Create progress bar
                     const progressBarId = 'pin-search-progress-' + Date.now();
-                    self.printHTML('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666; margin: 5px 0;"><div style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.3s ease;"></div></div>', terminalData);
+                    const progressFillId = progressBarId + '-fill';
+                    self.printHTML('<div id="' + progressBarId + '" style="width: 100%; height: 10px; background-color: #000; border: 1px solid #00AA00; margin: 5px 0;"><div id="' + progressFillId + '" style="width: 0%; height: 100%; background-color: #00AA00; transition: width 0.08s linear;"></div></div>', terminalData);
                     
                     // Simulate progress and search for accounts
                     setTimeout(async () => {
                         try {
                             // Update progress to 30%
-                            const progressBar = document.getElementById(progressBarId);
-                            if (progressBar) {
-                                progressBar.querySelector('div').style.width = '30%';
+                            const progressFill = document.getElementById(progressFillId);
+                            if (progressFill) {
+                                progressFill.style.width = '10%';
                             }
                             
                             // Generate PIN recovery hash from user input for comparison
@@ -2065,26 +2062,18 @@
                             const pinRecoveryInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
                             const searchPinRecoveryHash = await toSha256Hex(pinRecoveryInfo);
                             
-                            // Update progress to 70%
-                            if (progressBar) {
-                                progressBar.querySelector('div').style.width = '70%';
+                            // Update progress after hash generation
+                            if (progressFill) {
+                                progressFill.style.width = '20%';
                             }
                             
                             // Get all accounts from database
                             const allAccounts = await window.HashDatabase.findAllAccountsByPinRecoveryHash(searchPinRecoveryHash);
                             
-                            // Update progress to 100%
-                            if (progressBar) {
-                                progressBar.querySelector('div').style.width = '100%';
+                            // Keep this same progress bar visible and continue filling during PIN testing
+                            if (progressFill) {
+                                progressFill.style.width = '20%';
                             }
-                            
-                            // Remove progress bar after a delay
-                            setTimeout(() => {
-                                const progressElement = document.getElementById(progressBarId);
-                                if (progressElement) {
-                                    progressElement.remove();
-                                }
-                            }, 500);
                             
                             // Display results with continuous progress bar
                             self.printLine('', terminalData);
@@ -2106,15 +2095,6 @@
                                 let completedWork = 0;
                                 const results = [];
                                 
-                                // Show one animated progress bar with percentage only
-                                const pinProgressBarId = 'pin-recovery-progress-' + Date.now();
-                                const pinProgressFillId = pinProgressBarId + '-fill';
-                                const pinProgressPctId = pinProgressBarId + '-pct';
-                                self.printHTML('<div id="' + pinProgressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666; margin: 5px 0;"><div id="' + pinProgressFillId + '" style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.08s linear;"></div></div><div id="' + pinProgressPctId + '">0%</div>', terminalData);
-                                
-                                const pinProgressFill = document.getElementById(pinProgressFillId);
-                                const pinProgressPct = document.getElementById(pinProgressPctId);
-                                
                                 // Process all accounts with one continuous progress bar
                                 for (let accountIndex = 0; accountIndex < allAccounts.length; accountIndex++) {
                                     const account = allAccounts[accountIndex];
@@ -2128,14 +2108,11 @@
                                         
                                         completedWork++;
                                         
-                                        // Update one progress bar every 100 pins
+                                        // Update one DOS-style progress bar every 100 pins
                                         if (completedWork % 100 === 0) {
-                                            const progress = Math.round((completedWork / totalWork) * 100);
-                                            if (pinProgressFill) {
-                                                pinProgressFill.style.width = progress + '%';
-                                            }
-                                            if (pinProgressPct) {
-                                                pinProgressPct.textContent = progress + '%';
+                                            const progress = 20 + Math.round((completedWork / totalWork) * 80);
+                                            if (progressFill) {
+                                                progressFill.style.width = progress + '%';
                                             }
                                         }
                                         
@@ -2155,12 +2132,9 @@
                                     results.push(maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + foundPIN);
                                 }
                                 
-                                // Complete and remove the single progress bar
-                                if (pinProgressFill) {
-                                    pinProgressFill.style.width = '100%';
-                                }
-                                if (pinProgressPct) {
-                                    pinProgressPct.textContent = '100%';
+                                // Complete the same always-visible progress bar
+                                if (progressFill) {
+                                    progressFill.style.width = '100%';
                                 }
                                 
                                 // Display all results at once
