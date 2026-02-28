@@ -2106,8 +2106,14 @@
                                 let completedWork = 0;
                                 const results = [];
                                 
-                                // Show initial continuous progress bar
-                                self.printLine('Testing PINs: [          ] 0%', terminalData);
+                                // Show one animated progress bar with percentage only
+                                const pinProgressBarId = 'pin-recovery-progress-' + Date.now();
+                                const pinProgressFillId = pinProgressBarId + '-fill';
+                                const pinProgressPctId = pinProgressBarId + '-pct';
+                                self.printHTML('<div id="' + pinProgressBarId + '" style="width: 100%; height: 10px; background-color: #333; border: 1px solid #666; margin: 5px 0;"><div id="' + pinProgressFillId + '" style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.08s linear;"></div></div><div id="' + pinProgressPctId + '">0%</div>', terminalData);
+                                
+                                const pinProgressFill = document.getElementById(pinProgressFillId);
+                                const pinProgressPct = document.getElementById(pinProgressPctId);
                                 
                                 // Process all accounts with one continuous progress bar
                                 for (let accountIndex = 0; accountIndex < allAccounts.length; accountIndex++) {
@@ -2122,25 +2128,20 @@
                                         
                                         completedWork++;
                                         
-                                        // Update progress bar every 100 pins
+                                        // Update one progress bar every 100 pins
                                         if (completedWork % 100 === 0) {
                                             const progress = Math.round((completedWork / totalWork) * 100);
-                                            const barLength = Math.round((progress / 100) * 10);
-                                            const filledBar = '█'.repeat(barLength) + ' '.repeat(10 - barLength);
-                                            
-                                            // Clear current line and update progress
-                                            const terminalElement = document.getElementById(terminalData.terminalId + '_Main_Text');
-                                            if (terminalElement) {
-                                                const lines = terminalElement.innerText.split('\n');
-                                                lines.pop(); // Remove last line (progress bar)
-                                                terminalElement.innerText = lines.join('\n');
+                                            if (pinProgressFill) {
+                                                pinProgressFill.style.width = progress + '%';
                                             }
-                                            
-                                            self.printLine('Testing PINs: [' + filledBar + '] ' + progress + '%', terminalData);
+                                            if (pinProgressPct) {
+                                                pinProgressPct.textContent = progress + '%';
+                                            }
                                         }
                                         
                                         if (testHash === account.backupHash) {
                                             foundPIN = pinStr;
+                                            break;
                                         }
                                     }
                                     
@@ -2154,8 +2155,13 @@
                                     results.push(maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + foundPIN);
                                 }
                                 
-                                // Show 100% completion
-                                self.printLine('Testing PINs: [██████████] 100%', terminalData);
+                                // Complete and remove the single progress bar
+                                if (pinProgressFill) {
+                                    pinProgressFill.style.width = '100%';
+                                }
+                                if (pinProgressPct) {
+                                    pinProgressPct.textContent = '100%';
+                                }
                                 
                                 // Display all results at once
                                 self.printLine('', terminalData);
