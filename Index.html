@@ -2061,14 +2061,14 @@
                                 progressBar.querySelector('div').style.width = '70%';
                             }
                             
-                            // Filter accounts by first name, last name, and DOB
+                            // Filter accounts by matching personal information directly
                             const matchingAccounts = allAccounts.filter(account => {
                                 return account.backupHash && 
-                                       account.backupHash.includes(terminalData.forgotFirstName) &&
-                                       account.backupHash.includes(terminalData.forgotLastName) &&
-                                       account.backupHash.includes(terminalData.forgotDOB.month) &&
-                                       account.backupHash.includes(terminalData.forgotDOB.day) &&
-                                       account.backupHash.includes(terminalData.forgotDOB.year);
+                                       account.firstName === terminalData.forgotFirstName &&
+                                       account.lastName === terminalData.forgotLastName &&
+                                       account.dobMonth === terminalData.forgotDOB.month &&
+                                       account.dobDay === terminalData.forgotDOB.day &&
+                                       account.dobYear === terminalData.forgotDOB.year;
                             });
                             
                             // Update progress to 100%
@@ -2091,9 +2091,14 @@
                                 self.printLine('', terminalData);
                                 
                                 matchingAccounts.forEach(account => {
-                                    const displayName = terminalData.forgotFirstName + '/' + terminalData.forgotLastName + '/' + 
-                                                     terminalData.forgotDOB.month + '/' + terminalData.forgotDOB.day + '/' + terminalData.forgotDOB.year + 
-                                                     ' - ' + (account.pin || 'N/A');
+                                    // Mask everything except PIN
+                                    const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
+                                    const maskedLastName = '*'.repeat(terminalData.forgotLastName.length);
+                                    const maskedDOB = '*'.repeat(terminalData.forgotDOB.month.length) + '/' + 
+                                                    '*'.repeat(terminalData.forgotDOB.day.length) + '/' + 
+                                                    '*'.repeat(terminalData.forgotDOB.year.length);
+                                    
+                                    const displayName = maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + (account.pin || 'N/A');
                                     self.printLine(displayName, terminalData);
                                 });
                             } else {
