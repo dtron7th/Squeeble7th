@@ -925,7 +925,7 @@
             let highestZIndex = 10000; // Higher starting z-index to ensure windows are on top
             
             // Function to set default position for elements
-            function setDefaultPosition(element) {
+            window.setDefaultPosition = function(element) {
                 if (element.classList.contains('Window') || element.classList.contains('Panel') || element.classList.contains('Terminal')) {
                     const currentTop = element.style.top;
                     const currentLeft = element.style.left;
