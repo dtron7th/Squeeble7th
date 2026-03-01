@@ -1888,8 +1888,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword',
-                        'forgotFirstName', 'forgotLastName', 'forgotDOB'
+                        'signupDOB', 'signupPassword'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -1944,8 +1943,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword',
-                        'forgotFirstName', 'forgotLastName', 'forgotDOB'
+                        'signupDOB', 'signupPassword'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -1974,8 +1972,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword',
-                        'forgotFirstName', 'forgotLastName', 'forgotDOB'
+                        'signupDOB', 'signupPassword'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -2030,7 +2027,7 @@
                         progressFill.style.width = '20%';
                     }
                     
-                    const pinRecoveryInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
+                    const pinRecoveryInfo = `${terminalData.signupFirstName}${terminalData.signupLastName}${terminalData.signupDOB.month}${terminalData.signupDOB.day}${terminalData.signupDOB.year}`;
                     const searchPinRecoveryHash = await toSha256Hex(pinRecoveryInfo);
                     
                     // Get all accounts from database
@@ -2051,7 +2048,7 @@
                         // Process all accounts with one continuous progress bar
                         for (let accountIndex = 0; accountIndex < allAccounts.length; accountIndex++) {
                             const account = allAccounts[accountIndex];
-                            const personalInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
+                            const personalInfo = `${terminalData.signupFirstName}${terminalData.signupLastName}${terminalData.signupDOB.month}${terminalData.signupDOB.day}${terminalData.signupDOB.year}`;
                             let foundPIN = 'N/A';
                             
                             for (let pin = 0; pin <= 9999; pin++) {
@@ -2076,11 +2073,11 @@
                             }
                             
                             // Store result for this account
-                            const maskedFirstName = '*'.repeat(terminalData.forgotFirstName.length);
-                            const maskedLastName = '*'.repeat(terminalData.forgotLastName.length);
-                            const maskedDOB = '*'.repeat(terminalData.forgotDOB.month.length) + '/' + 
-                                            '*'.repeat(terminalData.forgotDOB.day.length) + '/' + 
-                                            '*'.repeat(terminalData.forgotDOB.year.length);
+                            const maskedFirstName = '*'.repeat(terminalData.signupFirstName.length);
+                            const maskedLastName = '*'.repeat(terminalData.signupLastName.length);
+                            const maskedDOB = '*'.repeat(terminalData.signupDOB.month.length) + '/' + 
+                                            '*'.repeat(terminalData.signupDOB.day.length) + '/' + 
+                                            '*'.repeat(terminalData.signupDOB.year.length);
                             
                             results.push(maskedFirstName + '/' + maskedLastName + '/' + maskedDOB + ' - ' + foundPIN);
                         }
@@ -4268,431 +4265,6 @@
                                         this.playBeep();
                                         this.render(terminalData);
                                         return;
-                                    }
-
-                                    // ==================== FORGOT PASSWORD PROCESS ====================
-                                    if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotFirstName) {
-                                        const firstName = (raw || '').trim();
-                                        
-                                        // Check for terminal commands first
-                                        const commandName = firstName.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Check if we're in the first question of a data set
-                                            const isFirstQuestion = terminalData.awaitingForgotFirstName;
-                                            
-                                            if (isFirstQuestion) {
-                                                // Save current state before clearing
-                                                this.saveState(terminalData);
-                                                
-                                                // Clear the current data set completely
-                                                this.clearCurrentDataSet(terminalData);
-                                                
-                                                // Try to restore the previous data set (if available)
-                                                if (terminalData.stateHistory && terminalData.stateHistory.length > 1) {
-                                                    // Remove the current state we just saved
-                                                    terminalData.stateHistory.pop();
-                                                    
-                                                    // Restore the previous state
-                                                    if (this.restoreState(terminalData, -1)) {
-                                                        this.printLine('Current data set cleared. Returned to previous data set.', terminalData);
-                                                        this.printLine('Use "undo" command to restore the cleared data set if needed.', terminalData);
-                                                    } else {
-                                                        this.printLine('Current data set cleared. No previous data set available.', terminalData);
-                                                    }
-                                                } else {
-                                                    // No previous state, just show cleared state
-                                                    this.printLine('Current data set cleared. No previous data set to restore.', terminalData);
-                                                }
-                                            } else {
-                                                this.printLine('Reset command executed. Use specific reset commands during input processes.', terminalData);
-                                            }
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (commandName === 'clear') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (commandName === 'exit') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (!firstName) {
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        terminalData.transcript += terminalData.prompt + firstName + '\n';
-                                        terminalData.awaitingForgotFirstName = false;
-                                        terminalData.forgotFirstName = firstName;
-                                        terminalData.awaitingForgotLastName = true;
-                                        terminalData.prompt = 'Last Name: ';
-                                        terminalData.currentInput = '';
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
-                                        this.printLine('', terminalData);
-                                        this.printLine('Enter your last name:', terminalData);
-                                        this.playBeep();
-                                        this.render(terminalData);
-                                        return;
-                                    }
-
-                                    // ==================== FORGOT PASSWORD LAST NAME ====================
-                                    if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotLastName) {
-                                        const lastName = (raw || '').trim();
-                                        
-                                        // Check for terminal commands first
-                                        const commandName = lastName.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            // Reset to first name entry
-                                            terminalData.awaitingForgotFirstName = true;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.passwordMode = false;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
-
-                                            this.printLine('', terminalData);
-                                            this.printLine('Reset to first name entry:', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        if (commandName === 'clear') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (commandName === 'exit') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (!lastName) {
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        terminalData.transcript += terminalData.prompt + lastName + '\n';
-                                        terminalData.awaitingForgotLastName = false;
-                                        terminalData.forgotLastName = lastName;
-                                        terminalData.awaitingForgotDOB = true;
-                                        terminalData.prompt = 'Day (DD): ';
-                                        terminalData.currentInput = '';
-                                        terminalData.shouldCapitalizeNext = true;
-                                        terminalData.lastCharWasSentenceEnd = false;
-                                        this.printLine('', terminalData);
-                                        this.printLine('Enter your date of birth:', terminalData);
-                                        this.printLine('Day (numbers only):', terminalData);
-                                        this.playBeep();
-                                        this.render(terminalData);
-                                        return;
-                                    }
-
-                                    // ==================== FORGOT PASSWORD DOB ====================
-                                    if (terminalData && terminalData.id === 'Forgot_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingForgotDOB) {
-                                        const input = (raw || '').trim();
-                                        
-                                        // Check for terminal commands first
-                                        const commandName = input.toLowerCase();
-                                        if (commandName === 'reset') {
-                                            const isDayPrompt = (terminalData.prompt || '').trim().startsWith('Day (DD):');
-
-                                            if (isDayPrompt) {
-                                                // Reset to first-name entry when reset is executed on day prompt
-                                                terminalData.awaitingForgotFirstName = true;
-                                                terminalData.awaitingForgotLastName = false;
-                                                terminalData.awaitingForgotDOB = false;
-                                                terminalData.forgotFirstName = null;
-                                                terminalData.forgotLastName = null;
-                                                terminalData.forgotDOB = null;
-                                                terminalData.prompt = 'First Name: ';
-                                            } else {
-                                                // Reset DOB entry back to day prompt for month/year
-                                                terminalData.awaitingForgotFirstName = false;
-                                                terminalData.awaitingForgotLastName = false;
-                                                terminalData.awaitingForgotDOB = true;
-                                                terminalData.forgotDOB = null;
-                                                terminalData.prompt = 'Day (DD): ';
-                                            }
-                                            terminalData.previousPrompt = null;
-                                            terminalData.passwordMode = false;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-
-                                            this.printLine('', terminalData);
-                                            this.printLine(isDayPrompt ? 'Reset to first name entry:' : 'DOB reset. Starting fresh:', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        if (commandName === 'clear') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process cleared. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (commandName === 'exit') {
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (!input) {
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        // Check if input contains only numbers or is Reset command
-                                        if (!/^\d+$/.test(input) && input.toLowerCase() !== 'reset') {
-                                            this.printLine('Error: Please enter numbers only or type "Reset" to reset DOB.', terminalData);
-                                            this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        // Handle Reset command
-                                        if (input.toLowerCase() === 'reset') {
-                                            // Reset DOB completely
-                                            terminalData.awaitingForgotFirstName = false;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = true;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.prompt = 'Day (DD): ';
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            
-                                            this.printLine('', terminalData);
-                                            this.printLine('DOB reset. Starting fresh:', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        if (!terminalData.forgotDOB) {
-                                            terminalData.forgotDOB = {};
-                                        }
-
-                                        if (terminalData.prompt === 'Day (DD): ') {
-                                            // Check if input is exactly 2 digits
-                                            if (input.length !== 2) {
-                                                this.printLine('Error: Day must be exactly 2 digits (e.g., 01, 05, 15).', terminalData);
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            
-                                            const day = parseInt(input);
-                                            if (day < 1 || day > 31) {
-                                                this.printLine('Error: Day must be between 01 and 31.', terminalData);
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            terminalData.transcript += terminalData.prompt + input + '\n';
-                                            terminalData.forgotDOB.day = input;
-                                            terminalData.prompt = 'Month (MM): ';
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            this.printLine('', terminalData);
-                                            this.printLine('Month (numbers only):', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                        } else if (terminalData.prompt === 'Month (MM): ') {
-                                            // Check if input is exactly 2 digits or is Reset command
-                                            if (input.length !== 2 && input.toLowerCase() !== 'reset') {
-                                                this.printLine('Error: Month must be exactly 2 digits (e.g., 01, 05, 12) or type "Reset" to reset DOB.', terminalData);
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            
-                                            // Handle Reset command
-                                            if (input.toLowerCase() === 'reset') {
-                                                // Reset DOB completely
-                                                terminalData.awaitingForgotFirstName = false;
-                                                terminalData.awaitingForgotLastName = false;
-                                                terminalData.awaitingForgotDOB = true;
-                                                terminalData.forgotDOB = null;
-                                                terminalData.prompt = 'Day (DD): ';
-                                                terminalData.currentInput = '';
-                                                terminalData.shouldCapitalizeNext = true;
-                                                terminalData.lastCharWasSentenceEnd = false;
-                                                
-                                                this.printLine('', terminalData);
-                                                this.printLine('DOB reset. Starting fresh:', terminalData);
-                                                this.playBeep();
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            const month = parseInt(input);
-                                            if (month < 1 || month > 12) {
-                                                this.printLine('Error: Month must be between 01 and 12.', terminalData);
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            terminalData.transcript += terminalData.prompt + input + '\n';
-                                            terminalData.forgotDOB.month = input;
-                                            terminalData.prompt = 'Year (YYYY): ';
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            this.printLine('', terminalData);
-                                            this.printLine('Year (numbers only):', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                        } else if (terminalData.prompt === 'Year (YYYY): ') {
-                                            // Handle Reset command
-                                            if (input.toLowerCase() === 'reset') {
-                                                // Reset DOB completely
-                                                terminalData.awaitingForgotFirstName = false;
-                                                terminalData.awaitingForgotLastName = false;
-                                                terminalData.awaitingForgotDOB = true;
-                                                terminalData.forgotDOB = null;
-                                                terminalData.prompt = 'Day (DD): ';
-                                                terminalData.currentInput = '';
-                                                terminalData.shouldCapitalizeNext = true;
-                                                terminalData.lastCharWasSentenceEnd = false;
-                                                
-                                                this.printLine('', terminalData);
-                                                this.printLine('DOB reset. Starting fresh:', terminalData);
-                                                this.playBeep();
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            
-                                            const year = parseInt(input);
-                                            if (year < 1900 || year > 2025) {
-                                                this.printLine('Error: Year must be between 1900 and 2025 or type "Reset" to reset DOB.', terminalData);
-                                                this.render(terminalData);
-                                                return;
-                                            }
-                                            terminalData.transcript += terminalData.prompt + input + '\n';
-                                            terminalData.forgotDOB.year = input;
-                                            
-                                            // Check if this is PIN recovery process
-                                            if (terminalData.isPINRecovery) {
-                                                this.performPINRecoverySearch(terminalData);
-                                                return;
-                                            }
-                                            
-                                            // Create backup hash from user info
-                                            try {
-                                                const encoder = new TextEncoder();
-                                                const toSha256Hex = async (inputValue) => {
-                                                    const data = encoder.encode(inputValue);
-                                                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                                                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-                                                };
-                                                
-                                                const backupInfo = `${terminalData.forgotFirstName}${terminalData.forgotLastName}${terminalData.forgotDOB.month}${terminalData.forgotDOB.day}${terminalData.forgotDOB.year}`;
-                                                const backupHash = await toSha256Hex(backupInfo);
-                                                
-                                                this.printLine('', terminalData);
-                                                this.printLine('Searching for account...', terminalData);
-                                                this.printLine('', terminalData);
-                                                
-                                                try {
-                                                    // Search for account by backup hash
-                                                    const accountData = await window.HashDatabase.findAccountByBackupHash(backupHash);
-                                                    
-                                                    if (accountData) {
-                                                        this.printLine('Back-up hash found:', terminalData);
-                                                        this.printLine('"' + accountData.backupHash + '"', terminalData);
-                                                        this.printLine('', terminalData);
-                                                        this.printLine('Recovered password:', terminalData);
-                                                        this.printLine('"' + accountData.plainPassword + '"', terminalData);
-                                                        this.printLine('', terminalData);
-                                                    } else {
-                                                        this.printLine('Couldnt find any accounts with this hash-key', terminalData);
-                                                        this.printLine('', terminalData);
-                                                    }
-                                                } catch (error) {
-                                                    this.printLine('Error searching for account: ' + error.message, terminalData);
-                                                    this.printLine('', terminalData);
-                                                }
-                                            } catch (hashError) {
-                                                this.printLine('Error generating hash: ' + hashError.message, terminalData);
-                                                this.printLine('Please ensure you are using a secure connection (HTTPS)', terminalData);
-                                                this.printLine('', terminalData);
-                                            }
-                                            
-                                            // Reset forgot process
-                                            terminalData.awaitingForgotFirstName = false;
-                                            terminalData.awaitingForgotLastName = false;
-                                            terminalData.awaitingForgotDOB = false;
-                                            terminalData.forgotFirstName = null;
-                                            terminalData.forgotLastName = null;
-                                            terminalData.forgotDOB = null;
-                                            terminalData.prompt = this.defaultPrompt;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            
-                                            this.printLine('Process completed.', terminalData);
-                                            this.playBeep();
-                                            this.render(terminalData);
-                                            return;
-                                        }
                                     }
 
                                     return previousExecuteCommand(raw, terminalData);
