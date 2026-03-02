@@ -3927,10 +3927,23 @@
 
                                     // ==================== PIN INPUT ====================
                                     if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPIN) {
+                                        console.log('=== PIN Input Debug ===');
+                                        console.log('Raw input:', raw);
+                                        console.log('Terminal data:', {
+                                            signupFirstName: terminalData.signupFirstName,
+                                            signupLastName: terminalData.signupLastName,
+                                            signupDOB: terminalData.signupDOB,
+                                            awaitingSignupPIN: terminalData.awaitingSignupPIN
+                                        });
+                                        
                                         const pin = (raw || '').trim();
+                                        console.log('Trimmed PIN:', pin);
+                                        console.log('PIN length:', pin.length);
+                                        console.log('PIN is 4 digits:', /^\d{4}$/.test(pin));
                                         
                                         // Check if PIN is a command first
                                         if (terminalData.customCommands[pin]) {
+                                            console.log('PIN is a custom command, executing...');
                                             try {
                                                 await terminalData.customCommands[pin].run({
                                                     args: [],
@@ -3940,9 +3953,11 @@
                                                     terminal: terminalData.element,
                                                     activeInput: terminalData.element
                                                 });
+                                                console.log('Custom command executed successfully');
                                                 this.render(terminalData);
                                                 return;
                                             } catch (err) {
+                                                console.error('Custom command error:', err);
                                             // Suppress most errors to improve user experience
                                             // Only show critical errors that users need to see
                                             if (err && typeof err === 'string' && err.includes('Cannot read property')) {
@@ -3956,6 +3971,7 @@
                                         
                                         // Check if user wants to undo
                                         if (pin.toLowerCase() === 'undo') {
+                                            console.log('User requested undo - stepping back to year entry');
                                             // Step back to year input
                                             terminalData.awaitingSignupFirstName = false;
                                             terminalData.awaitingSignupLastName = false;
@@ -3977,6 +3993,7 @@
                                         
                                         // Check if user wants to clear
                                         if (pin.toLowerCase() === 'clear') {
+                                            console.log('User requested clear - clearing input');
                                             terminalData.currentInput = '';
                                             this.render(terminalData);
                                             return;
@@ -3984,10 +4001,13 @@
                                         
                                         // Validate PIN - must be exactly 4 digits and numeric only
                                         if (!/^\d{4}$/.test(pin)) {
+                                            console.log('PIN validation failed - not 4 digits');
                                             this.printLine('Error: PIN must be exactly 4 digits (numbers only).', terminalData);
                                             this.render(terminalData);
                                             return;
                                         }
+                                        
+                                        console.log('PIN validation passed - proceeding with account creation');
                                         
                                         terminalData.transcript += terminalData.prompt + pin + '\n';
                                         terminalData.signupPIN = pin;
@@ -4005,28 +4025,50 @@
                                         let hashId = null;
                                         let hashExists = false;
                                         
+                                        console.log('=== Starting Hash Generation ===');
+                                        console.log('User data for hash:', {
+                                            firstName: terminalData.signupFirstName,
+                                            lastName: terminalData.signupLastName,
+                                            dob: terminalData.signupDOB,
+                                            pin: terminalData.signupPIN
+                                        });
+                                        
                                         // Combine credentials and generate SHA-256
                                         try {
+                                            console.log('Creating encoder and hash function...');
                                             const encoder = new TextEncoder();
                                             const toSha256Hex = async (inputValue) => {
+                                                console.log('Hashing input:', inputValue);
                                                 const data = encoder.encode(inputValue);
                                                 const hashBuffer = await crypto.subtle.digest('SHA-256', data);
                                                 const hashArray = Array.from(new Uint8Array(hashBuffer));
-                                                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                                const result = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                                                console.log('Hash generated:', result);
+                                                return result;
                                             };
 
+                                            console.log('Combining user data for hash...');
                                             const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPIN;
+                                            console.log('Combined string:', primaryCombined);
+                                            console.log('Combined string length:', primaryCombined.length);
+                                            
                                             const primaryHashHex = await toSha256Hex(primaryCombined);
+                                            console.log('Final hash:', primaryHashHex);
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
                                             this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + terminalData.signupPIN + ',', terminalData);
                                             
+                                            console.log('=== Starting Database Storage ===');
+                                            console.log('HashDatabase available:', !!window.HashDatabase);
+                                            
                                             // Store hash in database
                                             if (window.HashDatabase) {
                                                 try {
+                                                    console.log('Calling storeHash...');
                                                     hashId = await window.HashDatabase.storeHash(primaryHashHex, null, null, 'signup');
+                                                    console.log('storeHash returned:', hashId);
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
                                                     
@@ -4115,30 +4157,43 @@
                                                     }
                                                     
                                                 } catch (dbError) {
+                                                    console.error('Database storage error:', dbError);
                                                     this.printLine('', terminalData);
                                                     this.printLine('ERROR: Failed to store hash data - ' + dbError.message, terminalData);
                                                     this.printLine('Account creation incomplete - please try again', terminalData);
                                                 }
                                             } else {
+                                                console.error('HashDatabase not available');
                                                 this.printLine('', terminalData);
                                                 this.printLine('ERROR: Database system not available', terminalData);
                                                 this.printLine('Account creation incomplete - please refresh and try again', terminalData);
                                             }
                                             
                                         } catch (error) {
+                                            console.error('Hash generation error:', error);
+                                            console.error('Error stack:', error.stack);
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
                                         }
                                         
+                                        console.log('=== Final Status Check ===');
+                                        console.log('hashStored:', hashStored);
+                                        console.log('hashId:', hashId);
+                                        console.log('hashExists:', hashExists);
+                                        
                                         // Check final status and show appropriate message
                                         if (hashStored && hashId) {
+                                            console.log('Account creation successful - showing success message');
                                             this.printLine('', terminalData);
                                             this.printLine('Successfully created an account!', terminalData);
                                             this.printLine('Account is stored into the database.', terminalData);
                                         } else {
+                                            console.log('Account creation failed - showing error message');
                                             this.printLine('', terminalData);
                                             this.printLine('ERROR: No data was stored - account not created.', terminalData);
                                             this.printLine('Please try again', terminalData);
                                         }
+                                        
+                                        console.log('=== Returning to Default Prompt ===');
                                         
                                         // Return to default command prompt after hash processing
                                         terminalData.prompt = this.defaultPrompt;
