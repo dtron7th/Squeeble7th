@@ -4201,73 +4201,88 @@
                                                                     // Find the terminal content area
                                                                     const terminalElement = terminalData.element;
                                                                     console.log('Terminal element:', terminalElement);
-                                                                    console.log('Terminal element children:', terminalElement.children);
-                                                                    console.log('Terminal element innerHTML preview:', terminalElement.innerHTML.substring(0, 500));
+                                                                    console.log('Terminal element tagName:', terminalElement.tagName);
+                                                                    console.log('Terminal element id:', terminalElement.id);
+                                                                    console.log('Terminal element className:', terminalElement.className);
                                                                     
-                                                                    // Try multiple selectors to find the content area
-                                                                    const contentEditable = terminalElement.querySelector('[contenteditable]');
-                                                                    const terminalClass = terminalElement.querySelector('.terminal');
-                                                                    const terminalContent = terminalElement.querySelector('.terminal-content');
-                                                                    const anyDiv = terminalElement.querySelector('div');
-                                                                    const anyP = terminalElement.querySelector('p');
-                                                                    
-                                                                    console.log('Element search results:');
-                                                                    console.log('contenteditable:', contentEditable);
-                                                                    console.log('.terminal:', terminalClass);
-                                                                    console.log('.terminal-content:', terminalContent);
-                                                                    console.log('any div:', anyDiv);
-                                                                    console.log('any p:', anyP);
-                                                                    
-                                                                    // Use the first available element
-                                                                    let targetElement = contentEditable || terminalClass || terminalContent || anyDiv || anyP;
-                                                                    
-                                                                    if (targetElement) {
-                                                                        console.log('Found target element for injection:', targetElement);
-                                                                        console.log('Target element tag:', targetElement.tagName);
-                                                                        console.log('Target element classes:', targetElement.className);
-                                                                        
-                                                                        // Insert canvas before the cursor or at the end
-                                                                        const cursor = targetElement.querySelector('.terminal-cursor');
-                                                                        if (cursor) {
-                                                                            console.log('Found cursor, inserting before it');
-                                                                            cursor.parentNode.insertBefore(canvas, cursor);
-                                                                            console.log('Canvas inserted before cursor');
-                                                                        } else {
-                                                                            console.log('No cursor found, appending to target element');
-                                                                            targetElement.appendChild(canvas);
-                                                                            console.log('Canvas appended to target element');
-                                                                        }
-                                                                        
-                                                                        // Draw QR code on canvas
-                                                                        const ctx = canvas.getContext('2d');
-                                                                        const img = new Image();
-                                                                        img.onload = function() {
-                                                                            console.log('QR code image loaded, drawing to canvas...');
-                                                                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                                                            ctx.drawImage(img, 0, 0, 200, 200);
-                                                                            console.log('QR code drawn to canvas successfully');
-                                                                            
-                                                                            // Verify canvas has content
-                                                                            setTimeout(() => {
-                                                                                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                                                                                const hasContent = imageData.data.some((channel, index) => {
-                                                                                    return index % 4 !== 3 && channel !== 255;
-                                                                                });
-                                                                                
-                                                                                if (!hasContent) {
-                                                                                    console.error('QR CODE DISPLAY ERROR: Canvas appears to be empty/white');
-                                                                                } else {
-                                                                                    console.log('QR code display verified - canvas contains non-white pixels');
-                                                                                }
-                                                                            }, 200);
-                                                                        };
-                                                                        img.onerror = function() {
-                                                                            console.error('QR CODE DISPLAY ERROR: Failed to load QR code image');
-                                                                        };
-                                                                        img.src = qrCodeDataURL;
-                                                                        
+                                                                    // Check if we have the right element
+                                                                    if (!terminalElement) {
+                                                                        console.error('Terminal element is null/undefined');
                                                                     } else {
-                                                                        console.error('QR CODE DISPLAY ERROR: Could not find contenteditable element');
+                                                                        console.log('Terminal element children count:', terminalElement.children.length);
+                                                                        console.log('Terminal element innerHTML preview:', terminalElement.innerHTML.substring(0, 500));
+                                                                        
+                                                                        // Try multiple selectors to find the content area
+                                                                        const contentEditable = terminalElement.querySelector('[contenteditable]');
+                                                                        const terminalClass = terminalElement.querySelector('.terminal');
+                                                                        const terminalContent = terminalElement.querySelector('.terminal-content');
+                                                                        const anyDiv = terminalElement.querySelector('div');
+                                                                        const anyP = terminalElement.querySelector('p');
+                                                                        const anySpan = terminalElement.querySelector('span');
+                                                                        
+                                                                        console.log('Element search results:');
+                                                                        console.log('contenteditable:', contentEditable);
+                                                                        console.log('.terminal:', terminalClass);
+                                                                        console.log('.terminal-content:', terminalContent);
+                                                                        console.log('any div:', anyDiv);
+                                                                        console.log('any p:', anyP);
+                                                                        console.log('any span:', anySpan);
+                                                                        
+                                                                        // Use the first available element, or the terminal element itself
+                                                                        let targetElement = contentEditable || terminalClass || terminalContent || anyDiv || anyP || anySpan || terminalElement;
+                                                                        
+                                                                        if (targetElement) {
+                                                                            console.log('Found target element for injection:', targetElement);
+                                                                            console.log('Target element tag:', targetElement.tagName);
+                                                                            console.log('Target element classes:', targetElement.className);
+                                                                            console.log('Target element id:', targetElement.id);
+                                                                        
+                                                                            // Insert canvas before the cursor or at the end
+                                                                            const cursor = targetElement.querySelector('.terminal-cursor');
+                                                                            if (cursor) {
+                                                                                console.log('Found cursor, inserting before it');
+                                                                                cursor.parentNode.insertBefore(canvas, cursor);
+                                                                                console.log('Canvas inserted before cursor');
+                                                                            } else {
+                                                                                console.log('No cursor found, appending to target element');
+                                                                                targetElement.appendChild(canvas);
+                                                                                console.log('Canvas appended to target element');
+                                                                            }
+                                                                        
+                                                                            // Draw QR code on canvas
+                                                                            const ctx = canvas.getContext('2d');
+                                                                            const img = new Image();
+                                                                            img.onload = function() {
+                                                                                console.log('QR code image loaded, drawing to canvas...');
+                                                                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                                                                ctx.drawImage(img, 0, 0, 200, 200);
+                                                                                console.log('QR code drawn to canvas successfully');
+                                                                                
+                                                                                // Verify canvas has content
+                                                                                setTimeout(() => {
+                                                                                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                                                                    const hasContent = imageData.data.some((channel, index) => {
+                                                                                        return index % 4 !== 3 && channel !== 255;
+                                                                                    });
+                                                                                    
+                                                                                    if (!hasContent) {
+                                                                                        console.error('QR CODE DISPLAY ERROR: Canvas appears to be empty/white');
+                                                                                    } else {
+                                                                                        console.log('QR code display verified - canvas contains non-white pixels');
+                                                                                    }
+                                                                                }, 200);
+                                                                            };
+                                                                            img.onerror = function() {
+                                                                                console.error('QR CODE DISPLAY ERROR: Failed to load QR code image');
+                                                                            };
+                                                                            img.src = qrCodeDataURL;
+                                                                        
+                                                                        } else {
+                                                                            console.error('QR CODE DISPLAY ERROR: No suitable element found for canvas injection');
+                                                                            console.error('Last resort - trying document.body');
+                                                                            document.body.appendChild(canvas);
+                                                                            console.log('Canvas appended to document.body as last resort');
+                                                                        }
                                                                     }
                                                                 
                                                                 }, 200); // Wait for terminal to render
