@@ -4029,6 +4029,91 @@
                                                     hashId = await window.HashDatabase.storeHash(primaryHashHex, null, null, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
+                                                    
+                                                    // Generate QR code immediately after successful storage
+                                                    console.log('=== QR Code Generation Debug ===');
+                                                    console.log('Primary hash:', primaryHashHex);
+                                                    console.log('Hash length:', primaryHashHex ? primaryHashHex.length : 'null');
+                                                    
+                                                    // Check if QRCode function is available
+                                                    if (typeof QRCode !== 'function') {
+                                                        console.error('QRCode library not loaded - typeof QRCode:', typeof QRCode);
+                                                        this.printLine('', terminalData);
+                                                        this.printLine('Warning: Could not generate QR code - QRCode library not loaded', terminalData);
+                                                        this.printLine('Your account was still created successfully', terminalData);
+                                                        this.printLine('Hash: ' + primaryHashHex, terminalData);
+                                                    } else {
+                                                        console.log('QRCode function is available');
+                                                        this.printLine('', terminalData);
+                                                        this.printLine('Generating QR code...', terminalData);
+                                                        
+                                                        try {
+                                                            console.log('Calling QRCode function with options:', {
+                                                                typeNumber: 4,
+                                                                errorCorrectLevel: 'M',
+                                                                cellSize: 4,
+                                                                margin: 2
+                                                            });
+                                                            
+                                                            // Generate QR code using the primary hash
+                                                            const qrCodeDataURL = QRCode(primaryHashHex, {
+                                                                typeNumber: 4,
+                                                                errorCorrectLevel: 'M',
+                                                                cellSize: 4,
+                                                                margin: 2
+                                                            });
+                                                            
+                                                            console.log('QRCode function returned:', qrCodeDataURL);
+                                                            console.log('Return type:', typeof qrCodeDataURL);
+                                                            console.log('Is string?', typeof qrCodeDataURL === 'string');
+                                                            console.log('Starts with data:image?', qrCodeDataURL && qrCodeDataURL.startsWith('data:image/'));
+                                                            
+                                                            // Check if QR code was generated successfully
+                                                            if (!qrCodeDataURL) {
+                                                                console.error('QRCode function returned null/undefined');
+                                                                this.printLine('', terminalData);
+                                                                this.printLine('Warning: Could not generate QR code - null result', terminalData);
+                                                                this.printLine('Your account was still created successfully', terminalData);
+                                                                this.printLine('Hash: ' + primaryHashHex, terminalData);
+                                                            } else if (typeof qrCodeDataURL !== 'string') {
+                                                                console.error('QRCode function returned non-string:', typeof qrCodeDataURL);
+                                                                this.printLine('', terminalData);
+                                                                this.printLine('Warning: Could not generate QR code - invalid return type', terminalData);
+                                                                this.printLine('Your account was still created successfully', terminalData);
+                                                                this.printLine('Hash: ' + primaryHashHex, terminalData);
+                                                            } else if (!qrCodeDataURL.startsWith('data:image/')) {
+                                                                console.error('QRCode function returned invalid data URL:', qrCodeDataURL.substring(0, 50));
+                                                                this.printLine('', terminalData);
+                                                                this.printLine('Warning: Could not generate QR code - invalid data URL format', terminalData);
+                                                                this.printLine('Your account was still created successfully', terminalData);
+                                                                this.printLine('Hash: ' + primaryHashHex, terminalData);
+                                                            } else {
+                                                                console.log('QR code generated successfully, length:', qrCodeDataURL.length);
+                                                                
+                                                                // Display QR code in terminal
+                                                                this.printHTML('<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>', terminalData);
+                                                                this.printLine('', terminalData);
+                                                                this.printLine('QR Code contains your primary account hash', terminalData);
+                                                                this.printLine('Save this QR code for account recovery', terminalData);
+                                                                
+                                                                console.log('=== QR Code Generation Complete ===');
+                                                            }
+                                                        } catch (qrError) {
+                                                            console.error('=== QR Code Generation Error ===');
+                                                            console.error('Error message:', qrError.message);
+                                                            console.error('Error stack:', qrError.stack);
+                                                            console.error('Primary hash at error time:', primaryHashHex);
+                                                            console.error('typeof QRCode at error time:', typeof QRCode);
+                                                            console.error('=== End Error Details ===');
+                                                            
+                                                            this.printLine('', terminalData);
+                                                            this.printLine('Warning: Could not generate QR code - ' + qrError.message, terminalData);
+                                                            this.printLine('Your account was still created successfully', terminalData);
+                                                            this.printLine('Hash: ' + primaryHashHex, terminalData);
+                                                            this.printLine('Check browser console for detailed error information', terminalData);
+                                                        }
+                                                    }
+                                                    
                                                 } catch (dbError) {
                                                     this.printLine('', terminalData);
                                                     this.printLine('ERROR: Failed to store hash data - ' + dbError.message, terminalData);
@@ -4049,94 +4134,6 @@
                                             this.printLine('', terminalData);
                                             this.printLine('Successfully created an account!', terminalData);
                                             this.printLine('Account is stored into the database.', terminalData);
-                                            
-                                            // Generate QR code from primary hash
-                                            try {
-                                                this.printLine('', terminalData);
-                                                this.printLine('Generating QR code...', terminalData);
-                                                
-                                                console.log('=== QR Code Generation Debug ===');
-                                                console.log('Primary hash:', primaryHashHex);
-                                                console.log('Hash length:', primaryHashHex ? primaryHashHex.length : 'null');
-                                                
-                                                // Check if QRCode function is available
-                                                if (typeof QRCode !== 'function') {
-                                                    console.error('QRCode library not loaded - typeof QRCode:', typeof QRCode);
-                                                    throw new Error('QRCode library not loaded');
-                                                }
-                                                
-                                                console.log('QRCode function is available');
-                                                
-                                                // Check if primaryHashHex is valid
-                                                if (!primaryHashHex || primaryHashHex.length === 0) {
-                                                    console.error('Primary hash is empty or invalid:', primaryHashHex);
-                                                    throw new Error('Primary hash is empty or invalid');
-                                                }
-                                                
-                                                this.printLine('Hash for QR: ' + primaryHashHex.substring(0, 10) + '...', terminalData);
-                                                
-                                                console.log('Calling QRCode function with options:', {
-                                                    typeNumber: 4,
-                                                    errorCorrectLevel: 'M',
-                                                    cellSize: 4,
-                                                    margin: 2
-                                                });
-                                                
-                                                // Generate QR code using the primary hash
-                                                const qrCodeDataURL = QRCode(primaryHashHex, {
-                                                    typeNumber: 4,
-                                                    errorCorrectLevel: 'M',
-                                                    cellSize: 4,
-                                                    margin: 2
-                                                });
-                                                
-                                                console.log('QRCode function returned:', qrCodeDataURL);
-                                                console.log('Return type:', typeof qrCodeDataURL);
-                                                console.log('Is string?', typeof qrCodeDataURL === 'string');
-                                                console.log('Starts with data:image?', qrCodeDataURL && qrCodeDataURL.startsWith('data:image/'));
-                                                
-                                                // Check if QR code was generated successfully
-                                                if (!qrCodeDataURL) {
-                                                    console.error('QRCode function returned null/undefined');
-                                                    throw new Error('QR code generation failed - null result');
-                                                }
-                                                
-                                                if (typeof qrCodeDataURL !== 'string') {
-                                                    console.error('QRCode function returned non-string:', typeof qrCodeDataURL);
-                                                    throw new Error('QR code generation failed - invalid return type');
-                                                }
-                                                
-                                                if (!qrCodeDataURL.startsWith('data:image/')) {
-                                                    console.error('QRCode function returned invalid data URL:', qrCodeDataURL.substring(0, 50));
-                                                    throw new Error('QR code generation failed - invalid data URL format');
-                                                }
-                                                
-                                                console.log('QR code generated successfully, length:', qrCodeDataURL.length);
-                                                
-                                                // Display QR code in terminal
-                                                this.printHTML('<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>', terminalData);
-                                                this.printLine('', terminalData);
-                                                this.printLine('QR Code contains your primary account hash', terminalData);
-                                                this.printLine('Save this QR code for account recovery', terminalData);
-                                                
-                                                console.log('=== QR Code Generation Complete ===');
-                                                
-                                            } catch (qrError) {
-                                                console.error('=== QR Code Generation Error ===');
-                                                console.error('Error message:', qrError.message);
-                                                console.error('Error stack:', qrError.stack);
-                                                console.error('Primary hash at error time:', primaryHashHex);
-                                                console.error('typeof QRCode at error time:', typeof QRCode);
-                                                console.error('=== End Error Details ===');
-                                                
-                                                this.printLine('', terminalData);
-                                                this.printLine('Warning: Could not generate QR code - ' + qrError.message, terminalData);
-                                                this.printLine('Your account was still created successfully', terminalData);
-                                                this.printLine('Hash: ' + primaryHashHex, terminalData);
-                                                this.printLine('Check browser console for detailed error information', terminalData);
-                                            }
-                                        } else if (hashExists) {
-                                            // Hash already exists case - no additional message needed
                                         } else {
                                             this.printLine('', terminalData);
                                             this.printLine('ERROR: No data was stored - account not created.', terminalData);
