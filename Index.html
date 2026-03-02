@@ -4055,6 +4055,18 @@
                                                 this.printLine('', terminalData);
                                                 this.printLine('Generating QR code...', terminalData);
                                                 
+                                                // Check if QRCode function is available
+                                                if (typeof QRCode !== 'function') {
+                                                    throw new Error('QRCode library not loaded');
+                                                }
+                                                
+                                                // Check if primaryHashHex is valid
+                                                if (!primaryHashHex || primaryHashHex.length === 0) {
+                                                    throw new Error('Primary hash is empty or invalid');
+                                                }
+                                                
+                                                this.printLine('Hash for QR: ' + primaryHashHex.substring(0, 10) + '...', terminalData);
+                                                
                                                 // Generate QR code using the primary hash
                                                 const qrCodeDataURL = QRCode(primaryHashHex, {
                                                     typeNumber: 4,
@@ -4063,6 +4075,11 @@
                                                     margin: 2
                                                 });
                                                 
+                                                // Check if QR code was generated successfully
+                                                if (!qrCodeDataURL || !qrCodeDataURL.startsWith('data:image/')) {
+                                                    throw new Error('QR code generation failed - invalid data URL');
+                                                }
+                                                
                                                 // Display QR code in terminal
                                                 this.printHTML('<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>', terminalData);
                                                 this.printLine('', terminalData);
@@ -4070,9 +4087,11 @@
                                                 this.printLine('Save this QR code for account recovery', terminalData);
                                                 
                                             } catch (qrError) {
+                                                console.error('QR Code generation error:', qrError);
                                                 this.printLine('', terminalData);
                                                 this.printLine('Warning: Could not generate QR code - ' + qrError.message, terminalData);
                                                 this.printLine('Your account was still created successfully', terminalData);
+                                                this.printLine('Hash: ' + primaryHashHex, terminalData);
                                             }
                                         } else if (hashExists) {
                                             // Hash already exists case - no additional message needed
@@ -4125,6 +4144,41 @@
                                 context.print('Available PIN commands: 1234, 5678, 9999');
                                 context.print('');
                             }, 'System information PIN command');
+                            
+                            TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'testqr', function(context) {
+                                context.print('');
+                                context.print('=== Testing QR Code Generation ===');
+                                
+                                try {
+                                    if (typeof QRCode !== 'function') {
+                                        context.print('ERROR: QRCode library not loaded');
+                                        return;
+                                    }
+                                    
+                                    const testText = 'TEST123';
+                                    context.print('Generating QR code for: ' + testText);
+                                    
+                                    const qrCodeDataURL = QRCode(testText, {
+                                        typeNumber: 4,
+                                        errorCorrectLevel: 'M',
+                                        cellSize: 4,
+                                        margin: 2
+                                    });
+                                    
+                                    if (!qrCodeDataURL || !qrCodeDataURL.startsWith('data:image/')) {
+                                        context.print('ERROR: QR code generation failed');
+                                        return;
+                                    }
+                                    
+                                    context.printHTML('<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="Test QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>');
+                                    context.print('QR Code generated successfully!');
+                                    
+                                } catch (error) {
+                                    context.print('ERROR: ' + error.message);
+                                }
+                                
+                                context.print('');
+                            }, 'Test QR code generation');
                             
                             TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'close', function(context) {
                                 // Clear terminal data before closing
