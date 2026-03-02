@@ -4200,19 +4200,42 @@
                                                                     
                                                                     // Find the terminal content area
                                                                     const terminalElement = terminalData.element;
-                                                                    const contentEditable = terminalElement.querySelector('[contenteditable]');
+                                                                    console.log('Terminal element:', terminalElement);
+                                                                    console.log('Terminal element children:', terminalElement.children);
+                                                                    console.log('Terminal element innerHTML preview:', terminalElement.innerHTML.substring(0, 500));
                                                                     
-                                                                    if (contentEditable) {
-                                                                        console.log('Found contenteditable element, injecting canvas...');
+                                                                    // Try multiple selectors to find the content area
+                                                                    const contentEditable = terminalElement.querySelector('[contenteditable]');
+                                                                    const terminalClass = terminalElement.querySelector('.terminal');
+                                                                    const terminalContent = terminalElement.querySelector('.terminal-content');
+                                                                    const anyDiv = terminalElement.querySelector('div');
+                                                                    const anyP = terminalElement.querySelector('p');
+                                                                    
+                                                                    console.log('Element search results:');
+                                                                    console.log('contenteditable:', contentEditable);
+                                                                    console.log('.terminal:', terminalClass);
+                                                                    console.log('.terminal-content:', terminalContent);
+                                                                    console.log('any div:', anyDiv);
+                                                                    console.log('any p:', anyP);
+                                                                    
+                                                                    // Use the first available element
+                                                                    let targetElement = contentEditable || terminalClass || terminalContent || anyDiv || anyP;
+                                                                    
+                                                                    if (targetElement) {
+                                                                        console.log('Found target element for injection:', targetElement);
+                                                                        console.log('Target element tag:', targetElement.tagName);
+                                                                        console.log('Target element classes:', targetElement.className);
                                                                         
-                                                                        // Insert canvas before the cursor
-                                                                        const cursor = contentEditable.querySelector('.terminal-cursor');
+                                                                        // Insert canvas before the cursor or at the end
+                                                                        const cursor = targetElement.querySelector('.terminal-cursor');
                                                                         if (cursor) {
+                                                                            console.log('Found cursor, inserting before it');
                                                                             cursor.parentNode.insertBefore(canvas, cursor);
                                                                             console.log('Canvas inserted before cursor');
                                                                         } else {
-                                                                            contentEditable.appendChild(canvas);
-                                                                            console.log('Canvas appended to contenteditable');
+                                                                            console.log('No cursor found, appending to target element');
+                                                                            targetElement.appendChild(canvas);
+                                                                            console.log('Canvas appended to target element');
                                                                         }
                                                                         
                                                                         // Draw QR code on canvas
