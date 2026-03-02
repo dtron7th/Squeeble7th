@@ -4176,23 +4176,47 @@
                                                                 console.log('QR code generated successfully, length:', qrCodeDataURL.length);
                                                                 console.log('QR code data URL starts with:', qrCodeDataURL.substring(0, 50));
                                                                 
-                                                                // Display QR code in terminal using canvas
+                                                                // Create canvas and inject directly into DOM after terminal renders
                                                                 console.log('Creating canvas for QR code display...');
                                                                 const canvasId = 'qr-canvas-' + Date.now();
-                                                                const qrHTML = '<div style="margin: 10px 0; text-align: center;"><canvas id="' + canvasId + '" width="200" height="200" style="border: 2px solid #00AA00; background: white;"></canvas></div>';
-                                                                console.log('QR canvas HTML to display:', qrHTML);
                                                                 
-                                                                this.printHTML(qrHTML, terminalData);
-                                                                console.log('Canvas HTML printed, waiting for DOM update...');
-                                                                
-                                                                // Wait for DOM to update then draw on canvas
+                                                                // Wait for terminal to render, then inject canvas
                                                                 setTimeout(() => {
-                                                                    const canvas = document.getElementById(canvasId);
-                                                                    if (canvas) {
-                                                                        console.log('Canvas found, drawing QR code...');
-                                                                        const ctx = canvas.getContext('2d');
+                                                                    console.log('Terminal rendered, injecting QR code canvas...');
+                                                                    
+                                                                    // Create canvas element
+                                                                    const canvas = document.createElement('canvas');
+                                                                    canvas.id = canvasId;
+                                                                    canvas.width = 200;
+                                                                    canvas.height = 200;
+                                                                    canvas.style.border = '2px solid #00AA00';
+                                                                    canvas.style.background = 'white';
+                                                                    canvas.style.margin = '10px 0';
+                                                                    canvas.style.display = 'block';
+                                                                    canvas.style.marginLeft = 'auto';
+                                                                    canvas.style.marginRight = 'auto';
+                                                                    
+                                                                    console.log('Canvas element created:', canvas);
+                                                                    
+                                                                    // Find the terminal content area
+                                                                    const terminalElement = terminalData.element;
+                                                                    const contentEditable = terminalElement.querySelector('[contenteditable]');
+                                                                    
+                                                                    if (contentEditable) {
+                                                                        console.log('Found contenteditable element, injecting canvas...');
                                                                         
-                                                                        // Create image from data URL
+                                                                        // Insert canvas before the cursor
+                                                                        const cursor = contentEditable.querySelector('.terminal-cursor');
+                                                                        if (cursor) {
+                                                                            cursor.parentNode.insertBefore(canvas, cursor);
+                                                                            console.log('Canvas inserted before cursor');
+                                                                        } else {
+                                                                            contentEditable.appendChild(canvas);
+                                                                            console.log('Canvas appended to contenteditable');
+                                                                        }
+                                                                        
+                                                                        // Draw QR code on canvas
+                                                                        const ctx = canvas.getContext('2d');
                                                                         const img = new Image();
                                                                         img.onload = function() {
                                                                             console.log('QR code image loaded, drawing to canvas...');
@@ -4204,13 +4228,11 @@
                                                                             setTimeout(() => {
                                                                                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                                                                                 const hasContent = imageData.data.some((channel, index) => {
-                                                                                    return index % 4 !== 3 && channel !== 255; // Check RGB channels, ignore alpha
+                                                                                    return index % 4 !== 3 && channel !== 255;
                                                                                 });
                                                                                 
                                                                                 if (!hasContent) {
                                                                                     console.error('QR CODE DISPLAY ERROR: Canvas appears to be empty/white');
-                                                                                    console.error('Canvas dimensions:', canvas.width, 'x', canvas.height);
-                                                                                    console.error('Image data sample:', imageData.data.slice(0, 20));
                                                                                 } else {
                                                                                     console.log('QR code display verified - canvas contains non-white pixels');
                                                                                 }
@@ -4218,45 +4240,18 @@
                                                                         };
                                                                         img.onerror = function() {
                                                                             console.error('QR CODE DISPLAY ERROR: Failed to load QR code image');
-                                                                            console.error('Image source length:', qrCodeDataURL.length);
-                                                                            console.error('Image source preview:', qrCodeDataURL.substring(0, 100));
                                                                         };
                                                                         img.src = qrCodeDataURL;
-                                                                    } else {
-                                                                        console.error('QR CODE DISPLAY ERROR: Canvas not found with ID:', canvasId);
-                                                                        console.error('Available elements with similar IDs:');
-                                                                        document.querySelectorAll('[id*="qr-canvas"]').forEach(el => {
-                                                                            console.error('Found:', el.id);
-                                                                        });
-                                                                    }
-                                                                }, 100);
-                                                                
-                                                                // Add timeout to detect if QR code never displays
-                                                                setTimeout(() => {
-                                                                    const canvas = document.getElementById(canvasId);
-                                                                    if (!canvas) {
-                                                                        console.error('QR CODE DISPLAY TIMEOUT: Canvas was never created');
-                                                                        console.error('Expected canvas ID:', canvasId);
-                                                                        console.error('This suggests printHTML function is not working properly');
-                                                                    } else {
-                                                                        const ctx = canvas.getContext('2d');
-                                                                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                                                                        const hasContent = imageData.data.some((channel, index) => {
-                                                                            return index % 4 !== 3 && channel !== 255;
-                                                                        });
                                                                         
-                                                                        if (!hasContent) {
-                                                                            console.error('QR CODE DISPLAY TIMEOUT: Canvas exists but appears empty after 2 seconds');
-                                                                            console.error('This suggests the image failed to load or draw');
-                                                                        }
+                                                                    } else {
+                                                                        console.error('QR CODE DISPLAY ERROR: Could not find contenteditable element');
                                                                     }
-                                                                }, 2000);
                                                                 
-                                                                // Test if printHTML works with simple content
-                                                                console.log('Testing printHTML with simple content...');
-                                                                this.printHTML('<div style="color: #00AA00; font-weight: bold;">QR CODE DISPLAYED ABOVE</div>', terminalData);
-                                                                console.log('Simple HTML test completed');
+                                                                }, 200); // Wait for terminal to render
                                                                 
+                                                                // Add visual indicator in terminal
+                                                                this.printLine('', terminalData);
+                                                                this.printLine('[QR Code displayed above]', terminalData);
                                                                 this.printLine('', terminalData);
                                                                 this.printLine('QR Code contains your primary account hash', terminalData);
                                                                 this.printLine('Save this QR code for account recovery', terminalData);
