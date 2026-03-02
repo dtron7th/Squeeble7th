@@ -4156,15 +4156,58 @@
                                                                             ctx.clearRect(0, 0, canvas.width, canvas.height);
                                                                             ctx.drawImage(img, 0, 0, 200, 200);
                                                                             console.log('QR code drawn to canvas successfully');
+                                                                            
+                                                                            // Verify canvas has content
+                                                                            setTimeout(() => {
+                                                                                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                                                                const hasContent = imageData.data.some((channel, index) => {
+                                                                                    return index % 4 !== 3 && channel !== 255; // Check RGB channels, ignore alpha
+                                                                                });
+                                                                                
+                                                                                if (!hasContent) {
+                                                                                    console.error('QR CODE DISPLAY ERROR: Canvas appears to be empty/white');
+                                                                                    console.error('Canvas dimensions:', canvas.width, 'x', canvas.height);
+                                                                                    console.error('Image data sample:', imageData.data.slice(0, 20));
+                                                                                } else {
+                                                                                    console.log('QR code display verified - canvas contains non-white pixels');
+                                                                                }
+                                                                            }, 200);
                                                                         };
                                                                         img.onerror = function() {
-                                                                            console.error('Failed to load QR code image');
+                                                                            console.error('QR CODE DISPLAY ERROR: Failed to load QR code image');
+                                                                            console.error('Image source length:', qrCodeDataURL.length);
+                                                                            console.error('Image source preview:', qrCodeDataURL.substring(0, 100));
                                                                         };
                                                                         img.src = qrCodeDataURL;
                                                                     } else {
-                                                                        console.error('Canvas not found with ID:', canvasId);
+                                                                        console.error('QR CODE DISPLAY ERROR: Canvas not found with ID:', canvasId);
+                                                                        console.error('Available elements with similar IDs:');
+                                                                        document.querySelectorAll('[id*="qr-canvas"]').forEach(el => {
+                                                                            console.error('Found:', el.id);
+                                                                        });
                                                                     }
                                                                 }, 100);
+                                                                
+                                                                // Add timeout to detect if QR code never displays
+                                                                setTimeout(() => {
+                                                                    const canvas = document.getElementById(canvasId);
+                                                                    if (!canvas) {
+                                                                        console.error('QR CODE DISPLAY TIMEOUT: Canvas was never created');
+                                                                        console.error('Expected canvas ID:', canvasId);
+                                                                        console.error('This suggests printHTML function is not working properly');
+                                                                    } else {
+                                                                        const ctx = canvas.getContext('2d');
+                                                                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                                                        const hasContent = imageData.data.some((channel, index) => {
+                                                                            return index % 4 !== 3 && channel !== 255;
+                                                                        });
+                                                                        
+                                                                        if (!hasContent) {
+                                                                            console.error('QR CODE DISPLAY TIMEOUT: Canvas exists but appears empty after 2 seconds');
+                                                                            console.error('This suggests the image failed to load or draw');
+                                                                        }
+                                                                    }
+                                                                }, 2000);
                                                                 
                                                                 // Test if printHTML works with simple content
                                                                 console.log('Testing printHTML with simple content...');
