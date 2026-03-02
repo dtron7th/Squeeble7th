@@ -4131,9 +4131,21 @@
                                                                 this.printLine('Hash: ' + primaryHashHex, terminalData);
                                                             } else {
                                                                 console.log('QR code generated successfully, length:', qrCodeDataURL.length);
+                                                                console.log('QR code data URL starts with:', qrCodeDataURL.substring(0, 50));
                                                                 
                                                                 // Display QR code in terminal
-                                                                this.printHTML('<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>', terminalData);
+                                                                console.log('Calling printHTML with QR code...');
+                                                                const qrHTML = '<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>';
+                                                                console.log('QR HTML to display:', qrHTML);
+                                                                
+                                                                this.printHTML(qrHTML, terminalData);
+                                                                console.log('printHTML called successfully');
+                                                                
+                                                                // Test if printHTML works with simple content
+                                                                console.log('Testing printHTML with simple content...');
+                                                                this.printHTML('<div style="color: #00AA00; font-weight: bold;">QR CODE SHOULD APPEAR ABOVE</div>', terminalData);
+                                                                console.log('Simple HTML test completed');
+                                                                
                                                                 this.printLine('', terminalData);
                                                                 this.printLine('QR Code contains your primary account hash', terminalData);
                                                                 this.printLine('Save this QR code for account recovery', terminalData);
