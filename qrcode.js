@@ -834,7 +834,7 @@
     };
 
     QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
-        var rsBlocks = QRRSBlock.getRsBlocks(typeNumber, errorCorrectLevel);
+        var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
         var buffer = new QRBitBuffer();
 
         for (var i = 0; i < dataList.length; i++) {
