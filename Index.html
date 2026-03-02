@@ -2124,26 +2124,69 @@
                 
                 // Print HTML directly to terminal (for progress bars, etc.)
                 printHTML: function(html, terminal) {
-                    if (!terminal || !terminal.element) return;
+                    console.log('=== printHTML Debug ===');
+                    console.log('HTML to print:', html);
+                    console.log('Terminal object:', terminal);
+                    console.log('Terminal element:', terminal.element);
+                    
+                    if (!terminal || !terminal.element) {
+                        console.error('printHTML: No terminal or terminal.element');
+                        return;
+                    }
                     
                     // Create a temporary div to hold the HTML
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
+                    console.log('Temp div created:', tempDiv);
+                    console.log('Temp div first child:', tempDiv.firstChild);
                     
                     // Find the terminal text element
                     const terminalText = terminal.element.querySelector('.terminal');
+                    console.log('Looking for .terminal class in:', terminal.element);
+                    console.log('Found terminalText:', terminalText);
+                    
                     if (terminalText) {
+                        console.log('Terminal text found, inserting HTML...');
                         // Insert the HTML before the cursor
                         const cursor = terminal.element.querySelector('.cursor');
+                        console.log('Found cursor:', cursor);
+                        
                         if (cursor) {
+                            console.log('Inserting before cursor');
                             terminalText.insertBefore(tempDiv.firstChild, cursor);
                         } else {
+                            console.log('No cursor found, appending to terminal text');
                             terminalText.appendChild(tempDiv.firstChild);
                         }
                         
                         // Scroll to bottom
                         terminal.scrollTop = terminal.scrollHeight;
+                        console.log('HTML inserted successfully');
+                    } else {
+                        console.error('printHTML: Could not find .terminal element');
+                        console.log('Available elements in terminal:');
+                        console.log(terminal.element.innerHTML);
+                        
+                        // Try alternative selectors
+                        const alternatives = [
+                            terminal.element.querySelector('[contenteditable]'),
+                            terminal.element.querySelector('p'),
+                            terminal.element.querySelector('div')
+                        ];
+                        
+                        console.log('Alternative elements found:', alternatives);
+                        
+                        for (let i = 0; i < alternatives.length; i++) {
+                            if (alternatives[i]) {
+                                console.log('Trying alternative element:', alternatives[i]);
+                                alternatives[i].appendChild(tempDiv.firstChild);
+                                console.log('HTML inserted using alternative method');
+                                break;
+                            }
+                        }
                     }
+                    
+                    console.log('=== End printHTML Debug ===');
                 },
                 
                 // Print line to terminal
