@@ -4136,16 +4136,16 @@
                                                             console.log('Calling QRCode function with options:', {
                                                                 typeNumber: 10,
                                                                 errorCorrectLevel: 'M',
-                                                                cellSize: 4,
-                                                                margin: 2
+                                                                cellSize: 2,
+                                                                margin: 0
                                                             });
                                                             
                                                             // Generate QR code using the primary hash
                                                             const qrCodeDataURL = QRCode(primaryHashHex, {
                                                                 typeNumber: 10,
                                                                 errorCorrectLevel: 'M',
-                                                                cellSize: 4,
-                                                                margin: 2
+                                                                cellSize: 2,
+                                                                margin: 0
                                                             });
                                                             
                                                             console.log('QRCode function returned:', qrCodeDataURL);
@@ -4179,6 +4179,7 @@
                                                                 // Create canvas and inject directly into DOM after terminal renders
                                                                 console.log('Creating canvas for QR code display...');
                                                                 const canvasId = 'qr-canvas-' + Date.now();
+                                                                const qrHostId = 'signup-qr-host';
                                                                 
                                                                 // Wait for terminal to render, then inject canvas
                                                                 setTimeout(() => {
@@ -4227,26 +4228,32 @@
                                                                         console.log('any p:', anyP);
                                                                         console.log('any span:', anySpan);
                                                                         
-                                                                        // Use the first available element, or the terminal element itself
-                                                                        let targetElement = contentEditable || terminalClass || terminalContent || anyDiv || anyP || anySpan || terminalElement;
+                                                                        // Use the terminal container as the primary host so QR placement
+                                                                        // stays independent of the text cursor location.
+                                                                        const signupPanel = document.getElementById('Sign-Up_Terminal_Content');
+                                                                        let targetElement = signupPanel || terminalElement.parentElement || terminalElement;
                                                                         
                                                                         if (targetElement) {
                                                                             console.log('Found target element for injection:', targetElement);
                                                                             console.log('Target element tag:', targetElement.tagName);
                                                                             console.log('Target element classes:', targetElement.className);
                                                                             console.log('Target element id:', targetElement.id);
-                                                                        
-                                                                            // Insert canvas before the cursor or at the end
-                                                                            const cursor = targetElement.querySelector('.terminal-cursor');
-                                                                            if (cursor) {
-                                                                                console.log('Found cursor, inserting before it');
-                                                                                cursor.parentNode.insertBefore(canvas, cursor);
-                                                                                console.log('Canvas inserted before cursor');
-                                                                            } else {
-                                                                                console.log('No cursor found, appending to target element');
-                                                                                targetElement.appendChild(canvas);
-                                                                                console.log('Canvas appended to target element');
+
+                                                                            let qrHost = document.getElementById(qrHostId);
+                                                                            if (!qrHost) {
+                                                                                qrHost = document.createElement('div');
+                                                                                qrHost.id = qrHostId;
+                                                                                qrHost.style.display = 'flex';
+                                                                                qrHost.style.justifyContent = 'center';
+                                                                                qrHost.style.alignItems = 'center';
+                                                                                qrHost.style.margin = '8px 0';
+                                                                                targetElement.appendChild(qrHost);
+                                                                                console.log('Created dedicated QR host container');
                                                                             }
+
+                                                                            qrHost.innerHTML = '';
+                                                                            qrHost.appendChild(canvas);
+                                                                            console.log('Canvas appended to dedicated QR host');
                                                                         
                                                                             // Draw QR code on canvas
                                                                             const ctx = canvas.getContext('2d');
@@ -4257,8 +4264,11 @@
                                                                                 console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
                                                                                 console.log('QR code image natural size:', img.naturalWidth, 'x', img.naturalHeight);
                                                                                 
+                                                                                ctx.imageSmoothingEnabled = false;
                                                                                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                                                                ctx.drawImage(img, 0, 0, 120, 120);
+                                                                                ctx.fillStyle = '#ffffff';
+                                                                                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                                                                ctx.drawImage(img, 3, 3, 114, 114);
                                                                                 console.log('QR code drawn to canvas successfully');
                                                                                 console.log('Final QR code display size: 120x120 pixels');
                                                                                 
@@ -4277,6 +4287,9 @@
                                                                                         console.log('Display Size: 120x120 pixels');
                                                                                         console.log('Border: None (removed)');
                                                                                         console.log('Background: White');
+                                                                                        console.log('Render Mode: Dedicated host (not cursor-anchored)');
+                                                                                        console.log('Image Smoothing: Disabled for sharper modules');
+                                                                                        console.log('Rendered QR Area: 114x114 centered with 3px padding');
                                                                                         console.log('Data: SHA-256 hash (64 characters)');
                                                                                         console.log('QR Type: 10 (supports up to 87 bytes)');
                                                                                         console.log('Error Correction: Medium (M)');
