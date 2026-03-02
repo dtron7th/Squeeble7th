@@ -1582,14 +1582,13 @@
                         
                         // Allow Reset and Clear commands during input processes
                         if (commandName === 'reset') {
-                            // In signup password step, reset should return to DOB entry
-                            if (terminal.awaitingSignupPassword) {
+                            // In signup PIN step, reset should return to DOB entry
+                            if (terminal.awaitingSignupPIN) {
                                 terminal.awaitingSignupFirstName = false;
                                 terminal.awaitingSignupLastName = false;
-                                terminal.awaitingSignupDOB = true;
-                                terminal.awaitingSignupPassword = false;
+                                terminal.awaitingSignupDOB = false;
                                 terminal.signupDOB = null;
-                                terminal.signupPassword = null;
+                                terminal.signupPIN = null;
                                 terminal.prompt = 'Day (DD): ';
                                 terminal.passwordMode = false;
                                 terminal.currentInput = '';
@@ -1732,17 +1731,14 @@
                             terminal.awaitingSignupFirstName = false;
                             terminal.awaitingSignupLastName = false;
                             terminal.awaitingSignupDOB = false;
-                            terminal.awaitingSignupPassword = false;
                             terminal.signupFirstName = null;
                             terminal.signupLastName = null;
                             terminal.signupDOB = null;
-                            terminal.signupPassword = null;
                             
                             // Forgot state
                             terminal.signupFirstName = null;
                             terminal.signupLastName = null;
                             terminal.signupDOB = null;
-                            terminal.signupPassword = null;
                             terminal.signupPIN = null;
                             
                             // Re-show welcome messages if they exist
@@ -1877,7 +1873,7 @@
                     const processFlags = [
                         'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
                         'awaitingSignupFirstName', 'awaitingSignupLastName', 
-                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                        'awaitingSignupDOB'
                     ];
                     
                     processFlags.forEach(flag => {
@@ -1888,7 +1884,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword'
+                        'signupDOB'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -1932,7 +1928,7 @@
                     const processFlags = [
                         'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
                         'awaitingSignupFirstName', 'awaitingSignupLastName', 
-                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                        'awaitingSignupDOB'
                     ];
                     
                     processFlags.forEach(flag => {
@@ -1943,7 +1939,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword'
+                        'signupDOB'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -1961,7 +1957,7 @@
                     const processFlags = [
                         'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
                         'awaitingSignupFirstName', 'awaitingSignupLastName', 
-                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                        'awaitingSignupDOB'
                     ];
                     
                     processFlags.forEach(flag => {
@@ -1972,7 +1968,7 @@
                     const dataVars = [
                         'firstName', 'lastName', 'password',
                         'signupFirstName', 'signupLastName', 
-                        'signupDOB', 'signupPassword'
+                        'signupDOB'
                     ];
                     
                     dataVars.forEach(variable => {
@@ -2190,10 +2186,9 @@
                     terminal.element.setAttribute('autocapitalize', terminal.passwordMode ? 'off' : 'sentences');
                     const prompt = terminal.prompt;
                     let display = terminal.currentInput;
-                    const isSignupPasswordInput = terminal.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminal.awaitingSignupPassword;
                     
                     // Handle password masking
-                    if (terminal.passwordMode && display && !isSignupPasswordInput) {
+                    if (terminal.passwordMode && display) {
                         display = '*'.repeat(display.length);
                     }
                     
@@ -2444,7 +2439,6 @@
                         terminal.awaitingSignupFirstName ||
                         terminal.awaitingSignupLastName ||
                         terminal.awaitingSignupDOB ||
-                        terminal.awaitingSignupPassword ||
                         // Any other custom process states
                         (terminal.customProcessState && terminal.customProcessState.active)
                     );
@@ -2474,16 +2468,14 @@
                     
                     // Capture signup process state
                     if (terminal.awaitingSignupFirstName || terminal.awaitingSignupLastName || 
-                        terminal.awaitingSignupDOB || terminal.awaitingSignupPassword) {
+                        terminal.awaitingSignupDOB) {
                         state.processType = 'signup';
                         state.awaitingSignupFirstName = terminal.awaitingSignupFirstName;
                         state.awaitingSignupLastName = terminal.awaitingSignupLastName;
                         state.awaitingSignupDOB = terminal.awaitingSignupDOB;
-                        state.awaitingSignupPassword = terminal.awaitingSignupPassword;
                         state.signupFirstName = terminal.signupFirstName;
                         state.signupLastName = terminal.signupLastName;
                         state.signupDOB = terminal.signupDOB;
-                        state.signupPassword = terminal.signupPassword;
                     }
                     
                     // Capture any custom process state
@@ -2512,7 +2504,7 @@
                     const processFlags = [
                         'awaitingFirstName', 'awaitingLastName', 'awaitingPassword',
                         'awaitingSignupFirstName', 'awaitingSignupLastName', 
-                        'awaitingSignupDOB', 'awaitingSignupPassword'
+                        'awaitingSignupDOB'
                     ];
                     
                     processFlags.forEach(flag => {
@@ -2561,11 +2553,9 @@
                         terminal.awaitingSignupFirstName = state.awaitingSignupFirstName;
                         terminal.awaitingSignupLastName = state.awaitingSignupLastName;
                         terminal.awaitingSignupDOB = state.awaitingSignupDOB;
-                        terminal.awaitingSignupPassword = state.awaitingSignupPassword;
                         terminal.signupFirstName = state.signupFirstName;
                         terminal.signupLastName = state.signupLastName;
                         terminal.signupDOB = state.signupDOB;
-                        terminal.signupPassword = state.signupPassword;
                         
                         this.printLine('', terminal);
                         this.printLine('Returning to signup process...', terminal);
@@ -2614,10 +2604,10 @@
                     }
                     
                     // Signup process step back
-                    if (terminal.awaitingSignupPassword) {
-                        terminal.awaitingSignupPassword = false;
+                    if (terminal.awaitingSignupPIN) {
+                        terminal.awaitingSignupPIN = false;
                         terminal.awaitingSignupDOB = true;
-                        terminal.signupPassword = null;
+                        terminal.signupPIN = null;
                         terminal.prompt = 'Year (YYYY): ';
                         terminal.passwordMode = false;
                         terminal.currentInput = '';
@@ -4003,129 +3993,17 @@
                                         terminalData.signupPIN = pin;
                                         terminalData.awaitingSignupPIN = false;
                                         terminalData.previousPrompt = null;
-                                        terminalData.awaitingSignupPassword = true;
-                                        terminalData.prompt = 'Password: ';
+                                        terminalData.passwordMode = false;
                                         terminalData.currentInput = '';
-                                        terminalData.shouldCapitalizeNext = false;
+                                        terminalData.shouldCapitalizeNext = true;
                                         terminalData.lastCharWasSentenceEnd = false;
-                                        terminalData.passwordMode = true;
                                         this.printLine('', terminalData);
                                         this.printLine('PIN: ' + pin, terminalData);
-                                        this.printLine('', terminalData);
-                                        this.printLine('Enter your password:', terminalData);
-                                                                                this.render(terminalData);
-                                        
-                                        return;
-                                    }
-
-                                    // ==================== PASSWORD INPUT ====================
-                                    if (terminalData && terminalData.id === 'Sign-Up_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingSignupPassword) {
-                                        const password = (raw || '').trim();
-                                        
-                                        // Check if user wants to undo
-                                        if (password.toLowerCase() === 'undo') {
-                                            // Step back to PIN input
-                                            terminalData.awaitingSignupFirstName = false;
-                                            terminalData.awaitingSignupLastName = false;
-                                            terminalData.awaitingSignupDOB = false;
-                                            terminalData.awaitingSignupPIN = true;
-                                            terminalData.awaitingSignupPassword = false;
-                                            terminalData.prompt = 'PIN: ';
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = false;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.passwordMode = false;
-                                            terminalData.signupPIN = null;
-                                            
-                                            this.printLine('', terminalData);
-                                            this.printLine('Undo: Returning to PIN entry', terminalData);
-                                                                                        this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        // Check if user wants to clear
-                                        if (password.toLowerCase() === 'clear') {
-                                            // Reset all signup state variables
-                                            terminalData.awaitingSignupFirstName = true;
-                                            terminalData.awaitingSignupLastName = false;
-                                            terminalData.awaitingSignupDOB = false;
-                                            terminalData.awaitingSignupPassword = false;
-                                            terminalData.signupFirstName = null;
-                                            terminalData.signupLastName = null;
-                                            terminalData.signupDOB = null;
-                                            terminalData.signupPassword = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.passwordMode = false;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'First Name: ';
-                                            
-                                            this.printLine('', terminalData);
-                                            this.printLine('Clearing signup process...', terminalData);
-                                                                                        this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        // Check if user wants to exit
-                                        if (password.toLowerCase() === 'exit') {
-                                            
-                                            // Save current state
-                                            this.saveState(terminalData);
-                                            
-                                            // Clear the current process and return to default prompt
-                                            this.clearCurrentDataSet(terminalData);
-                                            
-                                            this.printLine('Process exited. Returned to default prompt.', terminalData);
-                                                                                        this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        // Check if user wants to reset
-                                        if (password.toLowerCase() === 'reset') {
-                                            
-                                            // Reset to DOB entry
-                                            terminalData.awaitingSignupFirstName = false;
-                                            terminalData.awaitingSignupLastName = false;
-                                            terminalData.awaitingSignupDOB = true;
-                                            terminalData.awaitingSignupPassword = false;
-                                            terminalData.signupDOB = null;
-                                            terminalData.signupPassword = null;
-                                            terminalData.previousPrompt = null;
-                                            terminalData.passwordMode = false;
-                                            terminalData.currentInput = '';
-                                            terminalData.shouldCapitalizeNext = true;
-                                            terminalData.lastCharWasSentenceEnd = false;
-                                            terminalData.prompt = 'Day (DD): ';
-                                            
-                                            this.printLine('', terminalData);
-                                            this.printLine('Reset to DOB entry:', terminalData);
-                                                                                        this.render(terminalData);
-                                            return;
-                                        }
-                                        
-                                        if (!password) {
-                                            this.render(terminalData);
-                                            return;
-                                        }
-
-                                        // Add masked password to transcript
-                                        terminalData.transcript += terminalData.prompt + '*'.repeat(password.length) + '\n';
-                                        terminalData.awaitingSignupPassword = false;
-                                        terminalData.signupPassword = password;
-                                        terminalData.passwordMode = false;
-                                        terminalData.prompt = 'Password: ';
-                                        terminalData.previousPrompt = null;
-                                        terminalData.currentInput = '';
-                                        this.printLine('', terminalData);
-                                        this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(password.length) + '/', terminalData);
+                                        this.printLine('Sign-up successful! - ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + pin + '/', terminalData);
 
                                         let hashStored = false;
                                         let hashId = null;
                                         let hashExists = false;
-                                        
-                                        // Keep password prompt during hash processing; reset to default after processing
-                                        terminalData.prompt = 'Password: ';
                                         
                                         // Combine credentials and generate SHA-256
                                         try {
@@ -4137,16 +4015,13 @@
                                                 return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
                                             };
 
-                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPassword + terminalData.signupPIN;
+                                            const primaryCombined = terminalData.signupFirstName + terminalData.signupLastName + terminalData.signupDOB.month + terminalData.signupDOB.day + terminalData.signupDOB.year + terminalData.signupPIN;
                                             const primaryHashHex = await toSha256Hex(primaryCombined);
                                             
                                             this.printLine('', terminalData);
                                             this.printLine('Primary Account Hash:', terminalData);
                                             this.printLine('Hash "' + primaryHashHex + '"', terminalData);
-                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + '*'.repeat(terminalData.signupPassword.length) + '/' + terminalData.signupPIN + ',', terminalData);
-                                            
-                                            // Keep password prompt while processing
-                                            terminalData.prompt = 'Password: ';
+                                            this.printLine('Including ' + terminalData.signupFirstName + '/' + terminalData.signupLastName + '/' + terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year + '/' + terminalData.signupPIN + ',', terminalData);
                                             
                                             // Store hash in database
                                             if (window.HashDatabase) {
@@ -4154,9 +4029,6 @@
                                                     hashId = await window.HashDatabase.storeHash(primaryHashHex, null, null, 'signup');
                                                     hashStored = true;
                                                     this.printLine('', terminalData);
-                                                    
-                                                    // Keep password prompt while processing
-                                                    terminalData.prompt = 'Password: ';
                                                 } catch (dbError) {
                                                     this.printLine('', terminalData);
                                                     this.printLine('ERROR: Failed to store hash data - ' + dbError.message, terminalData);
@@ -4170,7 +4042,6 @@
                                             
                                         } catch (error) {
                                             this.printLine('Error generating hash: ' + error.message, terminalData);
-                                            terminalData.prompt = 'Password: ';
                                         }
                                         
                                         // Check final status and show appropriate message
@@ -4220,7 +4091,7 @@
                                         terminalData.lastCharWasSentenceEnd = false;
                                         
                                         this.printLine('', terminalData);
-                                                                                this.render(terminalData);
+                                        this.render(terminalData);
                                         return;
                                     }
 
@@ -4282,12 +4153,10 @@
                             terminal.awaitingSignupLastName = false;
                             terminal.awaitingSignupDOB = false;
                             terminal.awaitingSignupPIN = false;
-                            terminal.awaitingSignupPassword = false;
                             terminal.signupFirstName = null;
                             terminal.signupLastName = null;
                             terminal.signupDOB = null;
                             terminal.signupPIN = null;
-                            terminal.signupPassword = null;
                             terminal.previousPrompt = null;
                             terminal.prompt = TerminalManager.defaultPrompt;
                             terminal.passwordMode = false;
