@@ -3382,9 +3382,9 @@
                                         return;
                                     }
 
-                                    return previousExecuteCommand(raw, terminalData);
+                                    return originalExecuteCommand(raw, terminalData);
                                 };
-                                TerminalManager._signupFirstNamePatched = true;
+                                TerminalManager._loginFirstNamePatched = true;
                             }
                             
                             TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'signup', function(context) {
