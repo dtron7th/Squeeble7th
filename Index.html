@@ -4384,8 +4384,8 @@
                                                     const qrCodeDataURL = QRCode(primaryHashHex, {
                                                         typeNumber: 10,
                                                         errorCorrectLevel: 'M',
-                                                        cellSize: 4,
-                                                        margin: 2
+                                                        cellSize: 6,
+                                                        margin: 3
                                                     });
                                                     
                                                     console.log('QRCode function returned:', qrCodeDataURL);
@@ -4430,10 +4430,13 @@
                                                             canvas.width = 120;
                                                             canvas.height = 120;
                                                             canvas.style.background = 'white';
-                                                            canvas.style.margin = '10px 0';
+                                                            canvas.style.border = '1px solid #cccccc';
+                                                            canvas.style.borderRadius = '8px';
+                                                            canvas.style.margin = '15px 0';
                                                             canvas.style.display = 'block';
                                                             canvas.style.marginLeft = 'auto';
                                                             canvas.style.marginRight = 'auto';
+                                                            canvas.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
                                                             
                                                             console.log('Canvas element created:', canvas);
                                                             
@@ -4515,8 +4518,10 @@
                                                                                 console.log('QR code display verified - canvas contains non-white pixels');
                                                                                 console.log('=== QR Code Size Information ===');
                                                                                 console.log('Display Size: 120x120 pixels');
-                                                                                console.log('Border: None (removed)');
-                                                                                console.log('Background: White');
+                                                                                console.log('Border: 1px solid #cccccc with rounded corners');
+                                                                                console.log('Background: White with subtle shadow');
+                                                                                console.log('Cell Size: 6px (improved clarity)');
+                                                                                console.log('Margin: 3px (better spacing)');
                                                                                 console.log('Data: SHA-256 hash (64 characters)');
                                                                                 console.log('QR Type: 10 (supports up to 87 bytes)');
                                                                                 console.log('Error Correction: Medium (M)');
