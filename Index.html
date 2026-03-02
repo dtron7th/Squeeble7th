@@ -4133,17 +4133,42 @@
                                                                 console.log('QR code generated successfully, length:', qrCodeDataURL.length);
                                                                 console.log('QR code data URL starts with:', qrCodeDataURL.substring(0, 50));
                                                                 
-                                                                // Display QR code in terminal
-                                                                console.log('Calling printHTML with QR code...');
-                                                                const qrHTML = '<div style="margin: 10px 0; text-align: center;"><img src="' + qrCodeDataURL + '" alt="QR Code" style="border: 2px solid #00AA00; background: white; max-width: 200px; height: auto;" /></div>';
-                                                                console.log('QR HTML to display:', qrHTML);
+                                                                // Display QR code in terminal using canvas
+                                                                console.log('Creating canvas for QR code display...');
+                                                                const canvasId = 'qr-canvas-' + Date.now();
+                                                                const qrHTML = '<div style="margin: 10px 0; text-align: center;"><canvas id="' + canvasId + '" width="200" height="200" style="border: 2px solid #00AA00; background: white;"></canvas></div>';
+                                                                console.log('QR canvas HTML to display:', qrHTML);
                                                                 
                                                                 this.printHTML(qrHTML, terminalData);
-                                                                console.log('printHTML called successfully');
+                                                                console.log('Canvas HTML printed, waiting for DOM update...');
+                                                                
+                                                                // Wait for DOM to update then draw on canvas
+                                                                setTimeout(() => {
+                                                                    const canvas = document.getElementById(canvasId);
+                                                                    if (canvas) {
+                                                                        console.log('Canvas found, drawing QR code...');
+                                                                        const ctx = canvas.getContext('2d');
+                                                                        
+                                                                        // Create image from data URL
+                                                                        const img = new Image();
+                                                                        img.onload = function() {
+                                                                            console.log('QR code image loaded, drawing to canvas...');
+                                                                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                                                            ctx.drawImage(img, 0, 0, 200, 200);
+                                                                            console.log('QR code drawn to canvas successfully');
+                                                                        };
+                                                                        img.onerror = function() {
+                                                                            console.error('Failed to load QR code image');
+                                                                        };
+                                                                        img.src = qrCodeDataURL;
+                                                                    } else {
+                                                                        console.error('Canvas not found with ID:', canvasId);
+                                                                    }
+                                                                }, 100);
                                                                 
                                                                 // Test if printHTML works with simple content
                                                                 console.log('Testing printHTML with simple content...');
-                                                                this.printHTML('<div style="color: #00AA00; font-weight: bold;">QR CODE SHOULD APPEAR ABOVE</div>', terminalData);
+                                                                this.printHTML('<div style="color: #00AA00; font-weight: bold;">QR CODE DISPLAYED ABOVE</div>', terminalData);
                                                                 console.log('Simple HTML test completed');
                                                                 
                                                                 this.printLine('', terminalData);
