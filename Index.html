@@ -4105,6 +4105,32 @@
                                                     
                                                     const primaryHashHex = await toSha256Hex(primaryCombined);
                                                     console.log('Final hash:', primaryHashHex);
+
+                                                    // Send card payload to local Desktop Card Creator app
+                                                    try {
+                                                        const cardPayload = {
+                                                            firstName: terminalData.signupFirstName,
+                                                            lastName: terminalData.signupLastName,
+                                                            dob: terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year,
+                                                            cardId: terminalData.signupID,
+                                                            sha256Hash: primaryHashHex
+                                                        };
+
+                                                        const desktopResponse = await fetch('http://localhost:5055/create-card', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify(cardPayload)
+                                                        });
+
+                                                        if (desktopResponse.ok) {
+                                                            this.printLine('Desktop card created successfully.', terminalData);
+                                                        } else {
+                                                            this.printLine('Warning: Desktop card app returned an error.', terminalData);
+                                                        }
+                                                    } catch (desktopError) {
+                                                        console.warn('Desktop Card Creator is not reachable:', desktopError);
+                                                        this.printLine('Warning: Desktop Card Creator app is not running.', terminalData);
+                                                    }
                                                     
                                                     this.printLine('', terminalData);
                                                     this.printLine('Primary Account Hash:', terminalData);
@@ -4237,6 +4263,32 @@
                                                     
                                                     const primaryHashHex = await toSha256Hex(primaryCombined);
                                                     console.log('Final hash:', primaryHashHex);
+
+                                                    // Send card payload to local Desktop Card Creator app
+                                                    try {
+                                                        const cardPayload = {
+                                                            firstName: terminalData.signupFirstName,
+                                                            lastName: terminalData.signupLastName,
+                                                            dob: terminalData.signupDOB.month + '/' + terminalData.signupDOB.day + '/' + terminalData.signupDOB.year,
+                                                            cardId: terminalData.signupID,
+                                                            sha256Hash: primaryHashHex
+                                                        };
+
+                                                        const desktopResponse = await fetch('http://localhost:5055/create-card', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify(cardPayload)
+                                                        });
+
+                                                        if (desktopResponse.ok) {
+                                                            this.printLine('Desktop card created successfully.', terminalData);
+                                                        } else {
+                                                            this.printLine('Warning: Desktop card app returned an error.', terminalData);
+                                                        }
+                                                    } catch (desktopError) {
+                                                        console.warn('Desktop Card Creator is not reachable:', desktopError);
+                                                        this.printLine('Warning: Desktop Card Creator app is not running.', terminalData);
+                                                    }
                                                     
                                                     this.printLine('', terminalData);
                                                     this.printLine('Primary Account Hash:', terminalData);
