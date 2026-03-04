@@ -1,8 +1,12 @@
 using QRCoder;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 
 namespace DesktopCardCreator;
 
@@ -13,7 +17,7 @@ public sealed class MainForm : Form
     private readonly RichTextBox _qrInfoBox;
     private readonly PictureBox _qrPicture;
     private readonly Label _statusLabel;
-    private readonly HttpListener _listener;
+    private HttpListener _listener = new();
     private readonly CancellationTokenSource _cts = new();
 
     public MainForm()
@@ -96,7 +100,7 @@ public sealed class MainForm : Form
         _eventLog.SetBounds(12, 26, 726, 352);
         _eventLog.Text =
             "> QR renderer online\r\n" +
-            "> waiting for account payload on localhost:5055\r\n" +
+            "> waiting for account payload on 0.0.0.0:5055\r\n" +
             "> endpoint: /create-card\r\n";
         eventsPanel.Controls.Add(_eventLog);
 
@@ -161,7 +165,7 @@ public sealed class MainForm : Form
             Left = 0,
             Top = mainPanel.Height + 6,
             Width = mainPanel.Width,
-            Text = "status: online | listening on http://localhost:5055/create-card",
+            Text = "status: online | listening on http://localhost:5055/create-card (lan capable)",
             ForeColor = Color.FromArgb(188, 197, 226),
             Font = new Font("Consolas", 12, FontStyle.Regular),
             BackColor = Color.Transparent,
@@ -177,9 +181,6 @@ public sealed class MainForm : Form
         frame.Controls.Add(_statusLabel);
         Controls.Add(frame);
 
-        _listener = new HttpListener();
-        _listener.Prefixes.Add("http://localhost:5055/");
-
         Load += (_, _) => StartListener();
         FormClosing += (_, _) =>
         {
@@ -187,6 +188,37 @@ public sealed class MainForm : Form
             if (_listener.IsListening) _listener.Stop();
             _listener.Close();
         };
+    }
+
+    private static IEnumerable<string> GetLanIPv4Addresses()
+    {
+        var results = new List<string>();
+
+        foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+        {
+            if (nic.OperationalStatus != OperationalStatus.Up)
+            {
+                continue;
+            }
+
+            var props = nic.GetIPProperties();
+            foreach (var unicast in props.UnicastAddresses)
+            {
+                if (unicast.Address.AddressFamily != AddressFamily.InterNetwork)
+                {
+                    continue;
+                }
+
+                if (IPAddress.IsLoopback(unicast.Address))
+                {
+                    continue;
+                }
+
+                results.Add(unicast.Address.ToString());
+            }
+        }
+
+        return results.Distinct();
     }
 
     private static Panel CreateModulePanel(string title, Color borderColor)
@@ -250,14 +282,54 @@ public sealed class MainForm : Form
     {
         try
         {
-            _listener.Start();
-            AppendLog("listener started");
+            if (TryStartListener("http://+:5055/"))
+            {
+                AppendLog("listener started (lan enabled)");
+                _statusLabel.Text = "status: online | listening on http://0.0.0.0:5055/create-card";
+                foreach (var lanIp in GetLanIPv4Addresses())
+                {
+                    AppendLog($"phone bridge: ?desktopHost={lanIp}");
+                }
+            }
+            else if (TryStartListener("http://localhost:5055/"))
+            {
+                AppendLog("listener started (localhost only)");
+                AppendLog("tip: run app as admin to enable LAN phone bridge on port 5055");
+                _statusLabel.Text = "status: online | listening on http://localhost:5055/create-card";
+            }
+            else
+            {
+                throw new InvalidOperationException("Unable to bind listener on port 5055.");
+            }
+
             _ = Task.Run(ListenLoopAsync);
         }
         catch (Exception ex)
         {
             AppendLog($"listener failed: {ex.Message}");
             _statusLabel.Text = $"Listener failed: {ex.Message}";
+        }
+    }
+
+    private bool TryStartListener(string prefix)
+    {
+        try
+        {
+            if (_listener.IsListening)
+            {
+                _listener.Stop();
+            }
+
+            _listener.Close();
+            _listener = new HttpListener();
+            _listener.Prefixes.Add(prefix);
+            _listener.Start();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"bind failed ({prefix}): {ex.Message}");
+            return false;
         }
     }
 
@@ -285,6 +357,7 @@ public sealed class MainForm : Form
         response.Headers.Add("Access-Control-Allow-Origin", "*");
         response.Headers.Add("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+        response.Headers.Add("Access-Control-Allow-Private-Network", "true");
 
         // Log incoming request
         AppendLog($"request received: {context.Request.HttpMethod} {context.Request.Url?.AbsolutePath}");

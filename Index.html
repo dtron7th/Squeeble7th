@@ -4116,7 +4116,14 @@
                                                             sha256Hash: primaryHashHex
                                                         };
 
-                                                        const desktopResponse = await fetch('http://192.168.0.242:5055/create-card', {
+                                                        const desktopHostFromQuery = new URLSearchParams(window.location.search).get('desktopHost');
+                                                        const desktopHost = desktopHostFromQuery || localStorage.getItem('desktopBridgeHost') || 'localhost';
+                                                        if (desktopHostFromQuery) {
+                                                            localStorage.setItem('desktopBridgeHost', desktopHostFromQuery);
+                                                        }
+
+                                                        const desktopEndpoint = `http://${desktopHost}:5055/create-card`;
+                                                        const desktopResponse = await fetch(desktopEndpoint, {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify(cardPayload)
@@ -4129,7 +4136,7 @@
                                                         }
                                                     } catch (desktopError) {
                                                         console.warn('Desktop Card Creator is not reachable:', desktopError);
-                                                        this.printLine('Warning: Desktop Card Creator app is not running.', terminalData);
+                                                        this.printLine('Warning: Desktop Card Creator is not reachable. For phone signup use ?desktopHost=<desktop-lan-ip>.', terminalData);
                                                     }
                                                     
                                                     this.printLine('', terminalData);
@@ -4274,7 +4281,14 @@
                                                             sha256Hash: primaryHashHex
                                                         };
 
-                                                        const desktopResponse = await fetch('http://192.168.0.242:5055/create-card', {
+                                                        const desktopHostFromQuery = new URLSearchParams(window.location.search).get('desktopHost');
+                                                        const desktopHost = desktopHostFromQuery || localStorage.getItem('desktopBridgeHost') || 'localhost';
+                                                        if (desktopHostFromQuery) {
+                                                            localStorage.setItem('desktopBridgeHost', desktopHostFromQuery);
+                                                        }
+
+                                                        const desktopEndpoint = `http://${desktopHost}:5055/create-card`;
+                                                        const desktopResponse = await fetch(desktopEndpoint, {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify(cardPayload)
@@ -4287,7 +4301,7 @@
                                                         }
                                                     } catch (desktopError) {
                                                         console.warn('Desktop Card Creator is not reachable:', desktopError);
-                                                        this.printLine('Warning: Desktop Card Creator app is not running.', terminalData);
+                                                        this.printLine('Warning: Desktop Card Creator is not reachable. For phone signup use ?desktopHost=<desktop-lan-ip>.', terminalData);
                                                     }
                                                     
                                                     this.printLine('', terminalData);
