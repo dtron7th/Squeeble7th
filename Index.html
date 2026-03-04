@@ -4125,10 +4125,11 @@
                                                     console.log('Final hash:', primaryHashHex);
 
                                                     // Send card payload to local Desktop Card Creator app
+                                                    const cardPayload = {
+                                                        sha256Hash: primaryHashHex
+                                                    };
+                                                    
                                                     try {
-                                                        const cardPayload = {
-                                                            sha256Hash: primaryHashHex
-                                                        };
 
                                                         const desktopHostFromQuery = new URLSearchParams(window.location.search).get('desktopHost');
                                                         const desktopHost = desktopHostFromQuery || localStorage.getItem('desktopBridgeHost') || 'localhost';
@@ -4330,10 +4331,11 @@
                                                     console.log('Final hash:', primaryHashHex);
 
                                                     // Send card payload to local Desktop Card Creator app
+                                                    const cardPayload = {
+                                                        sha256Hash: primaryHashHex
+                                                    };
+                                                    
                                                     try {
-                                                        const cardPayload = {
-                                                            sha256Hash: primaryHashHex
-                                                        };
 
                                                         const desktopHostFromQuery = new URLSearchParams(window.location.search).get('desktopHost');
                                                         const desktopHost = desktopHostFromQuery || localStorage.getItem('desktopBridgeHost') || 'localhost';
