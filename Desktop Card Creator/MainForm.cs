@@ -307,9 +307,11 @@ public sealed class MainForm : Form
 
             _ = Task.Run(ListenLoopAsync);
             
-            // Start Firebase relay listener for global reach
+            // Start relay listeners — whichever is configured in relay-config.json will activate
             _firebaseRelay = new FirebaseRelayListener(this);
             _ = _firebaseRelay.StartAsync();
+            var wsRelay = new CloudRelayListener(this);
+            _ = wsRelay.StartAsync();
         }
         catch (Exception ex)
         {

@@ -12,12 +12,21 @@
     <script src="qrcode.js"></script>
 
     <!-- ====================================================
-         FIREBASE RELAY CONFIG — update this URL after setup
-         Get it from: Firebase Console > Project > Realtime Database > URL
-         Example: https://my-project-default-rtdb.firebaseio.com
+         RELAY CONFIG — fill in ONE of these after setup:
+
+         Option A (local relay server + localtunnel, no account needed):
+           1. Run: npm start  (in relay-server folder)
+           2. Run: npx localtunnel --port 3000
+           3. Paste the printed URL into VISTA_RELAY_URL below
+           Example: 'https://fast-lion-42.loca.lt'
+
+         Option B (Firebase, permanent, free Google account):
+           Set VISTA_FIREBASE_URL to your Realtime Database URL
+           Example: 'https://my-project-default-rtdb.firebaseio.com'
     ==================================================== -->
     <script>
-        window.VISTA_FIREBASE_URL = 'https://your-project-default-rtdb.firebaseio.com';
+        window.VISTA_RELAY_URL    = '';
+        window.VISTA_FIREBASE_URL = '';
     </script>
 
 
@@ -4140,34 +4149,51 @@
                                                             this.printLine('Warning: Desktop card app returned an error.', terminalData);
                                                         }
                                                     } catch (desktopError) {
-                                                        console.warn('Desktop Card Creator is not reachable locally:', desktopError);
-                                                        this.printLine('Desktop not on local network, sending via Firebase relay...', terminalData);
+                                                        console.warn('Desktop not on local network:', desktopError);
                                                         
-                                                        // Fallback: write job to Firebase Realtime Database
-                                                        try {
-                                                            const firebaseUrl = window.VISTA_FIREBASE_URL;
-                                                            if (!firebaseUrl) {
-                                                                this.printLine('Firebase relay not configured. Contact admin.', terminalData);
-                                                            } else {
-                                                                const deviceId = (localStorage.getItem('desktopDeviceId') || 'default-device').toLowerCase();
-                                                                const firebaseJobUrl = firebaseUrl.replace(/\/$/, '') + '/jobs/' + deviceId + '.json';
-                                                                const firebaseResponse = await fetch(firebaseJobUrl, {
+                                                        const jobData = { sha256Hash: cardPayload.sha256Hash, timestamp: new Date().toISOString() };
+                                                        const deviceId = (localStorage.getItem('desktopDeviceId') || 'default-device').toLowerCase();
+                                                        let relaySuccess = false;
+                                                        
+                                                        // Option A: relay server (localtunnel)
+                                                        if (window.VISTA_RELAY_URL && window.VISTA_RELAY_URL.trim() !== '') {
+                                                            this.printLine('Sending via relay server...', terminalData);
+                                                            try {
+                                                                const relayResponse = await fetch(window.VISTA_RELAY_URL.replace(/\/$/, '') + '/relay/card-job', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ ...jobData, deviceId })
+                                                                });
+                                                                if (relayResponse.ok) {
+                                                                    this.printLine('Card job sent to relay. Desktop will render shortly.', terminalData);
+                                                                    relaySuccess = true;
+                                                                } else {
+                                                                    this.printLine('Relay server error: ' + relayResponse.status, terminalData);
+                                                                }
+                                                            } catch (e) { console.warn('Relay server unreachable:', e); }
+                                                        }
+                                                        
+                                                        // Option B: Firebase fallback
+                                                        if (!relaySuccess && window.VISTA_FIREBASE_URL && window.VISTA_FIREBASE_URL.trim() !== '') {
+                                                            this.printLine('Sending via Firebase relay...', terminalData);
+                                                            try {
+                                                                const fbUrl = window.VISTA_FIREBASE_URL.replace(/\/$/, '') + '/jobs/' + deviceId + '.json';
+                                                                const fbResponse = await fetch(fbUrl, {
                                                                     method: 'PUT',
                                                                     headers: { 'Content-Type': 'application/json' },
-                                                                    body: JSON.stringify({
-                                                                        sha256Hash: cardPayload.sha256Hash,
-                                                                        timestamp: new Date().toISOString()
-                                                                    })
+                                                                    body: JSON.stringify(jobData)
                                                                 });
-                                                                if (firebaseResponse.ok) {
+                                                                if (fbResponse.ok) {
                                                                     this.printLine('Card job sent to Firebase relay. Desktop will render shortly.', terminalData);
+                                                                    relaySuccess = true;
                                                                 } else {
-                                                                    this.printLine('Firebase relay error: ' + firebaseResponse.status, terminalData);
+                                                                    this.printLine('Firebase relay error: ' + fbResponse.status, terminalData);
                                                                 }
-                                                            }
-                                                        } catch (firebaseError) {
-                                                            console.error('Firebase relay failed:', firebaseError);
-                                                            this.printLine('Relay unavailable. Please try again later.', terminalData);
+                                                            } catch (e) { console.error('Firebase relay failed:', e); }
+                                                        }
+                                                        
+                                                        if (!relaySuccess) {
+                                                            this.printLine('No relay configured. Set VISTA_RELAY_URL or VISTA_FIREBASE_URL in Index.html.', terminalData);
                                                         }
                                                     }
                                                     
@@ -4328,34 +4354,51 @@
                                                             this.printLine('Warning: Desktop card app returned an error.', terminalData);
                                                         }
                                                     } catch (desktopError) {
-                                                        console.warn('Desktop Card Creator is not reachable locally:', desktopError);
-                                                        this.printLine('Desktop not on local network, sending via Firebase relay...', terminalData);
+                                                        console.warn('Desktop not on local network:', desktopError);
                                                         
-                                                        // Fallback: write job to Firebase Realtime Database
-                                                        try {
-                                                            const firebaseUrl = window.VISTA_FIREBASE_URL;
-                                                            if (!firebaseUrl) {
-                                                                this.printLine('Firebase relay not configured. Contact admin.', terminalData);
-                                                            } else {
-                                                                const deviceId = (localStorage.getItem('desktopDeviceId') || 'default-device').toLowerCase();
-                                                                const firebaseJobUrl = firebaseUrl.replace(/\/$/, '') + '/jobs/' + deviceId + '.json';
-                                                                const firebaseResponse = await fetch(firebaseJobUrl, {
+                                                        const jobData = { sha256Hash: cardPayload.sha256Hash, timestamp: new Date().toISOString() };
+                                                        const deviceId = (localStorage.getItem('desktopDeviceId') || 'default-device').toLowerCase();
+                                                        let relaySuccess = false;
+                                                        
+                                                        // Option A: relay server (localtunnel)
+                                                        if (window.VISTA_RELAY_URL && window.VISTA_RELAY_URL.trim() !== '') {
+                                                            this.printLine('Sending via relay server...', terminalData);
+                                                            try {
+                                                                const relayResponse = await fetch(window.VISTA_RELAY_URL.replace(/\/$/, '') + '/relay/card-job', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ ...jobData, deviceId })
+                                                                });
+                                                                if (relayResponse.ok) {
+                                                                    this.printLine('Card job sent to relay. Desktop will render shortly.', terminalData);
+                                                                    relaySuccess = true;
+                                                                } else {
+                                                                    this.printLine('Relay server error: ' + relayResponse.status, terminalData);
+                                                                }
+                                                            } catch (e) { console.warn('Relay server unreachable:', e); }
+                                                        }
+                                                        
+                                                        // Option B: Firebase fallback
+                                                        if (!relaySuccess && window.VISTA_FIREBASE_URL && window.VISTA_FIREBASE_URL.trim() !== '') {
+                                                            this.printLine('Sending via Firebase relay...', terminalData);
+                                                            try {
+                                                                const fbUrl = window.VISTA_FIREBASE_URL.replace(/\/$/, '') + '/jobs/' + deviceId + '.json';
+                                                                const fbResponse = await fetch(fbUrl, {
                                                                     method: 'PUT',
                                                                     headers: { 'Content-Type': 'application/json' },
-                                                                    body: JSON.stringify({
-                                                                        sha256Hash: cardPayload.sha256Hash,
-                                                                        timestamp: new Date().toISOString()
-                                                                    })
+                                                                    body: JSON.stringify(jobData)
                                                                 });
-                                                                if (firebaseResponse.ok) {
+                                                                if (fbResponse.ok) {
                                                                     this.printLine('Card job sent to Firebase relay. Desktop will render shortly.', terminalData);
+                                                                    relaySuccess = true;
                                                                 } else {
-                                                                    this.printLine('Firebase relay error: ' + firebaseResponse.status, terminalData);
+                                                                    this.printLine('Firebase relay error: ' + fbResponse.status, terminalData);
                                                                 }
-                                                            }
-                                                        } catch (firebaseError) {
-                                                            console.error('Firebase relay failed:', firebaseError);
-                                                            this.printLine('Relay unavailable. Please try again later.', terminalData);
+                                                            } catch (e) { console.error('Firebase relay failed:', e); }
+                                                        }
+                                                        
+                                                        if (!relaySuccess) {
+                                                            this.printLine('No relay configured. Set VISTA_RELAY_URL or VISTA_FIREBASE_URL in Index.html.', terminalData);
                                                         }
                                                     }
                                                     
