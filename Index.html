@@ -4132,7 +4132,31 @@
                                                         }
                                                     } catch (desktopError) {
                                                         console.warn('Desktop Card Creator is not reachable:', desktopError);
-                                                        this.printLine('Warning: Desktop Card Creator is not reachable. For phone signup use ?desktopHost=<desktop-lan-ip>.', terminalData);
+                                                        this.printLine('Desktop not reachable, sending via cloud relay...', terminalData);
+                                                        
+                                                        // Fallback to cloud relay
+                                                        try {
+                                                            const relayPayload = {
+                                                                ...cardPayload,
+                                                                deviceId: localStorage.getItem('desktopDeviceId') || 'default-device',
+                                                                timestamp: new Date().toISOString()
+                                                            };
+                                                            
+                                                            const relayResponse = await fetch('https://api.vista-d-net.world/relay/card-job', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify(relayPayload)
+                                                            });
+                                                            
+                                                            if (relayResponse.ok) {
+                                                                this.printLine('Card job queued to cloud relay successfully.', terminalData);
+                                                            } else {
+                                                                this.printLine('Cloud relay error: ' + relayResponse.status, terminalData);
+                                                            }
+                                                        } catch (relayError) {
+                                                            console.error('Cloud relay failed:', relayError);
+                                                            this.printLine('Both desktop and cloud relay unavailable. Please try again later.', terminalData);
+                                                        }
                                                     }
                                                     
                                                     this.printLine('', terminalData);
@@ -4293,7 +4317,31 @@
                                                         }
                                                     } catch (desktopError) {
                                                         console.warn('Desktop Card Creator is not reachable:', desktopError);
-                                                        this.printLine('Warning: Desktop Card Creator is not reachable. For phone signup use ?desktopHost=<desktop-lan-ip>.', terminalData);
+                                                        this.printLine('Desktop not reachable, sending via cloud relay...', terminalData);
+                                                        
+                                                        // Fallback to cloud relay
+                                                        try {
+                                                            const relayPayload = {
+                                                                ...cardPayload,
+                                                                deviceId: localStorage.getItem('desktopDeviceId') || 'default-device',
+                                                                timestamp: new Date().toISOString()
+                                                            };
+                                                            
+                                                            const relayResponse = await fetch('https://api.vista-d-net.world/relay/card-job', {
+                                                                method: 'POST',
+                                                                headers: { 'Content-Type': 'application/json' },
+                                                                body: JSON.stringify(relayPayload)
+                                                            });
+                                                            
+                                                            if (relayResponse.ok) {
+                                                                this.printLine('Card job queued to cloud relay successfully.', terminalData);
+                                                            } else {
+                                                                this.printLine('Cloud relay error: ' + relayResponse.status, terminalData);
+                                                            }
+                                                        } catch (relayError) {
+                                                            console.error('Cloud relay failed:', relayError);
+                                                            this.printLine('Both desktop and cloud relay unavailable. Please try again later.', terminalData);
+                                                        }
                                                     }
                                                     
                                                     this.printLine('', terminalData);

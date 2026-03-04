@@ -19,6 +19,7 @@ public sealed class MainForm : Form
     private readonly Label _statusLabel;
     private HttpListener _listener = new();
     private readonly CancellationTokenSource _cts = new();
+    private CloudRelayListener? _cloudRelay;
 
     public MainForm()
     {
@@ -188,6 +189,7 @@ public sealed class MainForm : Form
             _cts.Cancel();
             if (_listener.IsListening) _listener.Stop();
             _listener.Close();
+            _cloudRelay?.Dispose();
         };
     }
 
@@ -272,7 +274,7 @@ public sealed class MainForm : Form
         };
     }
 
-    private void AppendLog(string line)
+    public void AppendLog(string line)
     {
         _eventLog.AppendText($"{DateTime.Now:HH:mm:ss}  {line}{Environment.NewLine}");
         _eventLog.SelectionStart = _eventLog.TextLength;
@@ -304,6 +306,10 @@ public sealed class MainForm : Form
             }
 
             _ = Task.Run(ListenLoopAsync);
+            
+            // Start cloud relay listener for global reach
+            _cloudRelay = new CloudRelayListener(this);
+            _ = _cloudRelay.StartAsync();
         }
         catch (Exception ex)
         {
@@ -414,7 +420,7 @@ public sealed class MainForm : Form
         response.Close();
     }
 
-    private void RenderCard(AccountPayload payload)
+    public void RenderCard(AccountPayload payload)
     {
         AppendLog("payload received (hash-only mode)");
         AppendLog("sha256 accepted, rendering qr");
