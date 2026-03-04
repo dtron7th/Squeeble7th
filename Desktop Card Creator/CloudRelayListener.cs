@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -18,20 +19,47 @@ public sealed class CloudRelayListener : IDisposable
         _deviceId = Environment.MachineName + "-" + Environment.UserName;
     }
 
-    public async Task StartAsync()
+    private static string LoadRelayUrl()
     {
         try
         {
-            var wsUrl = $"wss://api.vista-d-net.world/ws/desktop?deviceId={_deviceId}";
+            var configPath = Path.Combine(AppContext.BaseDirectory, "relay-config.json");
+            if (File.Exists(configPath))
+            {
+                using var doc = JsonDocument.Parse(File.ReadAllText(configPath));
+                var url = doc.RootElement.GetProperty("relayUrl").GetString();
+                if (!string.IsNullOrWhiteSpace(url) && !url.Contains("your-relay-url"))
+                    return url;
+            }
+        }
+        catch { /* fall through to default */ }
+        return string.Empty;
+    }
+
+    public async Task StartAsync()
+    {
+        var relayUrl = LoadRelayUrl();
+        if (string.IsNullOrEmpty(relayUrl))
+        {
+            _mainForm.AppendLog("cloud relay: no relay URL configured in relay-config.json");
+            _mainForm.AppendLog("cloud relay: deploy relay-server and update relay-config.json");
+            return;
+        }
+
+        try
+        {
+            var wsUrl = $"{relayUrl}/ws/desktop?deviceId={Uri.EscapeDataString(_deviceId)}";
             await _ws.ConnectAsync(new Uri(wsUrl), _cts.Token);
             _isConnected = true;
             _mainForm.AppendLog($"cloud relay connected: {_deviceId}");
+            _mainForm.AppendLog($"cloud relay URL: {relayUrl}");
             
             _ = Task.Run(ListenLoopAsync);
         }
         catch (Exception ex)
         {
             _mainForm.AppendLog($"cloud relay connect failed: {ex.Message}");
+            _mainForm.AppendLog("cloud relay: check relay-config.json URL is correct");
         }
     }
 
