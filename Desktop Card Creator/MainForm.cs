@@ -19,7 +19,7 @@ public sealed class MainForm : Form
     private readonly Label _statusLabel;
     private HttpListener _listener = new();
     private readonly CancellationTokenSource _cts = new();
-    private CloudRelayListener? _cloudRelay;
+    private FirebaseRelayListener? _firebaseRelay;
 
     public MainForm()
     {
@@ -189,7 +189,7 @@ public sealed class MainForm : Form
             _cts.Cancel();
             if (_listener.IsListening) _listener.Stop();
             _listener.Close();
-            _cloudRelay?.Dispose();
+            _firebaseRelay?.Dispose();
         };
     }
 
@@ -307,9 +307,9 @@ public sealed class MainForm : Form
 
             _ = Task.Run(ListenLoopAsync);
             
-            // Start cloud relay listener for global reach
-            _cloudRelay = new CloudRelayListener(this);
-            _ = _cloudRelay.StartAsync();
+            // Start Firebase relay listener for global reach
+            _firebaseRelay = new FirebaseRelayListener(this);
+            _ = _firebaseRelay.StartAsync();
         }
         catch (Exception ex)
         {

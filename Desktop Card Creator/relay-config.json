@@ -1,3 +1,4 @@
 {
-  "relayUrl": "wss://your-relay-url.up.railway.app"
+  "relayUrl": "wss://your-relay-url.up.railway.app",
+  "firebaseUrl": "https://your-project-default-rtdb.firebaseio.com"
 }
