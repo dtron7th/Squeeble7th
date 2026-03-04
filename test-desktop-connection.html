@@ -24,7 +24,7 @@
 
                 console.log('Sending test payload:', testPayload);
                 
-                const response = await fetch('http://localhost:5055/create-card', {
+                const response = await fetch('http://192.168.0.242:5055/create-card', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(testPayload)

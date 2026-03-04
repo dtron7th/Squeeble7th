@@ -4116,7 +4116,7 @@
                                                             sha256Hash: primaryHashHex
                                                         };
 
-                                                        const desktopResponse = await fetch('http://localhost:5055/create-card', {
+                                                        const desktopResponse = await fetch('http://192.168.0.242:5055/create-card', {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify(cardPayload)
@@ -4274,7 +4274,7 @@
                                                             sha256Hash: primaryHashHex
                                                         };
 
-                                                        const desktopResponse = await fetch('http://localhost:5055/create-card', {
+                                                        const desktopResponse = await fetch('http://192.168.0.242:5055/create-card', {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify(cardPayload)
