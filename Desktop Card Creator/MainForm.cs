@@ -72,7 +72,7 @@ public sealed class MainForm : Form
 
         var headerLabel = new Label
         {
-            Text = "~: Vista-D-NET Dashboard | QR AUTH RENDERER",
+            Text = "~: Vista-D-NET Dashboard | HASH-ONLY QR AUTH",
             Left = 10,
             Top = 8,
             Width = header.Width - 20,
@@ -104,13 +104,13 @@ public sealed class MainForm : Form
             "> endpoint: /create-card\r\n";
         eventsPanel.Controls.Add(_eventLog);
 
-        var accountPanel = CreateModulePanel("2 account_data", Color.FromArgb(138, 219, 166));
+        var accountPanel = CreateModulePanel("2 account_data (hash-only)", Color.FromArgb(138, 219, 166));
         accountPanel.SetBounds(0, 402, 750, 230);
 
         _accountBox = CreateTerminalBox();
         _accountBox.SetBounds(12, 26, 726, 192);
         _accountBox.Text =
-            "Name: -\r\n" +
+            "Name: hash-only\r\n" +
             "DOB : -\r\n" +
             "Card: -\r\n" +
             "SHA : -\r\n";
@@ -136,7 +136,7 @@ public sealed class MainForm : Form
             Left = 44,
             Top = 334,
             Width = 290,
-            Text = "SHA-256 LOGIN QR",
+            Text = "SHA-256 HASH-ONLY LOGIN QR",
             ForeColor = Color.FromArgb(177, 200, 248),
             Font = new Font("Consolas", 11, FontStyle.Bold),
             BackColor = Color.Transparent,
@@ -151,6 +151,7 @@ public sealed class MainForm : Form
         _qrInfoBox.SetBounds(12, 26, 354, 192);
         _qrInfoBox.Text =
             "state: idle\r\n" +
+            "mode : hash-only\r\n" +
             "hash : waiting\r\n" +
             "qr   : not rendered\r\n" +
             "\r\n" +
@@ -165,7 +166,7 @@ public sealed class MainForm : Form
             Left = 0,
             Top = mainPanel.Height + 6,
             Width = mainPanel.Width,
-            Text = "status: online | listening on http://localhost:5055/create-card (lan capable)",
+            Text = "status: online | hash-only mode | listening on http://localhost:5055/create-card (lan capable)",
             ForeColor = Color.FromArgb(188, 197, 226),
             Font = new Font("Consolas", 12, FontStyle.Regular),
             BackColor = Color.Transparent,
@@ -415,16 +416,22 @@ public sealed class MainForm : Form
 
     private void RenderCard(AccountPayload payload)
     {
-        AppendLog($"payload received for {payload.FirstName} {payload.LastName}");
+        AppendLog("payload received (hash-only mode)");
         AppendLog("sha256 accepted, rendering qr");
 
+        var nameValue = string.IsNullOrWhiteSpace(payload.FirstName) && string.IsNullOrWhiteSpace(payload.LastName)
+            ? "hash-only"
+            : $"{payload.FirstName} {payload.LastName}".Trim();
+        var dobValue = string.IsNullOrWhiteSpace(payload.Dob) ? "-" : payload.Dob;
+        var cardValue = string.IsNullOrWhiteSpace(payload.CardId) ? "-" : payload.CardId;
+
         _accountBox.Text =
-            $"name : {payload.FirstName} {payload.LastName}{Environment.NewLine}" +
-            $"dob  : {payload.Dob}{Environment.NewLine}" +
-            $"card : {payload.CardId}{Environment.NewLine}" +
+            $"name : {nameValue}{Environment.NewLine}" +
+            $"dob  : {dobValue}{Environment.NewLine}" +
+            $"card : {cardValue}{Environment.NewLine}" +
             $"sha  : {payload.Sha256Hash}{Environment.NewLine}";
 
-        _statusLabel.Text = $"status: rendered | user: {payload.FirstName} {payload.LastName} | time: {DateTime.Now:T}";
+        _statusLabel.Text = $"status: rendered | hash-only payload | time: {DateTime.Now:T}";
 
         using var qrGen = new QRCodeGenerator();
         using var qrData = qrGen.CreateQrCode(payload.Sha256Hash, QRCodeGenerator.ECCLevel.Q);
@@ -437,6 +444,7 @@ public sealed class MainForm : Form
 
         _qrInfoBox.Text =
             $"state: active{Environment.NewLine}" +
+            $"mode : hash-only{Environment.NewLine}" +
             $"hash : {payload.Sha256Hash[..Math.Min(24, payload.Sha256Hash.Length)]}...{Environment.NewLine}" +
             $"qr   : rendered{Environment.NewLine}" +
             Environment.NewLine +
