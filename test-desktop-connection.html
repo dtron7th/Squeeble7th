@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Desktop Connection</title>
+</head>
+<body>
+    <h1>Test Desktop App Connection</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const testPayload = {
+                    firstName: 'Test',
+                    lastName: 'User',
+                    dob: '01/01/2000',
+                    cardId: 'TEST123456',
+                    sha256Hash: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+                };
+
+                console.log('Sending test payload:', testPayload);
+                
+                const response = await fetch('http://localhost:5055/create-card', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testPayload)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response body:', responseText);
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div style="color: green;">✅ Connection successful! Response: ${responseText}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div style="color: red;">❌ Connection failed! Status: ${response.status}, Response: ${responseText}</div>`;
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+                resultDiv.innerHTML = `<div style="color: red;">❌ Connection error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
