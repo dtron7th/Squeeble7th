@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.vistadnet.app-merged_res-21:/xml_network_security_config.xml.flat",
+        "source": "com.vistadnet.app-main-23:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "C:\\Users\\dtron\\.gradle\\daemon\\8.5\\com.vistadnet.app-merged_res-21:\\mipmap-hdpi_ic_launcher.png.flat",
+        "source": "C:\\Users\\dtron\\.gradle\\daemon\\8.5\\com.vistadnet.app-main-23:\\mipmap-hdpi\\ic_launcher.png"
+    }
+]

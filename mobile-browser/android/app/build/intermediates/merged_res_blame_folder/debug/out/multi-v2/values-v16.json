@@ -1,0 +1,38 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.vistadnet.app-mergeDebugResources-19:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\dtron\\.gradle\\caches\\transforms-3\\a9ce5455221fee9a47bf0bef740f253f\\transformed\\core-1.9.0\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\dtron\\.gradle\\caches\\transforms-3\\2579be1c4f6af27f5d5f024623ad7d72\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "121",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "289"
+                    }
+                }
+            ]
+        }
+    ]
+}
