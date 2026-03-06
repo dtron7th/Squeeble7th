@@ -13,5 +13,6 @@
   "liveServer.settings.useLocalIp": true,
   "liveServer.settings.mount": [
     ["/", "./"]
-  ]
+  ],
+  "gitdoc.enabled": true
 }
