@@ -12,22 +12,13 @@
     <script src="qrcode.js"></script>
 
     <!-- ====================================================
-         RELAY CONFIG — fill in ONE of these after setup:
-
-         Option A (local relay server + localtunnel, no account needed):
-           1. Run: npm start  (in relay-server folder)
-           2. Run: npx localtunnel --port 3000
-           3. Paste the printed URL into VISTA_RELAY_URL below
-           Example: 'https://fast-lion-42.loca.lt'
-
-         Option B (Firebase, permanent, free Google account):
-           Set VISTA_FIREBASE_URL to your Realtime Database URL
-           Example: 'https://my-project-default-rtdb.firebaseio.com'
+         MOBILE QR SYSTEM — No external servers needed
+         
+         The app now handles everything locally:
+         1. Account creation → QR code generation
+         2. QR scanning → Auto-login
+         3. No relay servers required
     ==================================================== -->
-    <script>
-        window.VISTA_RELAY_URL    = 'https://loose-onions-learn.loca.lt';
-        window.VISTA_FIREBASE_URL = '';
-    </script>
 
 
     <!--Book_Mark: Root_System-->
