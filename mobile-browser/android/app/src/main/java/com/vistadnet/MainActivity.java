@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebSettings;
 
 public class MainActivity extends Activity {
 
@@ -19,6 +20,11 @@ public class MainActivity extends Activity {
         
         // Enable JavaScript
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+
+        // Enable debugging for troubleshooting
+        WebView.setWebContentsDebuggingEnabled(true);
         
         // Set WebViewClient to stay within app
         webView.setWebViewClient(new WebViewClient());
