@@ -2,6 +2,7 @@
 // Stores only SHA-256 hashes - no user information
 // Privacy-focused database implementation
 
+// Book_Mark: HashDatabase
 class HashDatabase {
     constructor() {
         this.dbName = 'VistaDNET_HashDB';
