@@ -2882,17 +2882,28 @@
         <div class="Login_Build">
 
             <!--Book_Mark: Wallpaper_Slide_Show-->
-            <div class="Wallpaper_Slide_Show">
-                <div class="Wallpapers_List">
-                    <img src="/Images/Wallpaper/os-x-mavericks-tide-1080x2160-24077.jpg" alt="">
+            <div class="Wallpaper_Slide_Show" id="Login_Wallpaper_Slide_Show">
+                <div class="Wallpapers_List" id="Login_Wallpapers_List">
+                    <img id="Login_Wallpaper_Image" src="/Images/Wallpaper/os-x-mavericks-tide-1080x2160-24077.jpg" alt="">
                 </div>
 
                 <style aria-label="Wallpaper_Slide_Show - Style">
-                    .Wallpaper_Slide_Show > .Wallpapers_List > img {
+                    #Login_Wallpaper_Slide_Show {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        z-index: -1;
+                    }
+                    
+                    #Login_Wallpapers_List {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    
+                    #Login_Wallpaper_Image {
                         height: 100dvh;
                         width: 100dvw;
-                        background-size: contain;
-                    
+                        object-fit: cover;
                     }
                 </style>
             </div>
