@@ -37,13 +37,14 @@
 
             --Main_Text_Color: rgb(255, 255, 255);
 
-            --Main_Font_Size: 11px;
+            --Main_Font_Size: 10px;
 
             --Box_Shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
 
             --Terminal_Background_Color: rgb(0, 0, 0, 0.1);
             --Terminal_Text_Color: rgb(255, 255, 255);
             
+            --Main_UI_Active: rgba(182, 182, 182, 0.1);
         }
 
         /* ---- Global Terminal Cursor ---- */
@@ -259,7 +260,7 @@
                     height: 100dvh;
                     width: 100dvw;
                     background-size: contain;
-                
+                    display: none;
                 }
             </style>
 
@@ -492,24 +493,24 @@
     <div aria-label="Componets">
 
         <!--Book_Mark: Clock-->
-        <div class="_Clock">
-            <p id="_Time">00:00:00:000</p>
-            <p id="_Date">00/00/0000</p>
+        <div class="Clock">
+            <p id="Time">00:00:00:000</p>
+            <p id="Date">00/00/0000</p>
 
             <style aria-label="Clock - Style">
-                ._Clock {
+                .Clock {
                     position: absolute;
                     top: 10px;
                     right: 10px;
                     display: none;
                 }
 
-                ._Clock > p {
+                .Clock > p {
                     font-size: var(--Main_Font_Size);
                     color: rgb(255, 255, 255);
                 }
                 
-                ._Clock > #_Date {
+                .Clock > #Date {
                     position: absolute;
                     right: 0px;
                 }
@@ -522,12 +523,12 @@
                     const minutes = String(now.getMinutes()).padStart(2, '0');
                     const seconds = String(now.getSeconds()).padStart(2, '0');
                     const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
-                    document.getElementById('_Time').textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+                    document.getElementById('Time').textContent = `${hours}:${minutes}:${seconds}:${milliseconds}`;
                     
                     const day = String(now.getDate()).padStart(2, '0');
                     const month = String(now.getMonth() + 1).padStart(2, '0');
                     const year = now.getFullYear();
-                    document.getElementById('_Date').textContent = `${day}/${month}/${year}`;
+                    document.getElementById('Date').textContent = `${day}/${month}/${year}`;
                 }
                 updateClock();
                 setInterval(updateClock, 10);
@@ -2825,36 +2826,125 @@
             <!--Book_Mark: QR_Home_Wallpaper_Slide_Show-->
             <div class="Wallpaper_Slide_Show" id="QR_Home_Wallpaper_Slide_Show">
                 <div class="Wallpapers_List" id="QR_Home_Wallpapers_List">
-                    <img id="QR_Home_Wallpaper_Image" src="/Images/Wallpaper/os-x-mavericks-tide-1080x2160-24077.jpg" alt="">
+                    <img id="QR_Home_Wallpaper_Image" src="/Images/Wallpaper/QR Home/untitled(1).jpg" alt="">
                 </div>
+
+                <style aria-label="QR_Home_Wallpaper_Slide_Show - Style">
+                    #QR_Home_Wallpaper_Slide_Show {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        top: 0;
+                        left: 0;
+                        z-index: 0;
+                    }
+                    #QR_Home_Wallpapers_List {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    #QR_Home_Wallpaper_Image {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                </style>
+
 
                 <script aria-label="QR_Home_Wallpaper_Slide_Show - Script">
                     // QR_Home_Wallpaper_Slide_Show functionality
                 </script>
             </div>
 
-            <!--Book_Mark: QR_Generator-->
+            <!--Book_Mark: QR_Home_Login_Bar-->
             <div class="Login_Bar">
+                <div class="Buttons">
+                    <button id="Login">[ Login ]</button>
+                    <button id="Phone_Name">[ Phone ]</button>
+                </div>
+                
+
+                <div class="QR_Home_Clock">
+                    <p id="QR_Home_Clock_Time">00:00:00</p>
+                    <p id="QR_Home_Clock_Date">00/00/0000</p>
+                    
+                    <style>
+                        .QR_Home_Clock {
+                            position: absolute;
+                            right: 20px;
+                            display: flex;
+                            gap: 15px;
+                            align-items: center;
+                        }
+                        .QR_Home_Clock > p {
+                            font-size: var(--Main_Font_Size);
+                            color: var(--Main_Text_Color);
+                            margin: 0;
+                        }
+                    </style>
+                    
+                    <script>
+                        (function() {
+                            function updateQRHomeClock() {
+                                const now = new Date();
+                                const hours = String(now.getHours()).padStart(2, '0');
+                                const minutes = String(now.getMinutes()).padStart(2, '0');
+                                const seconds = String(now.getSeconds()).padStart(2, '0');
+                                const day = String(now.getDate()).padStart(2, '0');
+                                const month = String(now.getMonth() + 1).padStart(2, '0');
+                                const year = now.getFullYear();
+                                
+                                document.getElementById('QR_Home_Clock_Time').textContent = `${hours}:${minutes}:${seconds}`;
+                                document.getElementById('QR_Home_Clock_Date').textContent = `${month}/${day}/${year}`;
+                            }
+                            updateQRHomeClock();
+                            setInterval(updateQRHomeClock, 1000);
+                        })();
+                    </script>
+                </div>
+
                 <style aria-label="Login_Bar - Style">
                     .Login_Bar {
                         position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 30px;
+                        top: 10px;
+                        width: calc(100% - 20px);
+                        height: 40px;
                         background-color: var(--Main_UI_Color);
                         backdrop-filter: blur(var(--Main_UI_Blur));
+                        border-radius: var(--Main_UI_Border_Radius_Window);
+                        box-shadow: var(--Box_Shadow);
                         display: flex;
-                        justify-content: center;
                         align-items: center;
                         z-index: 10;
+                        text-indent: 20px;
                     }
+
+                    .Login_Bar > .Buttons {
+                        position: absolute;
+                        left: 20px;
+                        display: flex;
+                        gap: 10px;
+                    }
+
+                    .Login_Bar > .Buttons > button {
+                        background: none;
+                        border: none;
+                        color: var(--Main_Text_Color);
+                        font-size: var(--Main_Font_Size);
+                        cursor: pointer;
+                    }
+                    
+
+                    
                 </style>
                 <script aria-label="Login_Bar - Script">
                     // Login_Bar functionality
                 </script>
 
             </div>
+
+            
+            
             <!--Book_Mark: QR_Scanner-->
             <div class="QR_Code">
                 <style aria-label="QR_Code - Style">
@@ -2862,7 +2952,9 @@
                         position: absolute;
                         width: 200px;
                         height: 200px;
-                        background-color: rgb(74, 65, 94);
+                        background-color: var(--Main_UI_Color);
+                        backdrop-filter: blur(var(--Main_UI_Blur));
+                        border-radius: var(--Main_UI_Border_Radius_Window);
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -2888,6 +2980,148 @@
                 // QR_Home_Build functionality
             </script>
 
+            <div class="QR_Home_Windows">
+                <div class="Login_Bar_Phone_Drop_Down">
+                    <div class="Login_Bar_Phone_Drop_Down_Header">
+                        <p>Device</p>
+                    </div>
+                    <div class="Login_Bar_Phone_Drop_Down_Menus">
+                        <button id="Get_Phone">Get Device</button>
+                        <button id="Device_Info">Device Info</button>
+                        <button id="Sync_Device">Sync</button>
+                        <button id="Disconnect_Device">Disconnect</button>
+                    </div>
+
+                    <style aria-label="Login_Bar_Phone_Drop_Down - Style">
+                        .Login_Bar_Phone_Drop_Down {
+                            position: absolute;
+                            top: 60px;
+                            width: 180px;
+                            background-color: var(--Main_UI_Color);
+                            backdrop-filter: blur(var(--Main_UI_Blur));
+                            border-radius: var(--Main_UI_Border_Radius_Window);
+                            box-shadow: var(--Box_Shadow);
+                            display: flex;
+                            flex-direction: column;
+                            z-index: 11;
+                            overflow: hidden;
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Header {
+                            width: 100%;
+                            height: 30px;
+                            display: flex;
+                            align-items: center;
+                            padding-left: 10px;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Header > p {
+                            font-size: var(--Main_Font_Size);
+                            color: var(--Main_Text_Color);
+                            margin: 0;
+                            opacity: 0.7;
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus {
+                            width: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            padding: 5px 0;
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus > button {
+                            width: 100%;
+                            height: 30px;
+                            display: flex;
+                            justify-content: flex-start;
+                            align-items: center;
+                            font-size: var(--Main_Font_Size);
+                            padding-left: 10px;
+                            border-radius: 0;
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus > button:hover {
+                            background-color: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus > button:active {
+                            background-color: var(--Main_UI_Active);
+                        }
+                    </style>
+
+                    <script aria-label="Login_Bar_Phone_Drop_Down - Script">
+                        (function() {
+                            const phoneNameButton = document.getElementById('Phone_Name');
+                            const phoneDropDown = document.querySelector('.Login_Bar_Phone_Drop_Down');
+                            
+                            phoneDropDown.style.display = 'none';
+                            phoneDropDown.style.opacity = '0';
+                            phoneDropDown.style.transform = 'scale(0.95) translateY(-10px)';
+                            phoneDropDown.style.transition = 'opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+                            phoneDropDown.style.transformOrigin = 'top left';
+                            
+                            function closeDropdown() {
+                                phoneDropDown.style.opacity = '0';
+                                phoneDropDown.style.transform = 'scale(0.95) translateY(-10px)';
+                                setTimeout(function() {
+                                    phoneDropDown.style.display = 'none';
+                                }, 200);
+                            }
+                            
+                            function openDropdown() {
+                                const buttonRect = phoneNameButton.getBoundingClientRect();
+                                phoneDropDown.style.left = buttonRect.left + 'px';
+                                phoneDropDown.style.top = (buttonRect.bottom + 5) + 'px';
+                                phoneDropDown.style.display = 'flex';
+                                phoneDropDown.offsetHeight;
+                                phoneDropDown.style.opacity = '1';
+                                phoneDropDown.style.transform = 'scale(1) translateY(0)';
+                            }
+                            
+                            phoneNameButton.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                if (phoneDropDown.style.display === 'none' || phoneDropDown.style.display === '') {
+                                    openDropdown();
+                                } else {
+                                    closeDropdown();
+                                }
+                            });
+                            
+                            document.addEventListener('click', function() {
+                                if (phoneDropDown.style.display !== 'none') {
+                                    closeDropdown();
+                                }
+                            });
+                            
+                            phoneDropDown.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                            });
+
+                            // Close dropdown when menu item is clicked
+                            const menuButtons = phoneDropDown.querySelectorAll('.Login_Bar_Phone_Drop_Down_Menus > button');
+                            menuButtons.forEach(function(btn) {
+                                btn.addEventListener('click', function() {
+                                    closeDropdown();
+                                });
+                            });
+                        })();
+                    </script>
+
+                    <style aria-label="QR_Home - Style">
+                        .QR_Home {
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            overflow: hidden;
+                            display: none;
+                        }
+                    </style>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -2900,6 +3134,28 @@
                 <div class="Wallpapers_List" id="Login_Build_Wallpapers_List">
                     <img id="Login_Build_Wallpaper_Image" src="/Images/Wallpaper/os-x-mavericks-tide-1080x2160-24077.jpg" alt="">
                 </div>
+
+                <style aria-label="Login_Build_Wallpaper_Slide_Show - Style">
+                    #Login_Build_Wallpaper_Slide_Show {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        top: 0;
+                        left: 0;
+                        z-index: 0;
+                    }
+                    #Login_Build_Wallpapers_List {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    #Login_Build_Wallpaper_Image {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                </style>
+
 
                 <script aria-label="Login_Build_Wallpaper_Slide_Show - Script">
                     // Login_Build_Wallpaper_Slide_Show functionality
@@ -4768,7 +5024,7 @@
                 width: 100dvw;
                 height: 100dvh;
                 overflow: hidden;
-                display: none;
+                display: flex;
             }
 
         </style>
