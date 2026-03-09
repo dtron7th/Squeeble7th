@@ -31,7 +31,7 @@
         :root {
 
             --Main_UI_Color: rgba(0, 0, 0, 0.1);
-            --Header_UI_Color: rgba(0, 0, 0, 0);
+            --Header_UI_Color: rgba(255, 255, 255, 0.116);
             --Main_UI_Blur: 30px;
             --Main_UI_Border: 1px solid rgba(255, 255, 255, 0.178);
             
@@ -2995,6 +2995,7 @@
                         background-color: var(--Main_UI_Color);
                         backdrop-filter: blur(var(--Main_UI_Blur));
                         border-radius: var(--Main_UI_Border_Radius_Window);
+                        box-shadow: var(--Box_Shadow);
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -3028,10 +3029,10 @@
                         <p>Device</p>
                     </div>
                     <div class="Login_Bar_Phone_Drop_Down_Menus">
-                        <button id="Get_Phone">Get Device</button>
-                        <button id="Device_Info">Device Info</button>
-                        <button id="Sync_Device">Sync</button>
-                        <button id="Disconnect_Device">Disconnect</button>
+                        <button id="Get_Phone">- Get Device -</button>
+                        <button id="Device_Info">- Device Info -</button>
+                        <button id="Sync_Device">- Sync -</button>
+                        <button id="Disconnect_Device">- Disconnect -</button>
                     </div>
 
                     <!--Book_Mark: Styles_Login_Bar_Phone_Drop_Down-->
@@ -3039,13 +3040,15 @@
                         .Login_Bar_Phone_Drop_Down {
                             position: absolute;
                             top: 60px;
-                            width: 180px;
+                            width: 200px;
+                            min-width: 200px;
                             background-color: var(--Main_UI_Color);
                             backdrop-filter: blur(var(--Main_UI_Blur));
                             border-radius: var(--Main_UI_Border_Radius_Window);
                             box-shadow: var(--Box_Shadow);
                             display: flex;
                             flex-direction: column;
+                            align-items: center;
                             z-index: 11;
                             overflow: hidden;
                         }
@@ -3053,24 +3056,23 @@
                         .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Header {
                             width: 100%;
                             height: 30px;
+                            background-color: var(--Header_UI_Color);
                             display: flex;
                             align-items: center;
-                            padding-left: 10px;
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                         }
 
                         .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Header > p {
+                            position: absolute;
+                            left: 10px;
                             font-size: var(--Main_Font_Size);
                             color: var(--Main_Text_Color);
                             margin: 0;
-                            opacity: 0.7;
                         }
 
                         .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus {
                             width: 100%;
                             display: flex;
                             flex-direction: column;
-                            padding: 5px 0;
                         }
 
                         .Login_Bar_Phone_Drop_Down > .Login_Bar_Phone_Drop_Down_Menus > button {
@@ -3150,6 +3152,37 @@
                                 });
                             });
                         })();
+
+                        // Get Phone functionality
+                        document.getElementById('Get_Phone').addEventListener('click', function() {
+                            let deviceName = 'Unknown Device';
+                            const userAgent = navigator.userAgent;
+                            
+                            // Try to get device name from userAgent
+                            if (/iPhone/.test(userAgent)) {
+                                deviceName = 'iPhone';
+                            } else if (/iPad/.test(userAgent)) {
+                                deviceName = 'iPad';
+                            } else if (/Android/.test(userAgent)) {
+                                const match = userAgent.match(/Android.*?;\s*([^)]+)/);
+                                if (match && match[1]) {
+                                    deviceName = match[1].split('Build')[0].trim();
+                                } else {
+                                    deviceName = 'Android Device';
+                                }
+                            } else if (/Windows Phone/.test(userAgent)) {
+                                deviceName = 'Windows Phone';
+                            }
+                            
+                            // Update the Phone_Name button with the device name
+                            const phoneNameBtn = document.getElementById('Phone_Name');
+                            if (phoneNameBtn) {
+                                phoneNameBtn.textContent = deviceName;
+                            }
+                            
+                            console.log('Device detected:', deviceName);
+                        });
+
                     </script>
 
                     <!--Book_Mark: Styles_QR_Home-->
