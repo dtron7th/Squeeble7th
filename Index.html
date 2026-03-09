@@ -3181,13 +3181,14 @@
                                 deviceName = 'Windows Phone';
                             }
                             
-                            // Phone number cannot be accessed from web browsers due to security/privacy restrictions
-                            // It requires native app permissions (READ_PHONE_STATE, READ_PHONE_NUMBERS on Android)
-                            // Web APIs do not expose phone numbers for privacy reasons
-                            // To get the phone number, you would need:
-                            // - Android: Native app with READ_PHONE_NUMBERS permission and TelephonyManager.getLine1Number()
-                            // - iOS: Not accessible even to native apps without carrier APIs
-                            console.log('Note: Phone number is not accessible via web browsers for security reasons.');
+                            // Check if AndroidBridge is available (native app integration)
+                            if (typeof AndroidBridge !== 'undefined') {
+                                deviceName = AndroidBridge.getDeviceName();
+                                phoneNumber = AndroidBridge.getPhoneNumber();
+                            } else {
+                                // Web browser fallback - phone number not accessible
+                                console.log('Note: Running in web browser - phone number not accessible');
+                            }
                             
                             // Update the Phone_Name button with the device name
                             const phoneNameBtn = document.getElementById('Phone_Name');
@@ -3196,6 +3197,37 @@
                             }
                             
                             console.log('Device detected:', deviceName, 'Phone:', phoneNumber);
+                        });
+
+                        // Device Info functionality
+                        document.getElementById('Device_Info').addEventListener('click', async function() {
+                            const userAgent = navigator.userAgent;
+                            const platform = navigator.platform;
+                            const language = navigator.language;
+                            const cookieEnabled = navigator.cookieEnabled;
+                            const onLine = navigator.onLine;
+                            
+                            let deviceInfo = '=== Device Information ===\n';
+                            deviceInfo += 'User Agent: ' + userAgent + '\n';
+                            deviceInfo += 'Platform: ' + platform + '\n';
+                            deviceInfo += 'Language: ' + language + '\n';
+                            deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
+                            deviceInfo += 'Online: ' + onLine + '\n';
+                            deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
+                            deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
+                            
+                            // Check if running in Android WebView
+                            if (typeof AndroidBridge !== 'undefined') {
+                                deviceInfo += '\n=== Native App Info ===\n';
+                                deviceInfo += 'Device Name: ' + AndroidBridge.getDeviceName() + '\n';
+                                deviceInfo += 'Phone Number: ' + AndroidBridge.getPhoneNumber() + '\n';
+                            } else {
+                                deviceInfo += '\nNote: Running in web browser\n';
+                                deviceInfo += 'Phone number access requires native app permissions\n';
+                            }
+                            
+                            console.log(deviceInfo);
+                            alert(deviceInfo);
                         });
 
                     </script>
