@@ -3155,7 +3155,7 @@
 
                         // Get Phone functionality
                         document.getElementById('Get_Phone').addEventListener('click', function() {
-                            let deviceName = '[ Unknown Device ]';
+                            let deviceName = 'Unknown Device';
                             const userAgent = navigator.userAgent;
                             
                             // Try to get device name from userAgent
@@ -3177,7 +3177,7 @@
                             // Update the Phone_Name button with the device name
                             const phoneNameBtn = document.getElementById('Phone_Name');
                             if (phoneNameBtn) {
-                                phoneNameBtn.textContent = deviceName;
+                                phoneNameBtn.textContent = '[' + deviceName + ']';
                             }
                             
                             console.log('Device detected:', deviceName);
