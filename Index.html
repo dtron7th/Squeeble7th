@@ -3157,41 +3157,74 @@
                         document.getElementById('Get_Phone').addEventListener('click', async function() {
                             let deviceName = 'Unknown Device';
                             let imeiNumber = 'Not Available';
+                            let serialNumber = 'Not Available';
+                            let androidId = 'Not Available';
+                            let debugInfo = '';
                             
                             // Try to get device info from Android JavaScript interface
                             if (typeof AndroidDevice !== 'undefined') {
                                 try {
+                                    // Get all available device information
                                     deviceName = AndroidDevice.getDeviceName() || 'Unknown Device';
                                     imeiNumber = AndroidDevice.getDeviceIMEI() || 'Not Available';
-                                    
-                                    // If IMEI permission is denied, show user-friendly message
-                                    if (imeiNumber === 'Permission Denied') {
-                                        imeiNumber = 'Permission Required - Check App Settings';
-                                    }
+                                    serialNumber = AndroidDevice.getDeviceSerial() || 'Not Available';
+                                    androidId = AndroidDevice.getAndroidId() || 'Not Available';
                                     
                                     // Get Android version for additional info
                                     const androidVersion = AndroidDevice.getAndroidVersion();
                                     deviceName += ' (' + androidVersion + ')';
+                                    
+                                    // Build debug info
+                                    debugInfo = 'Device: ' + deviceName + '\n';
+                                    debugInfo += 'IMEI: ' + imeiNumber + '\n';
+                                    debugInfo += 'Serial: ' + serialNumber + '\n';
+                                    debugInfo += 'Android ID: ' + androidId;
+                                    
+                                    console.log('Android device info detected:');
+                                    console.log(debugInfo);
+                                    
+                                    // Use the best available identifier
+                                    let displayIdentifier = imeiNumber;
+                                    if (imeiNumber.includes('Permission') || imeiNumber.includes('Restricted') || imeiNumber.includes('Failed')) {
+                                        if (serialNumber !== 'Serial Unknown' && serialNumber !== 'Serial Access Failed') {
+                                            displayIdentifier = serialNumber + ' (Serial)';
+                                        } else if (androidId !== 'Android ID Null' && androidId !== 'Android ID Access Failed') {
+                                            displayIdentifier = androidId + ' (Android ID)';
+                                        } else {
+                                            displayIdentifier = imeiNumber; // Show the error message
+                                        }
+                                    }
+                                    
+                                    // Update the Phone_Name button with the device information
+                                    const phoneNameBtn = document.getElementById('Phone_Name');
+                                    if (phoneNameBtn) {
+                                        phoneNameBtn.textContent = '[ ' + deviceName + ' - ID: ' + displayIdentifier + ' ]';
+                                    }
+                                    
                                 } catch (e) {
                                     console.log('Error accessing Android device info:', e);
                                     // Fallback to userAgent if Android interface fails
                                     deviceName = getDeviceNameFromUserAgent();
                                     imeiNumber = 'Web Only - No IMEI Access';
+                                    updatePhoneButton(deviceName, imeiNumber);
                                 }
                             } else {
                                 // Fallback for web browsers or when Android interface is not available
+                                console.log('AndroidDevice interface not available - using web fallback');
                                 deviceName = getDeviceNameFromUserAgent();
                                 imeiNumber = 'Web Only - No IMEI Access';
+                                updatePhoneButton(deviceName, imeiNumber);
                             }
-                            
-                            // Update the Phone_Name button with the device information
+                        });
+
+                        // Helper function to update phone button
+                        function updatePhoneButton(deviceName, identifier) {
                             const phoneNameBtn = document.getElementById('Phone_Name');
                             if (phoneNameBtn) {
-                                phoneNameBtn.textContent = '[ ' + deviceName + ' - IMEI: ' + imeiNumber + ' ]';
+                                phoneNameBtn.textContent = '[ ' + deviceName + ' - ID: ' + identifier + ' ]';
                             }
-                            
-                            console.log('Device detected:', deviceName, 'IMEI:', imeiNumber);
-                        });
+                            console.log('Device detected:', deviceName, 'Identifier:', identifier);
+                        }
 
                         // Helper function to get device name from user agent (fallback)
                         function getDeviceNameFromUserAgent() {

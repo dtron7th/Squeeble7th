@@ -24,6 +24,11 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         setContentView(webView);
         
+        // Request runtime permission for phone state
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{android.Manifest.permission.READ_PHONE_STATE}, 1);
+        }
+        
         // Configure WebView settings
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -81,6 +86,18 @@ public class MainActivity extends Activity {
         
         // Set fullscreen immersive mode
         setFullscreenMode();
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Phone state permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Phone state permission denied - IMEI access unavailable", Toast.LENGTH_LONG).show();
+            }
+        }
     }
     
     private boolean handleNavigation(String url) {
@@ -147,17 +164,80 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getDeviceIMEI() {
             try {
+                // Check if we have permission
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    if (context.checkSelfPermission(android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-                        if (telephonyManager != null) {
-                            return telephonyManager.getImei();
-                        }
+                    if (context.checkSelfPermission(android.Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                        return "Permission Not Granted";
                     }
                 }
-                return "Permission Denied";
+                
+                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (telephonyManager == null) {
+                    return "TelephonyManager Not Available";
+                }
+                
+                // Try different methods based on Android version
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    // Android 8.0+ - try getImei() first
+                    try {
+                        return telephonyManager.getImei(0);
+                    } catch (Exception e) {
+                        // Fallback to getMeid for CDMA devices
+                        try {
+                            return telephonyManager.getMeid(0);
+                        } catch (Exception e2) {
+                            // Fallback to getDeviceId for older methods
+                            try {
+                                return telephonyManager.getDeviceId();
+                            } catch (Exception e3) {
+                                return "IMEI Access Restricted (Android 10+)";
+                            }
+                        }
+                    }
+                } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    // Android 6.0-7.1 - try getDeviceId
+                    try {
+                        String deviceId = telephonyManager.getDeviceId();
+                        return deviceId != null ? deviceId : "Device ID Null";
+                    } catch (Exception e) {
+                        return "Device ID Access Failed";
+                    }
+                } else {
+                    // Pre-Marshmallow - getDeviceId should work
+                    try {
+                        String deviceId = telephonyManager.getDeviceId();
+                        return deviceId != null ? deviceId : "Device ID Null";
+                    } catch (Exception e) {
+                        return "Legacy Device ID Failed";
+                    }
+                }
+            } catch (SecurityException e) {
+                return "Security Exception: " + e.getMessage();
             } catch (Exception e) {
                 return "Error: " + e.getMessage();
+            }
+        }
+        
+        @JavascriptInterface
+        public String getDeviceSerial() {
+            try {
+                // Try to get serial number (less restricted than IMEI)
+                String serial = android.os.Build.SERIAL;
+                return (serial != null && !serial.equals("unknown")) ? serial : "Serial Unknown";
+            } catch (Exception e) {
+                return "Serial Access Failed";
+            }
+        }
+        
+        @JavascriptInterface
+        public String getAndroidId() {
+            try {
+                // Get Android ID (unique to device, less sensitive than IMEI)
+                android.provider.Settings.Secure secureSettings = android.provider.Settings.Secure.getContentResolver(context);
+                String androidId = android.provider.Settings.Secure.getString(secureSettings, android.provider.Settings.Secure.ANDROID_ID);
+                return androidId != null ? androidId : "Android ID Null";
+            } catch (Exception e) {
+                return "Android ID Access Failed";
             }
         }
         
@@ -173,10 +253,21 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getAndroidVersion() {
             try {
-                return "Android " + android.os.Build.VERSION.RELEASE;
+                return "Android " + android.os.Build.VERSION.RELEASE + " (API " + android.os.Build.VERSION.SDK_INT + ")";
             } catch (Exception e) {
                 return "Unknown Version";
             }
+        }
+        
+        @JavascriptInterface
+        public String getAllDeviceInfo() {
+            StringBuilder info = new StringBuilder();
+            info.append("Device: ").append(getDeviceName()).append("\n");
+            info.append("Version: ").append(getAndroidVersion()).append("\n");
+            info.append("IMEI: ").append(getDeviceIMEI()).append("\n");
+            info.append("Serial: ").append(getDeviceSerial()).append("\n");
+            info.append("Android ID: ").append(getAndroidId());
+            return info.toString();
         }
     }
 }
