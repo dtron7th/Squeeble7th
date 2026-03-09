@@ -3156,31 +3156,45 @@
                         // Get Phone functionality
                         document.getElementById('Get_Phone').addEventListener('click', function() {
                             let deviceName = 'Unknown Device';
+                            let buildNumber = 'Unknown';
                             const userAgent = navigator.userAgent;
                             
-                            // Try to get device name from userAgent
+                            // Try to get device name and build number from userAgent
                             if (/iPhone/.test(userAgent)) {
                                 deviceName = 'iPhone';
+                                const buildMatch = userAgent.match(/iPhone OS (\d+[_\d]*)/);
+                                if (buildMatch) buildNumber = buildMatch[1].replace(/_/g, '.');
                             } else if (/iPad/.test(userAgent)) {
                                 deviceName = 'iPad';
+                                const buildMatch = userAgent.match(/CPU OS (\d+[_\d]*)/);
+                                if (buildMatch) buildNumber = buildMatch[1].replace(/_/g, '.');
                             } else if (/Android/.test(userAgent)) {
                                 const match = userAgent.match(/Android.*?;\s*([^)]+)/);
                                 if (match && match[1]) {
-                                    deviceName = match[1].split('Build')[0].trim();
+                                    const fullString = match[1];
+                                    const buildMatch = fullString.match(/Build\/([^\s;)]+)/);
+                                    if (buildMatch) {
+                                        buildNumber = buildMatch[1];
+                                        deviceName = fullString.split('Build')[0].trim();
+                                    } else {
+                                        deviceName = fullString.trim();
+                                    }
                                 } else {
                                     deviceName = 'Android Device';
                                 }
                             } else if (/Windows Phone/.test(userAgent)) {
                                 deviceName = 'Windows Phone';
+                                const buildMatch = userAgent.match(/Windows Phone (\d+[\.\d]*)/);
+                                if (buildMatch) buildNumber = buildMatch[1];
                             }
                             
-                            // Update the Phone_Name button with the device name
+                            // Update the Phone_Name button with the device name and build number
                             const phoneNameBtn = document.getElementById('Phone_Name');
                             if (phoneNameBtn) {
-                                phoneNameBtn.textContent = '[ ' + deviceName + ' ]';
+                                phoneNameBtn.textContent = '[ ' + deviceName + ' - ' + buildNumber + ' ]';
                             }
                             
-                            console.log('Device detected:', deviceName);
+                            console.log('Device detected:', deviceName, 'Build:', buildNumber);
                         });
 
                     </script>
