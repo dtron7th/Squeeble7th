@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceError;
 import android.webkit.SslErrorHandler;
+import android.net.http.SslError;
 import android.net.Uri;
 import android.os.Build;
 import android.widget.Toast;
@@ -42,7 +43,9 @@ public class MainActivity extends Activity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        }
         
         // Add JavaScript bridge
         webView.addJavascriptInterface(new WebAppInterface(this), "AndroidBridge");
@@ -56,7 +59,10 @@ public class MainActivity extends Activity {
             
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return handleNavigation(request.getUrl().toString());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    return handleNavigation(request.getUrl().toString());
+                }
+                return handleNavigation(request.toString());
             }
             
             @Override
@@ -74,16 +80,20 @@ public class MainActivity extends Activity {
             
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                if (request.isForMainFrame()) {
-                    Toast.makeText(MainActivity.this, "Load error: " + error.getDescription(), Toast.LENGTH_LONG).show();
-                    maybeTryHttpsFallback(request.getUrl().toString());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (request.isForMainFrame()) {
+                        Toast.makeText(MainActivity.this, "Load error: " + error.getDescription(), Toast.LENGTH_LONG).show();
+                        maybeTryHttpsFallback(request.getUrl().toString());
+                    }
                 }
             }
             
             @Override
-            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, android.net.http.SslError error) {
                 handler.cancel();
-                maybeTryHttpFromHttps(error.getUrl());
+                if (error != null) {
+                    maybeTryHttpFromHttps(error.getUrl());
+                }
             }
         });
         
@@ -104,15 +114,30 @@ public class MainActivity extends Activity {
     }
     
     private void requestPhonePermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            
-            ActivityCompat.requestPermissions(this, 
-                new String[]{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] permissions;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                permissions = new String[]{
                     Manifest.permission.READ_PHONE_NUMBERS,
                     Manifest.permission.READ_PHONE_STATE
-                }, 
-                PERMISSION_REQUEST_CODE);
+                };
+            } else {
+                permissions = new String[]{
+                    Manifest.permission.READ_PHONE_STATE
+                };
+            }
+            
+            boolean allGranted = true;
+            for (String p : permissions) {
+                if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            
+            if (!allGranted) {
+                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
+            }
         }
     }
     
@@ -142,6 +167,7 @@ public class MainActivity extends Activity {
     }
     
     private boolean isAllowedHost(String url) {
+        if (url == null) return false;
         try {
             Uri uri = Uri.parse(url);
             String host = uri.getHost();
@@ -152,6 +178,7 @@ public class MainActivity extends Activity {
     }
     
     private void maybeTryHttpsFallback(String failingUrl) {
+        if (failingUrl == null) return;
         if (failingUrl.startsWith("http://") && !failingUrl.equals(TARGET_URL_HTTPS)) {
             webView.loadUrl(TARGET_URL_HTTPS);
         } else if (failingUrl.startsWith("https://") && !failingUrl.equals(TARGET_URL)) {
@@ -160,7 +187,7 @@ public class MainActivity extends Activity {
     }
     
     private void maybeTryHttpFromHttps(String failingUrl) {
-        if (failingUrl.toString().startsWith("https://") && failingUrl.toString().contains("vista-d-net.world")) {
+        if (failingUrl != null && failingUrl.startsWith("https://") && failingUrl.contains("vista-d-net.world")) {
             webView.loadUrl(TARGET_URL);
         }
     }
@@ -175,8 +202,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String getPhoneNumber() {
             try {
-                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     return "Permission denied";
                 }
                 

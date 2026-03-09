@@ -3167,13 +3167,13 @@
                             } else if (/Android/.test(userAgent)) {
                                 const match = userAgent.match(/Android.*?;\s*([^)]+)/);
                                 if (match && match[1]) {
-                                    const fullString = match[1];
+                                    let fullString = match[1];
                                     const buildMatch = fullString.match(/Build\/([^\s;)]+)/);
                                     if (buildMatch) {
-                                        deviceName = fullString.split('Build')[0].trim();
-                                    } else {
-                                        deviceName = fullString.trim();
+                                        fullString = fullString.split('Build')[0].trim();
                                     }
+                                    // Remove HMD Global prefix if present
+                                    deviceName = fullString.replace(/^HMD Global\s*/i, '').trim();
                                 } else {
                                     deviceName = 'Android Device';
                                 }
@@ -3183,7 +3183,9 @@
                             
                             // Check if AndroidBridge is available (native app integration)
                             if (typeof AndroidBridge !== 'undefined') {
-                                deviceName = AndroidBridge.getDeviceName();
+                                let nativeDeviceName = AndroidBridge.getDeviceName();
+                                // Remove HMD Global prefix if present
+                                deviceName = nativeDeviceName.replace(/^HMD Global\s*/i, '').trim();
                                 phoneNumber = AndroidBridge.getPhoneNumber();
                             } else {
                                 // Web browser fallback - phone number not accessible
@@ -3219,7 +3221,9 @@
                             // Check if running in Android WebView
                             if (typeof AndroidBridge !== 'undefined') {
                                 deviceInfo += '\n=== Native App Info ===\n';
-                                deviceInfo += 'Device Name: ' + AndroidBridge.getDeviceName() + '\n';
+                                let nativeDeviceName = AndroidBridge.getDeviceName();
+                                // Remove HMD Global prefix if present
+                                deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
                                 deviceInfo += 'Phone Number: ' + AndroidBridge.getPhoneNumber() + '\n';
                             } else {
                                 deviceInfo += '\nNote: Running in web browser\n';
