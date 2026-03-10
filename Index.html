@@ -29,6 +29,15 @@
             .Window {
                 display: none;
             }
+
+            button {
+                border: none;
+                outline: none;
+                background: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
             
             
         </style>
@@ -38,8 +47,8 @@
 <body>
     <div class="Login">
         <div class="Fire_Base_Login">
-            <button id="Google_Signin" class="auth-btn google-btn">Sign in with Google</button>
-            <button id="Facebook_Signin" class="auth-btn facebook-btn">Sign in with Facebook</button>
+            <button id="Google_Signin" class="Auth_btn Google_Btn">Sign in with Google</button>
+            <button id="Facebook_Signin" class="Auth_btn Facebook_Btn">Sign in with Facebook</button>
         </div>
             
 
@@ -51,6 +60,22 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+            }
+
+            .Fire_Base_Login {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .Fire_Base_Login > .Auth_btn {
+                width: 200px;
+                height: 50px;
+                
+                
+                background-color: rgb(0, 0, 0);
+                color: #fff;
+
             }
         </style>
         <script aria-label="Login - Scripts">
