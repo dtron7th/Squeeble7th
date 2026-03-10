@@ -20,6 +20,12 @@
 
         </script>
         <style aria-label="Managers">
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
             .Window {
                 display: none;
             }
@@ -31,14 +37,36 @@
 </head>
 <body>
     <div class="Login">
-        <h2>Sign In</h2>
+        <div class="Fire_Base_Login">
             <button id="Google_Signin" class="auth-btn google-btn">Sign in with Google</button>
             <button id="Facebook_Signin" class="auth-btn facebook-btn">Sign in with Facebook</button>
-        <div id="error-message">
-
         </div>
+            
+
+        <style aria-label="Login - Styles">
+            .Login {
+                width: 100dvw;
+                height: 100dvh;
+                background-color: aqua;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        </style>
+        <script aria-label="Login - Scripts">
+            
+        </script>
     </div>
     <div class="Home">
+
+        <style aria-label="Home - Styles">
+            .Home {
+                display: none;
+            }
+        </style>
+        <script aria-label="Home - Scripts">
+            
+        </script>
 
     </div>
 </body>
