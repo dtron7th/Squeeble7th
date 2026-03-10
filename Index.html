@@ -3157,7 +3157,6 @@
                         document.getElementById('Get_Phone').addEventListener('click', async function() {
                             let deviceName = 'Unknown Device';
                             let phoneNumber = 'Not Available';
-                            let imei = 'Not Available';
                             const userAgent = navigator.userAgent;
                             
                             // Try to get device name from userAgent
@@ -3188,13 +3187,9 @@
                                 // Remove HMD Global prefix if present
                                 deviceName = nativeDeviceName.replace(/^HMD Global\s*/i, '').trim();
                                 phoneNumber = AndroidBridge.getPhoneNumber();
-                                // Get IMEI if available
-                                if (typeof AndroidBridge.getIMEI === 'function') {
-                                    imei = AndroidBridge.getIMEI();
-                                }
                             } else {
-                                // Web browser fallback - phone number and IMEI not accessible
-                                console.log('Note: Running in web browser - phone number and IMEI not accessible');
+                                // Web browser fallback - phone number not accessible
+                                console.log('Note: Running in web browser - phone number not accessible');
                             }
                             
                             // Update the Phone_Name button with the device name
@@ -3203,7 +3198,7 @@
                                 phoneNameBtn.textContent = '[ ' + deviceName + ': ' + phoneNumber + ' ]';
                             }
                             
-                            console.log('Device detected:', deviceName, 'Phone:', phoneNumber, 'IMEI:', imei);
+                            console.log('Device detected:', deviceName, 'Phone:', phoneNumber);
                         });
 
                         // Device Info functionality
@@ -3230,13 +3225,9 @@
                                 // Remove HMD Global prefix if present
                                 deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
                                 deviceInfo += 'Phone Number: ' + AndroidBridge.getPhoneNumber() + '\n';
-                                // Get IMEI if available
-                                if (typeof AndroidBridge.getIMEI === 'function') {
-                                    deviceInfo += 'IMEI: ' + AndroidBridge.getIMEI() + '\n';
-                                }
                             } else {
                                 deviceInfo += '\nNote: Running in web browser\n';
-                                deviceInfo += 'Phone number and IMEI access requires native app permissions\n';
+                                deviceInfo += 'Phone number access requires native app permissions\n';
                             }
                             
                             console.log(deviceInfo);

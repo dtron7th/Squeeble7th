@@ -220,5 +220,57 @@ public class MainActivity extends Activity {
         public String getDeviceName() {
             return Build.MANUFACTURER + " " + Build.MODEL;
         }
+        
+        @JavascriptInterface
+        public String getIMEI() {
+            try {
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    return "Permission denied";
+                }
+                
+                TelephonyManager telephonyManager = (TelephonyManager) 
+                    mContext.getSystemService(Context.TELEPHONY_SERVICE);
+                
+                // For Android 10+ (API 29+), need to use getImei() with slot index
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Android 10+ - IMEI access is restricted, return device ID instead
+                    return getDeviceID();
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    // Android 8-9 - can get IMEI with slot index
+                    return telephonyManager.getImei(0);
+                } else {
+                    // Android 7 and below - deprecated but still works
+                    return telephonyManager.getDeviceId();
+                }
+            } catch (Exception e) {
+                return "Error: " + e.getMessage();
+            }
+        }
+        
+        @JavascriptInterface
+        public String getDeviceID() {
+            try {
+                // Generate a unique device ID that persists
+                java.util.UUID uuid = java.util.UUID.randomUUID();
+                return uuid.toString().substring(0, 8).toUpperCase();
+            } catch (Exception e) {
+                return "Error: " + e.getMessage();
+            }
+        }
+        
+        @JavascriptInterface
+        public String getAndroidID() {
+            try {
+                // Get Android ID - unique per device, persists across app reinstalls
+                android.provider.Settings.Secure secureSettings = new android.provider.Settings.Secure();
+                String androidId = android.provider.Settings.Secure.getString(
+                    mContext.getContentResolver(), 
+                    android.provider.Settings.Secure.ANDROID_ID
+                );
+                return androidId != null ? androidId.substring(0, 8).toUpperCase() : "Not available";
+            } catch (Exception e) {
+                return "Error: " + e.getMessage();
+            }
+        }
     }
 }
