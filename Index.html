@@ -3,134 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Login System</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        .Login h2 {
-            margin-bottom: 30px;
-            color: #333;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .google-btn {
-            background: #4285f4;
-            color: white;
-        }
-        
-        .facebook-btn {
-            background: #1877f2;
-            color: white;
-        }
-        
-        .Home {
-            display: none;
-        }
-        
-        .user-info {
-            text-align: center;
-        }
-        
-        .user-info img {
-            border: 3px solid #ddd;
-            margin: 20px 0;
-        }
-        
-        .user-info h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .user-info p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        #signOutBtn {
-            background: #dc3545;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease;
-        }
-        
-        #signOutBtn:hover {
-            background: #c82333;
-        }
-        
-        #error-message {
-            color: #721c24;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+    <title>Document</title>
+
+    <style aria-label="Root">
+        :root {
+            
         }
     </style>
+
+    <div class="Managers">
+        <script type="module" src="Managers.js">
+
+        </script>
+        <style aria-label="Managers">
+            .Window {
+                display: none;
+            }
+        </style>
+    </div>
+
 </head>
 <body>
-    <div class="container">
-        <div class="Login">
-            <h2>Sign In</h2>
-            <button id="google-signin-btn" class="btn google-btn">
-                Sign in with Google
-            </button>
-            <button id="facebook-signin-btn" class="btn facebook-btn">
-                Sign in with Facebook
-            </button>
-            <div id="error-message"></div>
-        </div>
+    <div class="Login">
         
-        <div class="Home">
-            <!-- Content will be dynamically inserted -->
-        </div>
+        
     </div>
-    
-    <script type="module" src="Managers.js"></script>
+    <div class="Home">
+
+    </div>
 </body>
 </html>
