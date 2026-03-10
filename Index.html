@@ -26,6 +26,10 @@
                 box-sizing: border-box;
             }
 
+            body {
+                width: 100dvw;
+            }
+
             .Window {
                 display: none;
             }
@@ -54,12 +58,16 @@
 
         <style aria-label="Login - Styles">
             html, body {
-                height: 100vh;
+                height: 100%;
                 margin: 0;
                 padding: 0;
             }
             
             .Login {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 width: 100dvw;
                 height: 100dvh;
                 background-color: rgb(51, 51, 51);
