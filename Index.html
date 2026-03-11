@@ -3251,96 +3251,135 @@
 
                     </script>
 
-                    <!--Book_Mark: Device_Info_Terminal-->
-                    <div class="Device_Info_Terminal" id="Device_Info_Terminal">
-                        <div class="Header">
-                            <p class="Title">Device Information</p>
-                            <div class="Terminal_Manipulation">
-                                <button class="Terminal_Minimize"></button>
-                                <button class="Terminal_Maximize"></button>
-                                <button class="Terminal_Close" id="Device_Info_Terminal_Close"></button>
+                    <!--Book_Mark: QR_Home_Terminals_Section-->
+                    <div class="QR_Home_Terminals">
+                        <!--Book_Mark: Device_Info_Terminal_Window-->
+                        <div class="Terminal" id="Device_Info_Terminal">
+                            <div class="Header" id="Device_Info_Terminal_Header">
+                                <p class="Title">Device Information</p>
+                                <div class="Terminal_Manipulation">
+                                    <button class="Terminal_Minimize" id="Device_Info_Terminal_Minimize"></button>
+                                    <button class="Terminal_Maximize" id="Device_Info_Terminal_Maximize"></button>
+                                    <button class="Terminal_Close" id="Device_Info_Terminal_Close"></button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="Content">
-                            <div class="Terminal_Content_Terminal" id="Device_Info_Terminal_Content_Terminal_Main_Text"></div>
+                            <div class="Content" id="Device_Info_Terminal_Content_Terminal">
+                                <p id="Device_Info_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+
+                                <!--Book_Mark: Styles_Device_Info_Terminal_Content_Terminal-->
+                                <style aria-label="Device_Info_Terminal_Content_Terminal - Style">
+                                    #Device_Info_Terminal_Content_Terminal {
+                                        background-color: var(--Terminal_Background_Color);
+                                    }
+
+                                    #Device_Info_Terminal_Content_Terminal_Main_Text {
+                                        position: absolute;  
+                                        top: 10px;
+                                        left: 10px;                     
+                                        right: 10px;
+                                        bottom: 10px;
+                                        font-family: 'Inconsolata', monospace;
+                                        font-size: var(--Main_Font_Size);
+                                        color: var(--Terminal_Text_Color);
+                                        white-space: pre-wrap;
+                                        word-wrap: break-word;
+                                        overflow-y: auto;
+                                        overflow-x: hidden;
+                                        margin: 0;
+                                        padding: 0;
+                                        border: none;
+                                        outline: none;
+                                        resize: none;
+                                        background: transparent;
+                                        cursor: text;
+                                    }
+                                    
+                                    @media (max-width: 768px) {
+                                        #Device_Info_Terminal_Content_Terminal_Main_Text {
+                                            font-size: 11px;
+                                            line-height: 1.4;
+                                        }
+                                    }
+                                </style>
+
+                                <!--Book_Mark: Scripts_Device_Info_Terminal_Content_Terminal-->
+                                <script aria-label="Device_Info_Terminal_Content_Terminal - Script">
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        // Register the device info terminal with TerminalManager
+                                        const terminal = TerminalManager.registerTerminal('Device_Info_Terminal_Content_Terminal_Main_Text', {
+                                            windowId: 'Device_Info_Terminal',
+                                            prompt: TerminalManager.defaultPrompt,
+                                            welcomeMessages: [
+                                                'Device Information Terminal',
+                                                '',
+                                                'Type "help" for available commands...',
+                                                ''
+                                            ],
+                                            commands: {
+                                                help: function(terminal, args) {
+                                                    TerminalManager.addLine(terminal, 'Available commands:', 'info');
+                                                    TerminalManager.addLine(terminal, '  help     - Show this help message', 'info');
+                                                    TerminalManager.addLine(terminal, '  clear    - Clear terminal', 'info');
+                                                    TerminalManager.addLine(terminal, '  device   - Show device information', 'info');
+                                                    TerminalManager.addLine(terminal, '  appid    - Generate new app ID', 'info');
+                                                    TerminalManager.addLine(terminal, '  exit     - Close terminal', 'info');
+                                                    TerminalManager.render(terminal);
+                                                },
+                                                clear: function(terminal, args) {
+                                                    TerminalManager.clearTerminalData(terminal);
+                                                    TerminalManager.render(terminal);
+                                                },
+                                                device: function(terminal, args) {
+                                                    const userAgent = navigator.userAgent;
+                                                    const platform = navigator.platform;
+                                                    const language = navigator.language;
+                                                    const cookieEnabled = navigator.cookieEnabled;
+                                                    const onLine = navigator.onLine;
+                                                    
+                                                    let deviceInfo = '=== Device Information ===\n';
+                                                    deviceInfo += 'User Agent: ' + userAgent + '\n';
+                                                    deviceInfo += 'Platform: ' + platform + '\n';
+                                                    deviceInfo += 'Language: ' + language + '\n';
+                                                    deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
+                                                    deviceInfo += 'Online: ' + onLine + '\n';
+                                                    deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
+                                                    deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
+                                                    
+                                                    if (typeof AndroidBridge !== 'undefined') {
+                                                        deviceInfo += '\n=== Native App Info ===\n';
+                                                        let nativeDeviceName = AndroidBridge.getDeviceName();
+                                                        deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
+                                                    } else {
+                                                        deviceInfo += '\n=== Web Browser Info ===\n';
+                                                        deviceInfo += 'Device Name: Web Browser\n';
+                                                    }
+                                                    
+                                                    TerminalManager.addLine(terminal, deviceInfo, 'info');
+                                                    TerminalManager.render(terminal);
+                                                },
+                                                appid: function(terminal, args) {
+                                                    const prefix = typeof AndroidBridge !== 'undefined' ? 'VD' : 'WB';
+                                                    const appId = prefix + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                                                    TerminalManager.addLine(terminal, 'Generated App ID: ' + appId, 'success');
+                                                    TerminalManager.render(terminal);
+                                                },
+                                                exit: function(terminal, args) {
+                                                    const window = document.getElementById('Device_Info_Terminal');
+                                                    if (window) {
+                                                        window.style.display = 'none';
+                                                        TerminalManager.clearTerminalData(terminal);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
+                                </script>
+                            </div>
                         </div>
                     </div>
 
-                    <!--Book_Mark: Scripts_Device_Info_Terminal_Content_Terminal-->
-                    <script aria-label="Device_Info_Terminal_Content_Terminal - Script">
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Register the device info terminal with TerminalManager
-                            const terminal = TerminalManager.registerTerminal('Device_Info_Terminal_Content_Terminal_Main_Text', {
-                                windowId: 'Device_Info_Terminal',
-                                prompt: TerminalManager.defaultPrompt,
-                                welcomeMessages: [
-                                    'Device Information Terminal',
-                                    '',
-                                    'Type "help" for available commands...',
-                                    ''
-                                ],
-                                commands: {
-                                    help: function(terminal, args) {
-                                        TerminalManager.addLine(terminal, 'Available commands:', 'info');
-                                        TerminalManager.addLine(terminal, '  help     - Show this help message', 'info');
-                                        TerminalManager.addLine(terminal, '  clear    - Clear terminal', 'info');
-                                        TerminalManager.addLine(terminal, '  device   - Show device information', 'info');
-                                        TerminalManager.addLine(terminal, '  appid    - Generate new app ID', 'info');
-                                        TerminalManager.addLine(terminal, '  exit     - Close terminal', 'info');
-                                        TerminalManager.render(terminal);
-                                    },
-                                    clear: function(terminal, args) {
-                                        TerminalManager.clearTerminalData(terminal);
-                                        TerminalManager.render(terminal);
-                                    },
-                                    device: function(terminal, args) {
-                                        const userAgent = navigator.userAgent;
-                                        const platform = navigator.platform;
-                                        const language = navigator.language;
-                                        const cookieEnabled = navigator.cookieEnabled;
-                                        const onLine = navigator.onLine;
-                                        
-                                        let deviceInfo = '=== Device Information ===\n';
-                                        deviceInfo += 'User Agent: ' + userAgent + '\n';
-                                        deviceInfo += 'Platform: ' + platform + '\n';
-                                        deviceInfo += 'Language: ' + language + '\n';
-                                        deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
-                                        deviceInfo += 'Online: ' + onLine + '\n';
-                                        deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
-                                        deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
-                                        
-                                        if (typeof AndroidBridge !== 'undefined') {
-                                            deviceInfo += '\n=== Native App Info ===\n';
-                                            let nativeDeviceName = AndroidBridge.getDeviceName();
-                                            deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
-                                        } else {
-                                            deviceInfo += '\n=== Web Browser Info ===\n';
-                                            deviceInfo += 'Device Name: Web Browser\n';
-                                        }
-                                        
-                                        TerminalManager.addLine(terminal, deviceInfo, 'info');
-                                        TerminalManager.render(terminal);
-                                    },
-                                    appid: function(terminal, args) {
-                                        const prefix = typeof AndroidBridge !== 'undefined' ? 'VD' : 'WB';
-                                        const appId = prefix + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                                        TerminalManager.addLine(terminal, 'Generated App ID: ' + appId, 'success');
-                                        TerminalManager.render(terminal);
-                                    },
-                                    exit: function(terminal, args) {
-                                        const window = document.getElementById('Device_Info_Terminal');
-                                        if (window) {
-                                            window.style.display = 'none';
-                                            TerminalManager.clearTerminalData(terminal);
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    </script>
-
-                    <!--Book_Mark: Scripts_Device_Info_Terminal-->
-                    <script aria-label="Device_Info_Terminal - Script">
+                    <!--Book_Mark: Scripts_QR_Home_Device_Info_Terminal-->
+                    <script aria-label="QR_Home_Device_Info_Terminal - Script">
                         document.getElementById('Device_Info_Terminal_Close').addEventListener('click', function() {
                             // Clear terminal data before closing
                             const terminal = TerminalManager.getTerminal('Device_Info_Terminal_Content_Terminal_Main_Text');
@@ -5303,6 +5342,578 @@
 
         </style>
 
+    </div>
+    
+    <!--Book_Mark: Login_Terminals_Section-->
+    <div class="Login_Terminals">
+        <!--Book_Mark: Login_Terminal_Window-->
+        <div class="Terminal" id="Login_Terminal">
+            <div class="Header" id="Login_Terminal_Header">
+                <p class="Title">Login</p>
+                <div class="Terminal_Manipulation">
+                    <button class="Terminal_Minimize" id="Login_Terminal_Minimize"></button>
+                    <button class="Terminal_Maximize" id="Login_Terminal_Maximize"></button>
+                    <button class="Terminal_Close" id="Login_Terminal_Close"></button>
+                </div>
+            </div>
+            <div class="Content" id="Login_Terminal_Content_Terminal">
+                <p id="Login_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+
+                <!--Book_Mark: Styles_Login_Terminal_Content_Terminal-->
+                <style aria-label="Login_Terminal_Content_Terminal - Style"> 
+                    #Login_Terminal_Content_Terminal {
+                        background-color: var(--Terminal_Background_Color);
+                        
+                    }
+
+                    #Login_Terminal_Content_Terminal_Main_Text {
+                        position: absolute;  
+                        top: 10px;
+                        left: 10px;                     
+                        right: 10px;
+                        bottom: 10px;
+                        font-family: 'Inconsolata', monospace;
+                        font-size: var(--Main_Font_Size);
+                        color: var(--Terminal_Text_Color);
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                        outline: none;
+                        resize: none;
+                        background: transparent;
+                        cursor: text;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        #Login_Terminal_Content_Terminal_Main_Text {
+                            font-size: 11px;
+                            line-height: 1.4;
+                        }
+                    }
+                </style>
+
+                <!--Book_Mark: Scripts_Login_Terminal_Content_Terminal-->
+                <script aria-label="Login_Terminal_Content_Terminal - Script">
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Register the login terminal with TerminalManager
+                        const terminal = TerminalManager.registerTerminal('Login_Terminal_Content_Terminal_Main_Text', {
+                            windowId: 'Login_Terminal',
+                            prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
+                            welcomeMessages: [
+                                'Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT',
+                                '',
+                                'AI Agent - Kimi K2.5.',
+                                ''
+                            ],
+                        });
+                        
+                        // Add custom commands
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'login', function(context) {
+                            const loginTerminal = context.terminalData;
+                            if (!loginTerminal) return;
+                            
+                            // Start login process
+                            loginTerminal.awaitingFirstName = true;
+                            loginTerminal.firstName = null;
+                            loginTerminal.lastName = null;
+                            loginTerminal.password = null;
+                            loginTerminal.previousPrompt = loginTerminal.prompt;
+                            loginTerminal.prompt = 'First Name: ';
+                            loginTerminal.passwordMode = false;
+                            loginTerminal.currentInput = '';
+                            
+                            context.print('Enter your first name:');
+                        }, 'Start login process');
+
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'clear', function(context) {
+                            const loginTerminal = context.terminalData;
+                            if (!loginTerminal) {
+                                return;
+                            }
+                            
+                            // Reset all login state
+                            loginTerminal.awaitingFirstName = false;
+                            loginTerminal.awaitingLastName = false;
+                            loginTerminal.awaitingPassword = false;
+                            loginTerminal.firstName = null;
+                            loginTerminal.lastName = null;
+                            loginTerminal.password = null;
+                            loginTerminal.previousPrompt = null;
+                            loginTerminal.prompt = TerminalManager.defaultPrompt;
+                            loginTerminal.passwordMode = false;
+                            loginTerminal.currentInput = '';
+                            
+                            // Clear the terminal display
+                            context.clear();
+                            
+                            // Show welcome messages again
+                            context.print('Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT');
+                            context.print('');
+                            context.print('AI Agent - Kimi K2.5.');
+                            context.print('');
+                            TerminalManager.displayCommandList(loginTerminal, TerminalManager.getLoginCommandList());
+                            context.print('');
+                            context.print('Login process cleared. Ready to start fresh.');
+                            context.print('');
+                        }, 'Clear login process and start over');
+                        
+                        // Add Reset command
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'reset', function(context) {
+                            const loginTerminal = context.terminalData;
+                            if (!loginTerminal) {
+                                return;
+                            }
+                            
+                            context.print('Reset command available during information process input to reset data entry.');
+                            context.print('Type [Login] to start the login process.');
+                            context.print('');
+                        }, 'Reset command for login process');
+                        
+                        // Terminal-scoped input handling
+                        if (!TerminalManager._loginFirstNamePatched) {
+                            const originalExecuteCommand = TerminalManager.executeCommand.bind(TerminalManager);
+                            TerminalManager.executeCommand = async function(raw, terminalData) {
+                                
+                                // ==================== FIRST NAME INPUT ====================
+                                if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingFirstName) {
+                                    const firstName = (raw || '').trim();
+                                    
+                                    // Check if user wants to clear
+                                    if (firstName.toLowerCase() === 'clear') {
+                                        terminalData.awaitingFirstName = false;
+                                        terminalData.firstName = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'First name entry cleared. Type [Login] to start over.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Check if user wants to exit
+                                    if (firstName.toLowerCase() === 'exit') {
+                                        terminalData.awaitingFirstName = false;
+                                        terminalData.firstName = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'Login process cancelled.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Validate first name
+                                    if (!firstName) {
+                                        TerminalManager.addLine(terminalData, 'First name cannot be empty. Please enter a valid first name or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    if (!/^[a-zA-Z\s'-]+$/.test(firstName)) {
+                                        TerminalManager.addLine(terminalData, 'First name can only contain letters, spaces, hyphens, and apostrophes. Please try again or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    // Store first name and proceed to last name
+                                    terminalData.firstName = firstName;
+                                    terminalData.awaitingFirstName = false;
+                                    terminalData.awaitingLastName = true;
+                                    terminalData.prompt = 'Last Name: ';
+                                    terminalData.currentInput = '';
+                                    TerminalManager.render(terminalData);
+                                    TerminalManager.addLine(terminalData, 'First name accepted: ' + firstName, 'success');
+                                    TerminalManager.addLine(terminalData, 'Please enter your last name:');
+                                    return;
+                                }
+
+                                // ==================== LAST NAME INPUT ====================
+                                if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingLastName) {
+                                    const lastName = (raw || '').trim();
+                                    
+                                    // Check if user wants to clear
+                                    if (lastName.toLowerCase() === 'clear') {
+                                        terminalData.awaitingLastName = false;
+                                        terminalData.lastName = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'Last name entry cleared. Type [Login] to start over.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Check if user wants to exit
+                                    if (lastName.toLowerCase() === 'exit') {
+                                        terminalData.awaitingLastName = false;
+                                        terminalData.lastName = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'Login process cancelled.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Validate last name
+                                    if (!lastName) {
+                                        TerminalManager.addLine(terminalData, 'Last name cannot be empty. Please enter a valid last name or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    if (!/^[a-zA-Z\s'-]+$/.test(lastName)) {
+                                        TerminalManager.addLine(terminalData, 'Last name can only contain letters, spaces, hyphens, and apostrophes. Please try again or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    // Store last name and proceed to password
+                                    terminalData.lastName = lastName;
+                                    terminalData.awaitingLastName = false;
+                                    terminalData.awaitingPassword = true;
+                                    terminalData.prompt = 'Password: ';
+                                    terminalData.passwordMode = true;
+                                    terminalData.currentInput = '';
+                                    TerminalManager.render(terminalData);
+                                    TerminalManager.addLine(terminalData, 'Last name accepted: ' + lastName, 'success');
+                                    TerminalManager.addLine(terminalData, 'Please enter your password:');
+                                    return;
+                                }
+
+                                // ==================== PASSWORD INPUT ====================
+                                if (terminalData && terminalData.id === 'Login_Terminal_Content_Terminal_Main_Text' && terminalData.awaitingPassword) {
+                                    const password = raw || '';
+                                    
+                                    // Check if user wants to clear
+                                    if (password.toLowerCase() === 'clear') {
+                                        terminalData.awaitingPassword = false;
+                                        terminalData.password = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.passwordMode = false;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'Password entry cleared. Type [Login] to start over.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Check if user wants to exit
+                                    if (password.toLowerCase() === 'exit') {
+                                        terminalData.awaitingPassword = false;
+                                        terminalData.password = null;
+                                        terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                        terminalData.passwordMode = false;
+                                        terminalData.currentInput = '';
+                                        TerminalManager.render(terminalData);
+                                        TerminalManager.addLine(terminalData, 'Login process cancelled.', 'warning');
+                                        return;
+                                    }
+                                    
+                                    // Validate password
+                                    if (!password) {
+                                        TerminalManager.addLine(terminalData, 'Password cannot be empty. Please enter a password or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    if (password.length < 6) {
+                                        TerminalManager.addLine(terminalData, 'Password must be at least 6 characters long. Please try again or type [Clear] to cancel.', 'error');
+                                        return;
+                                    }
+                                    
+                                    // Store password and complete login
+                                    terminalData.password = password;
+                                    terminalData.awaitingPassword = false;
+                                    terminalData.prompt = terminalData.previousPrompt || TerminalManager.defaultPrompt;
+                                    terminalData.passwordMode = false;
+                                    terminalData.currentInput = '';
+                                    
+                                    // Display success message
+                                    TerminalManager.addLine(terminalData, 'Password accepted.', 'success');
+                                    TerminalManager.addLine(terminalData, '', 'info');
+                                    TerminalManager.addLine(terminalData, '=== Login Successful ===', 'success');
+                                    TerminalManager.addLine(terminalData, 'Welcome, ' + terminalData.firstName + ' ' + terminalData.lastName + '!', 'success');
+                                    TerminalManager.addLine(terminalData, 'You have successfully logged into Vista-D-NET Corporation.', 'info');
+                                    TerminalManager.addLine(terminalData, '', 'info');
+                                    TerminalManager.addLine(terminalData, 'Type [Help] to see available commands, or [Logout] to end your session.', 'info');
+                                    TerminalManager.addLine(terminalData, '', 'info');
+                                    
+                                    // Reset login state for next time
+                                    terminalData.awaitingFirstName = false;
+                                    terminalData.awaitingLastName = false;
+                                    terminalData.awaitingPassword = false;
+                                    
+                                    TerminalManager.render(terminalData);
+                                    return;
+                                }
+                                
+                                // For all other cases, use the original executeCommand
+                                return originalExecuteCommand(raw, terminalData);
+                            };
+                            
+                            TerminalManager._loginFirstNamePatched = true;
+                        }
+                        
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'signup', function(context) {
+                            context.print('Opening sign-up window...');
+                            // Open signup window
+                            const signupWindow = document.getElementById('Sign-Up_Terminal');
+                            if (signupWindow) {
+                                signupWindow.style.display = 'flex';
+                                setDefaultPosition(signupWindow);
+                                const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
+                                if (signupTerminal) {
+                                    signupTerminal.shouldScrollToBottom = true;
+                                    TerminalManager.render(signupTerminal);
+                                }
+                            }
+                        }, 'Open sign-up window');
+                        
+                        // Add Logout command
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'logout', function(context) {
+                            const loginTerminal = context.terminalData;
+                            if (!loginTerminal) {
+                                return;
+                            }
+                            
+                            // Clear login state
+                            loginTerminal.awaitingFirstName = false;
+                            loginTerminal.awaitingLastName = false;
+                            loginTerminal.awaitingPassword = false;
+                            loginTerminal.firstName = null;
+                            loginTerminal.lastName = null;
+                            loginTerminal.password = null;
+                            loginTerminal.previousPrompt = null;
+                            loginTerminal.prompt = TerminalManager.defaultPrompt;
+                            loginTerminal.passwordMode = false;
+                            loginTerminal.currentInput = '';
+                            
+                            // Clear and show logout message
+                            context.clear();
+                            context.print('You have been logged out successfully.', 'info');
+                            context.print('');
+                            context.print('Thank you for using Vista-D-NET Corporation services.');
+                            context.print('');
+                            context.print('Type [Login] to log in again, or [Signup] to create a new account.');
+                            context.print('');
+                        }, 'Logout from current session');
+                        
+                        // Add View MIT license command
+                        TerminalManager.addCommand('Login_Terminal_Content_Terminal_Main_Text', 'mit', function(context) {
+                            const mitLicenseText = `MIT License
+
+Copyright (c) 2025 dtron7th
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+                            
+                            context.print('=== MIT License ===', 'info');
+                            context.print(mitLicenseText, 'info');
+                            context.print('', 'info');
+                            context.print('Type [Clear] to return to the terminal.', 'info');
+                        }, 'View MIT license');
+                    });
+                </script>
+
+                <!--Book_Mark: Scripts_Login_Terminal-->
+                <script aria-label="Login_Terminal - Script">
+                document.getElementById('Login_Terminal_Close').addEventListener('click', function() {
+                    // Clear terminal data before closing
+                    const terminal = TerminalManager.getTerminal('Login_Terminal_Content_Terminal_Main_Text');
+                    if (terminal) {
+                        TerminalManager.clearTerminalData(terminal);
+                        // Reset login-specific state variables to ensure default prompt on reopen
+                        terminal.awaitingFirstName = false;
+                        terminal.awaitingLastName = false;
+                        terminal.awaitingPassword = false;
+                        terminal.firstName = null;
+                        terminal.lastName = null;
+                        terminal.password = null;
+                        terminal.previousPrompt = null;
+                        terminal.prompt = TerminalManager.defaultPrompt;
+                        terminal.passwordMode = false;
+                    }
+                    document.getElementById('Login_Terminal').style.display = 'none';
+                });
+                </script>
+            </div>
+        </div>
+
+        <!--Book_Mark: Sign-Up_Terminal_Window-->
+        <div class="Terminal" id="Sign-Up_Terminal">
+            <div class="Header" id="Sign-Up_Terminal_Header">
+                <p class="Title">Sign-Up</p>
+                <div class="Terminal_Manipulation">
+                    <button class="Terminal_Minimize" id="Sign-Up_Terminal_Minimize"></button>
+                    <button class="Terminal_Maximize" id="Sign-Up_Terminal_Maximize"></button>
+                    <button class="Terminal_Close" id="Sign-Up_Terminal_Close"></button>
+                </div>
+            </div>
+            <div class="Content" id="Sign-Up_Terminal_Content_Terminal">
+                <p id="Sign-Up_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+
+                <!--Book_Mark: Styles_Sign-Up_Terminal_Content_Terminal-->
+                <style aria-label="Sign-Up_Terminal_Content_Terminal - Style"> 
+                    #Sign-Up_Terminal_Content_Terminal {
+                        background-color: var(--Terminal_Background_Color);
+                        
+                    }
+
+                    #Sign-Up_Terminal_Content_Terminal_Main_Text {
+                        position: absolute;  
+                        top: 10px;
+                        left: 10px;                     
+                        right: 10px;
+                        bottom: 10px;
+                        font-family: 'Inconsolata', monospace;
+                        font-size: var(--Main_Font_Size);
+                        color: var(--Terminal_Text_Color);
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                        outline: none;
+                        resize: none;
+                        background: transparent;
+                        cursor: text;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        #Sign-Up_Terminal_Content_Terminal_Main_Text {
+                            font-size: 11px;
+                            line-height: 1.4;
+                        }
+                    }
+                </style>
+
+                <!--Book_Mark: Scripts_Sign-Up_Terminal_Content_Terminal-->
+                <script aria-label="Sign-Up_Terminal_Content_Terminal - Script">
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Register the sign-up terminal with TerminalManager
+                        const terminal = TerminalManager.registerTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text', {
+                            windowId: 'Sign-Up_Terminal',
+                            prompt: TerminalManager.defaultPrompt, // Use default prompt from manager
+                            welcomeMessages: [
+                                'Welcome to Vista-D-NET Corporation 2026. Under the open source license - MIT 2025 dtron7th. Build on with MIT',
+                                '',
+                                'AI Agent - Kimi K2.5.',
+                                ''
+                            ],
+                        });
+                        
+                        // Add custom commands
+                        TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'signup', function(context) {
+                            context.print('Opening sign-up window...');
+                            // Open signup window
+                            const signupWindow = document.getElementById('Sign-Up_Terminal');
+                            if (signupWindow) {
+                                signupWindow.style.display = 'flex';
+                                setDefaultPosition(signupWindow);
+                                const signupTerminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
+                                if (signupTerminal) {
+                                    signupTerminal.shouldScrollToBottom = true;
+                                    TerminalManager.render(signupTerminal);
+                                }
+                            }
+                        }, 'Open sign-up window');
+                        
+                        // Add Logout command
+                        TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'logout', function(context) {
+                            const loginTerminal = context.terminalData;
+                            if (!loginTerminal) {
+                                return;
+                            }
+                            
+                            // Clear login state
+                            loginTerminal.awaitingFirstName = false;
+                            loginTerminal.awaitingLastName = false;
+                            loginTerminal.awaitingPassword = false;
+                            loginTerminal.firstName = null;
+                            loginTerminal.lastName = null;
+                            loginTerminal.password = null;
+                            loginTerminal.previousPrompt = null;
+                            loginTerminal.prompt = TerminalManager.defaultPrompt;
+                            loginTerminal.passwordMode = false;
+                            loginTerminal.currentInput = '';
+                            
+                            // Clear and show logout message
+                            context.clear();
+                            context.print('You have been logged out successfully.', 'info');
+                            context.print('');
+                            context.print('Thank you for using Vista-D-NET Corporation services.');
+                            context.print('');
+                            context.print('Type [Login] to log in again, or [Signup] to create a new account.');
+                            context.print('');
+                        }, 'Logout from current session');
+                        
+                        // Add View MIT license command
+                        TerminalManager.addCommand('Sign-Up_Terminal_Content_Terminal_Main_Text', 'mit', function(context) {
+                            const mitLicenseText = `MIT License
+
+Copyright (c) 2025 dtron7th
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+                            
+                            context.print('=== MIT License ===', 'info');
+                            context.print(mitLicenseText, 'info');
+                            context.print('', 'info');
+                            context.print('Type [Clear] to return to the terminal.', 'info');
+                        }, 'View MIT license');
+                    });
+                </script>
+
+                <!--Book_Mark: Scripts_Sign-Up_Terminal-->
+                <script aria-label="Sign-Up_Terminal - Script">
+                document.getElementById('Sign-Up_Terminal_Close').addEventListener('click', function() {
+                    // Clear terminal data before closing
+                    const terminal = TerminalManager.getTerminal('Sign-Up_Terminal_Content_Terminal_Main_Text');
+                    if (terminal) {
+                        TerminalManager.clearTerminalData(terminal);
+                        // Reset login-specific state variables to ensure default prompt on reopen
+                        terminal.awaitingFirstName = false;
+                        terminal.awaitingLastName = false;
+                        terminal.awaitingPassword = false;
+                        terminal.firstName = null;
+                        terminal.lastName = null;
+                        terminal.password = null;
+                        terminal.previousPrompt = null;
+                        terminal.prompt = TerminalManager.defaultPrompt;
+                        terminal.passwordMode = false;
+                    }
+                    document.getElementById('Sign-Up_Terminal').style.display = 'none';
+                });
+                </script>
+            </div>
+        </div>
     </div>
     
 <!--Book_Mark: Document_Footer-->
