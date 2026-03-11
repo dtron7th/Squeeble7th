@@ -1,0 +1,37 @@
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Android build outputs
+mobile-browser/android/.gradle/
+mobile-browser/android/app/build/
+mobile-browser/android/build/
+mobile-browser/android/local.properties
+mobile-browser/android/.idea/
+mobile-browser/android/*.iml
+mobile-browser/android/.idea/
+mobile-browser/android/.idea/caches/
+mobile-browser/android/.idea/modules.xml
+mobile-browser/android/.idea/workspace.xml
+
+# Gradle wrapper
+!mobile-browser/android/gradle/wrapper/gradle-wrapper.jar
+!mobile-browser/android/gradle/wrapper/gradle-wrapper.properties
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
