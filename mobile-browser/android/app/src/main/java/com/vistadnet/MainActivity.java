@@ -114,31 +114,7 @@ public class MainActivity extends Activity {
     }
     
     private void requestPhonePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String[] permissions;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                permissions = new String[]{
-                    Manifest.permission.READ_PHONE_NUMBERS,
-                    Manifest.permission.READ_PHONE_STATE
-                };
-            } else {
-                permissions = new String[]{
-                    Manifest.permission.READ_PHONE_STATE
-                };
-            }
-            
-            boolean allGranted = true;
-            for (String p : permissions) {
-                if (ContextCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
-                }
-            }
-            
-            if (!allGranted) {
-                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
-            }
-        }
+        // No phone permissions needed anymore - only device name
     }
     
     @Override
@@ -197,23 +173,6 @@ public class MainActivity extends Activity {
         
         WebAppInterface(Context c) {
             mContext = c;
-        }
-        
-        @JavascriptInterface
-        public String getPhoneNumber() {
-            try {
-                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    return "Permission denied";
-                }
-                
-                TelephonyManager telephonyManager = (TelephonyManager) 
-                    mContext.getSystemService(Context.TELEPHONY_SERVICE);
-                
-                String phoneNumber = telephonyManager.getLine1Number();
-                return phoneNumber != null && !phoneNumber.isEmpty() ? phoneNumber : "Not available";
-            } catch (Exception e) {
-                return "Error: " + e.getMessage();
-            }
         }
         
         @JavascriptInterface

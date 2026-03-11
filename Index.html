@@ -3156,7 +3156,6 @@
                         // Get Phone functionality
                         document.getElementById('Get_Phone').addEventListener('click', async function() {
                             let deviceName = 'Unknown Device';
-                            let phoneNumber = 'Not Available';
                             const userAgent = navigator.userAgent;
                             
                             // Try to get device name from userAgent
@@ -3186,54 +3185,172 @@
                                 let nativeDeviceName = AndroidBridge.getDeviceName();
                                 // Remove HMD Global prefix if present
                                 deviceName = nativeDeviceName.replace(/^HMD Global\s*/i, '').trim();
-                                phoneNumber = AndroidBridge.getPhoneNumber();
-                            } else {
-                                // Web browser fallback - phone number not accessible
-                                console.log('Note: Running in web browser - phone number not accessible');
                             }
                             
-                            // Update the Phone_Name button with the device name
+                            // Update the Phone_Name button with the device name only
                             const phoneNameBtn = document.getElementById('Phone_Name');
                             if (phoneNameBtn) {
-                                phoneNameBtn.textContent = '[ ' + deviceName + ': ' + phoneNumber + ' ]';
+                                phoneNameBtn.textContent = '[ ' + deviceName + ' ]';
                             }
                             
-                            console.log('Device detected:', deviceName, 'Phone:', phoneNumber);
+                            console.log('Device detected:', deviceName);
                         });
 
                         // Device Info functionality
                         document.getElementById('Device_Info').addEventListener('click', async function() {
-                            const userAgent = navigator.userAgent;
-                            const platform = navigator.platform;
-                            const language = navigator.language;
-                            const cookieEnabled = navigator.cookieEnabled;
-                            const onLine = navigator.onLine;
-                            
-                            let deviceInfo = '=== Device Information ===\n';
-                            deviceInfo += 'User Agent: ' + userAgent + '\n';
-                            deviceInfo += 'Platform: ' + platform + '\n';
-                            deviceInfo += 'Language: ' + language + '\n';
-                            deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
-                            deviceInfo += 'Online: ' + onLine + '\n';
-                            deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
-                            deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
-                            
-                            // Check if running in Android WebView
-                            if (typeof AndroidBridge !== 'undefined') {
-                                deviceInfo += '\n=== Native App Info ===\n';
-                                let nativeDeviceName = AndroidBridge.getDeviceName();
-                                // Remove HMD Global prefix if present
-                                deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
-                                deviceInfo += 'Phone Number: ' + AndroidBridge.getPhoneNumber() + '\n';
-                            } else {
-                                deviceInfo += '\nNote: Running in web browser\n';
-                                deviceInfo += 'Phone number access requires native app permissions\n';
+                            // Show the Device_Info_Terminal window
+                            const deviceInfoWindow = document.getElementById('Device_Info_Terminal');
+                            if (deviceInfoWindow) {
+                                deviceInfoWindow.style.display = 'flex';
+                                setDefaultPosition(deviceInfoWindow);
+                                
+                                // Get the terminal and display device information
+                                const deviceInfoTerminal = TerminalManager.getTerminal('Device_Info_Terminal_Content_Terminal_Main_Text');
+                                if (deviceInfoTerminal) {
+                                    deviceInfoTerminal.shouldScrollToBottom = true;
+                                    
+                                    // Clear any previous content
+                                    TerminalManager.clearTerminalData(deviceInfoTerminal);
+                                    
+                                    // Generate device information
+                                    const userAgent = navigator.userAgent;
+                                    const platform = navigator.platform;
+                                    const language = navigator.language;
+                                    const cookieEnabled = navigator.cookieEnabled;
+                                    const onLine = navigator.onLine;
+                                    
+                                    let deviceInfo = '=== Device Information ===\n';
+                                    deviceInfo += 'User Agent: ' + userAgent + '\n';
+                                    deviceInfo += 'Platform: ' + platform + '\n';
+                                    deviceInfo += 'Language: ' + language + '\n';
+                                    deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
+                                    deviceInfo += 'Online: ' + onLine + '\n';
+                                    deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
+                                    deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
+                                    
+                                    // Check if running in Android WebView
+                                    if (typeof AndroidBridge !== 'undefined') {
+                                        deviceInfo += '\n=== Native App Info ===\n';
+                                        let nativeDeviceName = AndroidBridge.getDeviceName();
+                                        deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
+                                        deviceInfo += 'App ID: VD-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '\n';
+                                    } else {
+                                        deviceInfo += '\n=== Web Browser Info ===\n';
+                                        deviceInfo += 'Device Name: Web Browser\n';
+                                        deviceInfo += 'App ID: WB-' + Math.random().toString(36).substr(2, 9).toUpperCase() + '\n';
+                                    }
+                                    
+                                    deviceInfo += '\nType "help" for available commands...\n';
+                                    
+                                    // Display the information in the terminal
+                                    TerminalManager.addLine(deviceInfoTerminal, deviceInfo, 'info');
+                                    TerminalManager.render(deviceInfoTerminal);
+                                }
                             }
-                            
-                            console.log(deviceInfo);
-                            alert(deviceInfo);
                         });
 
+                    </script>
+
+                    <!--Book_Mark: Device_Info_Terminal-->
+                    <div class="Device_Info_Terminal" id="Device_Info_Terminal">
+                        <div class="Header">
+                            <p class="Title">Device Information</p>
+                            <div class="Terminal_Manipulation">
+                                <button class="Terminal_Minimize"></button>
+                                <button class="Terminal_Maximize"></button>
+                                <button class="Terminal_Close" id="Device_Info_Terminal_Close"></button>
+                            </div>
+                        </div>
+                        <div class="Content">
+                            <div class="Terminal_Content_Terminal" id="Device_Info_Terminal_Content_Terminal_Main_Text"></div>
+                        </div>
+                    </div>
+
+                    <!--Book_Mark: Scripts_Device_Info_Terminal_Content_Terminal-->
+                    <script aria-label="Device_Info_Terminal_Content_Terminal - Script">
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Register the device info terminal with TerminalManager
+                            const terminal = TerminalManager.registerTerminal('Device_Info_Terminal_Content_Terminal_Main_Text', {
+                                windowId: 'Device_Info_Terminal',
+                                prompt: TerminalManager.defaultPrompt,
+                                welcomeMessages: [
+                                    'Device Information Terminal',
+                                    '',
+                                    'Type "help" for available commands...',
+                                    ''
+                                ],
+                                commands: {
+                                    help: function(terminal, args) {
+                                        TerminalManager.addLine(terminal, 'Available commands:', 'info');
+                                        TerminalManager.addLine(terminal, '  help     - Show this help message', 'info');
+                                        TerminalManager.addLine(terminal, '  clear    - Clear terminal', 'info');
+                                        TerminalManager.addLine(terminal, '  device   - Show device information', 'info');
+                                        TerminalManager.addLine(terminal, '  appid    - Generate new app ID', 'info');
+                                        TerminalManager.addLine(terminal, '  exit     - Close terminal', 'info');
+                                        TerminalManager.render(terminal);
+                                    },
+                                    clear: function(terminal, args) {
+                                        TerminalManager.clearTerminalData(terminal);
+                                        TerminalManager.render(terminal);
+                                    },
+                                    device: function(terminal, args) {
+                                        const userAgent = navigator.userAgent;
+                                        const platform = navigator.platform;
+                                        const language = navigator.language;
+                                        const cookieEnabled = navigator.cookieEnabled;
+                                        const onLine = navigator.onLine;
+                                        
+                                        let deviceInfo = '=== Device Information ===\n';
+                                        deviceInfo += 'User Agent: ' + userAgent + '\n';
+                                        deviceInfo += 'Platform: ' + platform + '\n';
+                                        deviceInfo += 'Language: ' + language + '\n';
+                                        deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
+                                        deviceInfo += 'Online: ' + onLine + '\n';
+                                        deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
+                                        deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
+                                        
+                                        if (typeof AndroidBridge !== 'undefined') {
+                                            deviceInfo += '\n=== Native App Info ===\n';
+                                            let nativeDeviceName = AndroidBridge.getDeviceName();
+                                            deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
+                                        } else {
+                                            deviceInfo += '\n=== Web Browser Info ===\n';
+                                            deviceInfo += 'Device Name: Web Browser\n';
+                                        }
+                                        
+                                        TerminalManager.addLine(terminal, deviceInfo, 'info');
+                                        TerminalManager.render(terminal);
+                                    },
+                                    appid: function(terminal, args) {
+                                        const prefix = typeof AndroidBridge !== 'undefined' ? 'VD' : 'WB';
+                                        const appId = prefix + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                                        TerminalManager.addLine(terminal, 'Generated App ID: ' + appId, 'success');
+                                        TerminalManager.render(terminal);
+                                    },
+                                    exit: function(terminal, args) {
+                                        const window = document.getElementById('Device_Info_Terminal');
+                                        if (window) {
+                                            window.style.display = 'none';
+                                            TerminalManager.clearTerminalData(terminal);
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
+
+                    <!--Book_Mark: Scripts_Device_Info_Terminal-->
+                    <script aria-label="Device_Info_Terminal - Script">
+                        document.getElementById('Device_Info_Terminal_Close').addEventListener('click', function() {
+                            // Clear terminal data before closing
+                            const terminal = TerminalManager.getTerminal('Device_Info_Terminal_Content_Terminal_Main_Text');
+                            if (terminal) {
+                                TerminalManager.clearTerminalData(terminal);
+                            }
+                            
+                            // Hide the terminal window
+                            document.getElementById('Device_Info_Terminal').style.display = 'none';
+                        });
                     </script>
 
                     <!--Book_Mark: Styles_QR_Home-->
