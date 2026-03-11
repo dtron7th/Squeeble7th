@@ -3251,147 +3251,6 @@
 
                     </script>
 
-                    <!--Book_Mark: QR_Home_Terminals_Section-->
-                    <div class="QR_Home_Terminals">
-                        <!--Book_Mark: Device_Info_Terminal_Window-->
-                        <div class="Terminal" id="Device_Info_Terminal">
-                            <div class="Header" id="Device_Info_Terminal_Header">
-                                <p class="Title">Device Information</p>
-                                <div class="Terminal_Manipulation">
-                                    <button class="Terminal_Minimize" id="Device_Info_Terminal_Minimize"></button>
-                                    <button class="Terminal_Maximize" id="Device_Info_Terminal_Maximize"></button>
-                                    <button class="Terminal_Close" id="Device_Info_Terminal_Close"></button>
-                                </div>
-                            </div>
-                            <div class="Content" id="Device_Info_Terminal_Content_Terminal">
-                                <p id="Device_Info_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
-
-                                <!--Book_Mark: Styles_Device_Info_Terminal_Content_Terminal-->
-                                <style aria-label="Device_Info_Terminal_Content_Terminal - Style">
-                                    #Device_Info_Terminal_Content_Terminal {
-                                        background-color: var(--Terminal_Background_Color);
-                                    }
-
-                                    #Device_Info_Terminal_Content_Terminal_Main_Text {
-                                        position: absolute;  
-                                        top: 10px;
-                                        left: 10px;                     
-                                        right: 10px;
-                                        bottom: 10px;
-                                        font-family: 'Inconsolata', monospace;
-                                        font-size: var(--Main_Font_Size);
-                                        color: var(--Terminal_Text_Color);
-                                        white-space: pre-wrap;
-                                        word-wrap: break-word;
-                                        overflow-y: auto;
-                                        overflow-x: hidden;
-                                        margin: 0;
-                                        padding: 0;
-                                        border: none;
-                                        outline: none;
-                                        resize: none;
-                                        background: transparent;
-                                        cursor: text;
-                                    }
-                                    
-                                    @media (max-width: 768px) {
-                                        #Device_Info_Terminal_Content_Terminal_Main_Text {
-                                            font-size: 11px;
-                                            line-height: 1.4;
-                                        }
-                                    }
-                                </style>
-
-                                <!--Book_Mark: Scripts_Device_Info_Terminal_Content_Terminal-->
-                                <script aria-label="Device_Info_Terminal_Content_Terminal - Script">
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        // Register the device info terminal with TerminalManager
-                                        const terminal = TerminalManager.registerTerminal('Device_Info_Terminal_Content_Terminal_Main_Text', {
-                                            windowId: 'Device_Info_Terminal',
-                                            prompt: TerminalManager.defaultPrompt,
-                                            welcomeMessages: [
-                                                'Device Information Terminal',
-                                                '',
-                                                'Type "help" for available commands...',
-                                                ''
-                                            ],
-                                            commands: {
-                                                help: function(terminal, args) {
-                                                    TerminalManager.addLine(terminal, 'Available commands:', 'info');
-                                                    TerminalManager.addLine(terminal, '  help     - Show this help message', 'info');
-                                                    TerminalManager.addLine(terminal, '  clear    - Clear terminal', 'info');
-                                                    TerminalManager.addLine(terminal, '  device   - Show device information', 'info');
-                                                    TerminalManager.addLine(terminal, '  appid    - Generate new app ID', 'info');
-                                                    TerminalManager.addLine(terminal, '  exit     - Close terminal', 'info');
-                                                    TerminalManager.render(terminal);
-                                                },
-                                                clear: function(terminal, args) {
-                                                    TerminalManager.clearTerminalData(terminal);
-                                                    TerminalManager.render(terminal);
-                                                },
-                                                device: function(terminal, args) {
-                                                    const userAgent = navigator.userAgent;
-                                                    const platform = navigator.platform;
-                                                    const language = navigator.language;
-                                                    const cookieEnabled = navigator.cookieEnabled;
-                                                    const onLine = navigator.onLine;
-                                                    
-                                                    let deviceInfo = '=== Device Information ===\n';
-                                                    deviceInfo += 'User Agent: ' + userAgent + '\n';
-                                                    deviceInfo += 'Platform: ' + platform + '\n';
-                                                    deviceInfo += 'Language: ' + language + '\n';
-                                                    deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
-                                                    deviceInfo += 'Online: ' + onLine + '\n';
-                                                    deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
-                                                    deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
-                                                    
-                                                    if (typeof AndroidBridge !== 'undefined') {
-                                                        deviceInfo += '\n=== Native App Info ===\n';
-                                                        let nativeDeviceName = AndroidBridge.getDeviceName();
-                                                        deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
-                                                    } else {
-                                                        deviceInfo += '\n=== Web Browser Info ===\n';
-                                                        deviceInfo += 'Device Name: Web Browser\n';
-                                                    }
-                                                    
-                                                    TerminalManager.addLine(terminal, deviceInfo, 'info');
-                                                    TerminalManager.render(terminal);
-                                                },
-                                                appid: function(terminal, args) {
-                                                    const prefix = typeof AndroidBridge !== 'undefined' ? 'VD' : 'WB';
-                                                    const appId = prefix + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                                                    TerminalManager.addLine(terminal, 'Generated App ID: ' + appId, 'success');
-                                                    TerminalManager.render(terminal);
-                                                },
-                                                exit: function(terminal, args) {
-                                                    const window = document.getElementById('Device_Info_Terminal');
-                                                    if (window) {
-                                                        window.style.display = 'none';
-                                                        TerminalManager.clearTerminalData(terminal);
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--Book_Mark: Scripts_QR_Home_Device_Info_Terminal-->
-                    <script aria-label="QR_Home_Device_Info_Terminal - Script">
-                        document.getElementById('Device_Info_Terminal_Close').addEventListener('click', function() {
-                            // Clear terminal data before closing
-                            const terminal = TerminalManager.getTerminal('Device_Info_Terminal_Content_Terminal_Main_Text');
-                            if (terminal) {
-                                TerminalManager.clearTerminalData(terminal);
-                            }
-                            
-                            // Hide the terminal window
-                            document.getElementById('Device_Info_Terminal').style.display = 'none';
-                        });
-                    </script>
-
                     <!--Book_Mark: Styles_QR_Home-->
                     <style aria-label="QR_Home - Style">
                         .QR_Home {
@@ -5344,6 +5203,147 @@
 
     </div>
     
+    <!--Book_Mark: Device_Info_Terminal_Section-->
+    <div class="Device_Info_Terminal">
+        <!--Book_Mark: Device_Info_Terminal_Window-->
+        <div class="Terminal" id="Device_Info_Terminal">
+            <div class="Header" id="Device_Info_Terminal_Header">
+                <p class="Title">Device Information</p>
+                <div class="Terminal_Manipulation">
+                    <button class="Terminal_Minimize" id="Device_Info_Terminal_Minimize"></button>
+                    <button class="Terminal_Maximize" id="Device_Info_Terminal_Maximize"></button>
+                    <button class="Terminal_Close" id="Device_Info_Terminal_Close"></button>
+                </div>
+            </div>
+            <div class="Content" id="Device_Info_Terminal_Content_Terminal">
+                <p id="Device_Info_Terminal_Content_Terminal_Main_Text" class="terminal" contenteditable="true" tabindex="0" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></p>
+
+                <!--Book_Mark: Styles_Device_Info_Terminal_Content_Terminal-->
+                <style aria-label="Device_Info_Terminal_Content_Terminal - Style">
+                    #Device_Info_Terminal_Content_Terminal {
+                        background-color: var(--Terminal_Background_Color);
+                    }
+
+                    #Device_Info_Terminal_Content_Terminal_Main_Text {
+                        position: absolute;  
+                        top: 10px;
+                        left: 10px;                     
+                        right: 10px;
+                        bottom: 10px;
+                        font-family: 'Inconsolata', monospace;
+                        font-size: var(--Main_Font_Size);
+                        color: var(--Terminal_Text_Color);
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                        outline: none;
+                        resize: none;
+                        background: transparent;
+                        cursor: text;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        #Device_Info_Terminal_Content_Terminal_Main_Text {
+                            font-size: 11px;
+                            line-height: 1.4;
+                        }
+                    }
+                </style>
+
+                <!--Book_Mark: Scripts_Device_Info_Terminal_Content_Terminal-->
+                <script aria-label="Device_Info_Terminal_Content_Terminal - Script">
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Register the device info terminal with TerminalManager
+                        const terminal = TerminalManager.registerTerminal('Device_Info_Terminal_Content_Terminal_Main_Text', {
+                            windowId: 'Device_Info_Terminal',
+                            prompt: TerminalManager.defaultPrompt,
+                            welcomeMessages: [
+                                'Device Information Terminal',
+                                '',
+                                'Type "help" for available commands...',
+                                ''
+                            ],
+                            commands: {
+                                help: function(terminal, args) {
+                                    TerminalManager.addLine(terminal, 'Available commands:', 'info');
+                                    TerminalManager.addLine(terminal, '  help     - Show this help message', 'info');
+                                    TerminalManager.addLine(terminal, '  clear    - Clear terminal', 'info');
+                                    TerminalManager.addLine(terminal, '  device   - Show device information', 'info');
+                                    TerminalManager.addLine(terminal, '  appid    - Generate new app ID', 'info');
+                                    TerminalManager.addLine(terminal, '  exit     - Close terminal', 'info');
+                                    TerminalManager.render(terminal);
+                                },
+                                clear: function(terminal, args) {
+                                    TerminalManager.clearTerminalData(terminal);
+                                    TerminalManager.render(terminal);
+                                },
+                                device: function(terminal, args) {
+                                    const userAgent = navigator.userAgent;
+                                    const platform = navigator.platform;
+                                    const language = navigator.language;
+                                    const cookieEnabled = navigator.cookieEnabled;
+                                    const onLine = navigator.onLine;
+                                    
+                                    let deviceInfo = '=== Device Information ===\n';
+                                    deviceInfo += 'User Agent: ' + userAgent + '\n';
+                                    deviceInfo += 'Platform: ' + platform + '\n';
+                                    deviceInfo += 'Language: ' + language + '\n';
+                                    deviceInfo += 'Cookies Enabled: ' + cookieEnabled + '\n';
+                                    deviceInfo += 'Online: ' + onLine + '\n';
+                                    deviceInfo += 'Screen Resolution: ' + screen.width + 'x' + screen.height + '\n';
+                                    deviceInfo += 'Color Depth: ' + screen.colorDepth + ' bits\n';
+                                    
+                                    if (typeof AndroidBridge !== 'undefined') {
+                                        deviceInfo += '\n=== Native App Info ===\n';
+                                        let nativeDeviceName = AndroidBridge.getDeviceName();
+                                        deviceInfo += 'Device Name: ' + nativeDeviceName.replace(/^HMD Global\s*/i, '').trim() + '\n';
+                                    } else {
+                                        deviceInfo += '\n=== Web Browser Info ===\n';
+                                        deviceInfo += 'Device Name: Web Browser\n';
+                                    }
+                                    
+                                    TerminalManager.addLine(terminal, deviceInfo, 'info');
+                                    TerminalManager.render(terminal);
+                                },
+                                appid: function(terminal, args) {
+                                    const prefix = typeof AndroidBridge !== 'undefined' ? 'VD' : 'WB';
+                                    const appId = prefix + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                                    TerminalManager.addLine(terminal, 'Generated App ID: ' + appId, 'success');
+                                    TerminalManager.render(terminal);
+                                },
+                                exit: function(terminal, args) {
+                                    const window = document.getElementById('Device_Info_Terminal');
+                                    if (window) {
+                                        window.style.display = 'none';
+                                        TerminalManager.clearTerminalData(terminal);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <!--Book_Mark: Scripts_Device_Info_Terminal-->
+    <script aria-label="Device_Info_Terminal - Script">
+        document.getElementById('Device_Info_Terminal_Close').addEventListener('click', function() {
+            // Clear terminal data before closing
+            const terminal = TerminalManager.getTerminal('Device_Info_Terminal_Content_Terminal_Main_Text');
+            if (terminal) {
+                TerminalManager.clearTerminalData(terminal);
+            }
+            
+            // Hide the terminal window
+            document.getElementById('Device_Info_Terminal').style.display = 'none';
+        });
+    </script>
+
     <!--Book_Mark: Login_Terminals_Section-->
     <div class="Login_Terminals">
         <!--Book_Mark: Login_Terminal_Window-->
