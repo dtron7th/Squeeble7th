@@ -536,6 +536,11 @@
                     // Terminal Open/Close animations (Windows 11 style)
                     function openTerminal() {
                         const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        
+                        // Reset to CSS default position by clearing inline styles
+                        terminal.style.left = '';
+                        terminal.style.top = '';
+                        
                         terminal.style.display = 'block';
                         terminal.style.opacity = '0';
                         terminal.style.transform = 'scale(0.95) translateY(10px)';
@@ -567,58 +572,102 @@
                     });
 
                     // Terminal Dragging
-
-                    // Terminal Dragging
                     (function() {
                         const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
                         const header = terminal.querySelector('.QR_Home_Device_Info_Terminal_Header');
                         let isDragging = false;
-                        let offsetX, offsetY;
+                        let startX, startY, initialLeft, initialTop;
 
                         header.addEventListener('mousedown', function(e) {
                             isDragging = true;
+                            startX = e.clientX;
+                            startY = e.clientY;
+                            
+                            // Get initial position
                             const rect = terminal.getBoundingClientRect();
-                            offsetX = e.clientX - rect.left;
-                            offsetY = e.clientY - rect.top;
+                            initialLeft = rect.left;
+                            initialTop = rect.top;
+                            
                             terminal.style.transition = 'none';
+                            console.log('Terminal drag started:', { startX, startY, initialLeft, initialTop });
                         });
 
                         document.addEventListener('mousemove', function(e) {
                             if (isDragging) {
-                                terminal.style.left = (e.clientX - offsetX) + 'px';
-                                terminal.style.top = (e.clientY - offsetY) + 'px';
+                                // Calculate new position based on mouse movement
+                                const deltaX = e.clientX - startX;
+                                const deltaY = e.clientY - startY;
                                 
-                                // Apply screen constraints
-                                if (typeof constrainToScreen === 'function') {
-                                    constrainToScreen(terminal);
-                                }
+                                let newLeft = initialLeft + deltaX;
+                                let newTop = initialTop + deltaY;
+                                
+                                // Apply constraints before setting position
+                                const screenWidth = window.innerWidth;
+                                const screenHeight = window.innerHeight;
+                                const elementRect = terminal.getBoundingClientRect();
+                                
+                                const maxX = screenWidth - elementRect.width;
+                                const maxY = screenHeight - elementRect.height;
+                                
+                                newLeft = Math.max(0, Math.min(newLeft, maxX));
+                                newTop = Math.max(0, Math.min(newTop, maxY));
+                                
+                                terminal.style.left = newLeft + 'px';
+                                terminal.style.top = newTop + 'px';
+                                
+                                console.log('Terminal dragging:', { 
+                                    mouse: { x: e.clientX, y: e.clientY },
+                                    delta: { x: deltaX, y: deltaY },
+                                    position: { left: newLeft, top: newTop },
+                                    bounds: { maxX, maxY }
+                                });
                             }
                         });
 
                         document.addEventListener('mouseup', function() {
-                            isDragging = false;
+                            if (isDragging) {
+                                isDragging = false;
+                                console.log('Terminal drag ended');
+                            }
                         });
 
                         // Touch support
                         header.addEventListener('touchstart', function(e) {
                             isDragging = true;
                             const touch = e.touches[0];
+                            startX = touch.clientX;
+                            startY = touch.clientY;
+                            
+                            // Get initial position
                             const rect = terminal.getBoundingClientRect();
-                            offsetX = touch.clientX - rect.left;
-                            offsetY = touch.clientY - rect.top;
+                            initialLeft = rect.left;
+                            initialTop = rect.top;
+                            
                             terminal.style.transition = 'none';
                         });
 
                         document.addEventListener('touchmove', function(e) {
                             if (isDragging) {
                                 const touch = e.touches[0];
-                                terminal.style.left = (touch.clientX - offsetX) + 'px';
-                                terminal.style.top = (touch.clientY - offsetY) + 'px';
+                                const deltaX = touch.clientX - startX;
+                                const deltaY = touch.clientY - startY;
                                 
-                                // Apply screen constraints
-                                if (typeof constrainToScreen === 'function') {
-                                    constrainToScreen(terminal);
-                                }
+                                let newLeft = initialLeft + deltaX;
+                                let newTop = initialTop + deltaY;
+                                
+                                // Apply constraints
+                                const screenWidth = window.innerWidth;
+                                const screenHeight = window.innerHeight;
+                                const elementRect = terminal.getBoundingClientRect();
+                                
+                                const maxX = screenWidth - elementRect.width;
+                                const maxY = screenHeight - elementRect.height;
+                                
+                                newLeft = Math.max(0, Math.min(newLeft, maxX));
+                                newTop = Math.max(0, Math.min(newTop, maxY));
+                                
+                                terminal.style.left = newLeft + 'px';
+                                terminal.style.top = newTop + 'px';
                             }
                         });
 
