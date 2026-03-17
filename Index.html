@@ -316,29 +316,49 @@
 
         // Universal App ID
         function generateUniversalAppID() {
-            // Create user-specific components for the App ID
-            const userAgent = navigator.userAgent || '';
-            const platform = navigator.platform || '';
-            const language = navigator.language || '';
-            const screenInfo = screen.width + 'x' + screen.height;
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-            const timestamp = Date.now().toString();
+            // Check if running in custom mobile browser environment
+            const isCustomBrowser = window.customBrowserApp || navigator.userAgent.includes('CustomMobileBrowser') || window.VDN_CUSTOM_BROWSER;
             
-            // Combine user-specific data to create a unique seed
-            const userString = userAgent + platform + language + screenInfo + timezone + timestamp;
+            if (!isCustomBrowser) {
+                // Generate placeholder ID for non-custom browsers
+                return '0000000000-0000000000-0000000000';
+            }
             
-            // Create hash from user-specific string
+            // Check if custom browser already generated its own App ID
+            if (window.customBrowserApp?.generatedAppID) {
+                return window.customBrowserApp.generatedAppID;
+            }
+            
+            // Allow custom browser to generate its own App ID
+            if (window.customBrowserApp?.generateAppID && typeof window.customBrowserApp.generateAppID === 'function') {
+                const customGeneratedID = window.customBrowserApp.generateAppID();
+                if (customGeneratedID && typeof customGeneratedID === 'string') {
+                    return customGeneratedID;
+                }
+            }
+            
+            // Fallback: Generate app-specific ID if custom browser doesn't provide one
+            const appVersion = window.customBrowserApp?.version || '1.0.0';
+            const appBuild = window.customBrowserApp?.build || '1';
+            const appInstanceId = window.customBrowserApp?.instanceId || Math.random().toString(36).substr(2, 9);
+            const deviceFingerprint = window.customBrowserApp?.deviceFingerprint || generateDeviceFingerprint();
+            const installTimestamp = window.customBrowserApp?.installTime || Date.now();
+            
+            // Create app-specific unique string
+            const appString = `VDN-${appVersion}-${appBuild}-${appInstanceId}-${deviceFingerprint}-${installTimestamp}`;
+            
+            // Generate hash from app-specific string
             let hash = 0;
-            for (let i = 0; i < userString.length; i++) {
-                const char = userString.charCodeAt(i);
+            for (let i = 0; i < appString.length; i++) {
+                const char = appString.charCodeAt(i);
                 hash = ((hash << 5) - hash) + char;
                 hash = hash & hash; // Convert to 32-bit integer
             }
             
-            // Use the hash as seed for consistent but unique generation
+            // Use the hash as seed for consistent app ID generation
             const seed = Math.abs(hash);
             const maxNumber = Math.pow(3000000000, 3);
-            const randomNumber = (seed * Date.now()) % maxNumber;
+            const randomNumber = (seed * parseInt(appInstanceId, 36)) % maxNumber;
             
             // Convert to string and format as XXXXXXXXXX-XXXXXXXXXX-XXXXXXXXXX
             const numberStr = randomNumber.toString().padStart(30, '0');
@@ -347,9 +367,29 @@
             return formatted;
         }
 
+        // Helper function to generate device fingerprint for custom browser
+        function generateDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Device fingerprint', 2, 2);
+            
+            const fingerprint = [
+                navigator.userAgent || '',
+                navigator.language || '',
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                canvas.toDataURL().slice(-50) // Last 50 chars of canvas fingerprint
+            ].join('|');
+            
+            return fingerprint;
+        }
+
         // Generate and store the Universal App ID
         const universalAppID = generateUniversalAppID();
         console.log('Universal App ID:', universalAppID);
+        console.log('Custom Browser Detected:', universalAppID !== '0000000000-0000000000-0000000000');
 
      </script>
 
@@ -831,9 +871,32 @@
                                 const command = cmd.trim().toUpperCase();
                                 switch(command) {
                                     case 'APPID':
+                                        // Get App ID directly from custom mobile browser
+                                        let appID = 'App ID not available';
+                                        
+                                        // Check if running in custom mobile browser
+                                        const isCustomBrowser = window.customBrowserApp || navigator.userAgent.includes('CustomMobileBrowser') || window.VDN_CUSTOM_BROWSER;
+                                        
+                                        if (isCustomBrowser) {
+                                            // Try to get App ID from custom browser's own generation
+                                            if (window.customBrowserApp?.generateAppID && typeof window.customBrowserApp.generateAppID === 'function') {
+                                                try {
+                                                    appID = window.customBrowserApp.generateAppID();
+                                                } catch (error) {
+                                                    appID = 'Error generating App ID: ' + error.message;
+                                                }
+                                            } else if (window.customBrowserApp?.generatedAppID) {
+                                                appID = window.customBrowserApp.generatedAppID;
+                                            } else {
+                                                appID = 'Custom browser detected but no App ID generator available';
+                                            }
+                                        } else {
+                                            appID = 'Custom mobile browser not detected';
+                                        }
+                                        
                                         return [
                                             'Universal App ID:',
-                                            window.universalAppID || 'App ID not available'
+                                            appID
                                         ];
                                     case 'EXIT':
                                         closeTerminalFn();
