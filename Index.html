@@ -7,9 +7,7 @@
 
     <!--Book_Mark: HEAD SECTION-->
     <!-- Font Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
 
     <!--Book_Mark: UI COMPONENTS-->
     <div class="UI" style="display: none;">
@@ -63,6 +61,7 @@
             <span>-</span>
             <span class="clock-date">00/00/00</span>
 
+            <!--Book_Mark: CLOCK COMPONENT SCRIPT-->
             <script aria-label="Clock">
                 function updateClockTime() {
                     const now = new Date();
@@ -93,13 +92,13 @@
     <style aria-label="Main">
         :root {
             --main-text-color: rgb(255, 255, 255);
-            --font-size: 10px;
-            --main-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            --font-size: 8px;
+            --main-box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
 
             --main-ui-color: rgba(0, 0, 0, 0.137);
-            --header-color: rgba(255, 255, 255, 0.05);
+            --header-color: rgba(32, 32, 32, 0.226);
 
-            --ui-border-radius: 5px;
+            --ui-border-radius: 0px;
 
             --ui-back-drop: 30px;
         }
@@ -108,12 +107,43 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Inconsolata", monospace;
+            font-family: 'MainFont', monospace;
         }
+
+        @font-face {
+            font-family: 'MainFont';
+            src: url(/Fonts/OverpassMono-Regular.ttf);
+
+        }
+
 
         body {
             background-color: rgb(255, 255, 255);
         }
+
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.349);
+            
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+        
     </style>
     <!--Book_Mark: WINDOW COMPONENT STYLES-->
     <!-- Window Component Styles -->
@@ -183,196 +213,206 @@
         }
     </style>
 
-    <!--Book_Mark: TERMINAL COMPONENT STYLES-->
-    <!-- Terminal Component Styles -->
-    <style aria-label="Terminal">
-        .terminal {
-            width: 300px;
-            height: 200px;
-            background: var(--main-ui-color);
-            backdrop-filter: blur(var(--ui-back-drop));
-            border-radius: var(--ui-border-radius);
-            box-shadow: var(--main-box-shadow);
-            overflow: hidden;
-            display: none;
-        }
-
-        .terminal-header {
-            width: 100%;
-            height: 30px;
-            background-color: var(--header-color);
-            display: flex;
-            align-items: center;
-        }
-
-        .terminal-title {
-            display: flex;
-            align-items: center;
-            text-indent: 10px;
-        }
-
-        .terminal-title-text {
-            color: var(--main-text-color);
-            font-size: var(--font-size);
-        }
-
-        .terminal-controls {
-            position: absolute;
-            right: 10px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .terminal-button {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .terminal-button:hover {
-            opacity: 0.8;
-        }
-
-        .minimize {
-            background: #ffbb00;
-        }
-
-        .maximize {
-            background: #5eff00;
-        }
-
-        .close {
-            background: #ff0000;
-        }
-
-        .terminal-output {
-            display: flex;
-            height: calc(100% - 30px);
-            justify-content: center;
-            align-items: center;
-            
-        }
-        
-        .terminal-output-text {
-            color: var(--main-text-color);
-            font-size: var(--font-size);
-            width: calc(100% - 20px);
-            height: calc(100% - 20px);
-        }
-    </style>
-
-    <!--Book_Mark: NAVIGATION BAR COMPONENT STYLES-->
-    <!-- Navigation Bar Component Styles -->
-    <style aria-label="Navigation_Bar">
-       .navigation-bar {
-            position: absolute;
-            width: calc(100% - 20px);
-            height: 30px;
-            display: flex;
-            align-items: center;
-            background-color: var(--main-ui-color);
-            backdrop-filter: blur(var(--ui-back-drop));
-            border-radius: var(--ui-border-radius);
-            box-shadow: var(--main-box-shadow);
-            overflow: hidden;
-       }
-    </style>
-
-    <!--Book_Mark: BUTTON COMPONENT STYLES-->
-    <!-- Button Component Styles -->
-    <style aria-label="Button">
-        button {
-            border: none;
-            background: none;
-            outline: none;
-            color: var(--main-text-color);
-            font-size: var(--font-size);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-
-    <style aria-label="clock">
-        .clock {
-            position: absolute;
-            color: var(--main-text-color);
-            font-size: var(--font-size);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .clock-time {
-            font-size: calc(var(--font-size) * 2);
-            font-weight: bold;
-        }
-
-        .clock-date {
-            font-size: var(--font-size);
-            opacity: 0.8;
-        }
-
-    </style>
-
 </head>
 <body>
-    <!--Book_Mark: BODY CONTENT-->
+    <!--Book_Mark: MAIN-->
+    <script aria-label="Main">
+        // Constrain element position within screen bounds
+        function constrainToScreen(element) {
+            const rect = element.getBoundingClientRect();
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            // Calculate the maximum allowed positions
+            const maxX = screenWidth - rect.width;
+            const maxY = screenHeight - rect.height;
+            
+            // Get current position from style or fallback to rect position
+            let currentLeft = parseInt(element.style.left) || rect.left;
+            let currentTop = parseInt(element.style.top) || rect.top;
+            
+            // Constrain to screen bounds
+            const constrainedLeft = Math.max(0, Math.min(currentLeft, maxX));
+            const constrainedTop = Math.max(0, Math.min(currentTop, maxY));
+            
+            // Apply constrained position
+            element.style.left = constrainedLeft + 'px';
+            element.style.top = constrainedTop + 'px';
+            
+            // Debug logging (remove in production)
+            console.log('Constrained:', {
+                element: element.id || element.className,
+                original: { left: currentLeft, top: currentTop },
+                constrained: { left: constrainedLeft, top: constrainedTop },
+                bounds: { maxX, maxY },
+                screenSize: { width: screenWidth, height: screenHeight },
+                elementSize: { width: rect.width, height: rect.height }
+            });
+        }
+
+        // Update drag handlers to constrain within bounds
+        function makeDraggable(element, handle) {
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            handle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                // Get initial position
+                const rect = element.getBoundingClientRect();
+                initialLeft = rect.left;
+                initialTop = rect.top;
+                
+                element.style.transition = 'none';
+                console.log('Drag started:', { startX, startY, initialLeft, initialTop });
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    // Calculate new position based on mouse movement
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    
+                    let newLeft = initialLeft + deltaX;
+                    let newTop = initialTop + deltaY;
+                    
+                    // Apply constraints before setting position
+                    const screenWidth = window.innerWidth;
+                    const screenHeight = window.innerHeight;
+                    const elementRect = element.getBoundingClientRect();
+                    
+                    const maxX = screenWidth - elementRect.width;
+                    const maxY = screenHeight - elementRect.height;
+                    
+                    newLeft = Math.max(0, Math.min(newLeft, maxX));
+                    newTop = Math.max(0, Math.min(newTop, maxY));
+                    
+                    element.style.left = newLeft + 'px';
+                    element.style.top = newTop + 'px';
+                    
+                    console.log('Dragging:', { 
+                        mouse: { x: e.clientX, y: e.clientY },
+                        delta: { x: deltaX, y: deltaY },
+                        position: { left: newLeft, top: newTop },
+                        bounds: { maxX, maxY }
+                    });
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    console.log('Drag ended');
+                }
+            });
+        }
+
+        // Reposition elements on window resize
+        window.addEventListener('resize', function() {
+            document.querySelectorAll('.window, .terminal, #QR_Home_Device_Info_Terminal').forEach(constrainToScreen);
+        });
+
+    </script>
 
     <!--Book_Mark: QR HOME PAGE-->
     <div class="QR_Home">
-        <div class="QR_Home_Wallpaper">
-            <img src="Images/Wallpaper/QR Home/untitled(1).jpg" alt="QR Home Wallpaper">
-
-            <!-- QR Home Wallpaper Styles -->
-            <style aria-label="QR_Home_Wallpaper_Style">
-                .QR_Home_Wallpaper {
-                    width: 100dvw;
-                    height: 100dvh;
-                }
-
-                .QR_Home_Wallpaper > img {
-                    width: 100dvw;
-                    height: 100dvh;
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                }
-            </style>
-            <!-- QR Home Wallpaper Scripts -->
-            <script aria-label="QR_Home_Wallpaper_Scripts">
-                // QR_Home_Wallpaper functionality
-            </script>
-                    
-        </div>
-
+        
         <!-- QR Home Navigation Bar Component -->
-        <div class="navigation-bar" id="QR-Home-Nav-Bar">
+        <div id="QR_Home_Navigation_Bar">
             <div class="Buttons">
                 <button>[ Login ]</button>
-                <button>[ Device ]</button>
+                <button id="Open_Device_Terminal">[ Device ]</button>
                 <button>[ QR Code ]</button>
 
+                <style aria-label="QR_Home_Navigation_Bar_Buttons_Style">
+                    #QR_Home_Navigation_Bar .Buttons {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    #QR_Home_Navigation_Bar .Buttons button {
+                        border: none;
+                        background: none;
+                        outline: none;
+                        color: var(--main-text-color);
+                        font-size: var(--font-size);
+                    }
+                    
+                    #QR_Home_Navigation_Bar .Buttons button:hover {
+                        color: rgb(0, 255, 76);
+                    }
+                </style>
+
+                <!--Book_Mark: QR HOME NAVIGATION BAR BUTTONS SCRIPT-->
                 <script aria-label="Nav_Bar_Button_Scripts">
-                    // Navigation bar button functionality
+                    document.getElementById('Open_Device_Terminal').addEventListener('click', function() {
+                        document.getElementById('QR_Home_Device_Info_Terminal').style.display = 'block';
+                    });
                 </script>
             </div>
 
-            <div class="QR_Home_Nav_Bar_Clock">
+            <div id="QR_Home_Navigation_Bar_Clock">
+                <span id="QR_Home_Navigation_Bar_Clock_Date">00/00/00</span>
+                <span>-</span>
+                <span id="QR_Home_Navigation_Bar_Clock_Time">00:00:00</span>
 
-                
+                <style aria-label="QR_Home_Navigation_Bar_Clock_Style">
+                    #QR_Home_Navigation_Bar_Clock {
+                        position: absolute;
+                        right: 10px;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 10px;
+                        color: var(--main-text-color);
+                        font-size: var(--font-size);
+                    }
+                </style>
+
+                <!--Book_Mark: QR HOME NAVIGATION BAR CLOCK SCRIPT-->
+                <script>
+                    function updateQRClockTime() {
+                        const now = new Date();
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        document.querySelector('#QR_Home_Navigation_Bar_Clock_Time').textContent = `${hours}:${minutes}:${seconds}`;
+                    }
+
+                    function updateQRClockDate() {
+                        const now = new Date();
+                        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+                        document.querySelector('#QR_Home_Navigation_Bar_Clock_Date').textContent = now.toLocaleDateString('en-US', options);
+                    }
+
+                    updateQRClockTime();
+                    updateQRClockDate();
+                    setInterval(updateQRClockTime, 1000);
+                    setInterval(updateQRClockDate, 60000);
+                </script>
 
             </div>
 
             <!-- QR Home Navigation Bar Styles -->
             <style aria-label="QR-Home-Nav-Bar-Style">
-                #QR-Home-Nav-Bar {
+                #QR_Home_Navigation_Bar {
                     position: absolute;
                     top: 10px;
+                    width: calc(100% - 20px);
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    background-color: var(--main-ui-color);
+                    backdrop-filter: blur(var(--ui-back-drop));
+                    border-radius: var(--ui-border-radius);
+                    box-shadow: var(--main-box-shadow);
+                    overflow: hidden;
                     
                 }
                 
-                #QR-Home-Nav-Bar .Buttons {
+                #QR_Home_Navigation_Bar .Buttons {
                     position: absolute;
                     left: 10px;
                     display: flex;
@@ -380,7 +420,7 @@
                     
                 }
             </style>
-            <!-- QR Home Navigation Bar Scripts -->
+            <!--Book_Mark: QR HOME NAVIGATION BAR SCRIPT-->
             <script aria-label="Nav_Bar_Scripts">
                 // Nav_Bar functionality
                
@@ -388,9 +428,607 @@
 
         </div>
 
+        <div class="Terminals">
+            <div id="QR_Home_Device_Info_Terminal">
+                <div class="QR_Home_Device_Info_Terminal_Header">
+                    <div class="terminal-title">
+                        <span class="terminal-title-text">Device Info</span>
+                    </div>
+                    <div class="terminal-controls">
+                        <button class="terminal-button minimize"></button>
+                        <button class="terminal-button maximize"></button>
+                        <button class="terminal-button close"></button>
+                    </div>
+                </div>
+                <div class="terminal-output">
+                    <textarea class="terminal-output-text" placeholder="Enter command..."></textarea>
+                </div>
+
+                <style aria-label="Terminals_Container_Style">
+                    #QR_Home_Device_Info_Terminal {
+                        position: absolute;
+                        top: 10px;
+                        left: 10px;
+                        width: calc(100% - 20px);
+                        height: 200px;
+                        background: var(--main-ui-color);
+                        backdrop-filter: blur(var(--ui-back-drop));
+                        border-radius: var(--ui-border-radius);
+                        box-shadow: var(--main-box-shadow);
+                        overflow: hidden;
+                        display: none;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header {
+                        width: 100%;
+                        height: 30px;
+                        background-color: var(--header-color);
+                        display: flex;
+                        align-items: center;
+                        position: relative;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header .terminal-title {
+                        position: absolute;
+                        left: 10px;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header .terminal-title-text {
+                        color: var(--main-text-color);
+                        font-size: var(--font-size);
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header .terminal-controls {
+                        position: absolute;
+                        right: 10px;
+                        display: flex;
+                        gap: 10px;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header .terminal-controls .terminal-button {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        border: none;
+                        cursor: pointer;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .QR_Home_Device_Info_Terminal_Header .terminal-controls .terminal-button:hover {
+                        opacity: 0.8;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .minimize {
+                        background: #ffbb00;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .maximize {
+                        background: #5eff00;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .close {
+                        background: #ff0000;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .terminal-output {
+                        display: flex;
+                        height: calc(100% - 30px);
+                        justify-content: center;
+                        align-items: center;
+                    }
+
+                    #QR_Home_Device_Info_Terminal .terminal-output-text {
+                        color: var(--main-text-color);
+                        font-size: var(--font-size);
+                        width: calc(100% - 20px);
+                        height: calc(100% - 20px);
+                        background: transparent;
+                        border: none;
+                        outline: none;
+                        resize: none;
+                    }
+                </style>
+
+                <!--Book_Mark: QR HOME DEVICE INFO TERMINAL SCRIPT-->
+                <script aria-label="QR_Home_Device_Info_Terminal_Script">
+
+                    // Terminal Open/Close animations (Windows 11 style)
+                    function openTerminal() {
+                        const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        terminal.style.display = 'block';
+                        terminal.style.opacity = '0';
+                        terminal.style.transform = 'scale(0.95) translateY(10px)';
+                        terminal.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+                        
+                        requestAnimationFrame(() => {
+                            terminal.style.opacity = '1';
+                            terminal.style.transform = 'scale(1) translateY(0)';
+                        });
+                    }
+
+                    function closeTerminal() {
+                        const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        terminal.style.transition = 'opacity 0.15s ease-in, transform 0.15s ease-in';
+                        terminal.style.opacity = '0';
+                        terminal.style.transform = 'scale(0.95) translateY(10px)';
+                        
+                        setTimeout(() => {
+                            terminal.style.display = 'none';
+                            terminal.style.transform = '';
+                            terminal.style.opacity = '';
+                        }, 150);
+                    }
+
+                    // Update the Open_Device_Terminal button to use the animation
+                    document.getElementById('Open_Device_Terminal').removeEventListener('click', function() {});
+                    document.getElementById('Open_Device_Terminal').addEventListener('click', function() {
+                        openTerminal();
+                    });
+
+                    // Terminal Dragging
+
+                    // Terminal Dragging
+                    (function() {
+                        const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        const header = terminal.querySelector('.QR_Home_Device_Info_Terminal_Header');
+                        let isDragging = false;
+                        let offsetX, offsetY;
+
+                        header.addEventListener('mousedown', function(e) {
+                            isDragging = true;
+                            const rect = terminal.getBoundingClientRect();
+                            offsetX = e.clientX - rect.left;
+                            offsetY = e.clientY - rect.top;
+                            terminal.style.transition = 'none';
+                        });
+
+                        document.addEventListener('mousemove', function(e) {
+                            if (isDragging) {
+                                terminal.style.left = (e.clientX - offsetX) + 'px';
+                                terminal.style.top = (e.clientY - offsetY) + 'px';
+                                
+                                // Apply screen constraints
+                                if (typeof constrainToScreen === 'function') {
+                                    constrainToScreen(terminal);
+                                }
+                            }
+                        });
+
+                        document.addEventListener('mouseup', function() {
+                            isDragging = false;
+                        });
+
+                        // Touch support
+                        header.addEventListener('touchstart', function(e) {
+                            isDragging = true;
+                            const touch = e.touches[0];
+                            const rect = terminal.getBoundingClientRect();
+                            offsetX = touch.clientX - rect.left;
+                            offsetY = touch.clientY - rect.top;
+                            terminal.style.transition = 'none';
+                        });
+
+                        document.addEventListener('touchmove', function(e) {
+                            if (isDragging) {
+                                const touch = e.touches[0];
+                                terminal.style.left = (touch.clientX - offsetX) + 'px';
+                                terminal.style.top = (touch.clientY - offsetY) + 'px';
+                                
+                                // Apply screen constraints
+                                if (typeof constrainToScreen === 'function') {
+                                    constrainToScreen(terminal);
+                                }
+                            }
+                        });
+
+                        document.addEventListener('touchend', function() {
+                            isDragging = false;
+                        });
+                    })();
+
+                    // Terminal Grid Snapping
+                    (function() {
+                        const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        const gridSize = 10;
+
+                        function snapToGrid() {
+                            const left = parseInt(terminal.style.left) || terminal.offsetLeft;
+                            const top = parseInt(terminal.style.top) || terminal.offsetTop;
+                            
+                            terminal.style.left = Math.round(left / gridSize) * gridSize + 'px';
+                            terminal.style.top = Math.round(top / gridSize) * gridSize + 'px';
+                        }
+
+                        document.addEventListener('mouseup', snapToGrid);
+                        document.addEventListener('touchend', snapToGrid);
+                    })();
+
+                    // Terminal Main
+                    (function() {
+                        // Section 1: Element References
+                        const terminal = document.getElementById('QR_Home_Device_Info_Terminal');
+                        if (!terminal) return;
+
+                        const minimizeBtn = terminal.querySelector('.minimize');
+                        const maximizeBtn = terminal.querySelector('.maximize');
+                        const closeBtn = terminal.querySelector('.close');
+                        const outputDiv = terminal.querySelector('.terminal-output');
+
+                        // Section 2: Terminal Content Setup
+                        function initTerminalContent() {
+                            const existingTextarea = terminal.querySelector('.terminal-output-text');
+                            if (existingTextarea) existingTextarea.remove();
+
+                            const terminalContent = document.createElement('div');
+                            terminalContent.className = 'terminal-output-text';
+                            terminalContent.style.cssText = 'white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; cursor: text;';
+                            outputDiv.appendChild(terminalContent);
+                            return terminalContent;
+                        }
+
+                        // Section 3: Hidden Input Setup
+                        function initHiddenInput() {
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'text';
+                            hiddenInput.style.cssText = 'position: absolute; left: -9999px; opacity: 0; pointer-events: none;';
+                            hiddenInput.setAttribute('autocomplete', 'off');
+                            hiddenInput.setAttribute('autocorrect', 'off');
+                            hiddenInput.setAttribute('autocapitalize', 'off');
+                            hiddenInput.setAttribute('spellcheck', 'false');
+                            terminal.appendChild(hiddenInput);
+                            return hiddenInput;
+                        }
+
+                        // Section 4: Startup Message and Available Commands
+                        function getStartupMessage() {
+                            return [
+                                'V-D-N Device Info',
+                                '(C) 2026 Vista-D-NET. All rights reserved.',
+                                '',
+                                'Available commands:',
+                                '  HELP      - Display help message',
+                                '  CLS       - Clear the terminal screen',
+                                '  DATE      - Display current date',
+                                '  TIME      - Display current time',
+                                '  VER       - Display version information',
+                                '  SYSINFO   - Display system information',
+                                '  EXIT      - Close the terminal',
+                                ''
+                            ];
+                        }
+
+                        // Section 5: State Variables
+                        function initState() {
+                            return {
+                                commandHistory: [],
+                                currentInput: '',
+                                cursorVisible: true,
+                                cursorInterval: null,
+                                isLoadingStartup: false,
+                                prompt: 'User:\\>'
+                            };
+                        }
+
+                        // Section 6: Reset Function
+                        function createResetFunction(state, renderFn) {
+                            return function() {
+                                state.commandHistory = [];
+                                state.currentInput = '';
+                                state.cursorVisible = true;
+                                state.isLoadingStartup = false;
+                                renderFn();
+                            };
+                        }
+
+                        // Section 7: Load Startup Message Line by Line
+                        function createStartupLoader(state, startupMessage, renderFn) {
+                            return function() {
+                                state.commandHistory = [];
+                                state.isLoadingStartup = true;
+                                let lineIndex = 0;
+
+                                function loadNextLine() {
+                                    if (lineIndex < startupMessage.length) {
+                                        state.commandHistory.push(startupMessage[lineIndex]);
+                                        renderFn();
+                                        lineIndex++;
+                                        setTimeout(loadNextLine, 100);
+                                    } else {
+                                        state.isLoadingStartup = false;
+                                        renderFn();
+                                    }
+                                }
+
+                                loadNextLine();
+                            };
+                        }
+
+                        // Section 8: Command Execution
+                        function createCommandExecutor(state, closeTerminalFn, startupMessage) {
+                            return function(cmd) {
+                                const command = cmd.trim().toUpperCase();
+                                switch(command) {
+                                    case 'HELP':
+                                        return startupMessage.slice(3, -1);
+                                    case 'CLS':
+                                        state.commandHistory = [];
+                                        return [];
+                                    case 'DATE':
+                                        return ['Current date: ' + new Date().toLocaleDateString()];
+                                    case 'TIME':
+                                        return ['Current time: ' + new Date().toLocaleTimeString()];
+                                    case 'VER':
+                                        return ['V-D-N Device Info Terminal v1.0'];
+                                    case 'SYSINFO':
+                                        return [
+                                            'System Information:',
+                                            '  Platform: ' + navigator.platform,
+                                            '  User Agent: ' + navigator.userAgent,
+                                            '  Language: ' + navigator.language,
+                                            '  Screen: ' + screen.width + 'x' + screen.height
+                                        ];
+                                    case 'EXIT':
+                                        closeTerminalFn();
+                                        return [];
+                                    case '':
+                                        return [];
+                                    default:
+                                        return ['Unknown command'];
+                                }
+                            };
+                        }
+
+                        // Section 9: Render Function
+                        function createRenderFunction(state, terminalContent) {
+                            return function() {
+                                let output = '';
+                                state.commandHistory.forEach(line => {
+                                    output += line + '\n';
+                                });
+                                if (!state.isLoadingStartup) {
+                                    const cursor = state.cursorVisible ? '_' : ' ';
+                                    terminalContent.innerHTML = output + state.prompt + state.currentInput + '<span style="color: var(--main-text-color);">' + cursor + '</span>';
+                                } else {
+                                    terminalContent.innerHTML = output;
+                                }
+                                terminalContent.scrollTop = terminalContent.scrollHeight;
+                            };
+                        }
+
+                        // Section 10: Cursor Blink Functions
+                        function createCursorFunctions(state, renderFn) {
+                            return {
+                                start: function() {
+                                    state.cursorInterval = setInterval(function() {
+                                        state.cursorVisible = !state.cursorVisible;
+                                        renderFn();
+                                    }, 530);
+                                },
+                                stop: function() {
+                                    clearInterval(state.cursorInterval);
+                                    state.cursorVisible = true;
+                                    renderFn();
+                                }
+                            };
+                        }
+
+                        // Section 11: Close Terminal Function
+                        function createCloseTerminalFunction(state, cursorFns, resetFn) {
+                            return function() {
+                                terminal.style.display = 'none';
+                                cursorFns.stop();
+                                resetFn();
+                            };
+                        }
+
+                        // Section 12: Override Open Terminal
+                        function setupOpenTerminalOverride(loadStartupFn) {
+                            const originalOpenTerminal = window.openTerminal;
+                            window.openTerminal = function() {
+                                originalOpenTerminal();
+                                loadStartupFn();
+                            };
+                        }
+
+                        // Section 13: Event Listeners - Click
+                        function setupClickListener(terminalContent, hiddenInput) {
+                            terminalContent.addEventListener('click', function() {
+                                hiddenInput.focus();
+                            });
+                        }
+
+                        // Section 14: Event Listeners - Input
+                        function setupInputListener(state, hiddenInput, renderFn) {
+                            hiddenInput.addEventListener('input', function(e) {
+                                if (state.isLoadingStartup) return;
+                                state.currentInput += e.data || '';
+                                hiddenInput.value = '';
+                                renderFn();
+                            });
+                        }
+
+                        // Section 15: Event Listeners - Keydown
+                        function setupKeydownListener(state, hiddenInput, executeCommandFn, renderFn) {
+                            hiddenInput.addEventListener('keydown', function(e) {
+                                if (state.isLoadingStartup) return;
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const fullLine = state.prompt + state.currentInput;
+                                    state.commandHistory.push(fullLine);
+                                    const result = executeCommandFn(state.currentInput);
+                                    result.forEach(line => state.commandHistory.push(line));
+                                    if (result.length > 0) state.commandHistory.push('');
+                                    state.currentInput = '';
+                                    renderFn();
+                                } else if (e.key === 'Backspace') {
+                                    e.preventDefault();
+                                    state.currentInput = state.currentInput.slice(0, -1);
+                                    renderFn();
+                                }
+                            });
+                        }
+
+                        // Section 16: Window Control Buttons
+                        function setupWindowControls(closeTerminalFn) {
+                            minimizeBtn.addEventListener('click', function() {
+                                terminal.style.height = '30px';
+                            });
+
+                            maximizeBtn.addEventListener('click', function() {
+                                terminal.style.height = '200px';
+                            });
+
+                            closeBtn.addEventListener('click', function() {
+                                closeTerminalFn();
+                            });
+                        }
+
+                        // Section 17: Initialize All Sections with Sequential Loading
+                        function initializeTerminal() {
+                            const loadDelay = 50;
+                            let terminalContent, hiddenInput, startupMessage, state, render;
+                            let resetTerminal, cursorFns, closeTerminalFn, executeCommand, loadStartupMessage;
+
+                            const sections = [
+                                {
+                                    name: 'Section 2: Terminal Content Setup',
+                                    load: function() {
+                                        terminalContent = initTerminalContent();
+                                    }
+                                },
+                                {
+                                    name: 'Section 3: Hidden Input Setup',
+                                    load: function() {
+                                        hiddenInput = initHiddenInput();
+                                    }
+                                },
+                                {
+                                    name: 'Section 4: Startup Message and Available Commands',
+                                    load: function() {
+                                        startupMessage = getStartupMessage();
+                                    }
+                                },
+                                {
+                                    name: 'Section 5: State Variables',
+                                    load: function() {
+                                        state = initState();
+                                    }
+                                },
+                                {
+                                    name: 'Section 9: Render Function',
+                                    load: function() {
+                                        render = createRenderFunction(state, terminalContent);
+                                    }
+                                },
+                                {
+                                    name: 'Section 6: Reset Function',
+                                    load: function() {
+                                        resetTerminal = createResetFunction(state, render);
+                                    }
+                                },
+                                {
+                                    name: 'Section 10: Cursor Functions',
+                                    load: function() {
+                                        cursorFns = createCursorFunctions(state, render);
+                                    }
+                                },
+                                {
+                                    name: 'Section 11: Close Terminal Function',
+                                    load: function() {
+                                        closeTerminalFn = createCloseTerminalFunction(state, cursorFns, resetTerminal);
+                                    }
+                                },
+                                {
+                                    name: 'Section 8: Command Execution',
+                                    load: function() {
+                                        executeCommand = createCommandExecutor(state, closeTerminalFn, startupMessage);
+                                    }
+                                },
+                                {
+                                    name: 'Section 7: Startup Loader',
+                                    load: function() {
+                                        loadStartupMessage = createStartupLoader(state, startupMessage, render);
+                                    }
+                                },
+                                {
+                                    name: 'Section 12: Open Terminal Override',
+                                    load: function() {
+                                        setupOpenTerminalOverride(loadStartupMessage);
+                                    }
+                                },
+                                {
+                                    name: 'Section 13: Click Listener',
+                                    load: function() {
+                                        setupClickListener(terminalContent, hiddenInput);
+                                    }
+                                },
+                                {
+                                    name: 'Section 14: Input Listener',
+                                    load: function() {
+                                        setupInputListener(state, hiddenInput, render);
+                                    }
+                                },
+                                {
+                                    name: 'Section 15: Keydown Listener',
+                                    load: function() {
+                                        setupKeydownListener(state, hiddenInput, executeCommand, render);
+                                    }
+                                },
+                                {
+                                    name: 'Section 16: Window Controls',
+                                    load: function() {
+                                        setupWindowControls(closeTerminalFn);
+                                    }
+                                },
+                                {
+                                    name: 'Starting cursor blink',
+                                    load: function() {
+                                        cursorFns.start();
+                                    }
+                                },
+                                {
+                                    name: 'Initial render',
+                                    load: function() {
+                                        render();
+                                    }
+                                }
+                            ];
+
+                            let currentIndex = 0;
+
+                            function loadNextSection() {
+                                if (currentIndex < sections.length) {
+                                    const section = sections[currentIndex];
+                                    console.log('Loading ' + section.name + '...');
+                                    section.load();
+                                    currentIndex++;
+                                    setTimeout(loadNextSection, loadDelay);
+                                } else {
+                                    console.log('Terminal initialization complete.');
+                                }
+                            }
+
+                            loadNextSection();
+                        }
+
+                        // Section 18: Start sequential loading
+                        initializeTerminal();
+                    })();
+                </script>
+            </div>
+        </div>
+
+
+        <div class="Dropdowns">
+
+        </div>
+        
+        
         <!-- QR Home Page Styles -->
         <style aria-label="QR_Home_Style">
             .QR_Home {
+                background-color: rgb(43, 43, 43);
                 width: 100dvw;
                 height: 100dvh;
                 display: flex;
@@ -398,7 +1036,7 @@
                 justify-content: center;
             }
         </style>
-        <!-- QR Home Page Scripts -->
+        <!--Book_Mark: QR HOME PAGE SCRIPT-->
         <script aria-label="QR_Home_Scripts">
             // QR_Home functionality
         </script>
@@ -416,7 +1054,7 @@
                 justify-content: center;
             }
         </style>
-        <!-- Login Page Scripts -->
+        <!--Book_Mark: LOGIN PAGE SCRIPT-->
         <script aria-label="Login_Scripts">
             // Login functionality
         </script>
@@ -432,7 +1070,7 @@
                 height: 100%;
             }
         </style>
-        <!-- Home Page Scripts -->
+        <!--Book_Mark: HOME PAGE SCRIPT-->
         <script aria-label="Home_Scripts">
             // Home functionality
         </script>
