@@ -316,9 +316,29 @@
 
         // Universal App ID
         function generateUniversalAppID() {
-            // Generate a random number between 0 and (3 billion to the 3rd power - 1)
+            // Create user-specific components for the App ID
+            const userAgent = navigator.userAgent || '';
+            const platform = navigator.platform || '';
+            const language = navigator.language || '';
+            const screenInfo = screen.width + 'x' + screen.height;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+            const timestamp = Date.now().toString();
+            
+            // Combine user-specific data to create a unique seed
+            const userString = userAgent + platform + language + screenInfo + timezone + timestamp;
+            
+            // Create hash from user-specific string
+            let hash = 0;
+            for (let i = 0; i < userString.length; i++) {
+                const char = userString.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            
+            // Use the hash as seed for consistent but unique generation
+            const seed = Math.abs(hash);
             const maxNumber = Math.pow(3000000000, 3);
-            const randomNumber = Math.floor(Math.random() * maxNumber);
+            const randomNumber = (seed * Date.now()) % maxNumber;
             
             // Convert to string and format as XXXXXXXXXX-XXXXXXXXXX-XXXXXXXXXX
             const numberStr = randomNumber.toString().padStart(30, '0');
