@@ -314,7 +314,24 @@
             document.querySelectorAll('.window, .terminal, #QR_Home_Device_Info_Terminal').forEach(constrainToScreen);
         });
 
-    </script>
+        // Universal App ID
+        function generateUniversalAppID() {
+            // Generate a random number between 0 and (3 billion to the 3rd power - 1)
+            const maxNumber = Math.pow(3000000000, 3);
+            const randomNumber = Math.floor(Math.random() * maxNumber);
+            
+            // Convert to string and format as XXXXXXXXXX-XXXXXXXXXX-XXXXXXXXXX
+            const numberStr = randomNumber.toString().padStart(30, '0');
+            const formatted = numberStr.slice(0, 10) + '-' + numberStr.slice(10, 20) + '-' + numberStr.slice(20, 30);
+            
+            return formatted;
+        }
+
+        // Generate and store the Universal App ID
+        const universalAppID = generateUniversalAppID();
+        console.log('Universal App ID:', universalAppID);
+
+     </script>
 
     <!--Book_Mark: QR HOME PAGE-->
     <div class="QR_Home">
@@ -736,12 +753,7 @@
                                 '(C) 2026 Vista-D-NET. All rights reserved.',
                                 '',
                                 'Available commands:',
-                                '  HELP      - Display help message',
-                                '  CLS       - Clear the terminal screen',
-                                '  DATE      - Display current date',
-                                '  TIME      - Display current time',
-                                '  VER       - Display version information',
-                                '  SYSINFO   - Display system information',
+                                '  APPID     - Display Universal App ID',
                                 '  EXIT      - Close the terminal',
                                 ''
                             ];
@@ -798,24 +810,10 @@
                             return function(cmd) {
                                 const command = cmd.trim().toUpperCase();
                                 switch(command) {
-                                    case 'HELP':
-                                        return startupMessage.slice(3, -1);
-                                    case 'CLS':
-                                        state.commandHistory = [];
-                                        return [];
-                                    case 'DATE':
-                                        return ['Current date: ' + new Date().toLocaleDateString()];
-                                    case 'TIME':
-                                        return ['Current time: ' + new Date().toLocaleTimeString()];
-                                    case 'VER':
-                                        return ['V-D-N Device Info Terminal v1.0'];
-                                    case 'SYSINFO':
+                                    case 'APPID':
                                         return [
-                                            'System Information:',
-                                            '  Platform: ' + navigator.platform,
-                                            '  User Agent: ' + navigator.userAgent,
-                                            '  Language: ' + navigator.language,
-                                            '  Screen: ' + screen.width + 'x' + screen.height
+                                            'Universal App ID:',
+                                            window.universalAppID || 'App ID not available'
                                         ];
                                     case 'EXIT':
                                         closeTerminalFn();
