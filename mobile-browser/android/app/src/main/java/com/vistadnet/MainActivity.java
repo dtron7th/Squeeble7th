@@ -50,8 +50,40 @@ public class MainActivity extends Activity {
         // Add JavaScript bridge
         webView.addJavascriptInterface(new WebAppInterface(this), "AndroidBridge");
         
-        // Set WebViewClient with navigation filtering
+        // Inject App ID integration JavaScript
+        String appIDIntegration = 
+            "window.customBrowserApp = {" +
+            "    version: '1.0.0'," +
+            "    build: '1'," +
+            "    instanceId: 'android_" + Build.MODEL + "_" + System.currentTimeMillis() + "'," +
+            "    generateAppID: function() {" +
+            "        const timestamp = Date.now();" +
+            "        const deviceHash = this.getDeviceFingerprint();" +
+            "        const uniqueId = (timestamp * parseInt(this.instanceId.replace(/[^0-9a-zA-Z]/g, '').substr(0, 8), 36)).toString();" +
+            "        const formatted = uniqueId.padStart(30, '0');" +
+            "        return formatted.slice(0, 10) + '-' + formatted.slice(10, 20) + '-' + formatted.slice(20, 30);" +
+            "    }," +
+            "    getDeviceFingerprint: function() {" +
+            "        return navigator.userAgent + '|' + screen.width + 'x' + screen.height + '|' + navigator.language + '|android_" + Build.MODEL + "';" +
+            "    }" +
+            "};" +
+            "Object.defineProperty(navigator, 'userAgent', {" +
+            "    get: function() { return this.originalUserAgent + ' CustomMobileBrowser/1.0'; }," +
+            "    set: function(value) { this.originalUserAgent = value; }" +
+            "});" +
+            "console.log('Vista-D-Net Custom Browser App ID Integration Active');";
+        
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (!isAllowedHost(url)) {
+                    view.loadUrl(TARGET_URL);
+                } else {
+                    // Inject App ID integration after page loads
+                    view.evaluateJavascript(appIDIntegration, null);
+                }
+            }
+            
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleNavigation(url);
@@ -63,13 +95,6 @@ public class MainActivity extends Activity {
                     return handleNavigation(request.getUrl().toString());
                 }
                 return handleNavigation(request.toString());
-            }
-            
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                if (!isAllowedHost(url)) {
-                    view.loadUrl(TARGET_URL);
-                }
             }
             
             @Override

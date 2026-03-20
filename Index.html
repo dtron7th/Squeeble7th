@@ -391,6 +391,34 @@
         console.log('Universal App ID:', universalAppID);
         console.log('Custom Browser Detected:', universalAppID !== '0000000000-0000000000-0000000000');
 
+        // ==================== CUSTOM MOBILE BROWSER INTEGRATION ====================
+        // Your custom mobile browser should set up the window.customBrowserApp object
+        // 
+        // EXAMPLE IMPLEMENTATION (add this to your custom browser):
+        // window.customBrowserApp = {
+        //     version: "1.0.0",
+        //     build: "1",
+        //     instanceId: "unique_device_id",
+        //     generateAppID: function() {
+        //         // Your browser's own App ID generation logic
+        //         const timestamp = Date.now();
+        //         const deviceHash = this.getDeviceFingerprint();
+        //         const uniqueId = (timestamp * parseInt(this.instanceId, 36)).toString();
+        //         const formatted = uniqueId.padStart(30, '0');
+        //         return formatted.slice(0, 10) + '-' + formatted.slice(10, 20) + '-' + formatted.slice(20, 30);
+        //     },
+        //     getDeviceFingerprint: function() {
+        //         // Your browser's device fingerprinting method
+        //         return navigator.userAgent + screen.width + 'x' + screen.height;
+        //     }
+        // };
+        //
+        // OR SIMPLY PROVIDE A PRE-GENERATED ID:
+        // window.customBrowserApp = {
+        //     generatedAppID: "1234567890-0987654321-1234567890"
+        // };
+        // =======================================================================
+
      </script>
 
     <!--Book_Mark: QR HOME PAGE-->
