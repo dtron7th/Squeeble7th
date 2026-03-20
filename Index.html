@@ -917,8 +917,8 @@
                                     output += line + '\n';
                                 });
                                 if (!state.isLoadingStartup) {
-                                    const cursor = state.cursorVisible ? '_' : ' ';
-                                    terminalContent.innerHTML = output + state.prompt + state.currentInput + '<span style="color: var(--main-text-color);">' + cursor + '</span>';
+                                    const cursorChar = state.cursorVisible ? '_' : ' ';
+                                    terminalContent.innerHTML = output + state.prompt + state.currentInput + '<span class="terminal-cursor" style="color: var(--main-text-color); animation: none;">' + cursorChar + '</span>';
                                 } else {
                                     terminalContent.innerHTML = output;
                                 }
@@ -928,15 +928,29 @@
 
                         // Section 10: Cursor Blink Functions
                         function createCursorFunctions(state, renderFn) {
+                            let intervalId = null;
                             return {
                                 start: function() {
-                                    state.cursorInterval = setInterval(function() {
+                                    if (intervalId) {
+                                        clearInterval(intervalId);
+                                    }
+                                    state.cursorVisible = true;
+                                    renderFn();
+                                    intervalId = setInterval(function() {
                                         state.cursorVisible = !state.cursorVisible;
                                         renderFn();
-                                    }, 530);
+                                    }, 500);
+                                    state.cursorInterval = intervalId;
                                 },
                                 stop: function() {
-                                    clearInterval(state.cursorInterval);
+                                    if (intervalId) {
+                                        clearInterval(intervalId);
+                                        intervalId = null;
+                                    }
+                                    if (state.cursorInterval) {
+                                        clearInterval(state.cursorInterval);
+                                        state.cursorInterval = null;
+                                    }
                                     state.cursorVisible = true;
                                     renderFn();
                                 }
@@ -953,11 +967,12 @@
                         }
 
                         // Section 12: Override Open Terminal
-                        function setupOpenTerminalOverride(loadStartupFn) {
+                        function setupOpenTerminalOverride(loadStartupFn, cursorFns) {
                             const originalOpenTerminal = window.openTerminal;
                             window.openTerminal = function() {
                                 originalOpenTerminal();
                                 loadStartupFn();
+                                cursorFns.start();
                             };
                         }
 
@@ -1084,7 +1099,7 @@
                                 {
                                     name: 'Section 12: Open Terminal Override',
                                     load: function() {
-                                        setupOpenTerminalOverride(loadStartupMessage);
+                                        setupOpenTerminalOverride(loadStartupMessage, cursorFns);
                                     }
                                 },
                                 {
